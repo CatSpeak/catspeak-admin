@@ -2,8 +2,7 @@ import axios from "axios";
 import type { AxiosResponse } from "axios";
 import { useAuthStore } from "../stores/authStore";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "https://api.catspeak.com.vn/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const axiosClient = axios.create({
   baseURL: API_BASE_URL,

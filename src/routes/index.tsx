@@ -6,6 +6,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { ComingSoonPage } from "./ComingSoonPage";
 import Login from "../features/auth/routes/Login";
 import UserDetailPage from "../features/users/UserDetailPage";
+import HandleReportsPage from "../features/reports/HandleReportsPage";
 
 const secondaryRoutes = [
   {
@@ -15,10 +16,6 @@ const secondaryRoutes = [
   {
     path: "live-chat",
     title: "Live Chat Support - Coming Soon",
-  },
-  {
-    path: "reports",
-    title: "Handle Reports - Coming Soon",
   },
   {
     path: "staff",
@@ -50,6 +47,10 @@ export const router = createBrowserRouter([
           {
             path: "users/:id",
             element: <UserDetailPage />,
+          },
+          {
+            path: "reports",
+            element: <HandleReportsPage />,
           },
           ...secondaryRoutes.map((route) => ({
             path: route.path,

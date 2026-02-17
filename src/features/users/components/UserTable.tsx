@@ -59,16 +59,8 @@ export default function UserTable() {
     navigate(`/users/${accountId}`);
   };
 
-  if (loading) {
-    return (
-      <Card className="flex h-64 items-center justify-center">
-         <span className="text-gray-500">Loading...</span>
-      </Card>
-    );
-  }
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 py-8">
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 text-red-600 px-4 py-3 text-sm">
           {error}
@@ -106,7 +98,7 @@ export default function UserTable() {
                 {TABLE_HEADERS.map((header) => (
                   <th
                     key={header}
-                    className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider whitespace-nowrap"
+                    className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
                   >
                     {header}
                   </th>
@@ -115,7 +107,19 @@ export default function UserTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {accounts.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    className="px-4 py-24 text-center text-sm text-gray-500"
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      <span>Loading users...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : accounts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={12}
@@ -134,7 +138,9 @@ export default function UserTable() {
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">
                       {account.accountId}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">{account.username}</td>
+                    <td className="px-4 py-3 text-sm text-gray-700">
+                      {account.username}
+                    </td>
                     <td className="px-4 py-3 text-sm text-primary underline">
                       {account.email}
                     </td>
@@ -177,9 +183,7 @@ export default function UserTable() {
       {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">
-            Rows per page:
-          </span>
+          <span className="text-sm text-gray-700">Rows per page:</span>
           <select
             className="px-2 py-1 text-sm rounded border border-gray-300 bg-white focus:outline-none"
             value={itemsPerPage}
@@ -210,7 +214,9 @@ export default function UserTable() {
                 key={page}
                 onClick={() => goToPage(page)}
                 className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                  currentPage === page ? "bg-primary text-white" : "text-gray-600 hover:bg-gray-200"
+                  currentPage === page
+                    ? "bg-primary text-white"
+                    : "text-gray-600 hover:bg-gray-200"
                 }`}
               >
                 {page}

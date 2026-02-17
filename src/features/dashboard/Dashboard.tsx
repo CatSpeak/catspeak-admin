@@ -7,6 +7,8 @@ import PieChartJS from "./components/PieChartJS";
 import UserStatsSummary from "./components/UserStatsSummary";
 import LanguageStats from "./components/LanguageStats";
 import StatsCard from "./components/StatsCard";
+import WorldMapCard from "./components/WorldMapCard";
+import VietNamDetailCard from "./components/VietNamDetailCard";
 import Card from "../../components/ui/Card";
 
 const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
@@ -139,7 +141,20 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ── Row 2: Stats Cards (Varied widths) ── */}
+      {/* ── Row 2: World Map + Vietnam Detail Card (Asymmetric) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+        {/* World Map - 4 cols */}
+        <Card className="lg:col-span-4 animate-fade-in delay-2">
+          <WorldMapCard />
+        </Card>
+
+        {/* Vietnam Detail Card - 1 col */}
+        <div className="lg:col-span-1 animate-fade-in delay-2">
+          <VietNamDetailCard />
+        </div>
+      </div>
+
+      {/* ── Row 3: Stats Cards (Varied widths) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
           <StatsCard

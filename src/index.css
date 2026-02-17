@@ -63,21 +63,29 @@
 
 @layer base {
   body {
-    @apply relative font-outfit text-gray-800 bg-[var(--color-bg)] antialiased;
+    @apply relative font-outfit text-gray-800 bg-bg antialiased;
   }
 }
 
-@utility custom-scrollbar {
-  &::-webkit-scrollbar {
-    @apply size-1.5;
+/* Global Custom Scrollbar */
+@layer base {
+  /* Firefox */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-primary) transparent;
   }
 
-  &::-webkit-scrollbar-track {
-    @apply rounded-full;
+  /* Chrome, Edge, Safari */
+  ::-webkit-scrollbar {
+    @apply size-2;
   }
 
-  &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 rounded-full hover:bg-gray-300;
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary rounded-full hover:bg-primary-dark cursor-pointer;
   }
 }
 

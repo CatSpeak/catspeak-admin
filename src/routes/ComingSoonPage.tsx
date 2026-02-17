@@ -5,7 +5,7 @@ interface ComingSoonPageProps {
 export function ComingSoonPage({ title }: ComingSoonPageProps) {
   return (
     <div
-      className="flex h-64 items-center justify-center rounded-xl bg-white"
+      className="flex h-full items-center justify-center rounded-xl bg-white"
       style={{
         border: "1px solid var(--color-border)",
         boxShadow: "var(--shadow-sm)",

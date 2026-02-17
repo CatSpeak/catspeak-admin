@@ -190,7 +190,7 @@ export default function MainLayout() {
             >
               <Menu size={24} style={{ color: "var(--color-text)" }} />
             </button>
-            <CatSpeakLogo size={36} />
+            <CatSpeakLogo />
           </div>
 
           {/* Right */}

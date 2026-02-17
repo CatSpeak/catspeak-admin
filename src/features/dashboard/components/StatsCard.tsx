@@ -25,7 +25,7 @@ export default function StatsCard({
     <Card
       className={`animate-fade-in delay-3 ${
         isGradient
-          ? "bg-gradient-to-br from-secondary to-primary-dark text-white border-0 shadow-md"
+          ? "bg-linear-to-br from-secondary to-primary-dark text-white border-0 shadow-md"
           : "bg-surface border-border text-text shadow-sm"
       }`}
     >

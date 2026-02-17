@@ -81,14 +81,14 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-white border-r border-gray-200 h-screen transition-all duration-300 ease-in-out z-50 
+      className={`fixed mt-16 flex flex-col xl:mt-0 top-0 left-0 bg-white border-r border-gray-200 h-screen transition-all duration-300 ease-in-out z-50 
         ${isExpanded || isMobileOpen || isHovered ? "w-[290px]" : "w-[90px]"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
+        xl:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center justify-center h-[var(--header-height)]">
+      <div className="flex items-center justify-center h-(--header-height)">
         <Link to="/" className="flex items-center gap-2">
           {isExpanded || isHovered || isMobileOpen ? (
             <div className="py-4 scale-75 origin-center">
