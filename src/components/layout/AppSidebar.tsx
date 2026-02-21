@@ -82,7 +82,7 @@ const AppSidebar: React.FC = () => {
   return (
     <aside
       className={`fixed mt-16 flex flex-col xl:mt-0 top-0 left-0 bg-white border-r border-gray-200 h-screen transition-all duration-300 ease-in-out z-50 
-        ${isExpanded || isMobileOpen || isHovered ? "w-[290px]" : "w-[90px]"}
+        ${isExpanded || isMobileOpen || isHovered ? "w-72.5" : "w-22.5"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         xl:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}

@@ -76,7 +76,7 @@ export default function DonutChartJS({
 
   return (
     <div className="flex items-center gap-6">
-      <div className="relative shrink-0 w-[240px] h-[240px]">
+      <div className="relative shrink-0 w-60 h-60">
         <Doughnut data={data} options={options} />
         {(centerSubtext || trendValue) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

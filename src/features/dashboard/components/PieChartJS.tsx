@@ -76,7 +76,7 @@ export default function PieChartJS({
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative w-[200px] h-[200px]">
+      <div className="relative w-50 h-50">
         <Doughnut data={data} options={options} />
       </div>
 
