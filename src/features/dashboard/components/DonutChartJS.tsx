@@ -1,14 +1,6 @@
-import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  type ChartOptions,
-} from "chart.js";
+import Chart from "react-apexcharts";
+import type { ApexOptions } from "apexcharts";
 import { TrendingUp, TrendingDown } from "lucide-react";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface Segment {
   label: string;
@@ -29,55 +21,40 @@ export default function DonutChartJS({
   trendValue,
   centerSubtext,
 }: DonutChartProps) {
-  const data = {
-    labels: segments.map((s) => s.label),
-    datasets: [
-      {
-        data: segments.map((s) => s.value),
-        backgroundColor: segments.map((s) => s.color),
-        borderWidth: 0,
-        hoverOffset: 8,
-      },
-    ],
-  };
+  const series = segments.map((s) => s.value);
+  const labels = segments.map((s) => s.label);
+  const colors = segments.map((s) => s.color);
 
-  const options: ChartOptions<"doughnut"> = {
-    responsive: true,
-    maintainAspectRatio: true,
-    cutout: "70%",
-    layout: {
-      padding: 20,
+  const options: ApexOptions = {
+    chart: {
+      type: "donut",
+      parentHeightOffset: 0,
     },
-    plugins: {
-      legend: {
-        display: false,
+    labels: labels,
+    colors: colors,
+    dataLabels: { enabled: false },
+    stroke: { show: false },
+    legend: { show: false },
+    plotOptions: {
+      pie: {
+        expandOnClick: false,
+        donut: {
+          size: "70%",
+        },
       },
-      tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        padding: 12,
-        cornerRadius: 8,
-        titleFont: {
-          size: 14,
-          weight: "bold",
-        },
-        bodyFont: {
-          size: 13,
-        },
-        callbacks: {
-          label: (context) => {
-            const label = context.label || "";
-            const value = context.parsed || 0;
-            return `${label}: ${value}%`;
-          },
-        },
+    },
+    tooltip: {
+      theme: "dark",
+      y: {
+        formatter: (val) => `${val}%`,
       },
     },
   };
 
   return (
     <div className="flex items-center gap-6">
-      <div className="relative shrink-0 w-60 h-60">
-        <Doughnut data={data} options={options} />
+      <div className="relative shrink-0 w-60 h-60 flex justify-center items-center">
+        <Chart options={options} series={series} type="donut" width={240} />
         {(centerSubtext || trendValue) && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             {/* Trend */}

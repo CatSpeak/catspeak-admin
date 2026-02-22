@@ -5,10 +5,11 @@ import LineChartJS from "./components/LineChartJS";
 import AreaChartJS from "./components/AreaChartJS";
 import PieChartJS from "./components/PieChartJS";
 import UserStatsSummary from "./components/UserStatsSummary";
-import LanguageStats from "./components/LanguageStats";
+// import LanguageStats from "./components/LanguageStats";
 import StatsCard from "./components/StatsCard";
 import WorldMapCard from "./components/WorldMapCard";
 import VietNamDetailCard from "./components/VietNamDetailCard";
+import MonthlyTarget from "./components/MonthlyTarget";
 import Card from "../../components/ui/Card";
 
 const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
@@ -83,10 +84,10 @@ const ageGenderData = [
 ];
 
 // Language statistics
-const languageData = [
-  { name: "China", count: 102, color: "#C8102E" },
-  { name: "English", count: 102, color: "#C8102E" },
-];
+// const languageData = [
+//   { name: "China", count: 102, color: "#C8102E" },
+//   { name: "English", count: 102, color: "#C8102E" },
+// ];
 
 export default function Dashboard() {
   const [activePeriod, setActivePeriod] =
@@ -142,7 +143,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── Row 3: Stats Cards (Varied widths) ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
         <div className="lg:col-span-2">
           <StatsCard
             variant="gradient"
@@ -176,14 +177,14 @@ export default function Dashboard() {
       </div>
 
       {/* ── Row 2: World Map + Vietnam Detail Card (Asymmetric) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
         {/* World Map - 4 cols */}
         <Card className="lg:col-span-4 animate-fade-in delay-2">
           <WorldMapCard />
         </Card>
 
         {/* Vietnam Detail Card - 1 col */}
-        <div className="lg:col-span-1 animate-fade-in delay-2">
+        <div className="lg:col-span-2 animate-fade-in delay-2">
           <VietNamDetailCard />
         </div>
       </div>
@@ -191,7 +192,7 @@ export default function Dashboard() {
       {/* ── Row 3: Detailed Chart + Sidebar (Asymmetric) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
         {/* Area Chart - 3 cols */}
-        <Card className="lg:col-span-3 animate-fade-in delay-3">
+        <Card className="lg:col-span-4 animate-fade-in delay-3">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
             <h3 className="text-xl font-semibold text-gray-800">
               Detailed user active chart
@@ -209,11 +210,11 @@ export default function Dashboard() {
               <span className="text-xs text-gray-600">Active users</span>
             </div>
           </div>
-          <AreaChartJS data={areaChartData} height={280} />
+          <AreaChartJS data={areaChartData} height={400} />
         </Card>
 
         {/* User Stats Summary - 2 cols */}
-        <Card className="lg:col-span-2 animate-fade-in delay-4">
+        <Card className="lg:col-span-1 animate-fade-in delay-4">
           <UserStatsSummary
             period="In July, 2025"
             totalUsers={4102}
@@ -227,24 +228,32 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* ── Row 4: Age/Gender + Languages (Asymmetric) ── */}
+      {/* ── Row 4: Age/Gender + Languages + Monthly Target (Asymmetric) ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6">
-        {/* Age/Gender Pie Chart - 3 cols */}
-        <Card className="md:col-span-2 lg:col-span-2 animate-fade-in delay-5">
+        {/* Age/Gender Pie Chart - 2 cols */}
+        <Card className="md:col-span-3 lg:col-span-2 animate-fade-in delay-5">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Age/Gender
           </h3>
           <PieChartJS segments={ageGenderData} showLegend={true} />
         </Card>
 
-        {/* Languages - 2 cols */}
-        <Card className="md:col-span-1 lg:col-span-1 animate-fade-in delay-6">
+        {/* Languages - 1 col */}
+        {/* <Card className="md:col-span-1 lg:col-span-1 animate-fade-in delay-6">
           <LanguageStats languages={languageData} />
+        </Card> */}
+
+        {/* Monthly Target - 2 cols */}
+        <Card
+          noPadding
+          className="md:col-span-3 lg:col-span-2 animate-fade-in delay-7"
+        >
+          <MonthlyTarget />
         </Card>
 
         {/* Line Chart - 2 cols */}
-        <Card className="md:col-span-3 lg:col-span-4 animate-fade-in delay-7">
-          <LineChartJS data={lineData} height={300} />
+        <Card className="md:col-span-3 lg:col-span-3 animate-fade-in delay-8">
+          <LineChartJS data={lineData} height={400} />
         </Card>
       </div>
     </div>

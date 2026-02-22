@@ -1,13 +1,5 @@
-import { Doughnut } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  type ChartOptions,
-} from "chart.js";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import Chart from "react-apexcharts";
+import type { ApexOptions } from "apexcharts";
 
 interface PieSegment {
   label: string;
@@ -26,58 +18,45 @@ export default function PieChartJS({
   segments,
   showLegend = true,
 }: PieChartProps) {
-  const data = {
-    labels: segments.map((s) => s.label),
-    datasets: [
-      {
-        data: segments.map((s) => s.value),
-        backgroundColor: segments.map((s) => s.color),
-        borderWidth: 0,
-        hoverOffset: 8,
-      },
-    ],
-  };
+  const series = segments.map((s) => s.value);
+  const labels = segments.map((s) => s.label);
+  const colors = segments.map((s) => s.color);
 
-  const options: ChartOptions<"doughnut"> = {
-    responsive: true,
-    maintainAspectRatio: true,
-    cutout: "0%",
-    layout: {
-      padding: 10,
+  const options: ApexOptions = {
+    chart: {
+      type: "pie",
+      parentHeightOffset: 0,
     },
-    plugins: {
-      legend: {
-        display: false,
+    labels: labels,
+    colors: colors,
+    dataLabels: { enabled: false },
+    stroke: { show: false },
+    legend: { show: false },
+    tooltip: {
+      theme: "dark",
+      custom: function ({ seriesIndex }) {
+        const seg = segments[seriesIndex];
+        return `
+          <div style="padding: 12px; border-radius: 8px; font-family: inherit;">
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${seg.label}</div>
+            <div style="font-size: 12px;">Total: ${seg.value.toLocaleString()}</div>
+            <div style="font-size: 12px;">Male: ${seg.male.toLocaleString()}</div>
+            <div style="font-size: 12px;">Female: ${seg.female.toLocaleString()}</div>
+          </div>
+        `;
       },
-      tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        padding: 12,
-        cornerRadius: 8,
-        titleFont: {
-          size: 14,
-          weight: "bold",
-        },
-        bodyFont: {
-          size: 12,
-        },
-        callbacks: {
-          label: (context) => {
-            const segment = segments[context.dataIndex];
-            return [
-              `Total: ${segment.value.toLocaleString()}`,
-              `Male: ${segment.male.toLocaleString()}`,
-              `Female: ${segment.female.toLocaleString()}`,
-            ];
-          },
-        },
+    },
+    plotOptions: {
+      pie: {
+        expandOnClick: false,
       },
     },
   };
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative w-50 h-50">
-        <Doughnut data={data} options={options} />
+      <div className="relative w-50 h-50 flex justify-center items-center">
+        <Chart options={options} series={series} type="pie" width={200} />
       </div>
 
       {/* Legend */}

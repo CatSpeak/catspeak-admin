@@ -1,27 +1,5 @@
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  type ChartOptions,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-);
+import Chart from "react-apexcharts";
+import type { ApexOptions } from "apexcharts";
 
 interface LineDataItem {
   label: string;
@@ -34,74 +12,69 @@ interface LineChartProps {
 }
 
 export default function LineChartJS({ data, height = 220 }: LineChartProps) {
-  const chartData = {
-    labels: data.map((d) => d.label),
-    datasets: [
-      {
-        label: "Value",
-        data: data.map((d) => d.value),
-        borderColor: "#C8102E",
-        backgroundColor: "rgba(200, 16, 46, 0.1)",
-        fill: true,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: "#C8102E",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-      },
-    ],
-  };
+  const series = [
+    {
+      name: "Value",
+      data: data.map((d) => d.value),
+    },
+  ];
 
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
+  const options: ApexOptions = {
+    chart: {
+      type: "area",
+      height: height,
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      parentHeightOffset: 0,
+    },
+    colors: ["#C8102E"],
+    dataLabels: { enabled: false },
+    stroke: {
+      curve: "smooth",
+      width: 2,
+    },
+    fill: {
+      type: "solid",
+      opacity: 0.1,
+    },
+    markers: {
+      size: 4,
+      colors: ["#C8102E"],
+      strokeColors: "#fff",
+      strokeWidth: 2,
+      hover: { size: 6 },
+    },
+    xaxis: {
+      categories: data.map((d) => d.label),
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: {
+        rotate: -45,
+        style: {
+          colors: "#9CA3AF",
+          fontSize: "11px",
+        },
       },
-      tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        padding: 12,
-        cornerRadius: 8,
-        titleFont: {
-          size: 14,
-          weight: "bold",
-        },
-        bodyFont: {
-          size: 13,
-        },
-        callbacks: {
-          label: (context) => {
-            return `${context.parsed.y} users`;
-          },
+      tooltip: { enabled: false },
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: "#9CA3AF",
+          fontSize: "11px",
         },
       },
     },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          font: {
-            size: 11,
-          },
-          color: "#9CA3AF",
-          maxRotation: 45,
-          minRotation: 0,
-        },
-      },
+    grid: {
+      borderColor: "#F3F4F6",
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+    },
+    legend: { show: false },
+    tooltip: {
+      theme: "dark",
       y: {
-        grid: {
-          color: "#F3F4F6",
-        },
-        ticks: {
-          font: {
-            size: 11,
-          },
-          color: "#9CA3AF",
-        },
+        formatter: (val) => `${val} users`,
       },
     },
   };
@@ -114,8 +87,14 @@ export default function LineChartJS({ data, height = 220 }: LineChartProps) {
       >
         Activity Trend
       </h3>
-      <div style={{ height: `${height}px` }}>
-        <Line data={chartData} options={options} />
+      <div style={{ height: `${height}px` }} className="w-full">
+        <Chart
+          options={options}
+          series={series}
+          type="area"
+          height={height}
+          width="100%"
+        />
       </div>
     </div>
   );

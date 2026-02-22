@@ -49,20 +49,13 @@ export default function WorldMapCard({
     };
   }, []);
 
-  const projectionScale = Math.max(containerWidth / 8, 40);
-
-  const getMapHeight = () => {
-    if (containerWidth < 640) return containerWidth * 0.75;
-    if (containerWidth < 1024) return containerWidth * 0.6;
-    return Math.min(containerWidth * 1, 700);
-  };
-
-  const mapHeight = getMapHeight();
+  const projectionScale = Math.max(containerWidth / 12, 40);
+  const mapHeight = Math.max(containerWidth * 0.5, 300);
 
   return (
     <div className="h-full" ref={containerRef}>
       <h3 className="text-xl font-bold text-gray-900 mb-2">
-        User in the world
+        Customers Demographic
       </h3>
 
       <TransformWrapper
@@ -76,30 +69,6 @@ export default function WorldMapCard({
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>
-            <div className="flex items-center justify-end gap-2 mb-3">
-              <button
-                onClick={() => zoomOut()}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
-                title="Zoom Out"
-              >
-                <ZoomOut className="w-4 h-4 text-gray-700" />
-              </button>
-              <button
-                onClick={() => resetTransform()}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
-                title="Reset Zoom"
-              >
-                <Maximize2 className="w-4 h-4 text-gray-700" />
-              </button>
-              <button
-                onClick={() => zoomIn()}
-                className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
-                title="Zoom In"
-              >
-                <ZoomIn className="w-4 h-4 text-gray-700" />
-              </button>
-            </div>
-
             <TransformComponent
               wrapperClass="!w-full !overflow-hidden border border-gray-200"
               contentClass="!w-full !h-full"
@@ -117,6 +86,7 @@ export default function WorldMapCard({
                   unknownColor="#E5E7EB"
                   label="properties.name"
                   valueFormat=".2s"
+                  projectionType="mercator"
                   projectionScale={projectionScale}
                   projectionTranslation={[0.5, 0.5]}
                   projectionRotation={[0, 0, 0]}
@@ -128,16 +98,13 @@ export default function WorldMapCard({
                   tooltip={({ feature }: any) => {
                     const countryData = data.find((d) => d.id === feature.id);
                     return (
-                      <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-gray-200">
+                      <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
                         <div className="font-semibold text-gray-900">
                           {feature.properties.name}
                         </div>
                         {countryData && (
-                          <div className="text-sm text-gray-600 mt-1">
-                            Total users:{" "}
-                            <span className="font-semibold">
-                              {countryData.value.toLocaleString()}
-                            </span>
+                          <div className="text-sm text-gray-600 mt-1 font-semibold">
+                            {countryData.value.toLocaleString()} users
                           </div>
                         )}
                       </div>
@@ -146,24 +113,50 @@ export default function WorldMapCard({
                 />
               </div>
             </TransformComponent>
+
+            <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center gap-6 text-xs text-gray-600">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gray-300"></div>
+                  <span>&lt; 1K</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-300"></div>
+                  <span>1K - 1M</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                  <span>&gt; 1M</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => zoomOut()}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-4 h-4 text-gray-700" />
+                </button>
+                <button
+                  onClick={() => resetTransform()}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
+                  title="Reset Zoom"
+                >
+                  <Maximize2 className="w-4 h-4 text-gray-700" />
+                </button>
+                <button
+                  onClick={() => zoomIn()}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-4 h-4 text-gray-700" />
+                </button>
+              </div>
+            </div>
           </>
         )}
       </TransformWrapper>
-
-      <div className="flex items-center gap-6 mt-6 text-xs text-gray-600">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-          <span>&lt; 1K</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-orange-300"></div>
-          <span>1K - 1M</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-          <span>&gt; 1M</span>
-        </div>
-      </div>
     </div>
   );
 }
