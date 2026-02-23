@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../context/SidebarContext";
 import {
@@ -50,30 +50,29 @@ const navItems: NavItem[] = [
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const location = useLocation();
+
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
 
   const isActive = (path: string) => location.pathname === path;
 
-  useEffect(() => {
-    // Find if any submenu item is currently active
-    let foundActiveSubmenu = false;
+  if (location.pathname !== prevPathname) {
+    let foundActiveIndex: number | null = null;
+
     navItems.forEach((nav, index) => {
       if (nav.subItems) {
-        const isSubmenuActive = nav.subItems.some((subItem) =>
-          isActive(subItem.path),
+        const isSubmenuActive = nav.subItems.some(
+          (subItem) => subItem.path === location.pathname,
         );
         if (isSubmenuActive) {
-          setOpenSubmenu(index);
-          foundActiveSubmenu = true;
+          foundActiveIndex = index;
         }
       }
     });
 
-    // If no submenu item is active, collapse all submenus
-    if (!foundActiveSubmenu) {
-      setOpenSubmenu(null);
-    }
-  }, [location]);
+    setOpenSubmenu(foundActiveIndex);
+    setPrevPathname(location.pathname);
+  }
 
   const handleSubmenuToggle = (index: number) => {
     setOpenSubmenu((prev) => (prev === index ? null : index));
@@ -195,16 +194,6 @@ const AppSidebar: React.FC = () => {
           </ul>
         </nav>
       </div>
-
-      {/* Footer / Logout */}
-      {/* <div className="mt-auto border-t border-gray-200 p-4">
-        <button
-          className={`w-full flex items-center gap-3 px-3 py-2 font-medium rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors ${!isExpanded && !isHovered ? "justify-center" : ""}`}
-        >
-          <LogOut size={20} />
-          {(isExpanded || isHovered || isMobileOpen) && <span>Logout</span>}
-        </button>
-      </div> */}
     </aside>
   );
 };

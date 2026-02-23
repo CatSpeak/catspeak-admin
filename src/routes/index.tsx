@@ -7,15 +7,12 @@ import { ComingSoonPage } from "./ComingSoonPage";
 import Login from "../features/auth/routes/Login";
 import UserDetailPage from "../features/users/UserDetailPage";
 import HandleReportsPage from "../features/reports/HandleReportsPage";
+import LiveChatPage from "../features/chat/LiveChatPage";
 
 const secondaryRoutes = [
   {
     path: "settings",
     title: "Settings - Comming Soon",
-  },
-  {
-    path: "live-chat",
-    title: "Live Chat Support - Coming Soon",
   },
   {
     path: "staff",
@@ -51,6 +48,10 @@ export const router = createBrowserRouter([
           {
             path: "reports",
             element: <HandleReportsPage />,
+          },
+          {
+            path: "live-chat",
+            element: <LiveChatPage />,
           },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
