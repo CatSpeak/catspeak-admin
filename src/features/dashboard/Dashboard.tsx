@@ -126,7 +126,7 @@ export default function Dashboard() {
           <DonutChartJS
             segments={trafficSegments}
             trendUp
-            trendValue="21% from last month"
+            trendValue="21% last month"
             centerSubtext="Total 10k connect"
           />
         </Card>
@@ -149,29 +149,28 @@ export default function Dashboard() {
             variant="gradient"
             title="Total profit"
             value="$82,373.21"
-            trend={{ value: "2.4% from last month", up: true }}
+            trend={{ value: "2.4% last month", up: true }}
           />
         </div>
         <div className="lg:col-span-2">
           <StatsCard
             title="Impression"
-            value="10,000 Rooms"
-            subtitle="In this month (July, 2025)"
+            value="10,000"
+            trend={{ value: "2.4% last month", up: true }}
           />
         </div>
         <div className="lg:col-span-2">
           <StatsCard
-            // variant="gradient"
             title="Total User"
-            value="4,000 Users"
-            trend={{ value: "-2% from last month", up: false }}
+            value="4,000"
+            trend={{ value: "-2% last month", up: false }}
           />
         </div>
         <div className="lg:col-span-2">
           <StatsCard
             title="Impression"
-            value="10,000 Rooms"
-            subtitle="In this month (July, 2025)"
+            value="10,000"
+            trend={{ value: "2.4% last month", up: false }}
           />
         </div>
       </div>

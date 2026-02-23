@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Users,
   ChevronDown,
-  // LogOut,
   MessageCircle,
   FileWarning,
 } from "lucide-react";
@@ -54,15 +53,20 @@ const AppSidebar: React.FC = () => {
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
   const [prevPathname, setPrevPathname] = useState(location.pathname);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === "/") return location.pathname === "/";
+    return (
+      location.pathname === path || location.pathname.startsWith(`${path}/`)
+    );
+  };
 
   if (location.pathname !== prevPathname) {
     let foundActiveIndex: number | null = null;
 
     navItems.forEach((nav, index) => {
       if (nav.subItems) {
-        const isSubmenuActive = nav.subItems.some(
-          (subItem) => subItem.path === location.pathname,
+        const isSubmenuActive = nav.subItems.some((subItem) =>
+          isActive(subItem.path),
         );
         if (isSubmenuActive) {
           foundActiveIndex = index;

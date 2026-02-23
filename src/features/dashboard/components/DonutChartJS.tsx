@@ -52,7 +52,7 @@ export default function DonutChartJS({
   };
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-6">
       <div className="relative shrink-0 w-60 h-60 flex justify-center items-center">
         <Chart options={options} series={series} type="donut" width={240} />
         {(centerSubtext || trendValue) && (
@@ -88,7 +88,7 @@ export default function DonutChartJS({
       </div>
 
       {/* Legend */}
-      <div className="flex-1 space-y-2">
+      <div className="w-full sm:w-auto sm:flex-1 lg:w-full lg:flex-none xl:w-auto xl:flex-1 space-y-2">
         {segments.map((seg) => (
           <div
             key={seg.label}

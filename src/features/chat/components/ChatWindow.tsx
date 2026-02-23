@@ -158,10 +158,10 @@ export default function ChatWindow({ user, onBack }: ChatWindowProps) {
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-gray-100 m-4 rounded-full shadow-sm ring-1 ring-gray-100 flex items-center gap-3">
+      <div className="p-2 bg-white border-t border-gray-100 m-4 rounded-full shadow-sm ring-1 ring-gray-100 flex items-center gap-3">
         <input
           type="text"
-          placeholder=""
+          placeholder="Type your message..."
           className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-sm px-2 text-gray-900"
         />
         <div className="flex items-center gap-2 shrink-0 pr-1">

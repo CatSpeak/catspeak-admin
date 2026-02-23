@@ -14,7 +14,7 @@ export type ChatUser = {
 const mockUsers: ChatUser[] = [
   {
     id: "1",
-    name: "Nguyễn Ngọc Diễm Quỳnh",
+    name: "User 1",
     userId: "abc123456789",
     time: "32 minutes ago",
     newsCount: 3,
@@ -22,7 +22,7 @@ const mockUsers: ChatUser[] = [
   },
   {
     id: "2",
-    name: "Nguyễn Ngọc Diễm Quỳnh",
+    name: "User 2",
     userId: "abc123456789",
     time: "32 minutes ago",
     newsCount: 0,
@@ -30,7 +30,7 @@ const mockUsers: ChatUser[] = [
   },
   {
     id: "3",
-    name: "Nguyễn Ngọc Diễm Quỳnh",
+    name: "User 3",
     userId: "abc123456789",
     time: "32 minutes ago",
     newsCount: 0,

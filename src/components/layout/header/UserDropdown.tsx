@@ -26,7 +26,7 @@ export default function UserDropdown() {
           {/* <img src="/images/user/owner.jpg" alt="User" /> */}
         </span>
 
-        <span className="block mr-1 font-medium text-sm">Administrator</span>
+        <span className="hidden sm:block mr-1 font-medium text-sm">Administrator</span>
         <svg
           className={`stroke-gray-500 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
