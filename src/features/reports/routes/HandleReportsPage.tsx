@@ -1,5 +1,5 @@
-import ReportsSummaryCards from "./components/ReportsSummaryCards";
-import ReportsTable from "./components/ReportsTable";
+import ReportsSummaryCards from "../components/ReportsSummaryCards";
+import ReportsTable from "../components/ReportsTable";
 
 export default function HandleReportsPage() {
   return (

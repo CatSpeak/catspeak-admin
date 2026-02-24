@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useUserDetail } from "./hooks/useUserDetail";
+import { useUserDetail } from "../hooks/useUserDetail";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();

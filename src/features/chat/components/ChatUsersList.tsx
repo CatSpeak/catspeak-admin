@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
 import Card from "../../../components/ui/Card";
-import type { ChatUser } from "../LiveChatPage";
+import type { ChatUser } from "../routes/LiveChatPage";
 
 interface ChatUsersListProps {
   users: ChatUser[];

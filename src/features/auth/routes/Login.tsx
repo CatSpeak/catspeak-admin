@@ -26,9 +26,6 @@ export default function Login() {
     try {
       const response = await loginWithEmailAndPassword({ email, password });
 
-      // Map API response user to AuthUser if needed, or cast it
-      // The API response user object has { accountId, username, email, roleId, roleName }
-      // This matches our AuthUser interface exactly.
       const user: AuthUser = {
         accountId: response.user.accountId,
         username: response.user.username,
@@ -44,7 +41,7 @@ export default function Login() {
       setError(
         getApiErrorMessage(
           error,
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+          "Login failed. Please check your credentials.",
         ),
       );
     } finally {
@@ -60,7 +57,7 @@ export default function Login() {
             CatSpeak Admin
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Đăng nhập để vào trang quản trị
+            Login to enter the admin page
           </p>
         </div>
 
@@ -88,7 +85,7 @@ export default function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                 placeholder="admin@example.com"
               />
             </div>
@@ -97,7 +94,7 @@ export default function Login() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
-                Mật khẩu
+                Password
               </label>
               <input
                 id="password"
@@ -107,7 +104,7 @@ export default function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
                 placeholder="••••••••"
               />
             </div>
@@ -117,15 +114,15 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-lg border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="group relative flex w-full justify-center rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
-                  Đang xử lý...
+                  Loading...
                 </>
               ) : (
-                "Đăng nhập"
+                "Login"
               )}
             </button>
           </div>

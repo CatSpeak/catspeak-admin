@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ChatUsersList from "./components/ChatUsersList";
-import ChatWindow from "./components/ChatWindow";
+import ChatUsersList from "../components/ChatUsersList";
+import ChatWindow from "../components/ChatWindow";
 
 export type ChatUser = {
   id: string;

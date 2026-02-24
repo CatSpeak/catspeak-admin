@@ -1,16 +1,16 @@
 import { useState } from "react";
-import DonutChartJS from "./components/DonutChartJS";
-import BarChartJS from "./components/BarChartJS";
-import LineChartJS from "./components/LineChartJS";
-import AreaChartJS from "./components/AreaChartJS";
-import PieChartJS from "./components/PieChartJS";
-import UserStatsSummary from "./components/UserStatsSummary";
+import DonutChartJS from "../components/DonutChartJS";
+import BarChartJS from "../components/BarChartJS";
+import LineChartJS from "../components/LineChartJS";
+import AreaChartJS from "../components/AreaChartJS";
+import PieChartJS from "../components/PieChartJS";
+import UserStatsSummary from "../components/UserStatsSummary";
 // import LanguageStats from "./components/LanguageStats";
-import StatsCard from "./components/StatsCard";
-import WorldMapCard from "./components/WorldMapCard";
-import VietNamDetailCard from "./components/VietNamDetailCard";
-import MonthlyTarget from "./components/MonthlyTarget";
-import Card from "../../components/ui/Card";
+import StatsCard from "../components/StatsCard";
+import WorldMapCard from "../components/WorldMapCard";
+import VietNamDetailCard from "../components/VietNamDetailCard";
+import MonthlyTarget from "../components/MonthlyTarget";
+import Card from "../../../components/ui/Card";
 
 const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 

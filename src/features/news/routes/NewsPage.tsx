@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LayoutTemplate } from "lucide-react";
-import type { Tab } from "./types";
-import { useCreatePost } from "./hooks/useCreatePost";
+import type { Tab } from "../types";
+import { useCreatePost } from "../hooks/useCreatePost";
 import {
   TabNav,
   ThumbnailGrid,
@@ -10,10 +10,10 @@ import {
   AddBlockRow,
   SettingsSidebar,
   CharCountInput,
-} from "./components";
+} from "../components";
 
 const NewsPage = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("create_new");
+  const [activeTab, setActiveTab] = useState<Tab>("my_posts");
 
   const {
     form,
