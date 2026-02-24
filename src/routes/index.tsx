@@ -8,6 +8,7 @@ import Login from "../features/auth/routes/Login";
 import UserDetailPage from "../features/users/UserDetailPage";
 import HandleReportsPage from "../features/reports/HandleReportsPage";
 import LiveChatPage from "../features/chat/LiveChatPage";
+import NewsPage from "../features/news/NewsPage";
 
 const secondaryRoutes = [
   {
@@ -52,6 +53,10 @@ export const router = createBrowserRouter([
           {
             path: "live-chat",
             element: <LiveChatPage />,
+          },
+          {
+            path: "news",
+            element: <NewsPage />,
           },
           ...secondaryRoutes.map((route) => ({
             path: route.path,

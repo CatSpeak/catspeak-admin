@@ -8,8 +8,8 @@ import {
   MessageCircle,
   FileWarning,
 } from "lucide-react";
-import CatSpeakLogo from "../../assets/CatSpeakLogo";
-import CatSpeakIcon from "../../assets/CatSpeakIcon";
+import CatSpeakLogo from "../../assets/catspeak_logo.svg";
+import CatSpeakIcon from "../../assets/catspeak_icon.svg";
 
 interface NavItem {
   name: string;
@@ -31,6 +31,15 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Users", path: "/users" },
       { name: "Staff", path: "/staff" },
+    ],
+  },
+  {
+    name: "Cat Speak",
+    icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
+    subItems: [
+      { name: "News", path: "/news" },
+      { name: "Video", path: "/video" },
+      { name: "Letter", path: "/letter" },
     ],
   },
   {
@@ -95,11 +104,19 @@ const AppSidebar: React.FC = () => {
         <Link to="/" className="flex items-center gap-2">
           {isExpanded || isHovered || isMobileOpen ? (
             <div className="py-4 scale-75 origin-center">
-              <CatSpeakLogo />
+              <img
+                src={CatSpeakLogo}
+                alt="CatSpeak Logo"
+                className="w-auto h-12"
+              />
             </div>
           ) : (
             <div className="scale-50 origin-center">
-              <CatSpeakIcon />
+              <img
+                src={CatSpeakIcon}
+                alt="CatSpeak Icon"
+                className="w-20 h-20"
+              />
             </div>
           )}
         </Link>
