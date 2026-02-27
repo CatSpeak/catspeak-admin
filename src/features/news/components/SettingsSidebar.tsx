@@ -2,8 +2,12 @@ import { ChevronDown, CalendarDays, Clock } from "lucide-react";
 import { MOCK_EDIT_HISTORY, COMMUNITIES } from "../constants";
 import type { TagItem, PostStatus } from "../types";
 
+const PRIVACY_OPTIONS = ["Public", "FriendsOnly", "Private"] as const;
+
 interface SettingsSidebarProps {
   status: PostStatus;
+  privacy: "Public" | "FriendsOnly" | "Private";
+  onPrivacyChange: (val: "Public" | "FriendsOnly" | "Private") => void;
   publishDate: string;
   publishTime: string;
   onPublishDateChange: (val: string) => void;
@@ -15,10 +19,13 @@ interface SettingsSidebarProps {
   onTagToggle: (id: number) => void;
   onSaveDraft: () => void;
   onPublish: () => void;
+  isSubmitting?: boolean;
 }
 
 const SettingsSidebar = ({
   status,
+  privacy,
+  onPrivacyChange,
   publishDate,
   publishTime,
   onPublishDateChange,
@@ -30,12 +37,35 @@ const SettingsSidebar = ({
   onTagToggle,
   onSaveDraft,
   onPublish,
+  isSubmitting,
 }: SettingsSidebarProps) => (
   <div className="w-full xl:w-[320px] 2xl:w-[360px] shrink-0 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 space-y-6">
-    {/* Status */}
+    {/* Status & Privacy */}
     <div className="flex items-center justify-between text-sm">
       <span className="font-semibold text-gray-900">Status</span>
       <span className="text-gray-400 italic capitalize">{status}</span>
+    </div>
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
+        Privacy
+      </span>
+      <div className="relative w-full max-w-[180px]">
+        <select
+          value={privacy}
+          onChange={(e) => onPrivacyChange(e.target.value as any)}
+          className="w-full appearance-none bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs text-gray-600 focus:outline-none focus:border-primary shadow-sm hover:border-gray-300 transition-colors"
+        >
+          {PRIVACY_OPTIONS.map((p) => (
+            <option key={p} value={p}>
+              {p.replace(/([A-Z])/g, " $1").trim()}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={14}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+        />
+      </div>
     </div>
 
     {/* Publish Time */}
@@ -152,9 +182,10 @@ const SettingsSidebar = ({
       </button>
       <button
         onClick={onPublish}
-        className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-full transition-colors whitespace-nowrap"
+        disabled={isSubmitting}
+        className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-full transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Publish
+        {isSubmitting ? "Publishing..." : "Publish"}
       </button>
     </div>
   </div>

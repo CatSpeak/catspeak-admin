@@ -8,7 +8,21 @@ import type { GetPostResponse, CreatePostPayload } from "../types";
 export const createPost = async (
   payload: CreatePostPayload,
 ): Promise<GetPostResponse> => {
+  const formData = new FormData();
+  formData.append("Content", payload.Content);
+  formData.append("Privacy", payload.Privacy);
+
+  if (payload.Files && payload.Files.length > 0) {
+    payload.Files.forEach((file) => {
+      formData.append("Files", file);
+    });
+  }
+
   return getResponseData(
-    axiosClient.post<GetPostResponse>("/admin/news", payload),
+    axiosClient.post<GetPostResponse>("/post", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
   );
 };

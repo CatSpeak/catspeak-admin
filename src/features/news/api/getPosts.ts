@@ -11,7 +11,7 @@ export const getPosts = async (
   status?: string,
 ): Promise<GetPostsResponse> => {
   return getResponseData(
-    axiosClient.get<GetPostsResponse>("/admin/news", {
+    axiosClient.get<GetPostsResponse>("/post", {
       params: { page, pageSize, status },
     }),
   );

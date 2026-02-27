@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { LayoutTemplate } from "lucide-react";
 import type { Tab } from "../types";
 import { useCreatePost } from "../hooks/useCreatePost";
+import { usePosts } from "../hooks/usePosts";
 import {
   TabNav,
   ThumbnailGrid,
@@ -15,17 +16,25 @@ import {
 const NewsPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>("my_posts");
 
+  const { posts, loading, error, currentPage, hasNextPage, goToPage } =
+    usePosts();
+
   const {
     form,
     updateField,
     thumbnails,
     deleteThumbnail,
+    addFiles,
     tags,
     activeTagId,
     toggleTag,
     handleSaveDraft,
     handlePublish,
+    isSubmitting,
   } = useCreatePost();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleFileClick = () => fileInputRef.current?.click();
 
   return (
     <div className="flex flex-col h-full min-h-screen">
@@ -50,8 +59,25 @@ const NewsPage = () => {
                   />
                 </div>
 
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files) addFiles(e.target.files);
+                    e.target.value = ""; // Reset to allow same file reselection
+                  }}
+                />
+
                 {/* Thumbnails */}
-                <ThumbnailGrid images={thumbnails} onDelete={deleteThumbnail} />
+                <ThumbnailGrid
+                  images={thumbnails}
+                  onDelete={deleteThumbnail}
+                  onUpload={handleFileClick}
+                />
 
                 {/* Section Divider */}
                 <div className="flex items-center justify-center relative py-4">
@@ -82,6 +108,7 @@ const NewsPage = () => {
                 <UploadBlock
                   caption={form.caption}
                   onCaptionChange={(val) => updateField("caption", val)}
+                  onUpload={handleFileClick}
                 />
 
                 {/* Add Content Blocks */}
@@ -91,6 +118,8 @@ const NewsPage = () => {
               {/* Right Column — Settings */}
               <SettingsSidebar
                 status={form.status}
+                privacy={form.privacy}
+                onPrivacyChange={(val) => updateField("privacy", val as any)}
                 publishDate={form.publishDate}
                 publishTime={form.publishTime}
                 onPublishDateChange={(val) => updateField("publishDate", val)}
@@ -102,13 +131,92 @@ const NewsPage = () => {
                 onTagToggle={toggleTag}
                 onSaveDraft={handleSaveDraft}
                 onPublish={handlePublish}
+                isSubmitting={isSubmitting}
               />
             </div>
           )}
 
           {activeTab === "my_posts" && (
-            <div className="flex items-center justify-center h-64 text-gray-400">
-              No posts yet
+            <div className="space-y-4">
+              {posts.length === 0 && !loading && !error && (
+                <div className="flex items-center justify-center h-64 text-gray-400">
+                  No posts yet
+                </div>
+              )}
+              {loading && (
+                <div className="flex items-center justify-center h-32 text-gray-400">
+                  Loading posts...
+                </div>
+              )}
+              {error && (
+                <div className="flex items-center justify-center h-32 text-red-400">
+                  {error}
+                </div>
+              )}
+              {posts.map((post) => (
+                <div
+                  key={post.postId}
+                  className="p-6 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]"
+                >
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={post.avatarUrl}
+                      alt={post.authorName}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {post.authorName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {new Date(post.createDate).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-800 whitespace-pre-wrap mb-4">
+                    {post.content}
+                  </p>
+                  {post.media && post.media.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto mb-4">
+                      {post.media.map((m) => (
+                        <img
+                          key={m.postMediaId}
+                          src={`https://api.catspeak.com.vn${m.mediaUrl}`}
+                          alt="Post media"
+                          className="h-40 rounded-lg object-cover"
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
+                    <span>{post.totalReactions} Reactions</span>
+                    <span className="capitalize">{post.privacy}</span>
+                  </div>
+                </div>
+              ))}
+
+              {/* Pagination controls */}
+              {(posts.length > 0 || currentPage > 1) && (
+                <div className="flex justify-between items-center mt-6 p-4 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-600">
+                    Page {currentPage}
+                  </span>
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={!hasNextPage}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

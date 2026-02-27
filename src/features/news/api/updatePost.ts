@@ -10,6 +10,6 @@ export const updatePost = async (
 ): Promise<GetPostResponse> => {
   const { id, ...body } = payload;
   return getResponseData(
-    axiosClient.put<GetPostResponse>(`/admin/news/${id}`, body),
+    axiosClient.put<GetPostResponse>(`/post/${id}`, body),
   );
 };

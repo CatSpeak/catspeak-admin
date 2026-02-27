@@ -5,9 +5,10 @@ export type Tab = "my_posts" | "create_new" | "manage";
 export type PostStatus = "draft" | "published" | "scheduled" | "archived";
 
 export interface ThumbnailImage {
-  id: number;
+  id: string | number;
   src: string;
   alt: string;
+  file?: File;
 }
 
 export interface TagItem {
@@ -37,35 +38,41 @@ export interface NewsPost {
 }
 
 export interface CreatePostPayload {
-  title: string;
+  Content: string;
+  Privacy: "Public" | "FriendsOnly" | "Private";
+  Files?: File[];
+}
+
+export interface PostMedia {
+  postMediaId: number;
+  mediaUrl: string;
+  mediaType: string;
+  orderIndex: number;
+}
+
+export interface Post {
+  postId: number;
+  accountId: number;
+  authorName: string;
+  avatarUrl: string;
   content: string;
-  status: PostStatus;
-  community: string;
-  tagIds: number[];
-  thumbnailUrls: string[];
-  publishAt: string | null;
-}
-
-export interface UpdatePostPayload extends Partial<CreatePostPayload> {
-  id: number;
-}
-
-export interface PaginationData {
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalCount: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
+  privacy: string;
+  createDate: string;
+  lastEdited: string;
+  totalReactions: number;
+  currentUserReaction: string | null;
+  media: PostMedia[];
 }
 
 export interface GetPostsResponse {
-  data: NewsPost[];
-  additionalData: PaginationData;
+  data: Post[];
+  page: number;
+  pageSize: number;
 }
 
 export interface GetPostResponse {
-  data: NewsPost;
+  message?: string;
+  data: Post;
 }
 
 export type ToolbarActionKey =
