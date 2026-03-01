@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { LayoutTemplate } from "lucide-react";
 import type { Tab } from "../types";
+import DOMPurify from "dompurify";
 import { useCreatePost } from "../hooks/useCreatePost";
 import { usePosts } from "../hooks/usePosts";
 import {
@@ -89,9 +90,8 @@ const NewsPage = () => {
 
                 {/* Rich Text Editor */}
                 <PostEditor
-                  content={form.content}
-                  onContentChange={(val) => updateField("content", val)}
-                  autoSavedAt="14:30"
+                  value={form.content}
+                  onChange={(val) => updateField("content", val)}
                 />
 
                 {/* Layout Chooser */}
@@ -173,9 +173,12 @@ const NewsPage = () => {
                       </p>
                     </div>
                   </div>
-                  <p className="text-gray-800 whitespace-pre-wrap mb-4">
-                    {post.content}
-                  </p>
+                  <div
+                    className="text-gray-800 mb-4 [&_strong]:font-bold [&_b]:font-bold [&_em]:italic [&_i]:italic [&_u]:underline [&_s]:line-through [&_p]:mb-2 [&_ul]:list-disc [&_ul]:ml-4 [&_ol]:list-decimal [&_ol]:ml-4 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:text-xl [&_h2]:font-bold [&_a]:text-blue-500 [&_a]:underline"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(post.content),
+                    }}
+                  />
                   {post.media && post.media.length > 0 && (
                     <div className="flex gap-2 overflow-x-auto mb-4">
                       {post.media.map((m) => (

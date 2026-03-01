@@ -1,40 +1,72 @@
-import { WORD_COUNT_THRESHOLD } from "../constants";
-import EditorToolbar from "./EditorToolbar";
+import { Editor } from "@tinymce/tinymce-react";
 
-interface PostEditorProps {
-  content: string;
-  onContentChange: (val: string) => void;
-  onToolbarAction?: (key: string) => void;
-  autoSavedAt?: string;
+export interface PostEditorProps {
+  value?: string;
+  onChange?: (content: string) => void;
 }
 
-const PostEditor = ({
-  content,
-  onContentChange,
-  onToolbarAction,
-  autoSavedAt,
-}: PostEditorProps) => {
-  const wordCount = content
-    .split(" ")
-    .filter((w) => w.length > WORD_COUNT_THRESHOLD).length;
-
+const PostEditor = ({ value, onChange }: PostEditorProps) => {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col min-h-[400px]">
-      <EditorToolbar onAction={onToolbarAction} />
-      <textarea
-        className="flex-1 w-full p-4 sm:p-6 text-sm resize-none focus:outline-none placeholder:text-gray-300"
-        placeholder="Start writing your post content here..."
-        value={content}
-        onChange={(e) => onContentChange(e.target.value)}
-      />
-      <div className="flex justify-between items-center p-3 text-[11px] text-gray-400 bg-gray-50/30 border-t border-gray-50">
-        <div className="flex gap-4">
-          <span>Words: {wordCount}</span>
-          <span>Characters: {content.length}</span>
-        </div>
-        {autoSavedAt && <span>Auto-saved at {autoSavedAt}</span>}
-      </div>
-    </div>
+    <Editor
+      apiKey="d72e5aug2qv53tqqjayyehb51euax5r7mwaj2sw6mqioq6ta"
+      value={value}
+      onEditorChange={onChange}
+      init={{
+        plugins: [
+          "anchor",
+          "autolink",
+          "charmap",
+          "codesample",
+          "emoticons",
+          "link",
+          "lists",
+          "media",
+          "searchreplace",
+          "table",
+          "visualblocks",
+          "wordcount",
+          // Your account includes a free trial of TinyMCE premium features
+          // Try the most popular premium features until Mar 15, 2026:
+          "checklist",
+          "mediaembed",
+          "casechange",
+          "formatpainter",
+          "pageembed",
+          "a11ychecker",
+          "tinymcespellchecker",
+          "permanentpen",
+          "powerpaste",
+          "advtable",
+          "advcode",
+          "advtemplate",
+          "uploadcare",
+          "mentions",
+          "tinycomments",
+          "tableofcontents",
+          "footnotes",
+          "mergetags",
+          "autocorrect",
+          "typography",
+          "inlinecss",
+          "markdown",
+          "importword",
+          "exportword",
+          "exportpdf",
+        ],
+        toolbar:
+          "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+        tinycomments_mode: "embedded",
+        tinycomments_author: "Author name",
+        mergetags_list: [
+          { value: "First.Name", title: "First Name" },
+          { value: "Email", title: "Email" },
+        ],
+        branding: false,
+        onboarding: false,
+        uploadcare_public_key: "a5d4d82e0f05d40efc37",
+      }}
+      initialValue=""
+    />
   );
 };
 

@@ -12,9 +12,12 @@
   "dependencies": {
     "@nivo/core": "^0.99.0",
     "@nivo/geo": "^0.99.0",
+    "@tinymce/tinymce-react": "^6.3.0",
+    "@types/dompurify": "^3.0.5",
     "apexcharts": "^5.6.0",
     "axios": "^1.13.3",
     "d3-geo": "^3.1.1",
+    "dompurify": "^3.3.1",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-apexcharts": "^2.0.1",

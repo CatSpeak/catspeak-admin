@@ -1,19 +1,4 @@
-import {
-  Bold,
-  Italic,
-  Underline,
-  AlignLeft,
-  Link,
-  Image as ImageIcon,
-  MessageSquare,
-} from "lucide-react";
-import type {
-  Tab,
-  ThumbnailImage,
-  EditHistoryEntry,
-  ToolbarItem,
-  TagItem,
-} from "../types";
+import type { Tab, EditHistoryEntry, TagItem } from "../types";
 
 export const TABS: { key: Tab; label: string }[] = [
   { key: "my_posts", label: "My Posts" },
@@ -21,34 +6,7 @@ export const TABS: { key: Tab; label: string }[] = [
   { key: "manage", label: "Manage" },
 ];
 
-export const TOOLBAR_ITEMS: ToolbarItem[] = [
-  { icon: <Bold size={16} />, key: "bold" },
-  { icon: <Italic size={16} />, key: "italic" },
-  { icon: <Underline size={16} />, key: "underline" },
-  "divider",
-  { icon: <span className="font-bold text-sm">H1</span>, key: "h1" },
-  { icon: <span className="font-bold text-sm">H2</span>, key: "h2" },
-  "divider",
-  { icon: <AlignLeft size={16} />, key: "align" },
-  { icon: <Link size={16} />, key: "link" },
-  { icon: <ImageIcon size={16} />, key: "image" },
-  { icon: <MessageSquare size={16} />, key: "comment" },
-];
-
 export const ADD_BLOCK_LABELS = ["Text", "Image", "Video"] as const;
-
-export const MOCK_THUMBNAILS: ThumbnailImage[] = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-    alt: "Cat 1",
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80",
-    alt: "Cat 2",
-  },
-];
 
 export const MOCK_TAGS: TagItem[] = [
   { id: 1, label: "Family" },
@@ -87,5 +45,3 @@ export const MOCK_EDIT_HISTORY: EditHistoryEntry[] = [
 ];
 
 export const COMMUNITIES = ["English", "Vietnamese"] as const;
-
-export const WORD_COUNT_THRESHOLD = 0;
