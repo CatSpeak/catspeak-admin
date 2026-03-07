@@ -63,11 +63,15 @@ export function useCreatePost() {
     setActiveTagId((prev) => (prev === id ? null : id));
   }, []);
 
-  const handleSaveDraft = useCallback(() => {
-    console.log("Save draft:", { form, thumbnails, activeTagId });
-  }, [form, thumbnails, activeTagId]);
+  // const handleSaveDraft = useCallback(() => {
+  //   console.log("Save draft:", { form, thumbnails, activeTagId });
+  // }, [form, thumbnails, activeTagId]);
 
   const handlePublish = useCallback(async () => {
+    if (!form.title.trim()) {
+      alert("Post title is required!");
+      return;
+    }
     if (!form.content.trim()) {
       alert("Post content is required!");
       return;
@@ -75,6 +79,7 @@ export function useCreatePost() {
     setIsSubmitting(true);
     try {
       await createPost({
+        Title: form.title,
         Content: form.content,
         Privacy: form.privacy,
         Files: thumbnails.map(t => t.file).filter((f): f is File => f !== undefined),
@@ -101,7 +106,7 @@ export function useCreatePost() {
     setTags,
     activeTagId,
     toggleTag,
-    handleSaveDraft,
+    // handleSaveDraft,
     handlePublish,
     isSubmitting,
   };

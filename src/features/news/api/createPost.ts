@@ -9,6 +9,7 @@ export const createPost = async (
   payload: CreatePostPayload,
 ): Promise<GetPostResponse> => {
   const formData = new FormData();
+  formData.append("Title", payload.Title);
   formData.append("Content", payload.Content);
   formData.append("Privacy", payload.Privacy);
 

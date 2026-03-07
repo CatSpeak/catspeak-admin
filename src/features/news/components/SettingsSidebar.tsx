@@ -1,11 +1,10 @@
 import { ChevronDown, CalendarDays, Clock } from "lucide-react";
 import { MOCK_EDIT_HISTORY, COMMUNITIES } from "../constants";
-import type { TagItem, PostStatus } from "../types";
+import type { TagItem } from "../types";
 
 const PRIVACY_OPTIONS = ["Public", "FriendsOnly", "Private"] as const;
 
 interface SettingsSidebarProps {
-  status: PostStatus;
   privacy: "Public" | "FriendsOnly" | "Private";
   onPrivacyChange: (val: "Public" | "FriendsOnly" | "Private") => void;
   publishDate: string;
@@ -17,13 +16,11 @@ interface SettingsSidebarProps {
   tags: TagItem[];
   activeTagId: number | null;
   onTagToggle: (id: number) => void;
-  onSaveDraft: () => void;
   onPublish: () => void;
   isSubmitting?: boolean;
 }
 
 const SettingsSidebar = ({
-  status,
   privacy,
   onPrivacyChange,
   publishDate,
@@ -35,21 +32,16 @@ const SettingsSidebar = ({
   tags,
   activeTagId,
   onTagToggle,
-  onSaveDraft,
   onPublish,
   isSubmitting,
 }: SettingsSidebarProps) => (
-  <div className="w-full xl:w-[320px] 2xl:w-[360px] shrink-0 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 space-y-6">
-    {/* Status & Privacy */}
-    <div className="flex items-center justify-between text-sm">
-      <span className="font-semibold text-gray-900">Status</span>
-      <span className="text-gray-400 italic capitalize">{status}</span>
-    </div>
+  <div className="w-full xl:w-[320px] 2xl:w-90 shrink-0 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 space-y-6">
+    {/* Status (Backend: Privacy) */}
     <div className="flex items-center justify-between gap-4">
       <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-        Privacy
+        Status
       </span>
-      <div className="relative w-full max-w-[180px]">
+      <div className="relative w-full max-w-45">
         <select
           value={privacy}
           onChange={(e) => onPrivacyChange(e.target.value as any)}
@@ -106,7 +98,7 @@ const SettingsSidebar = ({
       <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
         Community
       </span>
-      <div className="relative w-full max-w-[180px]">
+      <div className="relative w-full max-w-45">
         <select
           value={community}
           onChange={(e) => onCommunityChange(e.target.value)}
@@ -174,12 +166,6 @@ const SettingsSidebar = ({
 
     {/* Action Buttons */}
     <div className="flex items-center gap-3 justify-center">
-      <button
-        onClick={onSaveDraft}
-        className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-full transition-colors whitespace-nowrap"
-      >
-        Save Draft
-      </button>
       <button
         onClick={onPublish}
         disabled={isSubmitting}

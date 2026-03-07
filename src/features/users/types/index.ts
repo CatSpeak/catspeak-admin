@@ -16,7 +16,6 @@ export interface GetAccountsResponse {
     additionalData: PaginationData;
 }
 
-// User Detail Types
 export interface Transaction {
     id: string;
     time: string;

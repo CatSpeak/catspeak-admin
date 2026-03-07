@@ -1,7 +1,3 @@
-import type { ReactNode } from "react";
-
-export type Tab = "my_posts" | "create_new" | "manage";
-
 export type PostStatus = "draft" | "published" | "scheduled" | "archived";
 
 export interface ThumbnailImage {
@@ -38,9 +34,17 @@ export interface NewsPost {
 }
 
 export interface CreatePostPayload {
+  Title: string;
   Content: string;
   Privacy: "Public" | "FriendsOnly" | "Private";
   Files?: File[];
+}
+
+export interface UpdatePostPayload {
+  id: number;
+  Title?: string;
+  Content: string;
+  Privacy: "Public" | "FriendsOnly" | "Private";
 }
 
 export interface PostMedia {
@@ -53,6 +57,8 @@ export interface PostMedia {
 export interface Post {
   postId: number;
   accountId: number;
+  title?: string;
+  Title?: string;
   authorName: string;
   avatarUrl: string;
   content: string;
@@ -74,18 +80,3 @@ export interface GetPostResponse {
   message?: string;
   data: Post;
 }
-
-export type ToolbarActionKey =
-  | "bold"
-  | "italic"
-  | "underline"
-  | "h1"
-  | "h2"
-  | "align"
-  | "link"
-  | "image"
-  | "comment";
-
-export type ToolbarItem =
-  | { icon: ReactNode; key: ToolbarActionKey }
-  | "divider";

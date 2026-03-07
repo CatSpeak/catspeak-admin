@@ -1,12 +1,4 @@
-import type { Tab, EditHistoryEntry, TagItem } from "../types";
-
-export const TABS: { key: Tab; label: string }[] = [
-  { key: "my_posts", label: "My Posts" },
-  { key: "create_new", label: "Create New" },
-  { key: "manage", label: "Manage" },
-];
-
-export const ADD_BLOCK_LABELS = ["Text", "Image", "Video"] as const;
+import type { EditHistoryEntry, TagItem } from "../types";
 
 export const MOCK_TAGS: TagItem[] = [
   { id: 1, label: "Family" },

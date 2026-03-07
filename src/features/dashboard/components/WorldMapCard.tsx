@@ -49,8 +49,11 @@ export default function WorldMapCard({
     };
   }, []);
 
-  const projectionScale = Math.max(containerWidth / 12, 40);
-  const mapHeight = Math.max(containerWidth * 0.5, 300);
+  const featuresWithoutAntarctica = worldCountries.features.filter(
+    (feature: any) => feature.id !== "ATA",
+  );
+  const projectionScale = Math.max(containerWidth / 10, 40);
+  const mapHeight = Math.max(containerWidth * 0.5, 200);
 
   return (
     <div className="h-full" ref={containerRef}>
@@ -79,7 +82,7 @@ export default function WorldMapCard({
               >
                 <ResponsiveChoropleth
                   data={data}
-                  features={worldCountries.features}
+                  features={featuresWithoutAntarctica}
                   margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
                   colors="oranges"
                   domain={[0, 5000]}
@@ -88,7 +91,7 @@ export default function WorldMapCard({
                   valueFormat=".2s"
                   projectionType="mercator"
                   projectionScale={projectionScale}
-                  projectionTranslation={[0.5, 0.5]}
+                  projectionTranslation={[0.5, 0.65]}
                   projectionRotation={[0, 0, 0]}
                   borderWidth={0.5}
                   borderColor="#D1D5DB"

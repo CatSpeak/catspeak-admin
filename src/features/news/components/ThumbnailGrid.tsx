@@ -3,7 +3,7 @@ import type { ThumbnailImage } from "../types";
 
 interface ThumbnailGridProps {
   images: ThumbnailImage[];
-  onDelete: (id: number) => void;
+  onDelete: (id: string | number) => void;
   onUpload?: () => void;
 }
 

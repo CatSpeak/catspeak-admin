@@ -1,7 +1,9 @@
-export { default as TabNav } from "./TabNav";
 export { default as CharCountInput } from "./CharCountInput";
 export { default as ThumbnailGrid } from "./ThumbnailGrid";
 export { default as PostEditor } from "./PostEditor";
-export { default as UploadBlock } from "./UploadBlock";
-export { default as AddBlockRow } from "./AddBlockRow";
+export { default as PostContent } from "./PostContent";
 export { default as SettingsSidebar } from "./SettingsSidebar";
+export { default as PostCard } from "./PostCard";
+export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
+export { default as PostFormView } from "./PostFormView";
+export { default as PostTable } from "./PostTable";
