@@ -15,4 +15,8 @@ export interface Account {
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;
+  createdById: number | null;
+  createdByUsername: string | null;
+  responsibleLanguageCommunities: string[];
+  visitDurationForStaff?: number;
 }

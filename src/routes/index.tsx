@@ -10,6 +10,8 @@ const Login = lazy(() => import("../features/auth/routes/Login"));
 const Dashboard = lazy(() => import("../features/dashboard/routes/Dashboard"));
 const UsersPage = lazy(() => import("../features/users/routes/UsersPage"));
 const UserDetailPage = lazy(() => import("../features/users/routes/UserDetailPage"));
+const StaffsPage = lazy(() => import("../features/staffs/routes/StaffsPage"));
+const StaffDetailPage = lazy(() => import("../features/staffs/routes/StaffDetailPage"));
 const HandleReportsPage = lazy(() => import("../features/reports/routes/HandleReportsPage"));
 const LiveChatPage = lazy(() => import("../features/chat/routes/LiveChatPage"));
 const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
@@ -38,7 +40,6 @@ const wrap = (Component: React.ComponentType) => (
 
 const secondaryRoutes = [
   { path: "settings", title: "Settings - Coming Soon" },
-  { path: "staff", title: "Staff Management - Coming Soon" },
 ] as const;
 
 export const router = createBrowserRouter([
@@ -59,6 +60,8 @@ export const router = createBrowserRouter([
           { index: true, element: wrap(Dashboard) },
           { path: "users", element: wrap(UsersPage) },
           { path: "users/:id", element: wrap(UserDetailPage) },
+          { path: "staff", element: wrap(StaffsPage) },
+          { path: "staff/:id", element: wrap(StaffDetailPage) },
           { path: "reports", element: wrap(HandleReportsPage) },
           { path: "live-chat", element: wrap(LiveChatPage) },
           { path: "news", element: wrap(NewsPage) },

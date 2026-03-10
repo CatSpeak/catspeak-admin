@@ -1,4 +1,4 @@
-import type { Account } from "../../../entities/account/types";
+import type { Account } from "../../../entities/types";
 
 export interface LoginCredentials {
     email: string;

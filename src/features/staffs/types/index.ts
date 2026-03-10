@@ -11,7 +11,7 @@ export interface PaginationData {
     hasNextPage: boolean;
 }
 
-export interface GetAccountsResponse {
+export interface GetStaffsResponse {
     data: Account[];
     additionalData: PaginationData;
 }
@@ -30,7 +30,7 @@ export interface Package {
     total: number;
 }
 
-export interface UserDetail extends Account {
+export interface StaffDetail extends Account {
     phoneNumber: string;
     languageLearning: string;
     naturalLanguage: string;
@@ -39,6 +39,6 @@ export interface UserDetail extends Account {
     packages: Package[];
 }
 
-export interface GetUserDetailResponse {
-    data: UserDetail;
+export interface GetStaffDetailResponse {
+    data: StaffDetail;
 }

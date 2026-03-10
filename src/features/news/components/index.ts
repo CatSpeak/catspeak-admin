@@ -3,7 +3,6 @@ export { default as ThumbnailGrid } from "./ThumbnailGrid";
 export { default as PostEditor } from "./PostEditor";
 export { default as PostContent } from "./PostContent";
 export { default as SettingsSidebar } from "./SettingsSidebar";
-export { default as PostCard } from "./PostCard";
 export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
 export { default as PostFormView } from "./PostFormView";
 export { default as PostTable } from "./PostTable";
