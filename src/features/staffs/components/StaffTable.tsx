@@ -1,7 +1,8 @@
-import { MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePaginatedStaffs } from "../hooks/usePaginatedStaffs";
 import Card from "../../../components/ui/Card";
+import StaffActionMenu from "./StaffActionMenu";
 
 const FILTER_TEXT_PLACEHOLDERS = [
   "Staff's Name",
@@ -163,14 +164,11 @@ export default function StaffTable() {
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {account.visitDurationForStaff}
                     </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        type="button"
-                        className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-500"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
+                    <td
+                      className="px-4 py-3 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <StaffActionMenu staffName={account.username} />
                     </td>
                   </tr>
                 ))

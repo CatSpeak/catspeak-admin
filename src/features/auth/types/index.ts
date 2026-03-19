@@ -1,8 +1,8 @@
 import type { Account } from "../../../entities/types";
 
 export interface LoginCredentials {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 export interface AuthResponse {
@@ -18,4 +18,19 @@ export interface AuthUser {
   email: string;
   roleId: number;
   roleName: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface VerifyResetOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
 }

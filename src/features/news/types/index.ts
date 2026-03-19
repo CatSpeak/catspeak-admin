@@ -45,6 +45,8 @@ export interface UpdatePostPayload {
   Title?: string;
   Content: string;
   Privacy: "Public" | "FriendsOnly" | "Private";
+  Files?: File[];
+  DeletedMediaIds?: number[];
 }
 
 export interface PostMedia {

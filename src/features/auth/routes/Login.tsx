@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuthStore } from "../../../stores/authStore";
 import { loginWithEmailAndPassword } from "../api/login";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -25,6 +25,17 @@ export default function Login() {
 
     try {
       const response = await loginWithEmailAndPassword({ email, password });
+
+      if (
+        response.user.roleName !== "Admin" &&
+        response.user.roleName !== "Staff"
+      ) {
+        setError(
+          "Access denied. You do not have permission to access the admin dashboard.",
+        );
+        setIsLoading(false);
+        return;
+      }
 
       const user: AuthUser = {
         accountId: response.user.accountId,
@@ -108,6 +119,15 @@ export default function Login() {
                 placeholder="••••••••"
               />
             </div>
+          </div>
+
+          <div className="flex items-center justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-primary hover:text-primary-dark"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           <div>

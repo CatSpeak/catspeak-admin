@@ -36,7 +36,6 @@ const SettingsSidebar = ({
   isSubmitting,
 }: SettingsSidebarProps) => (
   <div className="w-full xl:w-[320px] 2xl:w-90 shrink-0 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 space-y-6">
-    {/* Status (Backend: Privacy) */}
     <div className="flex items-center justify-between gap-4">
       <span className="text-sm font-semibold text-gray-900 whitespace-nowrap">
         Status
@@ -44,7 +43,9 @@ const SettingsSidebar = ({
       <div className="relative w-full max-w-45">
         <select
           value={privacy}
-          onChange={(e) => onPrivacyChange(e.target.value as any)}
+          onChange={(e) =>
+            onPrivacyChange(e.target.value as (typeof PRIVACY_OPTIONS)[number])
+          }
           className="w-full appearance-none bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs text-gray-600 focus:outline-none focus:border-primary shadow-sm hover:border-gray-300 transition-colors"
         >
           {PRIVACY_OPTIONS.map((p) => (

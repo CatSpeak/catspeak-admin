@@ -18,7 +18,9 @@ interface PostFormViewProps {
   mode: FormMode;
   initialPost?: Post | null;
   onSubmitCreate?: (payload: CreatePostPayload) => Promise<void>;
-  onSubmitEdit?: (payload: Omit<UpdatePostPayload, "id">) => Promise<void>;
+  onSubmitEdit?: (
+    payload: Omit<UpdatePostPayload, "id"> & { Files?: File[] },
+  ) => Promise<void>;
 }
 
 export default function PostFormView({
@@ -60,7 +62,6 @@ export default function PostFormView({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Set existing media as readonly thumbnails in edit mode for context
   useEffect(() => {
     if (mode === "edit" && initialPost?.media) {
       setThumbnails(
@@ -93,7 +94,6 @@ export default function PostFormView({
   const handleFileClick = () => fileInputRef.current?.click();
 
   const handlePublish = async () => {
-    // 1. Validation
     if (!title.trim()) {
       alert("Post title is required!");
       return;
@@ -106,22 +106,24 @@ export default function PostFormView({
     setIsSubmitting(true);
 
     try {
+      const newFiles = thumbnails
+        .map((t) => t.file)
+        .filter((f): f is File => f !== undefined);
+
       if (mode === "create" && onSubmitCreate) {
         await onSubmitCreate({
           Title: title,
           Content: content,
           Privacy: privacy,
-          Files: thumbnails
-            .map((t) => t.file)
-            .filter((f): f is File => f !== undefined),
+          Files: newFiles,
         });
       } else if (mode === "edit" && onSubmitEdit) {
-        // Edit API currently doesn't accept files in the payload
         await onSubmitEdit({
           Title: title,
           Content: content,
           Privacy: privacy,
-        });
+          Files: newFiles.length > 0 ? newFiles : undefined,
+        } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
       }
     } finally {
       setIsSubmitting(false);
@@ -155,36 +157,20 @@ export default function PostFormView({
           }}
         />
 
-        {/* Thumbnails */}
-        {mode === "create" && (
-          <ThumbnailGrid
-            images={thumbnails}
-            onDelete={deleteThumbnail}
-            onUpload={handleFileClick}
-          />
-        )}
+        {/* Thumbnails - Now displays in BOTH create and edit modes */}
+        <ThumbnailGrid
+          images={thumbnails}
+          onDelete={deleteThumbnail}
+          onUpload={handleFileClick}
+        />
 
-        {/* Media Readonly view for Edit mode */}
-        {mode === "edit" && thumbnails.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-sm font-semibold text-gray-900 block">
-              Existing Media
-            </span>
-            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-              {thumbnails.map((m) => (
-                <img
-                  key={m.id}
-                  src={m.src}
-                  alt="Post media"
-                  className="h-32 rounded-lg object-cover shrink-0 border border-gray-100"
-                />
-              ))}
-            </div>
-            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded px-3 mt-1">
-              Note: Media updates are not currently supported in Edit mode.
-            </p>
-          </div>
-        )}
+        {/* Warning note for edit mode (Optional but recommended based on your previous comments) */}
+        {/* {mode === "edit" && (
+          <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded px-3 mt-1">
+            Note: You can add new media. Deleting existing media visually here
+            might not delete it from the server unless your API supports it.
+          </p>
+        )} */}
 
         <div className="flex items-center justify-center relative py-4">
           <div className="absolute w-full h-px bg-gray-200" />

@@ -16,6 +16,18 @@ export const updatePost = async (
   formData.append("Content", body.Content);
   formData.append("Privacy", body.Privacy);
 
+  // Append newly added files
+  if (body.Files && body.Files.length > 0) {
+    body.Files.forEach((file) => formData.append("Files", file));
+  }
+
+  // Append IDs of server media to delete
+  if (body.DeletedMediaIds && body.DeletedMediaIds.length > 0) {
+    body.DeletedMediaIds.forEach((mediaId) =>
+      formData.append("DeletedMediaIds", String(mediaId)),
+    );
+  }
+
   return getResponseData(
     axiosClient.put<GetPostResponse>(`/post/${id}`, formData, {
       headers: {

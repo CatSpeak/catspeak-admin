@@ -32,10 +32,9 @@ export default function ReportsTable() {
   const [reports] = useState<Report[]>(mockReports);
 
   const handleDecision = (
-    reportId: string,
-    decision: "innocent" | "violation",
+    _reportId: string,
+    _decision: "innocent" | "violation",
   ) => {
-    console.log(`Report ${reportId}: ${decision}`);
     // TODO: Implement API call to update report decision
   };
 

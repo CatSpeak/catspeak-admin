@@ -5,8 +5,8 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { ComingSoonPage } from "./ComingSoonPage";
 
-// Lazy imports — each page becomes its own JS chunk
 const Login = lazy(() => import("../features/auth/routes/Login"));
+const ForgotPassword = lazy(() => import("../features/auth/routes/ForgotPassword"));
 const Dashboard = lazy(() => import("../features/dashboard/routes/Dashboard"));
 const UsersPage = lazy(() => import("../features/users/routes/UsersPage"));
 const UserDetailPage = lazy(() => import("../features/users/routes/UserDetailPage"));
@@ -18,17 +18,9 @@ const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
 const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage"));
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
 
-// A shared fallback spinner
 const PageLoader = () => (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100%",
-    }}
-  >
-    <span>Loading...</span>
+  <div className="flex h-full w-full items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
   </div>
 );
 
@@ -47,6 +39,7 @@ export const router = createBrowserRouter([
     element: <PublicRoute />,
     children: [
       { path: "/login", element: wrap(Login) },
+      { path: "/forgot-password", element: wrap(ForgotPassword) },
     ],
   },
   {
