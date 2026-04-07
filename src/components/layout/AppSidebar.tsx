@@ -38,8 +38,8 @@ const navItems: NavItem[] = [
     icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
     subItems: [
       { name: "News", path: "/news" },
-      { name: "Video", path: "/video" },
-      { name: "Letter", path: "/letter" },
+      { name: "Calendar", path: "/calendar" },
+      { name: "Room", path: "/room" },
     ],
   },
   {
@@ -142,11 +142,10 @@ const AppSidebar: React.FC = () => {
                     <button
                       onClick={() => handleSubmenuToggle(index)}
                       className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors group
-                        ${
-                          openSubmenu === index ||
+                        ${openSubmenu === index ||
                           nav.subItems.some((sub) => isActive(sub.path))
-                            ? "bg-primary/10 text-primary"
-                            : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-primary/10 text-primary"
+                          : "text-gray-700 hover:bg-gray-100"
                         }
                         ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                       `}
@@ -157,9 +156,8 @@ const AppSidebar: React.FC = () => {
                           <span className="flex-1 text-left">{nav.name}</span>
                           <ChevronDown
                             size={16}
-                            className={`transition-transform duration-200 ${
-                              openSubmenu === index ? "rotate-180" : ""
-                            }`}
+                            className={`transition-transform duration-200 ${openSubmenu === index ? "rotate-180" : ""
+                              }`}
                           />
                         </>
                       )}
@@ -179,9 +177,9 @@ const AppSidebar: React.FC = () => {
                                 style={
                                   isActive(subItem.path)
                                     ? {
-                                        color: "#F5A623",
-                                        background: "rgba(245, 166, 35, 0.1)",
-                                      }
+                                      color: "#F5A623",
+                                      background: "rgba(245, 166, 35, 0.1)",
+                                    }
                                     : {}
                                 }
                               >
@@ -198,10 +196,9 @@ const AppSidebar: React.FC = () => {
                     to={nav.path!}
                     onClick={() => isMobileOpen && toggleMobileSidebar()}
                     className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors
-                      ${
-                        isActive(nav.path!)
-                          ? "bg-primary/10 text-primary"
-                          : "text-gray-700 hover:bg-gray-100"
+                      ${isActive(nav.path!)
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-700 hover:bg-gray-100"
                       }
                       ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                     `}
