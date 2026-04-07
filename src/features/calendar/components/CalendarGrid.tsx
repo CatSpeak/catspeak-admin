@@ -1,16 +1,18 @@
 import React from "react";
 import type { DayCell } from "../hooks/useCalendar";
-import EventPill from "./EventPill";
+import type { DayEvent } from "../types";
+import { getColorClasses, formatTime } from "../constants";
 
 interface CalendarGridProps {
   days: DayCell[];
   onDayClick?: (date: Date) => void;
+  onEventClick?: (event: DayEvent) => void;
 }
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-/** Month view grid — click day number to switch to day view */
-const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick }) => {
+/** Month view grid — shows event pills inside each day cell */
+const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick, onEventClick }) => {
   return (
     <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
       <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
@@ -36,6 +38,7 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick }) => {
               hover:bg-gray-50
             `}
           >
+            {/* Day number */}
             <div className="flex items-center justify-center mb-1">
               <button
                 type="button"
@@ -54,9 +57,14 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick }) => {
               </button>
             </div>
 
+            {/* Event pills */}
             <div className="space-y-0.5">
               {day.events.slice(0, 3).map((event) => (
-                <EventPill key={event.id} event={event} />
+                <GridEventPill
+                  key={`${event.eventId}-${event.occurrenceId ?? "s"}`}
+                  event={event}
+                  onClick={onEventClick}
+                />
               ))}
               {day.events.length > 3 && (
                 <p className="text-[10px] text-gray-400 font-medium px-1.5 cursor-pointer hover:text-gray-600 transition-colors">
@@ -68,6 +76,31 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick }) => {
         ))}
       </div>
     </div>
+  );
+};
+
+/** Compact event pill for month grid cells */
+const GridEventPill: React.FC<{
+  event: DayEvent;
+  onClick?: (event: DayEvent) => void;
+}> = ({ event, onClick }) => {
+  const color = getColorClasses(event.color);
+  const timeStr = formatTime(event.startTime);
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(event);
+      }}
+      className={`flex items-center gap-1 w-full px-1.5 py-0.5 rounded text-[11px] font-medium
+        cursor-pointer truncate transition-opacity hover:opacity-80 ${color.bg} ${color.text}`}
+      title={`${event.title}\n${timeStr}`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
+      <span className="truncate">{event.title}</span>
+    </button>
   );
 };
 

@@ -1,19 +1,30 @@
-import { useCallback, useMemo, useState } from "react";
-import type { CalendarEvent, CalendarViewMode, WeekDay } from "../types";
-import { MOCK_EVENTS, formatDateKey } from "../constants";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { getApiErrorMessage } from "../../../lib/axios";
+import { getEventCounts, getEventsByDate, deleteEvent as deleteEventApi } from "../api/eventApi";
+import { formatDateKey, toISODate } from "../constants";
+import type { CalendarViewMode, DayEvent, WeekDay } from "../types";
 
 export interface DayCell {
   date: Date;
   isCurrentMonth: boolean;
   isToday: boolean;
   isWeekend: boolean;
-  events: CalendarEvent[];
+  events: DayEvent[];
 }
 
 export function useCalendar() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
-  const [events, setEvents] = useState<CalendarEvent[]>(MOCK_EVENTS);
+
+  // API data
+  const [monthEvents, setMonthEvents] = useState<Map<string, DayEvent[]>>(new Map());
+  const [dayEvents, setDayEvents] = useState<DayEvent[]>([]);
+  const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
+
+  // Loading / error
+  const [isLoadingCounts, setIsLoadingCounts] = useState(false);
+  const [isLoadingDay, setIsLoadingDay] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const today = useMemo(() => {
     const d = new Date();
@@ -24,30 +35,80 @@ export function useCalendar() {
   const year = selectedDate.getFullYear();
   const month = selectedDate.getMonth();
 
-  // ── Helpers ──
+  // ── Fetch event counts + events for the visible month ──
 
-  const getEventsForDate = useCallback(
-    (date: Date): CalendarEvent[] => {
-      const key = formatDateKey(date);
-      return events.filter((e) => {
-        const d = new Date(e.startDate);
-        return formatDateKey(d) === key;
-      });
-    },
-    [events],
-  );
+  const fetchMonthData = useCallback(async () => {
+    setIsLoadingCounts(true);
+    setError(null);
+    try {
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const response = await getEventCounts(toISODate(first), toISODate(last));
+      const counts = response.counts ?? [];
 
-  const getTimedEvents = useCallback(
-    (date: Date) => getEventsForDate(date).filter((e) => !e.isAllDay),
-    [getEventsForDate],
-  );
+      // Fetch actual events for days that have events (batch)
+      const daysWithEvents = counts.filter((c) => c.totalEvents > 0);
+      const eventMap = new Map<string, DayEvent[]>();
 
-  const getAllDayEvents = useCallback(
-    (date: Date) => getEventsForDate(date).filter((e) => e.isAllDay),
-    [getEventsForDate],
-  );
+      // Fetch in parallel but limit concurrent requests
+      const batchSize = 5;
+      for (let i = 0; i < daysWithEvents.length; i += batchSize) {
+        const batch = daysWithEvents.slice(i, i + batchSize);
+        const results = await Promise.all(
+          batch.map(async (c) => {
+            try {
+              const res = await getEventsByDate(c.date);
+              return { date: c.date, events: res.events ?? [] };
+            } catch {
+              return { date: c.date, events: [] };
+            }
+          }),
+        );
+        for (const r of results) {
+          const d = new Date(r.date);
+          eventMap.set(formatDateKey(d), r.events);
+        }
+      }
 
-  // ── Month view ──
+      setMonthEvents(eventMap);
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Failed to load calendar data."));
+    } finally {
+      setIsLoadingCounts(false);
+    }
+  }, [year, month]);
+
+  useEffect(() => {
+    fetchMonthData();
+  }, [fetchMonthData]);
+
+  // ── Fetch events for a specific day (sidebar) ──
+
+  const fetchDayEvents = useCallback(async (date: Date) => {
+    setIsLoadingDay(true);
+    setSelectedDayDate(date);
+    setDayEvents([]);
+    try {
+      const response = await getEventsByDate(toISODate(date));
+      setDayEvents(response.events ?? []);
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Failed to load events for this day."));
+    } finally {
+      setIsLoadingDay(false);
+    }
+  }, []);
+
+  // ── Delete event ──
+
+  const deleteEvent = useCallback(async (eventId: number) => {
+    await deleteEventApi(eventId);
+    await fetchMonthData();
+    if (selectedDayDate) {
+      await fetchDayEvents(selectedDayDate);
+    }
+  }, [fetchMonthData, fetchDayEvents, selectedDayDate]);
+
+  // ── Month grid ──
 
   const monthDays = useMemo<DayCell[]>(() => {
     const first = new Date(year, month, 1);
@@ -60,19 +121,20 @@ export function useCalendar() {
     const cells: DayCell[] = [];
     const cursor = new Date(start);
     while (cursor <= end) {
+      const key = formatDateKey(cursor);
       cells.push({
         date: new Date(cursor),
         isCurrentMonth: cursor.getMonth() === month,
         isToday: cursor.getTime() === today.getTime(),
         isWeekend: cursor.getDay() === 0 || cursor.getDay() === 6,
-        events: getEventsForDate(cursor),
+        events: monthEvents.get(key) ?? [],
       });
       cursor.setDate(cursor.getDate() + 1);
     }
     return cells;
-  }, [year, month, today, getEventsForDate]);
+  }, [year, month, today, monthEvents]);
 
-  // ── Week view ──
+  // ── Week data ──
 
   const weekStart = useMemo(() => {
     const d = new Date(selectedDate);
@@ -95,7 +157,7 @@ export function useCalendar() {
     });
   }, [weekStart, today]);
 
-  // ── Labels ──
+  // ── View label ──
 
   const viewLabel = useMemo(() => {
     if (viewMode === "month") {
@@ -137,32 +199,27 @@ export function useCalendar() {
   }, [viewMode]);
 
   const goToToday = useCallback(() => setSelectedDate(new Date()), []);
-
   const goToDate = useCallback((date: Date) => setSelectedDate(new Date(date)), []);
-
-  // ── Events ──
-
-  const addEvent = useCallback((event: CalendarEvent) => {
-    setEvents((prev) => [...prev, event]);
-  }, []);
 
   return {
     selectedDate,
     viewMode,
     setViewMode,
-    events,
-    today,
     monthDays,
     weekDays,
     weekStart,
     viewLabel,
+    dayEvents,
+    selectedDayDate,
+    isLoadingCounts,
+    isLoadingDay,
+    error,
     goToPrev,
     goToNext,
     goToToday,
     goToDate,
-    addEvent,
-    getEventsForDate,
-    getTimedEvents,
-    getAllDayEvents,
+    fetchDayEvents,
+    deleteEvent,
+    refetchCounts: fetchMonthData,
   };
 }

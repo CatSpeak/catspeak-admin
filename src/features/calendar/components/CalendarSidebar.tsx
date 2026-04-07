@@ -1,22 +1,30 @@
 import React, { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import type { DayEvent } from "../types";
+import EventPill from "./EventPill";
 
 interface CalendarSidebarProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
-  /** Start/end range to highlight (e.g. the current week) */
   highlightRange?: { start: Date; end: Date };
+  dayEvents: DayEvent[];
+  isLoadingDay: boolean;
+  selectedDayDate: Date | null;
+  onEventClick?: (event: DayEvent) => void;
 }
 
 const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
-/** Compact mini-calendar + color legend sidebar (Google Calendar style) */
+/** Compact mini-calendar + color legend + day events sidebar */
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   selectedDate,
   onDateSelect,
   highlightRange,
+  dayEvents,
+  isLoadingDay,
+  selectedDayDate,
+  onEventClick,
 }) => {
-  // Mini calendar has its own navigation state
   const [miniDate, setMiniDate] = useState(new Date(selectedDate));
 
   const miniYear = miniDate.getFullYear();
@@ -28,7 +36,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     return d;
   }, []);
 
-  // Generate mini calendar grid
   const miniDays = useMemo(() => {
     const first = new Date(miniYear, miniMonth, 1);
     const last = new Date(miniYear, miniMonth + 1, 0);
@@ -50,52 +57,41 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
     return cells;
   }, [miniYear, miniMonth, today]);
 
-  const miniLabel = miniDate.toLocaleString("default", {
-    month: "long",
-    year: "numeric",
-  });
+  const miniLabel = miniDate.toLocaleString("default", { month: "long", year: "numeric" });
 
   const isInRange = (d: Date) => {
     if (!highlightRange) return false;
-    const t = new Date(d);
-    t.setHours(0, 0, 0, 0);
-    const s = new Date(highlightRange.start);
-    s.setHours(0, 0, 0, 0);
-    const e = new Date(highlightRange.end);
-    e.setHours(0, 0, 0, 0);
+    const t = new Date(d); t.setHours(0, 0, 0, 0);
+    const s = new Date(highlightRange.start); s.setHours(0, 0, 0, 0);
+    const e = new Date(highlightRange.end); e.setHours(0, 0, 0, 0);
     return t >= s && t <= e;
   };
 
-  const isSelectedDay =
-    (d: Date) =>
-      d.toDateString() === selectedDate.toDateString();
+  const isSelectedDay = (d: Date) => d.toDateString() === selectedDate.toDateString();
+
+  const dayLabel = selectedDayDate?.toLocaleDateString("default", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <div className="w-60 shrink-0 hidden lg:block">
       <div className="sticky top-0 space-y-4">
         {/* Mini Calendar */}
         <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4">
-          {/* Mini nav */}
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-gray-800">{miniLabel}</h3>
             <div className="flex gap-0.5">
               <button
-                onClick={() =>
-                  setMiniDate(
-                    new Date(miniYear, miniMonth - 1, 1),
-                  )
-                }
+                onClick={() => setMiniDate(new Date(miniYear, miniMonth - 1, 1))}
                 className="p-1 rounded hover:bg-gray-100 transition-colors cursor-pointer"
                 aria-label="Previous month"
               >
                 <ChevronLeft size={14} className="text-gray-500" />
               </button>
               <button
-                onClick={() =>
-                  setMiniDate(
-                    new Date(miniYear, miniMonth + 1, 1),
-                  )
-                }
+                onClick={() => setMiniDate(new Date(miniYear, miniMonth + 1, 1))}
                 className="p-1 rounded hover:bg-gray-100 transition-colors cursor-pointer"
                 aria-label="Next month"
               >
@@ -104,24 +100,18 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
             </div>
           </div>
 
-          {/* Weekday labels */}
           <div className="grid grid-cols-7 mb-1">
             {WEEKDAY_LABELS.map((label, i) => (
-              <div
-                key={i}
-                className="text-center text-[10px] font-semibold text-gray-400 py-0.5"
-              >
+              <div key={i} className="text-center text-[10px] font-semibold text-gray-400 py-0.5">
                 {label}
               </div>
             ))}
           </div>
 
-          {/* Date grid */}
           <div className="grid grid-cols-7">
             {miniDays.map((day, i) => {
               const selected = isSelectedDay(day.date);
               const inRange = isInRange(day.date);
-
               return (
                 <button
                   key={i}
@@ -143,6 +133,35 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
           </div>
         </div>
 
+        {/* Day Events Panel — shown when a day is selected */}
+        {selectedDayDate && (
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4">
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+              {dayLabel}
+            </h4>
+
+            {isLoadingDay ? (
+              <div className="flex items-center justify-center py-6">
+                <Loader2 size={20} className="text-primary animate-spin" />
+              </div>
+            ) : dayEvents.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-4">
+                No events on this day
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {dayEvents.map((event) => (
+                  <EventPill
+                    key={`${event.eventId}-${event.occurrenceId ?? "single"}`}
+                    event={event}
+                    onClick={onEventClick}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Color Legend */}
         <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4">
           <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
@@ -158,9 +177,7 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
               { color: "bg-red-500", label: "Important" },
             ].map((item) => (
               <div key={item.label} className="flex items-center gap-2">
-                <span
-                  className={`w-2.5 h-2.5 rounded-sm ${item.color}`}
-                />
+                <span className={`w-2.5 h-2.5 rounded-sm ${item.color}`} />
                 <span className="text-xs text-gray-600">{item.label}</span>
               </div>
             ))}

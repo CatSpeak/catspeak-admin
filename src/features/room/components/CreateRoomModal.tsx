@@ -31,7 +31,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn" onClick={handleClose} />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col animate-slideUp">
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col animate-slideUp">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">Create New Room</h2>
@@ -60,9 +60,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
               placeholder="e.g. Daily Chinese Corner"
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
-              className={`w-full px-3 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                errors.name ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
-              }`}
+              className={`w-full px-3 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.name ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
+                }`}
             />
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
           </div>
@@ -77,11 +76,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   key={t.value}
                   onClick={() => updateField("roomType", t.value as RoomType)}
-                  className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                    form.roomType === t.value
-                      ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
-                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${form.roomType === t.value
+                    ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
+                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
                 >
                   {t.label}
                 </button>
@@ -99,11 +97,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   key={l.value}
                   onClick={() => updateField("languageType", l.value as LanguageType)}
-                  className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${
-                    form.languageType === l.value
-                      ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
-                      : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                  }`}
+                  className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${form.languageType === l.value
+                    ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
+                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+                    }`}
                 >
                   {l.flag} {l.label}
                 </button>
@@ -146,11 +143,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                   <button
                     key={t.value}
                     onClick={() => toggleTopic(t.value)}
-                    className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
-                      active
-                        ? "bg-primary/10 border-primary/30 text-primary"
-                        : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
-                    }`}
+                    className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${active
+                      ? "bg-primary/10 border-primary/30 text-primary"
+                      : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
+                      }`}
                   >
                     {t.label}
                   </button>
@@ -163,7 +159,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
           </div>
 
           {/* Description */}
-          <div>
+          {/* <div>
             <label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label>
             <textarea
               placeholder="What will participants talk about?"
@@ -172,7 +168,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
               rows={3}
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all resize-none"
             />
-          </div>
+          </div> */}
 
           {/* Persistent toggle */}
           <div className="flex items-center justify-between p-3 bg-sky-50/70 rounded-lg border border-sky-100">
