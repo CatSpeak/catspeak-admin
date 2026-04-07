@@ -56,7 +56,7 @@ const navItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useSidebar();
   const location = useLocation();
 
   const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
@@ -174,6 +174,7 @@ const AppSidebar: React.FC = () => {
                             <li key={subItem.name}>
                               <Link
                                 to={subItem.path}
+                                onClick={() => isMobileOpen && toggleMobileSidebar()}
                                 className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(subItem.path) ? "shadow-sm" : "text-gray-600 hover:bg-gray-50"}`}
                                 style={
                                   isActive(subItem.path)
@@ -195,6 +196,7 @@ const AppSidebar: React.FC = () => {
                 ) : (
                   <Link
                     to={nav.path!}
+                    onClick={() => isMobileOpen && toggleMobileSidebar()}
                     className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors
                       ${
                         isActive(nav.path!)

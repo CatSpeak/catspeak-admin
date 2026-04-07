@@ -16,13 +16,14 @@ export default function UserDropdown() {
     setIsOpen(false);
   }
 
-  console.log("users: ", user);
-
   return (
     <div className="relative">
       <button
+        type="button"
+        aria-label="User menu"
+        aria-expanded={isOpen}
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle"
+        className="flex items-center text-gray-700 dropdown-toggle focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-full sm:rounded-md p-1 -m-1"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 bg-gray-200 flex items-center justify-center">
           <span className="text-sm font-bold text-gray-600">
@@ -92,11 +93,12 @@ export default function UserDropdown() {
           </li>
         </ul>
         <button
+          type="button"
           onClick={() => {
             logout();
             closeDropdown();
           }}
-          className="flex w-full items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700"
+          className="flex w-full items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
           <LogOut className="text-gray-500 group-hover:text-gray-700 w-5 h-5" />
           Logout
