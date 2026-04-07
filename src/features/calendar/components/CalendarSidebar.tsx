@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DayEvent } from "../types";
-import EventPill from "./EventPill";
 
 interface CalendarSidebarProps {
   selectedDate: Date;
@@ -15,15 +14,10 @@ interface CalendarSidebarProps {
 
 const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
 
-/** Compact mini-calendar + color legend + day events sidebar */
 const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   selectedDate,
   onDateSelect,
   highlightRange,
-  dayEvents,
-  isLoadingDay,
-  selectedDayDate,
-  onEventClick,
 }) => {
   const [miniDate, setMiniDate] = useState(new Date(selectedDate));
 
@@ -68,12 +62,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
   };
 
   const isSelectedDay = (d: Date) => d.toDateString() === selectedDate.toDateString();
-
-  const dayLabel = selectedDayDate?.toLocaleDateString("default", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
 
   return (
     <div className="w-60 shrink-0 hidden lg:block">
@@ -132,35 +120,6 @@ const CalendarSidebar: React.FC<CalendarSidebarProps> = ({
             })}
           </div>
         </div>
-
-        {/* Day Events Panel — shown when a day is selected */}
-        {selectedDayDate && (
-          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
-              {dayLabel}
-            </h4>
-
-            {isLoadingDay ? (
-              <div className="flex items-center justify-center py-6">
-                <Loader2 size={20} className="text-primary animate-spin" />
-              </div>
-            ) : dayEvents.length === 0 ? (
-              <p className="text-xs text-gray-400 text-center py-4">
-                No events on this day
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {dayEvents.map((event) => (
-                  <EventPill
-                    key={`${event.eventId}-${event.occurrenceId ?? "single"}`}
-                    event={event}
-                    onClick={onEventClick}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Color Legend */}
         <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-4">
