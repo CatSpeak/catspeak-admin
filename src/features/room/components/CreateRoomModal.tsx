@@ -1,8 +1,8 @@
-import React from "react";
-import { X, Users, Globe, GraduationCap, Tag, ToggleLeft, ToggleRight, AlertCircle } from "lucide-react";
+import React, { useRef } from "react";
+import { X, Users, Globe, GraduationCap, Tag, Shield, Lock, ImagePlus, AlertCircle } from "lucide-react";
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { ROOM_TYPES, LANGUAGE_TYPES, REQUIRED_LEVELS, ROOM_TOPICS } from "../constants";
-import type { LanguageType, RequiredLevel, RoomType } from "../types";
+import type { LanguageType, RequiredLevel, RoomPrivacy, RoomTopic, RoomType } from "../types";
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -10,17 +10,28 @@ interface CreateRoomModalProps {
   onCreated: () => void;
 }
 
+const PRIVACY_OPTIONS: { value: RoomPrivacy; label: string; desc: string }[] = [
+  { value: "Public", label: "Public", desc: "Anyone can join freely" },
+  { value: "Private", label: "Private", desc: "Password required to join" },
+];
+
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCreated }) => {
-  const { form, errors, isSubmitting, updateField, toggleTopic, handleSubmit, resetForm } = useCreateRoom(
+  const { form, errors, isSubmitting, updateField, handleSubmit, resetForm } = useCreateRoom(
     () => {
       onCreated();
       onClose();
     },
   );
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleClose = () => {
     resetForm();
     onClose();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    updateField("thumbnail", file);
   };
 
   if (!isOpen) return null;
@@ -131,18 +142,18 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
             </select>
           </div>
 
-          {/* Topics */}
+          {/* Topic (single select) */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              <Tag size={14} /> Topics
+              <Tag size={14} /> Topic
             </label>
             <div className="flex flex-wrap gap-1.5">
               {ROOM_TOPICS.map((t) => {
-                const active = form.topics.includes(t.value);
+                const active = form.topic === t.value;
                 return (
                   <button
                     key={t.value}
-                    onClick={() => toggleTopic(t.value)}
+                    onClick={() => updateField("topic", t.value as RoomTopic)}
                     className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${active
                       ? "bg-primary/10 border-primary/30 text-primary"
                       : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
@@ -153,13 +164,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 );
               })}
             </div>
-            {form.topics.length > 0 && (
-              <p className="text-[11px] text-gray-400 mt-1">{form.topics.length} selected</p>
-            )}
           </div>
 
-          {/* Description */}
-          {/* <div>
+          {/* Description
+          <div>
             <label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label>
             <textarea
               placeholder="What will participants talk about?"
@@ -170,18 +178,85 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
             />
           </div> */}
 
-          {/* Persistent toggle */}
-          <div className="flex items-center justify-between p-3 bg-sky-50/70 rounded-lg border border-sky-100">
-            <div>
-              <p className="text-sm font-medium text-gray-800">Persistent Room</p>
-              <p className="text-xs text-gray-500 mt-0.5">No expiration — room stays active indefinitely</p>
+          {/* Privacy */}
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
+              <Shield size={14} /> Privacy
+            </label>
+            <div className="flex gap-2">
+              {PRIVACY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => updateField("privacy", opt.value)}
+                  className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-left ${form.privacy === opt.value
+                    ? "bg-primary/10 border-primary/30 shadow-sm"
+                    : "bg-white border-gray-200 hover:bg-gray-50"
+                    }`}
+                >
+                  <span className={`block text-sm font-medium ${form.privacy === opt.value ? "text-primary" : "text-gray-600"}`}>
+                    {opt.label}
+                  </span>
+                  <span className="block text-[11px] text-gray-400 mt-0.5">{opt.desc}</span>
+                </button>
+              ))}
             </div>
+          </div>
+
+          {/* Password (shown only when Private) */}
+          {form.privacy === "Private" && (
+            <div>
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
+                <Lock size={14} /> Room Password <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="password"
+                placeholder="Enter room password"
+                value={form.password}
+                onChange={(e) => updateField("password", e.target.value)}
+                className={`w-full px-3 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.password ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
+                  }`}
+              />
+              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+            </div>
+          )}
+
+          {/* Thumbnail */}
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
+              <ImagePlus size={14} /> Thumbnail
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
             <button
-              onClick={() => updateField("isPersistent", !form.isPersistent)}
-              className="text-primary transition-colors"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-primary/40 hover:text-primary/70 transition-colors"
             >
-              {form.isPersistent ? <ToggleRight size={28} /> : <ToggleLeft size={28} className="text-gray-400" />}
+              {form.thumbnail ? (
+                <span className="truncate max-w-[280px]">📎 {form.thumbnail.name}</span>
+              ) : (
+                <>
+                  <ImagePlus size={16} />
+                  Click to upload an image
+                </>
+              )}
             </button>
+            {form.thumbnail && (
+              <button
+                onClick={() => {
+                  updateField("thumbnail", null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="text-xs text-red-400 hover:text-red-500 mt-1 transition-colors"
+              >
+                Remove file
+              </button>
+            )}
           </div>
         </div>
 

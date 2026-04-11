@@ -145,7 +145,7 @@ export default function CalendarPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2">
           <Calendar size={24} className="text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+          <h1 className="text-2xl text-primary font-bold text-gray-900">Calendar</h1>
         </div>
       </div>
 

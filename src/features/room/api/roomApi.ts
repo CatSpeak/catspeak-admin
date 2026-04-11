@@ -25,12 +25,6 @@ export const deleteRoom = async (id: number): Promise<void> => {
 };
 
 export const createRoom = async (formData: FormData): Promise<void> => {
-  await axiosClient.post("/rooms", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
-};
-
-export const createPersistentRoom = async (formData: FormData): Promise<void> => {
   await axiosClient.post("/rooms/persistent", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });

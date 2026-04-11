@@ -1,5 +1,5 @@
-import React from "react";
-import { Users, Clock, Trash2, Globe, GraduationCap, Tag, Timer } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { Users, Clock, Trash2, Globe, GraduationCap, Tag, Timer, MoreVertical } from "lucide-react";
 import type { Room, RoomCategory } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 
@@ -18,6 +18,21 @@ function parseCategories(raw: string): RoomCategory[] {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
   const typeStyle = ROOM_TYPE_STYLES[room.roomType];
   const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
@@ -27,18 +42,44 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
   });
 
   return (
-    <div className="group relative bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
+    <div className="relative bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
       {/* Top accent bar */}
       <div className={`h-1 ${room.roomType === "OneToOne" ? "bg-indigo-500" : "bg-emerald-500"}`} />
 
       <div className="p-5 flex-1 flex flex-col">
         {/* Header: name + status */}
-        <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start justify-between gap-2 mb-3">
           <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 flex-1">{room.name}</h3>
-          <span className={`inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${isActive ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-500"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
-            {isActive ? "Active" : "Inactive"}
-          </span>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${isActive ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-500"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
+              {isActive ? "Active" : "Inactive"}
+            </span>
+            {/* Action menu */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                aria-label="Room actions"
+              >
+                <MoreVertical size={16} />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onDelete(room.roomId);
+                    }}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={14} />
+                    Delete room
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Description */}
@@ -85,7 +126,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
         <div className="flex-1" />
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+        <div className="flex items-center pt-3 border-t border-gray-100">
           <div className="flex items-center gap-3 text-[11px] text-gray-400">
             <span className="inline-flex items-center gap-1">
               <Users size={12} />
@@ -96,14 +137,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
               {createdDate}
             </span>
           </div>
-
-          <button
-            onClick={() => onDelete(room.roomId)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50"
-            title="Delete room"
-          >
-            <Trash2 size={14} />
-          </button>
         </div>
       </div>
     </div>
