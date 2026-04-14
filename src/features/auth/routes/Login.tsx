@@ -137,10 +137,10 @@ export default function Login() {
               className="group relative flex w-full justify-center rounded-lg border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLoading ? (
-                <>
-                  <Loader2 className="-ml-1 mr-2 h-4 w-4 animate-spin" />
+                <span className="flex items-center justify-center">
+                  <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                   Loading...
-                </>
+                </span>
               ) : (
                 "Login"
               )}

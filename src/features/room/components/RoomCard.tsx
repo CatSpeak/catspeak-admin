@@ -1,27 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, Globe, GraduationCap, Tag, Timer, MoreVertical } from "lucide-react";
-import type { Room, RoomCategory } from "../types";
+import { Users, Clock, Trash2, GraduationCap, Tag, MoreVertical } from "lucide-react";
+import type { Room } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
+
+const DEFAULT_THUMBNAIL =
+  "https://i.ibb.co/23fT32Dq/meeting-room-filled-with-chairs-and-a-large-table-in-a-modern-office-setting-details-free-photo.webp";
 
 interface RoomCardProps {
   room: Room;
   onDelete: (id: number) => void;
+  onClick?: (room: Room) => void;
 }
 
-/** Parse the JSON-encoded categories string */
-function parseCategories(raw: string): RoomCategory[] {
-  try {
-    return JSON.parse(raw) as RoomCategory[];
-  } catch {
-    return [];
-  }
-}
-
-const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
   useEffect(() => {
     if (!menuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -36,107 +30,95 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete }) => {
   const typeStyle = ROOM_TYPE_STYLES[room.roomType];
   const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
-  const categories = parseCategories(room.categories);
+  const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
   const createdDate = new Date(room.createDate).toLocaleDateString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
+    month: "short", day: "numeric",
   });
 
   return (
-    <div className="relative bg-white rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
-      {/* Top accent bar */}
-      <div className={`h-1 ${room.roomType === "OneToOne" ? "bg-indigo-500" : "bg-emerald-500"}`} />
-
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Header: name + status */}
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 flex-1">{room.name}</h3>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${isActive ? "bg-emerald-50 text-emerald-600" : "bg-gray-100 text-gray-500"}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
-              {isActive ? "Active" : "Inactive"}
-            </span>
-            {/* Action menu */}
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                aria-label="Room actions"
-              >
-                <MoreVertical size={16} />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 animate-in fade-in slide-in-from-top-1 duration-150">
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onDelete(room.roomId);
-                    }}
-                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    <Trash2 size={14} />
-                    Delete room
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+    <div
+      className="bg-white rounded-xl border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer flex flex-col"
+      onClick={() => onClick?.(room)}
+    >
+      {/* Thumbnail — compact */}
+      <div className="relative h-32 overflow-hidden bg-gray-100">
+        <img
+          src={thumbnailSrc}
+          alt={room.name}
+          className="w-full h-full object-cover"
+          onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
+        />
+        {/* Status */}
+        <div className="absolute top-2 left-2">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
+            {isActive ? "Active" : "Inactive"}
+          </span>
         </div>
-
-        {/* Description */}
-        {room.description && room.description !== "string" && (
-          <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">{room.description}</p>
-        )}
-
-        {/* Badges row */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium ${typeStyle.bg} ${typeStyle.text}`}>
-            <Users size={11} />
-            {room.roomType === "OneToOne" ? "1:1" : "Group"}
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium bg-amber-50 text-amber-700">
-            <Globe size={11} />
-            {flag} {room.languageType}
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium bg-violet-50 text-violet-700">
-            <GraduationCap size={11} />
-            {room.requiredLevel}
-          </span>
-          {room.duration != null && (
-            <span className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium bg-sky-50 text-sky-700">
-              <Timer size={11} />
-              {room.duration}m
-            </span>
+        {/* Menu — always visible on card */}
+        <div className="absolute top-2 right-2" ref={menuRef} onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="p-1 rounded-md bg-black/20 text-white/80 hover:bg-black/40 hover:text-white transition-colors"
+            aria-label="Room actions"
+          >
+            <MoreVertical size={14} />
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1">
+              <button
+                onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <Trash2 size={14} />
+                Delete room
+              </button>
+            </div>
           )}
         </div>
+      </div>
 
-        {/* Topic + Categories */}
-        <div className="flex flex-wrap gap-1 mb-4">
-          <span className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-600 border border-gray-200/60">
-            <Tag size={9} />
-            {room.topic}
-          </span>
-          {categories.map((cat) => (
-            <span key={cat} className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium bg-primary/5 text-primary/80 border border-primary/10">
-              {cat}
-            </span>
-          ))}
-        </div>
+      {/* Content */}
+      <div className="p-3.5 flex flex-col flex-1">
+        {/* Name */}
+        <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1 mb-2">{room.name}</h3>
 
-        {/* Spacer */}
-        <div className="flex-1" />
-
-        {/* Footer */}
-        <div className="flex items-center pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-3 text-[11px] text-gray-400">
-            <span className="inline-flex items-center gap-1">
-              <Users size={12} />
-              {room.currentParticipantCount}{room.maxParticipants != null ? `/${room.maxParticipants}` : ""}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Clock size={12} />
-              {createdDate}
+        {/* Info grid — 2 columns, fixed 2 rows */}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
+          {/* Language */}
+          <div className="flex items-center gap-1.5">
+            <img src={flag} alt={room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
+            <span className="truncate">{room.languageType}</span>
+          </div>
+          {/* Type — styled tag */}
+          <div className="flex items-center">
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${typeStyle.bg} ${typeStyle.text}`}>
+              <Users size={9} />
+              {room.roomType === "OneToOne" ? "1:1" : "Group"}
             </span>
           </div>
+          {/* Level */}
+          <div className="flex items-center gap-1.5">
+            <GraduationCap size={11} className="text-gray-400 shrink-0" />
+            <span className="truncate">{room.requiredLevel || "N/A"}</span>
+          </div>
+          {/* Topic */}
+          <div className="flex items-center gap-1.5">
+            <Tag size={11} className="text-gray-400 shrink-0" />
+            <span className="truncate">{room.topic || "N/A"}</span>
+          </div>
+        </div>
+
+        {/* Footer divider */}
+        <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400">
+          <span className="inline-flex items-center gap-1">
+            <Users size={11} />
+            {room.currentParticipantCount}{room.maxParticipants != null ? `/${room.maxParticipants}` : ""} participants
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Clock size={11} />
+            {createdDate}
+          </span>
         </div>
       </div>
     </div>
