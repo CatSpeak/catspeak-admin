@@ -31,7 +31,11 @@ const FilterChipGroup: React.FC<{
               : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
               }`}
           >
-            {item.extra && <span>{item.extra}</span>}
+            {item.extra && (
+              item.extra.startsWith("/")
+                ? <img src={item.extra} alt="" className="w-4 h-4 rounded-sm" />
+                : <span>{item.extra}</span>
+            )}
             {item.label}
           </button>
         );

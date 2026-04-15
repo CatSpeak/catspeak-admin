@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
+import { useToastStore } from "../../../stores/toastStore";
 import { createRoom } from "../api/roomApi";
 import type { LanguageType, RequiredLevel, RoomPrivacy, RoomTopic, RoomType } from "../types";
 
@@ -7,8 +8,8 @@ interface FormState {
   name: string;
   roomType: RoomType;
   languageType: LanguageType;
-  requiredLevel: RequiredLevel;
-  topic: RoomTopic;
+  requiredLevel: RequiredLevel | "";
+  topic: RoomTopic | "";
   description: string;
   privacy: RoomPrivacy;
   password: string;
@@ -18,15 +19,14 @@ interface FormState {
 interface FormErrors {
   name?: string;
   password?: string;
-  general?: string;
 }
 
 const INITIAL: FormState = {
   name: "",
   roomType: "Group",
   languageType: "Chinese",
-  requiredLevel: "HSK1",
-  topic: "Other",
+  requiredLevel: "",
+  topic: "",
   description: "",
   privacy: "Public",
   password: "",
@@ -37,6 +37,7 @@ export function useCreateRoom(onCreated: () => void) {
   const [form, setForm] = useState<FormState>(INITIAL);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
 
   const updateField = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -70,8 +71,8 @@ export function useCreateRoom(onCreated: () => void) {
       formData.append("Name", form.name);
       formData.append("RoomType", form.roomType);
       formData.append("LanguageType", form.languageType);
-      formData.append("RequiredLevel", form.requiredLevel);
-      formData.append("Topic", form.topic);
+      if (form.requiredLevel) formData.append("RequiredLevel", form.requiredLevel);
+      if (form.topic) formData.append("Topic", form.topic);
       if (form.description) formData.append("Description", form.description);
       formData.append("Privacy", form.privacy);
       if (form.privacy === "Private") {
@@ -86,7 +87,7 @@ export function useCreateRoom(onCreated: () => void) {
       setForm(INITIAL);
       onCreated();
     } catch (err: unknown) {
-      setErrors({ general: getApiErrorMessage(err, "Failed to create room.") });
+      addToast("error", getApiErrorMessage(err, "Failed to create room."));
     } finally {
       setIsSubmitting(false);
     }

@@ -29,8 +29,15 @@ export interface VerifyResetOtpRequest {
   otp: string;
 }
 
+export interface VerifyResetOtpResponse {
+  success: boolean;
+  message: string;
+  resetToken: string;
+  resetTokenExpiresAt: string;
+}
+
 export interface ResetPasswordRequest {
   email: string;
-  token: string;
+  resetToken: string;
   newPassword: string;
 }

@@ -30,6 +30,7 @@ export interface Room {
   categories: string; // JSON string e.g. "[\"Culture\"]"
   duration: number | null;
   currentParticipantCount: number;
+  thumbnailUrl: string | null;
 }
 
 /** Pagination metadata from API */
@@ -69,8 +70,8 @@ export interface CreateRoomPayload {
   name: string;
   roomType: RoomType;
   languageType: LanguageType;
-  requiredLevel: RequiredLevel;
-  topic: RoomTopic;
+  requiredLevel: RequiredLevel | "";
+  topic: RoomTopic | "";
   description: string;
   privacy: RoomPrivacy;
   password: string;

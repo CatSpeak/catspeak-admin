@@ -7,6 +7,7 @@ import {
   RoomFilters,
   CreateRoomModal,
   DeleteRoomDialog,
+  RoomDetailModal,
   RoomStats,
   Pagination,
 } from "../components";
@@ -33,6 +34,7 @@ const RoomPage: React.FC = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   const handleDeleteRequest = useCallback(
     (id: number) => {
@@ -75,7 +77,7 @@ const RoomPage: React.FC = () => {
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dark shadow-sm hover:shadow-md transition-all duration-200"
           >
             <Plus size={16} />
-            Create Room
+            Create New Room
           </button>
         </div>
 
@@ -154,11 +156,11 @@ const RoomPage: React.FC = () => {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {rooms.map((room) => (
-              <RoomCard key={room.roomId} room={room} onDelete={handleDeleteRequest} />
+              <RoomCard key={room.roomId} room={room} onDelete={handleDeleteRequest} onClick={setSelectedRoom} />
             ))}
           </div>
         ) : (
-          <RoomTable rooms={rooms} onDelete={handleDeleteRequest} />
+          <RoomTable rooms={rooms} onDelete={handleDeleteRequest} onClick={setSelectedRoom} />
         )}
 
         {/* ── Pagination ── */}
@@ -179,6 +181,10 @@ const RoomPage: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
         isDeleting={isDeleting}
+      />
+      <RoomDetailModal
+        room={selectedRoom}
+        onClose={() => setSelectedRoom(null)}
       />
     </div>
   );

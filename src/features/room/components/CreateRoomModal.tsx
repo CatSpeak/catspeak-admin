@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { X, Users, Globe, GraduationCap, Tag, Shield, Lock, ImagePlus, AlertCircle } from "lucide-react";
+import { X, Users, Globe, GraduationCap, Tag, Shield, Lock, ImagePlus } from "lucide-react";
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { ROOM_TYPES, LANGUAGE_TYPES, REQUIRED_LEVELS, ROOM_TOPICS } from "../constants";
 import type { LanguageType, RequiredLevel, RoomPrivacy, RoomTopic, RoomType } from "../types";
@@ -53,13 +53,6 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-          {/* General error */}
-          {errors.general && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-              <AlertCircle size={16} />
-              {errors.general}
-            </div>
-          )}
 
           {/* Name */}
           <div>
@@ -113,7 +106,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
                 >
-                  {l.flag} {l.label}
+                  <img src={l.flag} alt={l.label} className="w-4 h-4 rounded-sm inline-block align-text-bottom" /> {l.label}
                 </button>
               ))}
             </div>
@@ -122,13 +115,14 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
           {/* Level */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              <GraduationCap size={14} /> Required Level
+              <GraduationCap size={14} />Level
             </label>
             <select
               value={form.requiredLevel}
-              onChange={(e) => updateField("requiredLevel", e.target.value as RequiredLevel)}
+              onChange={(e) => updateField("requiredLevel", e.target.value as RequiredLevel | "")}
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none"
             >
+              <option value="" className="">Select a Level</option>
               <optgroup label="HSK Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "HSK").map((l) => (
                   <option key={l.value} value={l.value}>{l.label}</option>
@@ -153,7 +147,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 return (
                   <button
                     key={t.value}
-                    onClick={() => updateField("topic", t.value as RoomTopic)}
+                    onClick={() => updateField("topic", active ? "" : t.value as RoomTopic)}
                     className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${active
                       ? "bg-primary/10 border-primary/30 text-primary"
                       : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
