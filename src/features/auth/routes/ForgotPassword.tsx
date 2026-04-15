@@ -127,8 +127,8 @@ export default function ForgotPassword() {
 
     setIsVerifyingOtp(true);
     try {
-      await verifyResetOtp({ email: email.trim(), otp: otpValue });
-      setOtpToken(otpValue);
+      const response = await verifyResetOtp({ email: email.trim(), otp: otpValue });
+      setOtpToken(response.resetToken);
       setCurrentStep("reset");
     } catch (err) {
       setError(getApiErrorMessage(err, "Invalid or expired OTP."));
@@ -161,7 +161,7 @@ export default function ForgotPassword() {
     try {
       await resetPassword({
         email: email.trim(),
-        token: otpToken,
+        resetToken: otpToken,
         newPassword,
       });
       setCurrentStep("success");

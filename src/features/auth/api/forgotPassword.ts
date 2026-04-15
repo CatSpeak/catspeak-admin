@@ -2,6 +2,7 @@ import { axiosClient, getResponseData } from "../../../lib/axios";
 import type {
   ForgotPasswordRequest,
   VerifyResetOtpRequest,
+  VerifyResetOtpResponse,
   ResetPasswordRequest,
 } from "../types";
 
@@ -13,7 +14,7 @@ export const sendForgotPasswordOtp = async (
 
 export const verifyResetOtp = async (
   data: VerifyResetOtpRequest,
-): Promise<void> => {
+): Promise<VerifyResetOtpResponse> => {
   return getResponseData(axiosClient.post("/Auth/verify-reset-otp", data));
 };
 
