@@ -6,6 +6,7 @@ import {
   RoomTable,
   RoomFilters,
   CreateRoomModal,
+  EditRoomModal,
   DeleteRoomDialog,
   RoomDetailModal,
   RoomStats,
@@ -35,6 +36,7 @@ const RoomPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  const [editTarget, setEditTarget] = useState<Room | null>(null);
 
   const handleDeleteRequest = useCallback(
     (id: number) => {
@@ -57,6 +59,16 @@ const RoomPage: React.FC = () => {
 
   const handleRoomCreated = useCallback(() => {
     setIsCreateOpen(false);
+    refetch();
+  }, [refetch]);
+
+  const handleEditRequest = useCallback(
+    (room: Room) => setEditTarget(room),
+    [],
+  );
+
+  const handleRoomEdited = useCallback(() => {
+    setEditTarget(null);
     refetch();
   }, [refetch]);
 
@@ -156,11 +168,11 @@ const RoomPage: React.FC = () => {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {rooms.map((room) => (
-              <RoomCard key={room.roomId} room={room} onDelete={handleDeleteRequest} onClick={setSelectedRoom} />
+              <RoomCard key={room.roomId} room={room} onDelete={handleDeleteRequest} onEdit={handleEditRequest} onClick={setSelectedRoom} />
             ))}
           </div>
         ) : (
-          <RoomTable rooms={rooms} onDelete={handleDeleteRequest} onClick={setSelectedRoom} />
+          <RoomTable rooms={rooms} onDelete={handleDeleteRequest} onEdit={handleEditRequest} onClick={setSelectedRoom} />
         )}
 
         {/* ── Pagination ── */}
@@ -185,6 +197,11 @@ const RoomPage: React.FC = () => {
       <RoomDetailModal
         room={selectedRoom}
         onClose={() => setSelectedRoom(null)}
+      />
+      <EditRoomModal
+        room={editTarget}
+        onClose={() => setEditTarget(null)}
+        onEdited={handleRoomEdited}
       />
     </div>
   );

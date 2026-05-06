@@ -1,38 +1,69 @@
-import { MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { MoreVertical, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { usePaginatedUsers } from "../hooks/usePaginatedUsers";
-import Card from "../../../components/ui/Card";
+import DataTable, { type Column } from "../../../components/ui/DataTable";
+import Pagination from "../../../components/ui/Pagination";
+import { formatDate } from "../../../lib/utils";
+import type { Account } from "../../../entities/types";
 
-const FILTER_TEXT_PLACEHOLDERS = [
-  "User's Name",
-  "User's mail",
-  "User's phone",
-  "Time range of creation",
+const LEVEL_OPTIONS = ["Beginner", "Intermediate", "Advanced"];
+
+// roleId mapping: 1 = Admin, 2 = Instructor, 3 = Staff, 4 = User (adjust to match backend)
+const ROLE_OPTIONS = [
+  { label: "User", value: 4 },
+  { label: "Instructor", value: 2 },
+  { label: "Staff", value: 3 },
 ];
 
-const FILTER_SELECT_PLACEHOLDERS = [
-  "Payment range",
-  "Last login time",
-  "Visit Duration",
-  "Proficiency",
-  "Language learning",
-  "Natural language",
+const STATUS_OPTIONS = [
+  { label: "Active", value: 1 },
+  { label: "Banned", value: 0 },
 ];
 
-const TABLE_HEADERS = [
-  "ID",
-  "User Name",
-  "Gmail",
-  "Phone Number",
-  "Date Joined",
-  "Country",
-  "Level",
-  "Last Active",
+const columns: Column<Account>[] = [
+  {
+    header: "ID",
+    render: (a) => <span className="font-medium text-gray-900">{a.accountId}</span>,
+  },
+  {
+    header: "Username",
+    render: (a) => a.username,
+  },
+  {
+    header: "Gmail",
+    render: (a) => <span className="text-primary underline">{a.email}</span>,
+  },
+  {
+    header: "Phone Number",
+    render: (a) => a.phoneNumber || "—",
+  },
+  {
+    header: "Date Joined",
+    render: (a) => formatDate(a.createDate),
+  },
+  {
+    header: "Country",
+    render: (a) => (
+      <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary text-white font-medium">
+        {a.country || "Việt Nam"}
+      </span>
+    ),
+  },
+  {
+    header: "Level",
+    render: (a) => <span className="font-medium text-gray-700">{a.level || "—"}</span>,
+  },
+  {
+    header: "Role",
+    render: (a) => (
+      <span className="font-medium text-gray-700 capitalize">{a.roleName || "—"}</span>
+    ),
+  },
+  {
+    header: "Last Active",
+    render: (a) => formatDate(a.lastSeen),
+  },
 ];
-
-function formatDate(value?: string | null) {
-  return value ? new Date(value).toLocaleDateString() : "—";
-}
 
 export default function UserTable() {
   const navigate = useNavigate();
@@ -45,194 +76,141 @@ export default function UserTable() {
     totalPages,
     totalCount,
     pageNumbers,
+    searchInput,
+    roleId,
+    level,
+    status,
     goToPage,
     changeItemsPerPage,
+    changeSearch,
+    changeRoleId,
+    changeLevel,
+    changeStatus,
   } = usePaginatedUsers();
 
-  const handleItemsPerPageChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    changeItemsPerPage(Number(e.target.value));
-  };
+  const hasActiveFilters =
+    searchInput !== "" ||
+    roleId !== undefined ||
+    level !== "" ||
+    status !== undefined;
 
-  const handleRowClick = (accountId: number) => {
-    navigate(`/users/${accountId}`);
+  const clearFilters = () => {
+    changeSearch("");
+    changeRoleId(undefined);
+    changeLevel("");
+    changeStatus(undefined);
   };
 
   return (
     <div className="space-y-4 py-8">
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 text-red-600 px-4 py-3 text-sm">
-          {error}
-        </div>
-      )}
-
       {/* Filter Section */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 p-4 rounded-lg bg-orange-50 border border-accent/20">
-        {FILTER_TEXT_PLACEHOLDERS.map((placeholder) => (
-          <input
-            key={placeholder}
-            type="text"
-            placeholder={placeholder}
-            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        ))}
-        {FILTER_SELECT_PLACEHOLDERS.map((placeholder) => (
-          <select
-            key={placeholder}
-            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
-            defaultValue=""
-          >
-            <option value="" disabled>
-              {placeholder}
-            </option>
-          </select>
-        ))}
-      </div>
-
-      <Card noPadding className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-primary text-white">
-              <tr>
-                {TABLE_HEADERS.map((header) => (
-                  <th
-                    key={header}
-                    className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
-                  >
-                    {header}
-                  </th>
-                ))}
-                <th className="px-4 py-3 text-center text-xs font-bold w-12"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="px-4 py-24 text-center text-sm text-gray-500"
-                  >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                      <span>Loading users...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : accounts.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={12}
-                    className="px-4 py-8 text-center text-sm text-gray-500"
-                  >
-                    No users found
-                  </td>
-                </tr>
-              ) : (
-                accounts.map((account, idx) => (
-                  <tr
-                    key={account.accountId}
-                    onClick={() => handleRowClick(account.accountId)}
-                    className={`hover:bg-gray-50 transition-colors cursor-pointer ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
-                  >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                      {account.accountId}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {account.username}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-primary underline">
-                      {account.email}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {account.phoneNumber || "—"}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {formatDate(account.createDate)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary text-white font-medium">
-                        {account.country || "Việt Nam"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm font-medium text-gray-700">
-                        {account.level || "—"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      {formatDate(account.lastSeen)}
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        type="button"
-                        className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-500"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-700">Rows per page:</span>
-          <select
-            className="px-2 py-1 text-sm rounded border border-gray-300 bg-white focus:outline-none"
-            value={itemsPerPage}
-            onChange={handleItemsPerPageChange}
-          >
-            <option value={10}>10</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-            <option value={200}>200</option>
-          </select>
-          <span className="text-sm ml-2 text-gray-600">
-            Total: {totalCount} users
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={!accounts.length || currentPage === 1}
-            className="p-1.5 rounded transition-colors disabled:opacity-40 text-primary hover:bg-primary/10 disabled:hover:bg-transparent"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          <div className="flex items-center gap-1">
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                  currentPage === page
-                    ? "bg-primary text-white"
-                    : "text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+      <div className="p-4 rounded-lg bg-orange-50 border border-accent/20 space-y-3">
+        {/* Row 1: search + selects */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Search input (name / email / phone) */}
+          <div className="relative sm:col-span-2">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => changeSearch(e.target.value)}
+              placeholder="Search by name, email or phone…"
+              className="w-full pl-9 pr-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+            />
           </div>
 
-          <button
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={!accounts.length || currentPage === totalPages}
-            className="p-1.5 rounded transition-colors disabled:opacity-40 text-primary hover:bg-primary/10 disabled:hover:bg-transparent"
+          {/* Role filter */}
+          <select
+            value={roleId ?? ""}
+            onChange={(e) =>
+              changeRoleId(e.target.value === "" ? undefined : Number(e.target.value))
+            }
+            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
           >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+            <option value="">All Roles</option>
+            {ROLE_OPTIONS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+
+          {/* Level filter */}
+          <select
+            value={level}
+            onChange={(e) => changeLevel(e.target.value)}
+            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">All Levels</option>
+            {LEVEL_OPTIONS.map((l) => (
+              <option key={l} value={l}>
+                {l}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Row 2: status + clear button */}
+        <div className="flex flex-wrap items-center gap-3">
+          <select
+            value={status ?? ""}
+            onChange={(e) =>
+              changeStatus(e.target.value === "" ? undefined : Number(e.target.value))
+            }
+            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">All Statuses</option>
+            {STATUS_OPTIONS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 hover:text-red-600 border border-gray-200 rounded bg-white hover:border-red-300 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+              Clear filters
+            </button>
+          )}
         </div>
       </div>
+
+      <DataTable
+        columns={columns}
+        data={accounts}
+        keyExtractor={(a) => a.accountId}
+        loading={loading}
+        loadingMessage="Loading users..."
+        emptyMessage="No users found"
+        error={error}
+        onRowClick={(a) => navigate(`/users/${a.accountId}`)}
+        renderActions={() => (
+          <button
+            type="button"
+            className="p-1 hover:bg-gray-200 rounded transition-colors text-gray-500"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+        )}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageNumbers={pageNumbers}
+        totalCount={totalCount}
+        itemsPerPage={itemsPerPage}
+        entityName="users"
+        disabled={!accounts.length}
+        onPageChange={goToPage}
+        onPageSizeChange={changeItemsPerPage}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import {
   X, Users, Globe, GraduationCap, Tag, Timer,
-  Shield, Calendar, Hash,
+  Shield, Calendar, Hash, Lock,
 } from "lucide-react";
 import type { Room } from "../types";
 import { LANGUAGE_FLAGS, ROOM_TYPE_STYLES } from "../constants";
@@ -128,7 +128,11 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
             )}
 
             <DetailRow icon={<Shield size={15} />} label="Privacy">
-              Public
+              <span className="inline-flex items-center gap-1">
+                {room.privacy === "Private" ? <Lock size={13} className="text-amber-500" /> : <Globe size={13} className="text-sky-500" />}
+                {room.privacy}
+                {room.hasPassword && <span className="text-[10px] text-gray-400 ml-1">(password protected)</span>}
+              </span>
             </DetailRow>
 
             <DetailRow icon={<Hash size={15} />} label="Room ID">

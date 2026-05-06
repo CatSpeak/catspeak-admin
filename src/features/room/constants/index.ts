@@ -29,6 +29,9 @@ export const REQUIRED_LEVELS: { value: RequiredLevel; label: string; group: stri
   { value: "B2", label: "B2", group: "CEFR" },
   { value: "C1", label: "C1", group: "CEFR" },
   { value: "C2", label: "C2", group: "CEFR" },
+  { value: "Beginner", label: "Beginner", group: "Other" },
+  { value: "Intermediate", label: "Intermediate", group: "Other" },
+  { value: "Advanced", label: "Advanced", group: "Other" },
 ];
 
 export const ROOM_CATEGORIES: { value: RoomCategory; label: string; color: string }[] = [

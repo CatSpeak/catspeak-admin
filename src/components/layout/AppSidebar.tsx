@@ -7,6 +7,7 @@ import {
   ChevronDown,
   MessageCircle,
   FileWarning,
+  GraduationCap,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
@@ -30,7 +31,7 @@ const navItems: NavItem[] = [
     icon: <Users size={20} />,
     subItems: [
       { name: "Users", path: "/users" },
-      { name: "Staff", path: "/staff" },
+      { name: "Staffs", path: "/staffs" },
     ],
   },
   {
@@ -41,6 +42,12 @@ const navItems: NavItem[] = [
       { name: "Calendar", path: "/calendar" },
       { name: "Room", path: "/room" },
     ],
+  },
+  {
+    section: "Applications",
+    name: "Instructor Applications",
+    icon: <GraduationCap size={20} />,
+    path: "/instructor-applications",
   },
   {
     section: "Feedback",

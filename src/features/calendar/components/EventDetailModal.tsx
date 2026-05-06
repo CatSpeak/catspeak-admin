@@ -53,7 +53,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
           <div className="flex items-center gap-3 min-w-0">
             <span className={`w-3 h-3 rounded-full shrink-0 ${color.dot}`} />
             <h2 className="text-lg font-bold text-gray-900 truncate">
-              {isLoading ? "Loading…" : event?.title ?? "Event Details"}
+              {isLoading ? "Loading…" : event?.title || "(No title)"}
             </h2>
           </div>
           <button
@@ -106,7 +106,9 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 {/* Date & Time */}
                 {!event.isRecurring && event.startTime && event.endTime && (
                   <InfoRow icon={<Calendar size={15} />} label="Date">
-                    {formatDate(event.startTime)}
+                    {formatDate(event.startTime) === formatDate(event.endTime)
+                      ? formatDate(event.startTime)
+                      : `${formatDate(event.startTime)} – ${formatDate(event.endTime)}`}
                   </InfoRow>
                 )}
                 {!event.isRecurring && event.startTime && event.endTime && (
@@ -151,13 +153,13 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
               </div>
 
               {/* Conditions */}
-              {event.conditions.length > 0 && (
+              {(event.conditions?.length ?? 0) > 0 && (
                 <div>
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                     Conditions
                   </h4>
                   <div className="space-y-2">
-                    {event.conditions.map((cond) => (
+                    {event.conditions!.map((cond) => (
                       <div
                         key={cond.id}
                         className="p-2.5 rounded-lg bg-gray-50 border border-gray-100"

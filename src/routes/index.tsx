@@ -19,9 +19,11 @@ const CalendarPage = lazy(() => import("../features/calendar/routes/CalendarPage
 const RoomPage = lazy(() => import("../features/room/routes/RoomPage"));
 const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage"));
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
+const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
+const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
 
 const PageLoader = () => (
-  <div className="flex h-full w-full items-center justify-center">
+  <div className="flex min-h-[50vh] w-full items-center justify-center">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
   </div>
 );
@@ -55,8 +57,8 @@ export const router = createBrowserRouter([
           { index: true, element: wrap(Dashboard) },
           { path: "users", element: wrap(UsersPage) },
           { path: "users/:id", element: wrap(UserDetailPage) },
-          { path: "staff", element: wrap(StaffsPage) },
-          { path: "staff/:id", element: wrap(StaffDetailPage) },
+          { path: "staffs", element: wrap(StaffsPage) },
+          { path: "staffs/:id", element: wrap(StaffDetailPage) },
           { path: "reports", element: wrap(HandleReportsPage) },
           { path: "live-chat", element: wrap(LiveChatPage) },
           { path: "news", element: wrap(NewsPage) },
@@ -64,6 +66,8 @@ export const router = createBrowserRouter([
           { path: "room", element: wrap(RoomPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
           { path: "news/:id", element: wrap(PostDetailPage) },
+          { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
+          { path: "instructor-applications/:id", element: wrap(InstructorApplicationDetailPage) },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
             element: <ComingSoonPage title={route.title} />,

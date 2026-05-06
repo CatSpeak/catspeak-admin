@@ -99,7 +99,7 @@ const GridEventPill: React.FC<{
       title={`${event.title}\n${timeStr}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${color.dot}`} />
-      <span className="truncate">{event.title}</span>
+      <span className="truncate">{event.title || "(No title)"}</span>
     </button>
   );
 };

@@ -29,3 +29,9 @@ export const createRoom = async (formData: FormData): Promise<void> => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
+export const editRoom = async (id: number, formData: FormData): Promise<void> => {
+  await axiosClient.put(`/rooms/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+};
