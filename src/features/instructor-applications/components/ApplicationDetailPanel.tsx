@@ -34,7 +34,7 @@ interface ApplicationDetailPanelProps {
   onReviewed: () => void;
 }
 
-function safeParseJsonArray(raw: string | null | undefined): string[] {
+function safeParseJsonArray(raw: string | null | undefined): any[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -306,14 +306,17 @@ export default function ApplicationDetailPanel({
                 value={
                   languages.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5 mt-1">
-                      {languages.map((lang) => (
-                        <span
-                          key={lang}
-                          className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium"
-                        >
-                          {lang}
-                        </span>
-                      ))}
+                      {languages.map((lang, index) => {
+                        const text = typeof lang === "string" ? lang : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
+                        return (
+                          <span
+                            key={index}
+                            className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium"
+                          >
+                            {text}
+                          </span>
+                        );
+                      })}
                     </div>
                   ) : (
                     "—"
