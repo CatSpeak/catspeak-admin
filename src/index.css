@@ -91,6 +91,10 @@
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
   --shadow-theme-md: var(--shadow-md);
 
+  --animate-fadeIn: fadeIn 0.2s ease-out;
+  --animate-slideUp: slideUp 0.3s ease-out;
+  --animate-scaleIn: scaleIn 0.2s ease-out;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;

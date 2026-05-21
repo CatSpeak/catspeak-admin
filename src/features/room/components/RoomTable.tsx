@@ -1,21 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, GraduationCap, Timer, MoreVertical } from "lucide-react";
+import { Users, Clock, Trash2, Pencil, GraduationCap, Timer, MoreVertical, Lock, Globe } from "lucide-react";
 import type { Room } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 
 interface RoomTableProps {
   rooms: Room[];
   onDelete: (id: number) => void;
+  onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
 
 interface RoomTableRowProps {
   room: Room;
   onDelete: (id: number) => void;
+  onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
 
-const RoomTableRow: React.FC<RoomTableRowProps> = ({ room, onDelete, onClick }) => {
+const RoomTableRow: React.FC<RoomTableRowProps> = ({ room, onDelete, onEdit, onClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -95,6 +97,12 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({ room, onDelete, onClick }) 
           {isActive ? "Active" : "Inactive"}
         </span>
       </td>
+      <td className="px-4 py-3 text-center">
+        <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium ${room.privacy === "Private" ? "bg-amber-50 text-amber-700" : "bg-sky-50 text-sky-700"}`}>
+          {room.privacy === "Private" ? <Lock size={10} /> : <Globe size={10} />}
+          {room.privacy}
+        </span>
+      </td>
       <td className="px-4 py-3">
         <span className="inline-flex items-center gap-1 text-xs text-gray-400">
           <Clock size={12} />
@@ -111,7 +119,17 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({ room, onDelete, onClick }) 
             <MoreVertical size={16} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1">
+            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  onEdit?.(room);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Pencil size={14} />
+                Edit room
+              </button>
               <button
                 onClick={() => {
                   setMenuOpen(false);
@@ -131,7 +149,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({ room, onDelete, onClick }) 
 };
 
 /* ── Table component ── */
-const RoomTable: React.FC<RoomTableProps> = ({ rooms, onDelete, onClick }) => {
+const RoomTable: React.FC<RoomTableProps> = ({ rooms, onDelete, onEdit, onClick }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -146,13 +164,14 @@ const RoomTable: React.FC<RoomTableProps> = ({ rooms, onDelete, onClick }) => {
               <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider">Participants</th>
               <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider">Duration</th>
               <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider">Status</th>
+              <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider">Privacy</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider">Created At</th>
               <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 tracking-wider w-16"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rooms.map((room) => (
-              <RoomTableRow key={room.roomId} room={room} onDelete={onDelete} onClick={onClick} />
+              <RoomTableRow key={room.roomId} room={room} onDelete={onDelete} onEdit={onEdit} onClick={onClick} />
             ))}
           </tbody>
         </table>

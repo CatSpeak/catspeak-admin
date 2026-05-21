@@ -122,7 +122,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
               onChange={(e) => updateField("requiredLevel", e.target.value as RequiredLevel | "")}
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none"
             >
-              <option value="" className="">Select a Level</option>
+              <option value="">Select a Level</option>
               <optgroup label="HSK Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "HSK").map((l) => (
                   <option key={l.value} value={l.value}>{l.label}</option>
@@ -130,6 +130,11 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
               </optgroup>
               <optgroup label="CEFR Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "CEFR").map((l) => (
+                  <option key={l.value} value={l.value}>{l.label}</option>
+                ))}
+              </optgroup>
+              <optgroup label="Other Levels">
+                {REQUIRED_LEVELS.filter((l) => l.group === "Other").map((l) => (
                   <option key={l.value} value={l.value}>{l.label}</option>
                 ))}
               </optgroup>
@@ -159,18 +164,6 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
               })}
             </div>
           </div>
-
-          {/* Description
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Description</label>
-            <textarea
-              placeholder="What will participants talk about?"
-              value={form.description}
-              onChange={(e) => updateField("description", e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all resize-none"
-            />
-          </div> */}
 
           {/* Privacy */}
           <div>

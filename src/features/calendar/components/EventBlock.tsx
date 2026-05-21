@@ -57,7 +57,7 @@ const EventBlock: React.FC<EventBlockProps> = ({
       title={`${event.title}\n${timeStr}`}
     >
       <p className={`text-xs font-semibold truncate ${color.text}`}>
-        {event.title}
+        {event.title || "(No title)"}
       </p>
       {height > 36 && (
         <p className={`flex items-center gap-1 text-[10px] truncate opacity-75 ${color.text}`}>

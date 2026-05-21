@@ -35,7 +35,7 @@ export interface EventDetail {
   startTime: string | null;
   endTime: string | null;
   recurrenceRule: RecurrenceRule | null;
-  conditions: EventCondition[];
+  conditions: EventCondition[] | null;
   createdAt: string;
 }
 

@@ -40,13 +40,14 @@ export function useCreateRoom(onCreated: () => void) {
   const addToast = useToastStore((s) => s.addToast);
 
   const updateField = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
     if (key === "name") setErrors((prev) => ({ ...prev, name: undefined }));
     if (key === "password") setErrors((prev) => ({ ...prev, password: undefined }));
     // Reset password when switching from Private to Public
     if (key === "privacy" && value === "Public") {
       setForm((prev) => ({ ...prev, privacy: "Public" as FormState["privacy"], password: "" }));
+      return;
     }
+    setForm((prev) => ({ ...prev, [key]: value }));
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -91,7 +92,7 @@ export function useCreateRoom(onCreated: () => void) {
     } finally {
       setIsSubmitting(false);
     }
-  }, [form, onCreated]);
+  }, [form, onCreated, addToast]);
 
   const resetForm = useCallback(() => {
     setForm(INITIAL);

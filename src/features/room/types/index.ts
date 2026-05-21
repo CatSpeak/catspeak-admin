@@ -4,7 +4,8 @@ export type RoomType = "OneToOne" | "Group";
 export type LanguageType = "Chinese" | "English" | "Vietnamese";
 export type RequiredLevel =
   | "HSK1" | "HSK2" | "HSK3" | "HSK4" | "HSK5" | "HSK6"
-  | "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+  | "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
+  | "Beginner" | "Intermediate" | "Advanced";
 export type RoomCategory = "Other" | "Knowledge" | "Culture" | "Lifestyle" | "Growth";
 export type RoomPrivacy = "Public" | "Private";
 export type RoomTopic =
@@ -31,6 +32,8 @@ export interface Room {
   duration: number | null;
   currentParticipantCount: number;
   thumbnailUrl: string | null;
+  privacy: RoomPrivacy;
+  hasPassword: boolean;
 }
 
 /** Pagination metadata from API */
@@ -76,6 +79,15 @@ export interface CreateRoomPayload {
   privacy: RoomPrivacy;
   password: string;
   thumbnail: File | null;
+}
+
+export interface EditRoomPayload {
+  name: string;
+  privacy: RoomPrivacy;
+  requiredLevel: RequiredLevel | "";
+  topics: RoomTopic[];
+  password: string;
+  description: string;
 }
 
 export type ViewMode = "grid" | "table";

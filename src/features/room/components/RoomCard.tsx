@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, GraduationCap, Tag, MoreVertical } from "lucide-react";
+import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe } from "lucide-react";
 import type { Room } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 
@@ -9,10 +9,11 @@ const DEFAULT_THUMBNAIL =
 interface RoomCardProps {
   room: Room;
   onDelete: (id: number) => void;
+  onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onClick }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -48,11 +49,15 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onClick }) => {
           className="w-full h-full object-cover"
           onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
         />
-        {/* Status */}
-        <div className="absolute top-2 left-2">
+        {/* Status + Privacy */}
+        <div className="absolute top-2 left-2 flex gap-1.5">
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
             {isActive ? "Active" : "Inactive"}
+          </span>
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ${room.privacy === "Private" ? "bg-amber-500/90 text-white" : "bg-white/80 text-gray-600"}`}>
+            {room.privacy === "Private" ? <Lock size={9} /> : <Globe size={9} />}
+            {room.privacy}
           </span>
         </div>
         {/* Menu — always visible on card */}
@@ -65,7 +70,14 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onClick }) => {
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1">
+            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden">
+              <button
+                onClick={() => { setMenuOpen(false); onEdit?.(room); }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Pencil size={14} />
+                Edit room
+              </button>
               <button
                 onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"

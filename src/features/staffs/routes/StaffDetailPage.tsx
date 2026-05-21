@@ -46,7 +46,7 @@ export default function StaffDetailPage() {
         >
           <span
             className="cursor-pointer hover:underline"
-            onClick={() => navigate("/staff")}
+            onClick={() => navigate("/staffs")}
             style={{ color: "var(--color-text-secondary)" }}
           >
             Staffs
@@ -56,7 +56,7 @@ export default function StaffDetailPage() {
         </nav>
 
         <button
-          onClick={() => navigate("/staff")}
+          onClick={() => navigate("/staffs")}
           className="px-6 py-2 text-sm font-semibold rounded-lg text-white transition-colors hover:opacity-90"
           style={{ background: "var(--color-primary)" }}
         >
