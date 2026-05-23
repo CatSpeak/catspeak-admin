@@ -21,6 +21,7 @@ const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
+const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 
 const PageLoader = () => (
   <div className="flex min-h-[50vh] w-full items-center justify-center">
@@ -68,6 +69,7 @@ export const router = createBrowserRouter([
           { path: "news/:id", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
           { path: "instructor-applications/:id", element: wrap(InstructorApplicationDetailPage) },
+          { path: "reels", element: wrap(ReelsPage) },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
             element: <ComingSoonPage title={route.title} />,

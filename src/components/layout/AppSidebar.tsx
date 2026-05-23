@@ -41,6 +41,7 @@ const navItems: NavItem[] = [
       { name: "News", path: "/news" },
       { name: "Calendar", path: "/calendar" },
       { name: "Room", path: "/room" },
+      { name: "Reels", path: "/reels" },
     ],
   },
   {
