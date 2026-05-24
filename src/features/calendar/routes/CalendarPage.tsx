@@ -100,7 +100,7 @@ export default function CalendarPage() {
   }, [deleteTarget, deleteEvent]);
 
   // ── Time grid: slot click (future: create event) ──
-  const handleSlotClick = useCallback((_date: Date, _hour: number) => {
+  const handleSlotClick = useCallback(() => {
     // Placeholder for event creation
   }, []);
 

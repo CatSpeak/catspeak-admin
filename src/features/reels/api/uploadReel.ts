@@ -1,4 +1,5 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
+import type { AxiosProgressEvent } from "axios";
 import type { ReelResponseDto, ReelPrivacy } from "../types";
 
 export interface UploadReelApiPayload {
@@ -15,7 +16,7 @@ export interface UploadReelApiPayload {
  */
 export const uploadReel = async (
   payload: UploadReelApiPayload,
-  onUploadProgress?: (progressEvent: any) => void
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
 ): Promise<ReelResponseDto> => {
   const formData = new FormData();
   formData.append("Title", payload.Title);

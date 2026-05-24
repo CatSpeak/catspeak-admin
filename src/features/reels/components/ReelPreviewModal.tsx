@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { X, Play, Pause, Volume2, VolumeX, Eye, Heart, Calendar } from "lucide-react";
 import type { ReelDto } from "../types";
 import { formatDate } from "../../../lib/utils";
@@ -17,6 +17,34 @@ export default function ReelPreviewModal({ reel, onClose }: ReelPreviewModalProp
   const [isMuted, setIsMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  // Video play state sync handlers
+  const handlePlayPause = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsPlaying((wasPlaying) => {
+      if (wasPlaying) {
+        video.pause();
+      } else {
+        video.play().catch((err: unknown) => {
+          console.error("Video play failed:", err);
+        });
+      }
+
+      return !wasPlaying;
+    });
+  }, []);
+
+  const handleMuteToggle = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    setIsMuted((wasMuted) => {
+      video.muted = !wasMuted;
+      return !wasMuted;
+    });
+  }, []);
 
   // Focus trap on mount & ESC listener
   useEffect(() => {
@@ -70,25 +98,7 @@ export default function ReelPreviewModal({ reel, onClose }: ReelPreviewModalProp
       // Restore focus on close
       previouslyActive?.focus();
     };
-  }, [reel, onClose]);
-
-  // Video play state sync handlers
-  const handlePlayPause = () => {
-    if (!videoRef.current) return;
-    if (isPlaying) {
-      videoRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      videoRef.current.play().catch(err => console.error("Video play failed:", err));
-      setIsPlaying(true);
-    }
-  };
-
-  const handleMuteToggle = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
+  }, [reel, onClose, handlePlayPause, handleMuteToggle]);
 
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;

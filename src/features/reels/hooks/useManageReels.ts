@@ -9,7 +9,7 @@ import { useReels } from "./useReels";
 
 export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
   const addToast = useToastStore((s) => s.addToast);
-  const { reels, setReels, clearSelection, refetch } = reelsHook;
+  const { rawReels, setReels, clearSelection, refetch } = reelsHook;
 
   // Upload States
   const [isUploading, setIsUploading] = useState(false);
@@ -30,7 +30,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     const nextBackendStatus = nextPrivacy; // Matches backend WarnOrBlockReelDto status
 
     // Backup current state for rollback
-    const previousReelsState = [...reels];
+    const previousReelsState = [...rawReels];
 
     // Optimistically update frontend state
     setReels((prev: ReelDto[]) =>
@@ -67,12 +67,12 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         getApiErrorMessage(err, `Failed to update status for "${reel.title || "Reel"}". Rolled back changes.`)
       );
     }
-  }, [reels, setReels, addToast]);
+  }, [rawReels, setReels, addToast]);
 
   // ── Metadata Edit (Drawer Simulator - Optimistic) ──
   const updateReelMetadata = useCallback(async (reelId: number, payload: UpdateReelMetadataPayload) => {
     setIsUpdating(true);
-    const previousReelsState = [...reels];
+    const previousReelsState = [...rawReels];
 
     // Optimistically update details locally
     setReels((prev: ReelDto[]) =>
@@ -101,9 +101,6 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         });
       }
 
-      // Simulate metadata save delay (300ms) to ensure premium interactive micro-animations
-      await new Promise((res) => setTimeout(res, 300));
-
       addToast("success", "Reel metadata updated successfully.");
     } catch (err) {
       setReels(previousReelsState);
@@ -114,7 +111,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     } finally {
       setIsUpdating(false);
     }
-  }, [reels, setReels, addToast]);
+  }, [rawReels, setReels, addToast]);
 
   // ── Single Delete ──
   const openDeleteModal = useCallback((reel: ReelDto) => {
@@ -129,7 +126,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     if (!deleteTarget) return;
 
     setIsDeleting(true);
-    const backupReels = [...reels];
+    const backupReels = [...rawReels];
 
     // Optimistic UI delete
     setReels((prev: ReelDto[]) => prev.filter((r: ReelDto) => r.reelId !== deleteTarget.reelId));
@@ -148,7 +145,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     } finally {
       setIsDeleting(false);
     }
-  }, [deleteTarget, reels, setReels, addToast]);
+  }, [deleteTarget, rawReels, setReels, addToast]);
 
   // ── Upload Administrative Reel ──
   const handleUploadReel = useCallback(async (payload: UploadReelPayload) => {
@@ -159,7 +156,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     const isLargeFile = payload.VideoFile.size > 50 * 1024 * 1024; // 50MB
 
     // Chunk simulation parameters
-    let simulatedInterval: any;
+    let simulatedInterval: ReturnType<typeof setInterval> | undefined;
 
     const apiPayload: UploadReelApiPayload = {
       Title: payload.Title,
@@ -186,37 +183,17 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         }
       });
 
-      if (simulatedInterval!) clearInterval(simulatedInterval);
+      if (simulatedInterval) clearInterval(simulatedInterval);
       setUploadProgress(100);
 
-      // Extract new reel
-      const newReel: ReelDto = response.data || {
-        reelId: Math.floor(Math.random() * 1000) + 200,
-        title: payload.Title,
-        description: payload.Description,
-        privacy: payload.Privacy,
-        status: payload.Privacy,
-        videoUrl: URL.createObjectURL(payload.VideoFile),
-        coverUrl: payload.CoverFile ? URL.createObjectURL(payload.CoverFile) : "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500",
-        viewCount: 0,
-        likesCount: 0,
-        commentsCount: 0,
-        isLiked: false,
-        createdAt: new Date().toISOString(),
-        hashtags: payload.Tags || [],
-        username: "admin_catspeak",
-        nickname: "Administrator",
-        avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100",
-        duration: 15,
-        scheduledAt: payload.ScheduledAt,
-      };
-
-      // Add to main local state instantly to show optimistic progress
-      setReels((prev: ReelDto[]) => [newReel, ...prev]);
+      const newReel = response.data;
+      if (newReel) {
+        setReels((prev: ReelDto[]) => [newReel, ...prev]);
+      }
       addToast("success", `Reel "${payload.Title}" uploaded successfully.`);
       refetch(); // Trigger background sync
     } catch (err) {
-      if (simulatedInterval!) clearInterval(simulatedInterval);
+      if (simulatedInterval) clearInterval(simulatedInterval);
       const errMsg = getApiErrorMessage(err, "Failed to upload reel.");
       setUploadError(errMsg);
       addToast("error", errMsg);
@@ -230,8 +207,8 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
   const performBulkAction = useCallback(async (action: "publish" | "unpublish" | "delete", selectedIds: number[]) => {
     if (selectedIds.length === 0) return;
 
-    const previousReelsState = [...reels];
-    const targetTitles = reels
+    const previousReelsState = [...rawReels];
+    const targetTitles = rawReels
       .filter((r) => selectedIds.includes(r.reelId))
       .map((r) => r.title || `ID ${r.reelId}`)
       .join(", ");
@@ -278,7 +255,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         addToast("error", getApiErrorMessage(err, "Bulk delete failed. Changes rolled back."));
       }
     }
-  }, [reels, setReels, addToast, clearSelection]);
+  }, [rawReels, setReels, addToast, clearSelection]);
 
   return {
     isUploading,

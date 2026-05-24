@@ -11,6 +11,52 @@ interface ChallengeFormModalProps {
   isSaving: boolean;
 }
 
+interface ChallengeFormValues {
+  name: string;
+  hashtag: string;
+  description: string;
+  bannerUrl: string;
+  startDate: string;
+  endDate: string;
+}
+
+const formatIsoToInput = (isoString?: string | null): string => {
+  if (!isoString) return "";
+  try {
+    const d = new Date(isoString);
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  } catch {
+    return "";
+  }
+};
+
+function getInitialFormValues(challenge: ChallengeDto | null): ChallengeFormValues {
+  if (challenge) {
+    return {
+      name: challenge.name || "",
+      hashtag: challenge.hashtag || "",
+      description: challenge.description || "",
+      bannerUrl: challenge.bannerUrl || "",
+      startDate: formatIsoToInput(challenge.startDate),
+      endDate: formatIsoToInput(challenge.endDate),
+    };
+  }
+
+  const now = new Date();
+  const start = new Date(now.getTime() + 10 * 60 * 1000);
+  const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  return {
+    name: "",
+    hashtag: "",
+    description: "",
+    bannerUrl: "",
+    startDate: formatIsoToInput(start.toISOString()),
+    endDate: formatIsoToInput(end.toISOString()),
+  };
+}
+
 export default function ChallengeFormModal({
   challenge,
   isOpen,
@@ -21,55 +67,17 @@ export default function ChallengeFormModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
+  const initialValues = getInitialFormValues(challenge);
+
   // Form states
-  const [name, setName] = useState("");
-  const [hashtag, setHashtag] = useState("");
-  const [description, setDescription] = useState("");
-  const [bannerUrl, setBannerUrl] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [name, setName] = useState(initialValues.name);
+  const [hashtag, setHashtag] = useState(initialValues.hashtag);
+  const [description, setDescription] = useState(initialValues.description);
+  const [bannerUrl, setBannerUrl] = useState(initialValues.bannerUrl);
+  const [startDate, setStartDate] = useState(initialValues.startDate);
+  const [endDate, setEndDate] = useState(initialValues.endDate);
 
   const [localError, setLocalError] = useState<string | null>(null);
-
-  // Helper to format ISO Date to local input compatible format (YYYY-MM-DDThh:mm)
-  const formatIsoToInput = (isoString?: string | null): string => {
-    if (!isoString) return "";
-    try {
-      const d = new Date(isoString);
-      // Adjust timezone offset to match local time for input
-      const tzOffset = d.getTimezoneOffset() * 60000;
-      const localISOTime = new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
-      return localISOTime;
-    } catch {
-      return "";
-    }
-  };
-
-  // Populate form fields on edit / mount
-  useEffect(() => {
-    if (challenge && isOpen) {
-      setName(challenge.name || "");
-      setHashtag(challenge.hashtag || "");
-      setDescription(challenge.description || "");
-      setBannerUrl(challenge.bannerUrl || "");
-      setStartDate(formatIsoToInput(challenge.startDate));
-      setEndDate(formatIsoToInput(challenge.endDate));
-      setLocalError(null);
-    } else if (isOpen) {
-      // Default dates for new challenges
-      const now = new Date();
-      const start = new Date(now.getTime() + 10 * 60 * 1000); // 10 mins from now
-      const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days duration
-
-      setName("");
-      setHashtag("");
-      setDescription("");
-      setBannerUrl("");
-      setStartDate(formatIsoToInput(start.toISOString()));
-      setEndDate(formatIsoToInput(end.toISOString()));
-      setLocalError(null);
-    }
-  }, [challenge, isOpen]);
 
   // Focus trap and ESC handler
   useEffect(() => {

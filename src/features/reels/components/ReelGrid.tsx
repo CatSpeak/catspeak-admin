@@ -67,7 +67,8 @@ export default function ReelGrid({
     return r;
   }, [reels, columns]);
 
-  // Tanstack Virtual Row Virtualizer
+  // TanStack Virtual intentionally returns non-memoizable helpers.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,

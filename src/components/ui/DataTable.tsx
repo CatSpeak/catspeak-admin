@@ -74,7 +74,9 @@ export default function DataTable<T>({
                   </th>
                 ))}
                 {renderActions && (
-                  <th className="px-4 py-3 text-center text-xs font-bold w-12" />
+                  <th className="px-4 py-3 text-center text-xs font-bold w-12">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 )}
               </tr>
             </thead>
@@ -107,9 +109,17 @@ export default function DataTable<T>({
                   <tr
                     key={keyExtractor(item)}
                     onClick={() => onRowClick?.(item)}
-                    className={`hover:bg-gray-50 transition-colors ${
-                      onRowClick ? "cursor-pointer" : ""
-                    } ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
+                    onKeyDown={(event) => {
+                      if (!onRowClick) return;
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        onRowClick(item);
+                      }
+                    }}
+                    tabIndex={onRowClick ? 0 : undefined}
+                    role={onRowClick ? "button" : undefined}
+                    className={`hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${onRowClick ? "cursor-pointer" : ""
+                      } ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
                   >
                     {columns.map((col) => (
                       <td

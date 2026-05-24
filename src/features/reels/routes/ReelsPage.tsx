@@ -12,8 +12,25 @@ import ChallengeFormModal from "../components/ChallengeFormModal";
 import { useReels } from "../hooks/useReels";
 import { useManageReels } from "../hooks/useManageReels";
 import { useChallenges } from "../hooks/useChallenges";
-import type { ReelDto, ChallengeDto } from "../types";
+import type {
+  ReelDto,
+  ChallengeDto,
+  ChallengeCreateDto,
+  ChallengeStatusFilter,
+} from "../types";
 import Button from "../../../components/ui/Button";
+
+const CHALLENGE_STATUS_FILTERS: ChallengeStatusFilter[] = [
+  "All",
+  "Active",
+  "Upcoming",
+  "Completed",
+];
+
+const toChallengeStatusFilter = (value: string): ChallengeStatusFilter =>
+  CHALLENGE_STATUS_FILTERS.includes(value as ChallengeStatusFilter)
+    ? (value as ChallengeStatusFilter)
+    : "All";
 
 function ReelsPageContent() {
   // Reels hooks
@@ -107,7 +124,7 @@ function ReelsPageContent() {
   };
 
   // Challenge Save mutation wrapper
-  const handleSaveChallenge = async (payload: any) => {
+  const handleSaveChallenge = async (payload: ChallengeCreateDto) => {
     setIsChallengeSaving(true);
     try {
       if (editingChallenge) {
@@ -279,7 +296,9 @@ function ReelsPageContent() {
               {/* Status dropdown filter */}
               <select
                 value={challengeStatusFilter}
-                onChange={(e) => setChallengeStatusFilter(e.target.value as any)}
+                onChange={(e) =>
+                  setChallengeStatusFilter(toChallengeStatusFilter(e.target.value))
+                }
                 className="px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer font-semibold text-gray-600"
               >
                 <option value="All">All Statuses</option>
@@ -337,6 +356,7 @@ function ReelsPageContent() {
       {/* Edit Metadata slide-in Drawer */}
       {activeEdit && (
         <ReelEditDrawer
+          key={activeEdit.reelId}
           reel={activeEdit}
           isOpen={!!activeEdit}
           onClose={() => setActiveEdit(null)}
@@ -401,6 +421,7 @@ function ReelsPageContent() {
       {/* Challenge Form Modal Creator/Editor */}
       {showChallengeModal && (
         <ChallengeFormModal
+          key={editingChallenge?.challengeId ?? "new-challenge"}
           challenge={editingChallenge}
           isOpen={showChallengeModal}
           onClose={() => {

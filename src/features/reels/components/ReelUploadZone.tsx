@@ -2,13 +2,14 @@ import React, { useState, useRef } from "react";
 import { Upload, X, FileVideo, Film, AlertCircle } from "lucide-react";
 import { MAX_REEL_FILE_SIZE_MB, ALLOWED_VIDEO_TYPES, ALLOWED_IMAGE_TYPES } from "../constants";
 import Button from "../../../components/ui/Button";
+import type { ReelPrivacy } from "../types";
 
 interface ReelUploadZoneProps {
   onClose: () => void;
   onUpload: (payload: {
     Title: string;
     Description: string;
-    Privacy: "Public" | "FriendsOnly" | "Private";
+    Privacy: ReelPrivacy;
     VideoFile: File;
     CoverFile?: File | null;
     Tags: string[];
@@ -31,7 +32,7 @@ export default function ReelUploadZone({
   // Form states
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [privacy, setPrivacy] = useState<"Public" | "FriendsOnly" | "Private">("Public");
+  const [privacy, setPrivacy] = useState<ReelPrivacy>("Public");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [tagsInput, setTagsInput] = useState("");
@@ -341,7 +342,7 @@ export default function ReelUploadZone({
                   </label>
                   <select
                     value={privacy}
-                    onChange={(e) => setPrivacy(e.target.value as any)}
+                    onChange={(e) => setPrivacy(e.target.value as ReelPrivacy)}
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all"
                   >
                     <option value="Public">Public (Publish Immediately)</option>

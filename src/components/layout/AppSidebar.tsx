@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../context/SidebarContext";
 import {
@@ -63,40 +63,38 @@ const navItems: NavItem[] = [
   },
 ];
 
+const isPathActive = (pathname: string, path: string) => {
+  if (path === "/") return pathname === "/";
+  return pathname === path || pathname.startsWith(`${path}/`);
+};
+
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useSidebar();
   const location = useLocation();
 
-  const [openSubmenu, setOpenSubmenu] = useState<number | null>(null);
-  const [prevPathname, setPrevPathname] = useState(location.pathname);
+  const [submenuOverride, setSubmenuOverride] = useState<number | null | "auto">("auto");
 
   const isActive = (path: string) => {
-    if (path === "/") return location.pathname === "/";
-    return (
-      location.pathname === path || location.pathname.startsWith(`${path}/`)
-    );
+    return isPathActive(location.pathname, path);
   };
 
-  if (location.pathname !== prevPathname) {
-    let foundActiveIndex: number | null = null;
+  const activeSubmenuIndex = useMemo(() => {
+    const index = navItems.findIndex((nav) =>
+      nav.subItems?.some((subItem) =>
+        isPathActive(location.pathname, subItem.path),
+      ),
+    );
+    return index === -1 ? null : index;
+  }, [location.pathname]);
 
-    navItems.forEach((nav, index) => {
-      if (nav.subItems) {
-        const isSubmenuActive = nav.subItems.some((subItem) =>
-          isActive(subItem.path),
-        );
-        if (isSubmenuActive) {
-          foundActiveIndex = index;
-        }
-      }
-    });
-
-    setOpenSubmenu(foundActiveIndex);
-    setPrevPathname(location.pathname);
-  }
+  const openSubmenu =
+    submenuOverride === "auto" ? activeSubmenuIndex : submenuOverride;
 
   const handleSubmenuToggle = (index: number) => {
-    setOpenSubmenu((prev) => (prev === index ? null : index));
+    setSubmenuOverride((prev) => {
+      const current = prev === "auto" ? activeSubmenuIndex : prev;
+      return current === index ? null : index;
+    });
   };
 
   return (
@@ -134,7 +132,7 @@ const AppSidebar: React.FC = () => {
         <nav className="mb-6">
           <ul className="flex flex-col gap-2">
             {navItems.map((nav, index) => (
-              <li key={index}>
+              <li key={nav.path ?? nav.name}>
                 {nav.section && (isExpanded || isHovered || isMobileOpen) && (
                   <div className="mb-2 mt-4 ml-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     {nav.section}
@@ -149,6 +147,10 @@ const AppSidebar: React.FC = () => {
                   <>
                     <button
                       onClick={() => handleSubmenuToggle(index)}
+                      aria-expanded={openSubmenu === index}
+                      aria-controls={`sidebar-submenu-${index}`}
+                      aria-label={nav.name}
+                      title={nav.name}
                       className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors group
                         ${openSubmenu === index ||
                           nav.subItems.some((sub) => isActive(sub.path))
@@ -173,6 +175,7 @@ const AppSidebar: React.FC = () => {
                     {/* Submenu */}
                     {(isExpanded || isHovered || isMobileOpen) && (
                       <div
+                        id={`sidebar-submenu-${index}`}
                         className={`overflow-hidden transition-all duration-300 ${openSubmenu === index ? "max-h-96" : "max-h-0"}`}
                       >
                         <ul className="mt-1 ml-9 space-y-1">
@@ -180,7 +183,10 @@ const AppSidebar: React.FC = () => {
                             <li key={subItem.name}>
                               <Link
                                 to={subItem.path}
-                                onClick={() => isMobileOpen && toggleMobileSidebar()}
+                                onClick={() => {
+                                  setSubmenuOverride("auto");
+                                  if (isMobileOpen) toggleMobileSidebar();
+                                }}
                                 className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(subItem.path) ? "shadow-sm" : "text-gray-600 hover:bg-gray-50"}`}
                                 style={
                                   isActive(subItem.path)
@@ -202,7 +208,12 @@ const AppSidebar: React.FC = () => {
                 ) : (
                   <Link
                     to={nav.path!}
-                    onClick={() => isMobileOpen && toggleMobileSidebar()}
+                    onClick={() => {
+                      setSubmenuOverride("auto");
+                      if (isMobileOpen) toggleMobileSidebar();
+                    }}
+                    aria-label={nav.name}
+                    title={nav.name}
                     className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors
                       ${isActive(nav.path!)
                         ? "bg-primary/10 text-primary"

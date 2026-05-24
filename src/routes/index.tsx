@@ -4,6 +4,7 @@ import AppLayout from "../components/layout/AppLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { ComingSoonPage } from "./ComingSoonPage";
+import PageLoader from "./PageLoader";
 
 const Login = lazy(() => import("../features/auth/routes/Login"));
 const ForgotPassword = lazy(() => import("../features/auth/routes/ForgotPassword"));
@@ -22,12 +23,6 @@ const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
-
-const PageLoader = () => (
-  <div className="flex min-h-[50vh] w-full items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>

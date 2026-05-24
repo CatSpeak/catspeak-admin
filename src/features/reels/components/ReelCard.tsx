@@ -15,14 +15,14 @@ interface ReelCardProps {
 }
 
 // ── Utility formatters ──
-export function formatDuration(seconds?: number): string {
+function formatDuration(seconds?: number): string {
   if (seconds === undefined || isNaN(seconds)) return "0:00";
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 }
 
-export function formatViews(count?: number): string {
+function formatViews(count?: number): string {
   if (!count) return "0";
   if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
   if (count >= 1000) return `${(count / 1000).toFixed(1)}k`;

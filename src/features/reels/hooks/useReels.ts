@@ -107,8 +107,8 @@ export function useReels() {
 
     // 4. Sorting
     result.sort((a, b) => {
-      let valA: any = a[sortBy] ?? "";
-      let valB: any = b[sortBy] ?? "";
+      let valA: string | number = a[sortBy] ?? "";
+      let valB: string | number = b[sortBy] ?? "";
 
       if (sortBy === "createdAt") {
         valA = new Date(a.createdAt).getTime();
@@ -179,6 +179,7 @@ export function useReels() {
   }, []);
 
   return {
+    rawReels: reels,
     reels: filteredAndSortedReels,
     paginatedReels,
     loading,

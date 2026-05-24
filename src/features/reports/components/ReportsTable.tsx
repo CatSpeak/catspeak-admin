@@ -2,69 +2,85 @@ import { useState } from "react";
 import Card from "../../../components/ui/Card";
 import ReportRow from "./ReportRow";
 
+export type ReportDecision = "innocent" | "violation";
+
 export interface Report {
   id: string;
   letterId: string;
   ownerId: string;
   reportersCount: number;
   content: string;
+  decision?: ReportDecision;
 }
 
-// Mock data - replace with API call later
 const mockReports: Report[] = [
   {
     id: "1",
     letterId: "obc111111",
     ownerId: "ABC22222",
     reportersCount: 1,
-    content: "Tôi muốn tìm bạn chơi buổi tối",
+    content: "I want to find a conversation partner tonight.",
   },
   {
     id: "2",
     letterId: "obc111111",
     ownerId: "ABC22222",
     reportersCount: 2,
-    content: "Tôi muốn tìm bạn chơi buổi tối",
+    content: "I want to find a conversation partner tonight.",
   },
 ];
 
 export default function ReportsTable() {
-  const [reports] = useState<Report[]>(mockReports);
+  const [reports, setReports] = useState<Report[]>(mockReports);
 
-  const handleDecision = (
-    _reportId: string,
-    _decision: "innocent" | "violation",
-  ) => {
-    // TODO: Implement API call to update report decision
+  const handleDecision = (reportId: string, decision: ReportDecision) => {
+    setReports((prev) =>
+      prev.map((report) =>
+        report.id === reportId ? { ...report, decision } : report,
+      ),
+    );
   };
 
   return (
     <Card noPadding className="overflow-hidden">
-      {/* Table Container */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          {/* Table Header */}
+          <caption className="sr-only">Reported letters awaiting review</caption>
           <thead>
             <tr style={{ backgroundColor: "var(--color-primary)" }}>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap">
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap"
+              >
                 Letter's ID
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap">
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap"
+              >
                 Owner's ID
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap">
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap"
+              >
                 Reporters count
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap">
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap"
+              >
                 Content's Letter
               </th>
-              <th className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap">
+              <th
+                scope="col"
+                className="px-6 py-4 text-left text-sm font-semibold text-white whitespace-nowrap"
+              >
                 Decision
               </th>
             </tr>
           </thead>
 
-          {/* Table Body */}
           <tbody className="bg-white divide-y divide-gray-200">
             {reports.map((report) => (
               <ReportRow

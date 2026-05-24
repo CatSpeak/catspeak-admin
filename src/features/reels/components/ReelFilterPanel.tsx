@@ -4,19 +4,53 @@ import type { ReelStatus } from "../types";
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
 
+type ReelStatusFilter = ReelStatus | "All";
+type ReelSortBy = "createdAt" | "viewCount" | "duration" | "title";
+type SortOrder = "asc" | "desc";
+
+const REEL_STATUS_FILTERS: ReelStatusFilter[] = [
+  "All",
+  "Published",
+  "Draft",
+  "Processing",
+  "Failed",
+];
+
+const REEL_SORT_FIELDS: ReelSortBy[] = [
+  "createdAt",
+  "viewCount",
+  "duration",
+  "title",
+];
+
+const SORT_ORDERS: SortOrder[] = ["desc", "asc"];
+
+const toReelStatusFilter = (value: string): ReelStatusFilter =>
+  REEL_STATUS_FILTERS.includes(value as ReelStatusFilter)
+    ? (value as ReelStatusFilter)
+    : "All";
+
+const toReelSortBy = (value: string): ReelSortBy =>
+  REEL_SORT_FIELDS.includes(value as ReelSortBy)
+    ? (value as ReelSortBy)
+    : "createdAt";
+
+const toSortOrder = (value: string): SortOrder =>
+  SORT_ORDERS.includes(value as SortOrder) ? (value as SortOrder) : "desc";
+
 interface ReelFilterPanelProps {
   search: string;
   onSearchChange: (value: string) => void;
-  status: ReelStatus | "All";
-  onStatusChange: (value: ReelStatus | "All") => void;
+  status: ReelStatusFilter;
+  onStatusChange: (value: ReelStatusFilter) => void;
   startDate: string | null;
   onStartDateChange: (value: string | null) => void;
   endDate: string | null;
   onEndDateChange: (value: string | null) => void;
-  sortBy: "createdAt" | "viewCount" | "duration" | "title";
-  onSortByChange: (value: "createdAt" | "viewCount" | "duration" | "title") => void;
-  sortOrder: "asc" | "desc";
-  onSortOrderChange: (value: "asc" | "desc") => void;
+  sortBy: ReelSortBy;
+  onSortByChange: (value: ReelSortBy) => void;
+  sortOrder: SortOrder;
+  onSortOrderChange: (value: SortOrder) => void;
   onReset: () => void;
 }
 
@@ -110,7 +144,7 @@ export default function ReelFilterPanel({
               </label>
               <select
                 value={status}
-                onChange={(e) => onStatusChange(e.target.value as any)}
+                onChange={(e) => onStatusChange(toReelStatusFilter(e.target.value))}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
               >
                 <option value="All">All Statuses</option>
@@ -153,7 +187,7 @@ export default function ReelFilterPanel({
               <div className="flex gap-2">
                 <select
                   value={sortBy}
-                  onChange={(e) => onSortByChange(e.target.value as any)}
+                  onChange={(e) => onSortByChange(toReelSortBy(e.target.value))}
                   className="flex-1 px-3 py-2.5 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
                   <option value="createdAt">Upload Date</option>
@@ -163,7 +197,7 @@ export default function ReelFilterPanel({
                 </select>
                 <select
                   value={sortOrder}
-                  onChange={(e) => onSortOrderChange(e.target.value as any)}
+                  onChange={(e) => onSortOrderChange(toSortOrder(e.target.value))}
                   className="px-2 py-2.5 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
                 >
                   <option value="desc">Desc</option>

@@ -2,6 +2,7 @@ export type ReelPrivacy = "Public" | "FriendsOnly" | "Private";
 
 // Mapped statuses for the frontend UI display
 export type ReelStatus = "Published" | "Draft" | "Processing" | "Failed";
+export type ChallengeStatusFilter = "All" | "Active" | "Upcoming" | "Completed";
 
 export interface ChallengeDto {
   challengeId: number;

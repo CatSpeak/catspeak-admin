@@ -2,12 +2,18 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { AuthUser } from '../features/auth/types';
 
+export const ADMIN_ACCESS_ROLES = ["Admin", "Staff"] as const;
+
 interface AuthState {
     token: string | null;
     user: AuthUser | null;
     isAuthenticated: boolean;
     login: (token: string, user: AuthUser) => void;
     logout: () => void;
+}
+
+interface JwtPayload {
+    exp?: number;
 }
 
 // Helper to parse JWT and check expiration
@@ -25,15 +31,18 @@ const isTokenValid = (token: string | null): boolean => {
                 .join('')
         );
 
-        const payload = JSON.parse(jsonPayload);
-        if (payload && payload.exp) {
+        const payload = JSON.parse(jsonPayload) as JwtPayload;
+        if (typeof payload.exp === 'number') {
             return payload.exp * 1000 > Date.now();
         }
-        return true;
+        return false;
     } catch {
         return false;
     }
 };
+
+export const hasAdminAccess = (user: AuthUser | null): boolean =>
+    ADMIN_ACCESS_ROLES.includes(user?.roleName as (typeof ADMIN_ACCESS_ROLES)[number]);
 
 export const useAuthStore = create<AuthState>()(
     persist(
@@ -41,7 +50,12 @@ export const useAuthStore = create<AuthState>()(
             token: null,
             user: null,
             isAuthenticated: false,
-            login: (token, user) => set({ token, user, isAuthenticated: true }),
+            login: (token, user) =>
+                set({
+                    token,
+                    user,
+                    isAuthenticated: isTokenValid(token) && hasAdminAccess(user),
+                }),
             logout: () => set({ token: null, user: null, isAuthenticated: false }),
         }),
         {
@@ -50,8 +64,11 @@ export const useAuthStore = create<AuthState>()(
 
             // onRehydrateStorage runs when the app starts up and pulls from localStorage
             onRehydrateStorage: () => (state) => {
-                // If there's a state, a token, and it's invalid, log them out immediately
-                if (state && state.token && !isTokenValid(state.token)) {
+                // If persisted auth is invalid or not allowed in admin, log them out immediately.
+                if (
+                    state &&
+                    (!isTokenValid(state.token) || !hasAdminAccess(state.user))
+                ) {
                     state.logout();
                 }
             },

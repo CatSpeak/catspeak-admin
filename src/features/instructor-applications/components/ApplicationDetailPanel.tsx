@@ -34,14 +34,32 @@ interface ApplicationDetailPanelProps {
   onReviewed: () => void;
 }
 
-function safeParseJsonArray(raw: string | null | undefined): any[] {
+type JsonArrayValue = string | Record<string, unknown>;
+
+function safeParseJsonArray(raw: string | null | undefined): JsonArrayValue[] {
   if (!raw) return [];
   try {
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(raw) as unknown;
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
+}
+
+function safeParseStringArray(raw: string | null | undefined): string[] {
+  return safeParseJsonArray(raw).filter((value): value is string => {
+    return typeof value === "string" && value.trim().length > 0;
+  });
+}
+
+function formatLanguageLabel(value: JsonArrayValue): string {
+  if (typeof value === "string") return value;
+
+  const language =
+    typeof value.language === "string" ? value.language : "Language";
+  const level = typeof value.level === "string" ? value.level : "";
+
+  return level ? `${language} (${level})` : language;
 }
 
 function formatDate(value?: string | null) {
@@ -146,7 +164,7 @@ export default function ApplicationDetailPanel({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const languages = safeParseJsonArray(application.languagesTeach);
-  const credentials = safeParseJsonArray(application.credentialUrls);
+  const credentials = safeParseStringArray(application.credentialUrls);
   const canReview = (REVIEWABLE_STATUSES as readonly string[]).includes(
     application.status,
   );
@@ -307,7 +325,7 @@ export default function ApplicationDetailPanel({
                   languages.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       {languages.map((lang, index) => {
-                        const text = typeof lang === "string" ? lang : `${lang.language}${lang.level ? ` (${lang.level})` : ""}`;
+                        const text = formatLanguageLabel(lang);
                         return (
                           <span
                             key={index}

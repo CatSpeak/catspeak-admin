@@ -12,6 +12,50 @@ interface ReelEditDrawerProps {
   isUpdating: boolean;
 }
 
+interface ReelEditFormValues {
+  title: string;
+  description: string;
+  privacy: ReelPrivacy;
+  tags: string[];
+  coverUrl: string;
+  isScheduled: boolean;
+  scheduledDate: string;
+  scheduledTime: string;
+}
+
+function getInitialFormValues(reel: ReelDto | null): ReelEditFormValues {
+  if (!reel) {
+    return {
+      title: "",
+      description: "",
+      privacy: "Public",
+      tags: [],
+      coverUrl: "",
+      isScheduled: false,
+      scheduledDate: "",
+      scheduledTime: "",
+    };
+  }
+
+  const scheduledDate = reel.scheduledAt
+    ? new Date(reel.scheduledAt).toISOString().split("T")[0]
+    : "";
+  const scheduledTime = reel.scheduledAt
+    ? new Date(reel.scheduledAt).toTimeString().split(" ")[0].substring(0, 5)
+    : "";
+
+  return {
+    title: reel.title || "",
+    description: reel.description || "",
+    privacy: reel.privacy || "Public",
+    tags: reel.hashtags || [],
+    coverUrl: reel.coverUrl || "",
+    isScheduled: Boolean(reel.scheduledAt),
+    scheduledDate,
+    scheduledTime,
+  };
+}
+
 export default function ReelEditDrawer({
   reel,
   isOpen,
@@ -23,41 +67,20 @@ export default function ReelEditDrawer({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
+  const initialValues = getInitialFormValues(reel);
+
   // Form states
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [privacy, setPrivacy] = useState<ReelPrivacy>("Public");
-  const [tags, setTags] = useState<string[]>([]);
+  const [title, setTitle] = useState(initialValues.title);
+  const [description, setDescription] = useState(initialValues.description);
+  const [privacy, setPrivacy] = useState<ReelPrivacy>(initialValues.privacy);
+  const [tags, setTags] = useState<string[]>(initialValues.tags);
   const [newTag, setNewTag] = useState("");
-  const [coverUrl, setCoverUrl] = useState("");
-  const [isScheduled, setIsScheduled] = useState(false);
-  const [scheduledDate, setScheduledDate] = useState("");
-  const [scheduledTime, setScheduledTime] = useState("");
+  const [coverUrl, setCoverUrl] = useState(initialValues.coverUrl);
+  const [isScheduled, setIsScheduled] = useState(initialValues.isScheduled);
+  const [scheduledDate, setScheduledDate] = useState(initialValues.scheduledDate);
+  const [scheduledTime, setScheduledTime] = useState(initialValues.scheduledTime);
 
   const [localError, setLocalError] = useState<string | null>(null);
-
-  // Populate form on mount or reel change
-  useEffect(() => {
-    if (reel && isOpen) {
-      setTitle(reel.title || "");
-      setDescription(reel.description || "");
-      setPrivacy(reel.privacy || "Public");
-      setTags(reel.hashtags || []);
-      setCoverUrl(reel.coverUrl || "");
-
-      if (reel.scheduledAt) {
-        setIsScheduled(true);
-        const dateObj = new Date(reel.scheduledAt);
-        setScheduledDate(dateObj.toISOString().split("T")[0]);
-        setScheduledTime(dateObj.toTimeString().split(" ")[0].substring(0, 5));
-      } else {
-        setIsScheduled(false);
-        setScheduledDate("");
-        setScheduledTime("");
-      }
-      setLocalError(null);
-    }
-  }, [reel, isOpen]);
 
   // Focus trap & ESC close
   useEffect(() => {

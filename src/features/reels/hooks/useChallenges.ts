@@ -3,7 +3,7 @@ import { getChallenges } from "../api/getChallenges";
 import { createChallenge } from "../api/createChallenge";
 import { updateChallenge } from "../api/updateChallenge";
 import { deleteChallenge } from "../api/deleteChallenge";
-import type { ChallengeDto, ChallengeCreateDto } from "../types";
+import type { ChallengeDto, ChallengeCreateDto, ChallengeStatusFilter } from "../types";
 import { useToastStore } from "../../../stores/toastStore";
 import { getApiErrorMessage } from "../../../lib/axios";
 
@@ -16,7 +16,7 @@ export function useChallenges() {
 
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Upcoming" | "Completed">("All");
+  const [statusFilter, setStatusFilter] = useState<ChallengeStatusFilter>("All");
 
   // Fetch from endpoint
   const fetchChallenges = useCallback(async () => {
