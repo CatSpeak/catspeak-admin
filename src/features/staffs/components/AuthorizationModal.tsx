@@ -12,25 +12,21 @@ interface AuthorizationModalProps {
   staffName: string;
 }
 
+const getInitialPermissionGroups = (): PermissionGroup[] =>
+  MOCK_PERMISSION_GROUPS.map((group) => ({
+    ...group,
+    permissions: group.permissions.map((permission) => ({ ...permission })),
+  }));
+
 export default function AuthorizationModal({
   isOpen,
   onClose,
   staffName,
 }: AuthorizationModalProps) {
-  const [groups, setGroups] = useState<PermissionGroup[]>([]);
+  const [groups, setGroups] = useState<PermissionGroup[]>(
+    getInitialPermissionGroups,
+  );
   const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setGroups(
-        MOCK_PERMISSION_GROUPS.map((g) => ({
-          ...g,
-          permissions: g.permissions.map((p) => ({ ...p })),
-        })),
-      );
-      setHasChanges(false);
-    }
-  }, [isOpen]);
 
   // Lock body scroll while open
   useEffect(() => {
@@ -67,12 +63,7 @@ export default function AuthorizationModal({
   }, []);
 
   const handleReset = () => {
-    setGroups(
-      MOCK_PERMISSION_GROUPS.map((g) => ({
-        ...g,
-        permissions: g.permissions.map((p) => ({ ...p })),
-      })),
-    );
+    setGroups(getInitialPermissionGroups());
     setHasChanges(false);
   };
 

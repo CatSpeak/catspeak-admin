@@ -200,7 +200,70 @@ const STYLE_FORMATS = [
   },
 ];
 
-function setupEditor(editor: any) {
+interface CarouselDialogApi {
+  getData: () => { urls?: string };
+  close: () => void;
+}
+
+interface TinyMceEditor {
+  insertContent: (content: string) => void;
+  notificationManager: {
+    open: (options: { text: string; type: "warning"; timeout: number }) => void;
+  };
+  ui: {
+    registry: {
+      addButton: (
+        name: string,
+        options: {
+          icon: string;
+          tooltip: string;
+          onAction: () => void;
+        },
+      ) => void;
+      addIcon?: (name: string, svg: string) => void;
+    };
+  };
+  windowManager: {
+    open: (config: {
+      title: string;
+      size: "medium";
+      body: {
+        type: "panel";
+        items: Array<{
+          type: "textarea";
+          name: "urls";
+          label: string;
+          maximized: boolean;
+        }>;
+      };
+      buttons: Array<{
+        type: "cancel" | "submit";
+        text: string;
+        buttonType?: "primary";
+      }>;
+      onSubmit: (api: CarouselDialogApi) => void;
+    }) => void;
+  };
+}
+
+function isAllowedImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function escapeHtmlAttribute(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function setupEditor(editor: TinyMceEditor) {
   editor.ui.registry.addButton("insertcarousel", {
     icon: "gallery",
     tooltip: "Insert image carousel",
@@ -223,16 +286,16 @@ function setupEditor(editor: any) {
           { type: "cancel", text: "Cancel" },
           { type: "submit", text: "Insert", buttonType: "primary" },
         ],
-        onSubmit: (api: any) => {
-          const data = api.getData() as { urls: string };
-          const urls = data.urls
+        onSubmit: (api) => {
+          const data = api.getData();
+          const urls = (data.urls ?? "")
             .split("\n")
-            .map((u: string) => u.trim())
-            .filter(Boolean);
+            .map((url) => url.trim())
+            .filter(isAllowedImageUrl);
 
           if (urls.length === 0) {
             editor.notificationManager.open({
-              text: "Please enter at least one image URL.",
+              text: "Please enter at least one valid image URL.",
               type: "warning",
               timeout: 3000,
             });
@@ -240,7 +303,10 @@ function setupEditor(editor: any) {
           }
 
           const imgs = urls
-            .map((url: string) => `<img src="${url}" alt="carousel image" />`)
+            .map(
+              (url) =>
+                `<img src="${escapeHtmlAttribute(url)}" alt="carousel image" />`,
+            )
             .join("\n  ");
 
           editor.insertContent(

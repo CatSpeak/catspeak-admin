@@ -28,10 +28,15 @@ const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none">
+    <div
+      aria-live="polite"
+      aria-relevant="additions text"
+      className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full pointer-events-none"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
+          role={toast.type === "error" ? "alert" : "status"}
           className={`pointer-events-auto flex items-start gap-2.5 px-4 py-3 rounded-xl border shadow-lg backdrop-blur-sm animate-slideIn ${STYLE_MAP[toast.type]}`}
         >
           <span className={`mt-0.5 shrink-0 ${ICON_STYLE_MAP[toast.type]}`}>
@@ -39,7 +44,9 @@ const ToastContainer: React.FC = () => {
           </span>
           <p className="text-sm font-medium flex-1 leading-snug">{toast.message}</p>
           <button
+            type="button"
             onClick={() => removeToast(toast.id)}
+            aria-label="Dismiss notification"
             className="shrink-0 p-0.5 rounded-md opacity-60 hover:opacity-100 transition-opacity"
           >
             <X size={14} />

@@ -26,10 +26,16 @@ export default function Pagination({
   onPageSizeChange,
 }: PaginationProps) {
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4">
+    <nav
+      aria-label={`${entityName} pagination`}
+      className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4"
+    >
       <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-700">Rows per page:</span>
+        <label htmlFor={`${entityName}-page-size`} className="text-sm text-gray-700">
+          Rows per page:
+        </label>
         <select
+          id={`${entityName}-page-size`}
           className="px-2 py-1 text-sm rounded border border-gray-300 bg-white focus:outline-none"
           value={itemsPerPage}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}
@@ -47,8 +53,10 @@ export default function Pagination({
 
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={disabled || currentPage === 1}
+          aria-label="Go to previous page"
           className="p-1.5 rounded transition-colors disabled:opacity-40 text-primary hover:bg-primary/10 disabled:hover:bg-transparent"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -57,13 +65,15 @@ export default function Pagination({
         <div className="flex items-center gap-1">
           {pageNumbers.map((page) => (
             <button
+              type="button"
               key={page}
               onClick={() => onPageChange(page)}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                currentPage === page
+              aria-current={currentPage === page ? "page" : undefined}
+              aria-label={`Go to page ${page}`}
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${currentPage === page
                   ? "bg-primary text-white"
                   : "text-gray-600 hover:bg-gray-200"
-              }`}
+                }`}
             >
               {page}
             </button>
@@ -71,13 +81,15 @@ export default function Pagination({
         </div>
 
         <button
+          type="button"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={disabled || currentPage === totalPages}
+          aria-label="Go to next page"
           className="p-1.5 rounded transition-colors disabled:opacity-40 text-primary hover:bg-primary/10 disabled:hover:bg-transparent"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
-    </div>
+    </nav>
   );
 }

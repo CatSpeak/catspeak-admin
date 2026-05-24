@@ -1,16 +1,28 @@
-import { useState } from "react";
-import DonutChartJS from "../components/DonutChartJS";
-import BarChartJS from "../components/BarChartJS";
-import LineChartJS from "../components/LineChartJS";
-import AreaChartJS from "../components/AreaChartJS";
-import PieChartJS from "../components/PieChartJS";
+import { lazy, Suspense, useState } from "react";
 import UserStatsSummary from "../components/UserStatsSummary";
 // import LanguageStats from "./components/LanguageStats";
 import StatsCard from "../components/StatsCard";
-import WorldMapCard from "../components/WorldMapCard";
 import VietNamDetailCard from "../components/VietNamDetailCard";
 import MonthlyTarget from "../components/MonthlyTarget";
 import Card from "../../../components/ui/Card";
+
+const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
+const DonutChartJS = lazy(() => import("../components/DonutChartJS"));
+const BarChartJS = lazy(() => import("../components/BarChartJS"));
+const LineChartJS = lazy(() => import("../components/LineChartJS"));
+const AreaChartJS = lazy(() => import("../components/AreaChartJS"));
+const PieChartJS = lazy(() => import("../components/PieChartJS"));
+
+function ChartFallback({ height = 240 }: { height?: number }) {
+  return (
+    <div
+      className="flex items-center justify-center"
+      style={{ minHeight: `${height}px` }}
+    >
+      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+    </div>
+  );
+}
 
 const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 
@@ -104,11 +116,10 @@ export default function Dashboard() {
             <button
               key={p}
               onClick={() => setActivePeriod(p)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap ${
-                activePeriod === p
+              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap ${activePeriod === p
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-500 hover:text-gray-700 hover:bg-black/5"
-              }`}
+                }`}
             >
               {p}
             </button>
@@ -123,22 +134,26 @@ export default function Dashboard() {
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Traffic Channel
           </h3>
-          <DonutChartJS
-            segments={trafficSegments}
-            trendUp
-            trendValue="21% last month"
-            centerSubtext="Total 10k connect"
-          />
+          <Suspense fallback={<ChartFallback />}>
+            <DonutChartJS
+              segments={trafficSegments}
+              trendUp
+              trendValue="21% last month"
+              centerSubtext="Total 10k connect"
+            />
+          </Suspense>
         </Card>
 
         {/* Detail Bar Chart - 3 cols */}
         <Card className="lg:col-span-3 animate-fade-in delay-2">
-          <BarChartJS
-            data={barData}
-            title="Detail"
-            periodLabel="July, 2025"
-            height={240}
-          />
+          <Suspense fallback={<ChartFallback />}>
+            <BarChartJS
+              data={barData}
+              title="Detail"
+              periodLabel="July, 2025"
+              height={240}
+            />
+          </Suspense>
         </Card>
       </div>
 
@@ -179,7 +194,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
         {/* World Map - 4 cols */}
         <Card className="lg:col-span-4 animate-fade-in delay-2">
-          <WorldMapCard />
+          <Suspense
+            fallback={
+              <div className="flex min-h-[260px] items-center justify-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+              </div>
+            }
+          >
+            <WorldMapCard />
+          </Suspense>
         </Card>
 
         {/* Vietnam Detail Card - 1 col */}
@@ -209,7 +232,9 @@ export default function Dashboard() {
               <span className="text-xs text-gray-600">Active users</span>
             </div>
           </div>
-          <AreaChartJS data={areaChartData} height={400} />
+          <Suspense fallback={<ChartFallback height={400} />}>
+            <AreaChartJS data={areaChartData} height={400} />
+          </Suspense>
         </Card>
 
         {/* User Stats Summary - 2 cols */}
@@ -234,7 +259,9 @@ export default function Dashboard() {
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Age/Gender
           </h3>
-          <PieChartJS segments={ageGenderData} showLegend={true} />
+          <Suspense fallback={<ChartFallback />}>
+            <PieChartJS segments={ageGenderData} showLegend={true} />
+          </Suspense>
         </Card>
 
         {/* Languages - 1 col */}
@@ -252,7 +279,9 @@ export default function Dashboard() {
 
         {/* Line Chart - 2 cols */}
         <Card className="md:col-span-3 lg:col-span-3 animate-fade-in delay-8">
-          <LineChartJS data={lineData} height={400} />
+          <Suspense fallback={<ChartFallback height={400} />}>
+            <LineChartJS data={lineData} height={400} />
+          </Suspense>
         </Card>
       </div>
     </div>

@@ -22,6 +22,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -32,7 +34,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     // Add scroll listener to close dropdown on scroll since it might be fixed
     const handleScroll = (event: Event) => {
       // Only close if scrolling outside the dropdown
@@ -50,9 +59,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("scroll", handleScroll, true);
     };
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -60,6 +70,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
     <div
       ref={dropdownRef}
       style={style}
+      role="menu"
       className={`z-50 rounded-xl border border-gray-200 bg-white shadow-lg ${className}`}
     >
       {children}

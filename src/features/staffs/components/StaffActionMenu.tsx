@@ -91,11 +91,13 @@ export default function StaffActionMenu({ staffName }: StaffActionMenuProps) {
         </Dropdown>
       </div>
 
-      <AuthorizationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        staffName={staffName}
-      />
+      {isModalOpen && (
+        <AuthorizationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          staffName={staffName}
+        />
+      )}
     </>
   );
 }
