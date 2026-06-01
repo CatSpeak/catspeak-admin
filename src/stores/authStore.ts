@@ -59,10 +59,10 @@ export const useAuthStore = create<AuthState>()(
             logout: () => set({ token: null, user: null, isAuthenticated: false }),
         }),
         {
-            name: 'auth-storage', // The key used in localStorage
-            storage: createJSONStorage(() => localStorage), // Can be omitted as localStorage is default
+            name: 'auth-storage',
+            storage: createJSONStorage(() => sessionStorage),
 
-            // onRehydrateStorage runs when the app starts up and pulls from localStorage
+            // onRehydrateStorage runs when the app starts up and pulls from sessionStorage
             onRehydrateStorage: () => (state) => {
                 // If persisted auth is invalid or not allowed in admin, log them out immediately.
                 if (

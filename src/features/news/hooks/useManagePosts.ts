@@ -2,15 +2,16 @@ import { useCallback, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { deletePost } from "../api/deletePost";
 import { updatePost } from "../api/updatePost";
-import { usePosts } from "./usePosts";
+import type { usePosts } from "./usePosts";
 import type { Post, UpdatePostPayload } from "../types";
 
 /**
  * Manages state and API calls for the Manage tab:
  * delete confirmation, inline editing, and list refresh.
  */
-export function useManagePosts(pageSize: number = 10) {
-  const postsHook = usePosts(pageSize);
+type PostsHook = ReturnType<typeof usePosts>;
+
+export function useManagePosts(postsHook: PostsHook) {
 
   // ── Delete state ──
   const [deleteTarget, setDeleteTarget] = useState<Post | null>(null);

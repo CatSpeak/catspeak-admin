@@ -58,7 +58,7 @@ export interface ReelDto {
 }
 
 export interface WarnOrBlockReelDto {
-  status: "Public" | "Private" | "Blocked";
+  status: "Public" | "Private" | "Blocked" | "Warn" | "Block";
   blockReason?: string | null;
 }
 

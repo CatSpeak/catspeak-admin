@@ -1,5 +1,6 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { useMemo } from "react";
 
 interface PieSegment {
   label: string;
@@ -18,11 +19,11 @@ export default function PieChartJS({
   segments,
   showLegend = true,
 }: PieChartProps) {
-  const series = segments.map((s) => s.value);
-  const labels = segments.map((s) => s.label);
-  const colors = segments.map((s) => s.color);
+  const series = useMemo(() => segments.map((s) => s.value), [segments]);
+  const labels = useMemo(() => segments.map((s) => s.label), [segments]);
+  const colors = useMemo(() => segments.map((s) => s.color), [segments]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "pie",
       parentHeightOffset: 0,
@@ -51,7 +52,7 @@ export default function PieChartJS({
         expandOnClick: false,
       },
     },
-  };
+  }), [colors, labels, segments]);
 
   return (
     <div className="flex flex-col items-center gap-4">

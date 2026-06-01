@@ -10,8 +10,9 @@ const FILTER_TEXT_PLACEHOLDERS = ["Search posts..."];
 
 export default function NewsPage() {
   const navigate = useNavigate();
+  const postsHook = usePosts();
   const { posts, loading, error, currentPage, hasNextPage, goToPage } =
-    usePosts();
+    postsHook;
 
   const {
     isDeleting,
@@ -19,7 +20,7 @@ export default function NewsPage() {
     closeDeleteModal,
     confirmDelete,
     deleteTarget,
-  } = useManagePosts();
+  } = useManagePosts(postsHook);
 
   const handleEditClick = (post: Post) => {
     navigate(`/news/${post.postId}`);

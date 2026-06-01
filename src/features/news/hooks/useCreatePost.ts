@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ThumbnailImage, TagItem, PostStatus } from "../types";
 import { MOCK_TAGS } from "../constants";
 import { createPost } from "../api/createPost";
@@ -34,6 +34,22 @@ export function useCreatePost() {
   const [tags, setTags] = useState<TagItem[]>(MOCK_TAGS);
   const [activeTagId, setActiveTagId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const objectUrlsRef = useRef<Set<string>>(new Set());
+
+  const revokeObjectUrl = useCallback((url: string) => {
+    if (objectUrlsRef.current.has(url)) {
+      URL.revokeObjectURL(url);
+      objectUrlsRef.current.delete(url);
+    }
+  }, []);
+
+  useEffect(() => {
+    const objectUrls = objectUrlsRef.current;
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      objectUrls.clear();
+    };
+  }, []);
 
   const updateField = useCallback(
     <K extends keyof CreatePostForm>(field: K, value: CreatePostForm[K]) => {
@@ -43,12 +59,19 @@ export function useCreatePost() {
   );
 
   const deleteThumbnail = useCallback((id: string | number) => {
-    setThumbnails((prev) => prev.filter((img) => img.id !== id));
-  }, []);
+    setThumbnails((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (target) {
+        revokeObjectUrl(target.src);
+      }
+      return prev.filter((img) => img.id !== id);
+    });
+  }, [revokeObjectUrl]);
 
   const addFiles = useCallback((files: FileList | File[]) => {
     const newThumbnails = Array.from(files).map((file) => {
       const src = URL.createObjectURL(file);
+      objectUrlsRef.current.add(src);
       return {
         id: src, // use object URL as temp ID
         src,
@@ -86,6 +109,8 @@ export function useCreatePost() {
       });
       // Reset form
       setForm(INITIAL_FORM);
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      objectUrlsRef.current.clear();
       setThumbnails([]);
       alert("Post published successfully!");
     } catch (err) {

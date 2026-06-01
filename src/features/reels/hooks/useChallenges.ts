@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { getChallenges } from "../api/getChallenges";
 import { createChallenge } from "../api/createChallenge";
 import { updateChallenge } from "../api/updateChallenge";
@@ -17,20 +17,27 @@ export function useChallenges() {
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ChallengeStatusFilter>("All");
+  const requestId = useRef(0);
 
   // Fetch from endpoint
   const fetchChallenges = useCallback(async () => {
+    const currentRequestId = requestId.current + 1;
+    requestId.current = currentRequestId;
     setLoading(true);
     setError(null);
     try {
       const data = await getChallenges();
+      if (currentRequestId !== requestId.current) return;
       setChallenges(data || []);
     } catch (err) {
+      if (currentRequestId !== requestId.current) return;
       console.error("API Challenges fetch failed:", err);
       setError("Failed to retrieve challenges from the server. Please check your connection.");
       setChallenges([]);
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestId.current) {
+        setLoading(false);
+      }
     }
   }, []);
 

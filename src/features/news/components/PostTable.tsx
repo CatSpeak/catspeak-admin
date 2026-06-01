@@ -1,4 +1,5 @@
 import { Pencil, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../types";
 import DataTable, { type Column } from "../../../components/ui/DataTable";
@@ -25,6 +26,7 @@ function stripHtmlAndTruncate(html: string, maxLength: number = 80) {
 function getColumns(
   onEdit: (post: Post) => void,
   onDelete: (post: Post) => void,
+  previewByPostId: Map<number, { short: string; full: string }>,
 ): Column<Post>[] {
   return [
     {
@@ -42,14 +44,17 @@ function getColumns(
     },
     {
       header: "Content Preview",
-      render: (p) => (
-        <span
-          className="text-gray-600 max-w-xs truncate block"
-          title={stripHtmlAndTruncate(p.content, 200)}
-        >
-          {stripHtmlAndTruncate(p.content)}
-        </span>
-      ),
+      render: (p) => {
+        const preview = previewByPostId.get(p.postId);
+        return (
+          <span
+            className="text-gray-600 max-w-xs truncate block"
+            title={preview?.full ?? ""}
+          >
+            {preview?.short ?? ""}
+          </span>
+        );
+      },
     },
     {
       header: "Media",
@@ -135,7 +140,23 @@ export default function PostTable({
   onDelete,
 }: PostTableProps) {
   const navigate = useNavigate();
-  const columns = getColumns(onEdit, onDelete);
+  const previewByPostId = useMemo(
+    () =>
+      new Map(
+        posts.map((post) => [
+          post.postId,
+          {
+            short: stripHtmlAndTruncate(post.content),
+            full: stripHtmlAndTruncate(post.content, 200),
+          },
+        ]),
+      ),
+    [posts],
+  );
+  const columns = useMemo(
+    () => getColumns(onEdit, onDelete, previewByPostId),
+    [onEdit, onDelete, previewByPostId],
+  );
 
   return (
     <div className="space-y-4">

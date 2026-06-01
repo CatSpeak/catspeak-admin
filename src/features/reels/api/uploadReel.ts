@@ -8,6 +8,7 @@ export interface UploadReelApiPayload {
   Privacy: ReelPrivacy;
   VideoFile: File;
   CoverFile?: File | null;
+  Tags?: string[];
 }
 
 /**
@@ -27,6 +28,9 @@ export const uploadReel = async (
   if (payload.CoverFile) {
     formData.append("CoverFile", payload.CoverFile);
   }
+  payload.Tags?.forEach((tag) => {
+    formData.append("Tags", tag);
+  });
 
   return getResponseData(
     axiosClient.post<ReelResponseDto>("/ReelsAdmin/reels", formData, {

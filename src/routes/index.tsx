@@ -5,6 +5,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { ComingSoonPage } from "./ComingSoonPage";
 import PageLoader from "./PageLoader";
+import RouteErrorElement from "./RouteErrorElement";
 
 const Login = lazy(() => import("../features/auth/routes/Login"));
 const ForgotPassword = lazy(() => import("../features/auth/routes/ForgotPassword"));
@@ -37,6 +38,7 @@ const secondaryRoutes = [
 export const router = createBrowserRouter([
   {
     element: <PublicRoute />,
+    errorElement: <RouteErrorElement />,
     children: [
       { path: "/login", element: wrap(Login) },
       { path: "/forgot-password", element: wrap(ForgotPassword) },
@@ -45,10 +47,12 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <ProtectedRoute />,
+    errorElement: <RouteErrorElement />,
     children: [
       {
         path: "/",
         element: <AppLayout />,
+        errorElement: <RouteErrorElement />,
         children: [
           { index: true, element: wrap(Dashboard) },
           { path: "users", element: wrap(UsersPage) },

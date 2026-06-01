@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { uploadReel, type UploadReelApiPayload } from "../api/uploadReel";
 import { deleteReel } from "../api/deleteReel";
 import { updateReelStatus } from "../api/updateReelStatus";
@@ -10,6 +10,7 @@ import { useReels } from "./useReels";
 export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
   const addToast = useToastStore((s) => s.addToast);
   const { rawReels, setReels, clearSelection, refetch } = reelsHook;
+  const simulatedIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Upload States
   const [isUploading, setIsUploading] = useState(false);
@@ -22,6 +23,15 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
 
   // Status/Edit state variables
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const clearSimulatedInterval = useCallback(() => {
+    if (simulatedIntervalRef.current) {
+      clearInterval(simulatedIntervalRef.current);
+      simulatedIntervalRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => clearSimulatedInterval, [clearSimulatedInterval]);
 
   // ── Single Publish / Unpublish Toggle (Optimistic) ──
   const togglePublishStatus = useCallback(async (reel: ReelDto) => {
@@ -155,22 +165,22 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
 
     const isLargeFile = payload.VideoFile.size > 50 * 1024 * 1024; // 50MB
 
-    // Chunk simulation parameters
-    let simulatedInterval: ReturnType<typeof setInterval> | undefined;
-
     const apiPayload: UploadReelApiPayload = {
       Title: payload.Title,
       Description: payload.Description,
       Privacy: payload.Privacy,
       VideoFile: payload.VideoFile,
       CoverFile: payload.CoverFile,
+      Tags: payload.Tags,
     };
 
     try {
+      clearSimulatedInterval();
+
       if (isLargeFile) {
         // Chunk progress simulator for > 50 MB files to show incremental chunk progress
         let chunkPercent = 0;
-        simulatedInterval = setInterval(() => {
+        simulatedIntervalRef.current = setInterval(() => {
           chunkPercent = Math.min(chunkPercent + 10, 90);
           setUploadProgress(chunkPercent);
         }, 400);
@@ -183,7 +193,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         }
       });
 
-      if (simulatedInterval) clearInterval(simulatedInterval);
+      clearSimulatedInterval();
       setUploadProgress(100);
 
       const newReel = response.data;
@@ -193,7 +203,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
       addToast("success", `Reel "${payload.Title}" uploaded successfully.`);
       refetch(); // Trigger background sync
     } catch (err) {
-      if (simulatedInterval) clearInterval(simulatedInterval);
+      clearSimulatedInterval();
       const errMsg = getApiErrorMessage(err, "Failed to upload reel.");
       setUploadError(errMsg);
       addToast("error", errMsg);
@@ -201,13 +211,12 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
     } finally {
       setIsUploading(false);
     }
-  }, [setReels, addToast, refetch]);
+  }, [setReels, addToast, refetch, clearSimulatedInterval]);
 
   // ── Bulk Actions (Publish, Unpublish, Delete) ──
   const performBulkAction = useCallback(async (action: "publish" | "unpublish" | "delete", selectedIds: number[]) => {
     if (selectedIds.length === 0) return;
 
-    const previousReelsState = [...rawReels];
     const targetTitles = rawReels
       .filter((r) => selectedIds.includes(r.reelId))
       .map((r) => r.title || `ID ${r.reelId}`)
@@ -228,7 +237,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
       );
 
       try {
-        await Promise.all(
+        const results = await Promise.allSettled(
           selectedIds.map((id) =>
             updateReelStatus(id, {
               status: nextPrivacy as "Public" | "Private" | "Blocked",
@@ -236,26 +245,38 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
             })
           )
         );
-        addToast("success", `Bulk ${action} completed successfully for: ${targetTitles}.`);
+        const failedCount = results.filter((result) => result.status === "rejected").length;
+        if (failedCount > 0) {
+          await refetch();
+          addToast("error", `Bulk ${action} completed with ${failedCount} failed ${failedCount === 1 ? "item" : "items"}. Synced the list with the server.`);
+        } else {
+          addToast("success", `Bulk ${action} completed successfully for: ${targetTitles}.`);
+        }
         clearSelection();
       } catch (err) {
-        setReels(previousReelsState);
-        addToast("error", getApiErrorMessage(err, `Bulk ${action} failed. Changes rolled back.`));
+        await refetch();
+        addToast("error", getApiErrorMessage(err, `Bulk ${action} failed. Synced the list with the server.`));
       }
     } else if (action === "delete") {
       // Optimistically delete selected
       setReels((prev: ReelDto[]) => prev.filter((r: ReelDto) => !selectedIds.includes(r.reelId)));
 
       try {
-        await Promise.all(selectedIds.map((id) => deleteReel(id)));
-        addToast("success", `Bulk delete of ${selectedIds.length} reels completed successfully.`);
+        const results = await Promise.allSettled(selectedIds.map((id) => deleteReel(id)));
+        const failedCount = results.filter((result) => result.status === "rejected").length;
+        if (failedCount > 0) {
+          await refetch();
+          addToast("error", `Bulk delete completed with ${failedCount} failed ${failedCount === 1 ? "item" : "items"}. Synced the list with the server.`);
+        } else {
+          addToast("success", `Bulk delete of ${selectedIds.length} reels completed successfully.`);
+        }
         clearSelection();
       } catch (err) {
-        setReels(previousReelsState);
-        addToast("error", getApiErrorMessage(err, "Bulk delete failed. Changes rolled back."));
+        await refetch();
+        addToast("error", getApiErrorMessage(err, "Bulk delete failed. Synced the list with the server."));
       }
     }
-  }, [rawReels, setReels, addToast, clearSelection]);
+  }, [rawReels, setReels, addToast, clearSelection, refetch]);
 
   return {
     isUploading,

@@ -9,6 +9,7 @@ export function useUserDetail(userId?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const id = Number(userId);
     if (!userId || Number.isNaN(id) || id <= 0) {
       setUser(null);
@@ -23,16 +24,23 @@ export function useUserDetail(userId?: string) {
 
       try {
         const response = await getUserDetail(id);
+        if (cancelled) return;
         setUser(response);
       } catch (fetchError: unknown) {
+        if (cancelled) return;
         setUser(null);
         setError(getApiErrorMessage(fetchError, "Failed to fetch user."));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUserDetail();
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   return {

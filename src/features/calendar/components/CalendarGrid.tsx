@@ -71,6 +71,15 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({ days, onDayClick, onEventCl
                   +{day.events.length - 3} more
                 </p>
               )}
+              {day.events.length === 0 && day.eventCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onDayClick?.(day.date)}
+                  className="w-full rounded bg-primary/10 px-1.5 py-0.5 text-left text-[11px] font-semibold text-primary transition-colors hover:bg-primary/15"
+                >
+                  {day.eventCount} {day.eventCount === 1 ? "event" : "events"}
+                </button>
+              )}
             </div>
           </div>
         ))}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { getRooms, deleteRoom as deleteRoomApi } from "../api/roomApi";
 import type { Room, RoomFilters, AdditionalData } from "../types";
@@ -29,20 +29,27 @@ export function useRooms() {
   const [pageSize] = useState(12);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   // ── Fetch rooms from API ──
 
   const fetchRooms = useCallback(async () => {
+    const currentRequestId = requestId.current + 1;
+    requestId.current = currentRequestId;
     setIsLoading(true);
     setError(null);
     try {
       const response = await getRooms(currentPage, pageSize, filters);
+      if (currentRequestId !== requestId.current) return;
       setRooms(response.data);
       setPaginationData(response.additionalData);
     } catch (err: unknown) {
+      if (currentRequestId !== requestId.current) return;
       setError(getApiErrorMessage(err, "Failed to fetch rooms."));
     } finally {
-      setIsLoading(false);
+      if (currentRequestId === requestId.current) {
+        setIsLoading(false);
+      }
     }
   }, [currentPage, pageSize, filters]);
 

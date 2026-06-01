@@ -1,5 +1,6 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { useMemo } from "react";
 
 interface LineDataItem {
   label: string;
@@ -12,14 +13,15 @@ interface LineChartProps {
 }
 
 export default function LineChartJS({ data, height = 220 }: LineChartProps) {
-  const series = [
+  const series = useMemo(() => [
     {
       name: "Value",
       data: data.map((d) => d.value),
     },
-  ];
+  ], [data]);
+  const categories = useMemo(() => data.map((d) => d.label), [data]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "area",
       height: height,
@@ -45,7 +47,7 @@ export default function LineChartJS({ data, height = 220 }: LineChartProps) {
       hover: { size: 6 },
     },
     xaxis: {
-      categories: data.map((d) => d.label),
+      categories,
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
@@ -77,7 +79,7 @@ export default function LineChartJS({ data, height = 220 }: LineChartProps) {
         formatter: (val) => `${val} users`,
       },
     },
-  };
+  }), [categories, height]);
 
   return (
     <div>

@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Plus, Film, Trophy, Search } from "lucide-react";
 import ErrorBoundary from "../components/ErrorBoundary";
-import ReelFilterPanel from "../components/ReelFilterPanel";
-import ReelGrid from "../components/ReelGrid";
-import ReelPreviewModal from "../components/ReelPreviewModal";
+import ReelTable from "../components/ReelTable";
+import ReelDetailView from "../components/ReelDetailView";
 import ReelUploadZone from "../components/ReelUploadZone";
-import ReelEditDrawer from "../components/ReelEditDrawer";
 import ReelBulkActionBar from "../components/ReelBulkActionBar";
 import ChallengeGrid from "../components/ChallengeGrid";
 import ChallengeFormModal from "../components/ChallengeFormModal";
@@ -14,11 +12,14 @@ import { useManageReels } from "../hooks/useManageReels";
 import { useChallenges } from "../hooks/useChallenges";
 import type {
   ReelDto,
+  ReelStatus,
   ChallengeDto,
   ChallengeCreateDto,
   ChallengeStatusFilter,
 } from "../types";
 import Button from "../../../components/ui/Button";
+import { updateReelStatus } from "../api/updateReelStatus";
+import { useToastStore } from "../../../stores/toastStore";
 
 const CHALLENGE_STATUS_FILTERS: ChallengeStatusFilter[] = [
   "All",
@@ -27,9 +28,22 @@ const CHALLENGE_STATUS_FILTERS: ChallengeStatusFilter[] = [
   "Completed",
 ];
 
+const REEL_STATUS_FILTERS: Array<ReelStatus | "All"> = [
+  "All",
+  "Published",
+  "Draft",
+  "Processing",
+  "Failed",
+];
+
 const toChallengeStatusFilter = (value: string): ChallengeStatusFilter =>
   CHALLENGE_STATUS_FILTERS.includes(value as ChallengeStatusFilter)
     ? (value as ChallengeStatusFilter)
+    : "All";
+
+const toReelStatusFilter = (value: string): ReelStatus | "All" =>
+  REEL_STATUS_FILTERS.includes(value as ReelStatus | "All")
+    ? (value as ReelStatus | "All")
     : "All";
 
 function ReelsPageContent() {
@@ -39,6 +53,7 @@ function ReelsPageContent() {
 
   const {
     reels,
+    paginatedReels,
     loading: reelsLoading,
 
     // Filters
@@ -46,17 +61,6 @@ function ReelsPageContent() {
     setSearchState,
     statusFilter,
     setStatusFilter,
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    resetFilters,
-
-    // Sorting
-    sortBy,
-    setSortBy,
-    sortOrder,
-    setSortOrder,
 
     // Selection
     selectedIds,
@@ -64,6 +68,9 @@ function ReelsPageContent() {
     handleSelectAll,
     clearSelection,
     getMappedStatus,
+    currentPage,
+    totalPages,
+    handlePageChange,
   } = reelsHook;
 
   const {
@@ -78,11 +85,6 @@ function ReelsPageContent() {
     openDeleteModal,
     closeDeleteModal,
     confirmDelete,
-
-    // Metadata/Status updates
-    isUpdating,
-    togglePublishStatus,
-    updateReelMetadata,
 
     // Bulk actions
     performBulkAction,
@@ -108,8 +110,7 @@ function ReelsPageContent() {
   const [activeTab, setActiveTab] = useState<"reels" | "challenges">("reels");
 
   // Local route visual states (Reels)
-  const [activePreview, setActivePreview] = useState<ReelDto | null>(null);
-  const [activeEdit, setActiveEdit] = useState<ReelDto | null>(null);
+  const [selectedReel, setSelectedReel] = useState<ReelDto | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   // Local route visual states (Challenges)
@@ -117,6 +118,51 @@ function ReelsPageContent() {
   const [editingChallenge, setEditingChallenge] = useState<ChallengeDto | null>(null);
   const [challengeToDelete, setChallengeToDelete] = useState<ChallengeDto | null>(null);
   const [isChallengeSaving, setIsChallengeSaving] = useState(false);
+
+  // Moderation state & operations
+  const [isModerating, setIsModerating] = useState(false);
+  const addToast = useToastStore((s) => s.addToast);
+
+  const handleStatusUpdate = async (
+    reelId: number,
+    status: "Warn" | "Block" | "Public",
+    blockReason: string
+  ) => {
+    setIsModerating(true);
+    try {
+      // Map standard "Warn" or "Block" to correct backend status parameter
+      await updateReelStatus(reelId, { status, blockReason });
+      addToast("success", `Successfully updated reel status to "${status}".`);
+
+      // Sync active detail state
+      setSelectedReel((prev) => {
+        if (!prev || prev.reelId !== reelId) return prev;
+        return {
+          ...prev,
+          status,
+          blockReason,
+        };
+      });
+
+      // Sync master list state
+      reelsHook.setReels((prev) =>
+        prev.map((r) =>
+          r.reelId === reelId
+            ? {
+              ...r,
+              status,
+              blockReason,
+            }
+            : r
+        )
+      );
+    } catch (err) {
+      console.error("Status update error:", err);
+      addToast("error", "Failed to update reel status.");
+    } finally {
+      setIsModerating(false);
+    }
+  };
 
   // Bulk operation triggers
   const handleBulkActionExecute = async (action: "publish" | "unpublish" | "delete") => {
@@ -216,64 +262,107 @@ function ReelsPageContent() {
 
       {/* Active Tab Panel Views */}
       {activeTab === "reels" ? (
-        /* Reels Tab Workspace Grid */
-        <div className="flex flex-col md:flex-row gap-6 items-start animate-fadeIn">
-          {/* Responsive Filter Panel Column */}
-          <div className="w-full md:w-64 xl:w-72 shrink-0">
-            <ReelFilterPanel
-              search={searchState}
-              onSearchChange={setSearchState}
-              status={statusFilter}
-              onStatusChange={setStatusFilter}
-              startDate={startDate}
-              onStartDateChange={setStartDate}
-              endDate={endDate}
-              onEndDateChange={setEndDate}
-              sortBy={sortBy}
-              onSortByChange={setSortBy}
-              sortOrder={sortOrder}
-              onSortOrderChange={setSortOrder}
-              onReset={resetFilters}
-            />
-          </div>
-
-          {/* Video List Virtual Grid Column */}
-          <div className="flex-1 w-full min-w-0 bg-white border border-gray-100/80 shadow-sm p-4 sm:p-6 rounded-3xl min-h-[50vh]">
-            <div className="flex items-center justify-between mb-5">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Total {reels.length} {reels.length === 1 ? "Reel" : "Reels"}
-              </div>
-
-              {reels.length > 0 && (
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-500 select-none">
+        selectedReel ? (
+          <ReelDetailView
+            reel={selectedReel}
+            challenges={challenges}
+            onBack={() => setSelectedReel(null)}
+            onDelete={(r) => {
+              setSelectedReel(null);
+              openDeleteModal(r);
+            }}
+            onStatusUpdate={handleStatusUpdate}
+            isUpdating={isModerating}
+          />
+        ) : (
+          /* Reels Tab Workspace Table List */
+          <div className="space-y-6 animate-fadeIn">
+            {/* Table Filters Header Bar */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white border border-gray-100/80 p-4 rounded-3xl shadow-sm">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
+                {/* Search reels input */}
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
                   <input
-                    type="checkbox"
-                    checked={
-                      reels.length > 0 &&
-                      reels.every(r => selectedIds.includes(r.reelId))
-                    }
-                    onChange={() => handleSelectAll(reels.map(r => r.reelId))}
-                    className="w-4.5 h-4.5 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
+                    type="text"
+                    placeholder="Search reels..."
+                    value={searchState}
+                    onChange={(e) => setSearchState(e.target.value)}
+                    className="pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-gray-300 font-medium"
                   />
-                  Select All
-                </label>
-              )}
+                </div>
+
+                {/* Author Category dropdown */}
+                <select
+                  className="px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer font-semibold text-gray-600"
+                  defaultValue="CAT SPEAK"
+                >
+                  <option value="CAT SPEAK">CatSpeak</option>
+                  <option value="ALL CHANNELS">All Channels</option>
+                </select>
+
+                {/* Status dropdown filter */}
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(toReelStatusFilter(e.target.value));
+                  }}
+                  className="px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer font-semibold text-gray-600"
+                >
+                  <option value="All">All Statuses</option>
+                  <option value="Published">Published (Public)</option>
+                  <option value="Draft">Draft (Private)</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Failed">Failed / Blocked</option>
+                </select>
+              </div>
             </div>
 
-            <ReelGrid
-              reels={reels}
+            {/* Total count status bar */}
+            <div className="flex justify-between items-center bg-white border border-gray-100 p-3 px-5 rounded-2xl shadow-sm text-xs font-semibold text-gray-400 select-none">
+              <span>
+                Total {reels.length} {reels.length === 1 ? "reel" : "reels"}
+              </span>
+            </div>
+
+            {/* ReelTable Component */}
+            <ReelTable
+              reels={paginatedReels}
               loading={reelsLoading}
               selectedIds={selectedIds}
               onSelect={handleSelectReel}
-              onPreview={setActivePreview}
-              onEdit={setActiveEdit}
-              onDelete={openDeleteModal}
-              onTogglePublish={togglePublishStatus}
+              onSelectAll={(currentIds) => handleSelectAll(currentIds)}
+              onRowClick={setSelectedReel}
               getMappedStatus={getMappedStatus}
-              onUploadClick={() => setShowUploadModal(true)}
             />
+
+            {reels.length > 0 && totalPages > 1 && (
+              <div className="flex items-center justify-between bg-white border border-gray-100 p-3 px-5 rounded-2xl shadow-sm text-xs font-semibold text-gray-500">
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
+        )
       ) : (
         /* Challenges Tab Workspace Grid */
         <div className="space-y-6 animate-fadeIn">
@@ -344,26 +433,6 @@ function ReelsPageContent() {
       )}
 
       {/* ── Inline Modals & Overlays for Reels ── */}
-
-      {/* Inline Preview HTML5 player modal */}
-      {activePreview && (
-        <ReelPreviewModal
-          reel={activePreview}
-          onClose={() => setActivePreview(null)}
-        />
-      )}
-
-      {/* Edit Metadata slide-in Drawer */}
-      {activeEdit && (
-        <ReelEditDrawer
-          key={activeEdit.reelId}
-          reel={activeEdit}
-          isOpen={!!activeEdit}
-          onClose={() => setActiveEdit(null)}
-          onSave={updateReelMetadata}
-          isUpdating={isUpdating}
-        />
-      )}
 
       {/* Drag & Drop Upload modal overlay */}
       {showUploadModal && (

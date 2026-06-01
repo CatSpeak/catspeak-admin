@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { getReels } from "../api/getReels";
 import type { ReelDto, ReelStatus } from "../types";
 import { DEBOUNCE_DELAY_MS } from "../constants";
@@ -19,6 +19,7 @@ export function useReels() {
 
   // Selection states for bulk actions
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const requestId = useRef(0);
 
   // Local Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,10 +37,13 @@ export function useReels() {
 
   // Fetch reels
   const fetchReels = useCallback(async () => {
+    const currentRequestId = requestId.current + 1;
+    requestId.current = currentRequestId;
     setLoading(true);
     setError(null);
     try {
       const data = await getReels();
+      if (currentRequestId !== requestId.current) return;
       if (data && data.length > 0) {
         setReels(data.map((reel, index) => ({
           ...reel,
@@ -51,11 +55,14 @@ export function useReels() {
         setReels([]);
       }
     } catch (err) {
+      if (currentRequestId !== requestId.current) return;
       console.error("API Reels fetch failed:", err);
       setError("Failed to retrieve reels from the server. Please check your network connection or try again.");
       setReels([]);
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestId.current) {
+        setLoading(false);
+      }
     }
   }, []);
 
@@ -161,6 +168,12 @@ export function useReels() {
   }, [filteredAndSortedReels, currentPage]);
 
   const totalPages = Math.ceil(filteredAndSortedReels.length / itemsPerPage);
+
+  useEffect(() => {
+    if (currentPage > Math.max(totalPages, 1)) {
+      setCurrentPage(Math.max(totalPages, 1));
+    }
+  }, [currentPage, totalPages]);
 
   const handlePageChange = useCallback((page: number) => {
     if (page >= 1 && page <= totalPages) {

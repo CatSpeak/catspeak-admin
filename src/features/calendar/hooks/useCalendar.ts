@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { getEventCounts, getEventsByDate, deleteEvent as deleteEventApi } from "../api/eventApi";
 import { formatDateKey, toISODate } from "../constants";
-import type { CalendarViewMode, DayEvent, WeekDay } from "../types";
+import type { CalendarViewMode, DayEvent, DayEventCount, WeekDay } from "../types";
 
 export interface DayCell {
   date: Date;
@@ -10,6 +10,8 @@ export interface DayCell {
   isToday: boolean;
   isWeekend: boolean;
   events: DayEvent[];
+  eventCount: number;
+  registeredEventCount: number;
 }
 
 export function useCalendar() {
@@ -17,9 +19,11 @@ export function useCalendar() {
   const [viewMode, setViewMode] = useState<CalendarViewMode>("month");
 
   // API data
-  const [monthEvents, setMonthEvents] = useState<Map<string, DayEvent[]>>(new Map());
+  const [monthEventCounts, setMonthEventCounts] = useState<Map<string, DayEventCount>>(new Map());
   const [dayEvents, setDayEvents] = useState<DayEvent[]>([]);
   const [selectedDayDate, setSelectedDayDate] = useState<Date | null>(null);
+  const monthRequestId = useRef(0);
+  const dayRequestId = useRef(0);
 
   // Loading / error
   const [isLoadingCounts, setIsLoadingCounts] = useState(false);
@@ -38,6 +42,8 @@ export function useCalendar() {
   // ── Fetch event counts + events for the visible month ──
 
   const fetchMonthData = useCallback(async () => {
+    const requestId = monthRequestId.current + 1;
+    monthRequestId.current = requestId;
     setIsLoadingCounts(true);
     setError(null);
     try {
@@ -45,36 +51,22 @@ export function useCalendar() {
       const last = new Date(year, month + 1, 0);
       const response = await getEventCounts(toISODate(first), toISODate(last));
       const counts = response.counts ?? [];
-
-      // Fetch actual events for days that have events (batch)
-      const daysWithEvents = counts.filter((c) => c.totalEvents > 0);
-      const eventMap = new Map<string, DayEvent[]>();
-
-      // Fetch in parallel but limit concurrent requests
-      const batchSize = 5;
-      for (let i = 0; i < daysWithEvents.length; i += batchSize) {
-        const batch = daysWithEvents.slice(i, i + batchSize);
-        const results = await Promise.all(
-          batch.map(async (c) => {
-            try {
-              const res = await getEventsByDate(c.date);
-              return { date: c.date, events: res.events ?? [] };
-            } catch {
-              return { date: c.date, events: [] };
-            }
-          }),
-        );
-        for (const r of results) {
-          const d = new Date(r.date);
-          eventMap.set(formatDateKey(d), r.events);
-        }
+      if (requestId !== monthRequestId.current) {
+        return;
       }
 
-      setMonthEvents(eventMap);
+      setMonthEventCounts(
+        new Map(counts.map((count) => [formatDateKey(new Date(count.date)), count])),
+      );
     } catch (err: unknown) {
+      if (requestId !== monthRequestId.current) {
+        return;
+      }
       setError(getApiErrorMessage(err, "Failed to load calendar data."));
     } finally {
-      setIsLoadingCounts(false);
+      if (requestId === monthRequestId.current) {
+        setIsLoadingCounts(false);
+      }
     }
   }, [year, month]);
 
@@ -85,16 +77,26 @@ export function useCalendar() {
   // ── Fetch events for a specific day (sidebar) ──
 
   const fetchDayEvents = useCallback(async (date: Date) => {
+    const requestId = dayRequestId.current + 1;
+    dayRequestId.current = requestId;
     setIsLoadingDay(true);
     setSelectedDayDate(date);
     setDayEvents([]);
     try {
       const response = await getEventsByDate(toISODate(date));
+      if (requestId !== dayRequestId.current) {
+        return;
+      }
       setDayEvents(response.events ?? []);
     } catch (err: unknown) {
+      if (requestId !== dayRequestId.current) {
+        return;
+      }
       setError(getApiErrorMessage(err, "Failed to load events for this day."));
     } finally {
-      setIsLoadingDay(false);
+      if (requestId === dayRequestId.current) {
+        setIsLoadingDay(false);
+      }
     }
   }, []);
 
@@ -122,17 +124,22 @@ export function useCalendar() {
     const cursor = new Date(start);
     while (cursor <= end) {
       const key = formatDateKey(cursor);
+      const count = monthEventCounts.get(key);
+      const isSelectedDay =
+        selectedDayDate !== null && formatDateKey(selectedDayDate) === key;
       cells.push({
         date: new Date(cursor),
         isCurrentMonth: cursor.getMonth() === month,
         isToday: cursor.getTime() === today.getTime(),
         isWeekend: cursor.getDay() === 0 || cursor.getDay() === 6,
-        events: monthEvents.get(key) ?? [],
+        events: isSelectedDay ? dayEvents : [],
+        eventCount: count?.totalEvents ?? 0,
+        registeredEventCount: count?.registeredEvents ?? 0,
       });
       cursor.setDate(cursor.getDate() + 1);
     }
     return cells;
-  }, [year, month, today, monthEvents]);
+  }, [year, month, today, monthEventCounts, selectedDayDate, dayEvents]);
 
   // ── Week data ──
 

@@ -62,9 +62,9 @@ export default function DataTable<T>({
             {/* Header */}
             <thead className="bg-primary text-white">
               <tr>
-                {columns.map((col) => (
+                {columns.map((col, index) => (
                   <th
-                    key={col.header}
+                    key={`${col.header}-${index}`}
                     className={
                       col.headerClassName ??
                       "px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
@@ -121,9 +121,9 @@ export default function DataTable<T>({
                     className={`hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${onRowClick ? "cursor-pointer" : ""
                       } ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
                   >
-                    {columns.map((col) => (
+                    {columns.map((col, index) => (
                       <td
-                        key={col.header}
+                        key={`${col.header}-${index}`}
                         className={col.cellClassName ?? "px-4 py-3 text-sm text-gray-700"}
                       >
                         {col.render(item, idx)}
