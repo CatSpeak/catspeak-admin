@@ -1,5 +1,5 @@
-import React from "react";
-import { X, GraduationCap, Tag, Shield, Lock, Pencil } from "lucide-react";
+import React, { useState } from "react";
+import { X, GraduationCap, Tag, Shield, Lock, Pencil, Eye, EyeOff } from "lucide-react";
 import { useEditRoom } from "../hooks/useEditRoom";
 import { REQUIRED_LEVELS, ROOM_TOPICS } from "../constants";
 import type { Room, RequiredLevel, RoomPrivacy, RoomTopic } from "../types";
@@ -16,6 +16,7 @@ const PRIVACY_OPTIONS: { value: RoomPrivacy; label: string; desc: string }[] = [
 ];
 
 const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }) => {
+  const [showPassword, setShowPassword] = useState(false);
   const { form, errors, isSubmitting, hasChanges, updateField, toggleTopic, handleSubmit, resetForm } =
     useEditRoom(room, () => {
       onEdited();
@@ -24,6 +25,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
 
   const handleClose = () => {
     resetForm();
+    setShowPassword(false);
     onClose();
   };
 
@@ -102,14 +104,23 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
                 <Lock size={14} /> Room Password
                 {room.privacy === "Public" && <span className="text-red-400">*</span>}
               </label>
-              <input
-                type="password"
-                placeholder={room.hasPassword ? "Leave blank to keep current password" : "Enter room password"}
-                value={form.password}
-                onChange={(e) => updateField("password", e.target.value)}
-                className={`w-full px-3 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.password ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
-                  }`}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={room.hasPassword ? "Leave blank to keep current password" : "Enter room password"}
+                  value={form.password}
+                  onChange={(e) => updateField("password", e.target.value)}
+                  className={`w-full pl-3 pr-10 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${errors.password ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
+                    }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
               {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
               {room.hasPassword && (
                 <p className="text-[11px] text-gray-400 mt-1">This room already has a password. Leave blank to keep it unchanged.</p>

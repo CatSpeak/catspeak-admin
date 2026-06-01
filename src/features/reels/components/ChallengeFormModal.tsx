@@ -116,12 +116,12 @@ export default function ChallengeFormModal({
     };
   }, [isOpen, onClose]);
 
-  // Automatic hashtag prepending on input blur or submit
+  // Automatic hashtag prepending and space merging on input blur or submit
   const handleHashtagBlur = () => {
     let val = hashtag.trim();
     if (!val) return;
-    // Replace all hash symbols, then prepended back exactly one
-    val = val.replace(/#/g, "");
+    // Replace all hash symbols and spaces, then prepend exactly one hash symbol to merge into a single hashtag
+    val = val.replace(/#/g, "").replace(/\s+/g, "");
     if (val) {
       setHashtag(`#${val}`);
     }
@@ -146,8 +146,8 @@ export default function ChallengeFormModal({
       return;
     }
 
-    // Auto-fix hashtag prefix on submit if not already formatted
-    trimmedHashtag = trimmedHashtag.replace(/#/g, "");
+    // Auto-fix hashtag prefix and merge multiple words/hashtags on submit if not already formatted
+    trimmedHashtag = trimmedHashtag.replace(/#/g, "").replace(/\s+/g, "");
     if (!trimmedHashtag) {
       setLocalError("A valid hashtag is required.");
       return;
