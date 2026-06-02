@@ -9,7 +9,7 @@ interface ReelDetailViewProps {
   challenges: ChallengeDto[]; // Pass list of all challenges to do dynamic matching
   onBack: () => void;
   onDelete: (reel: ReelDto) => void;
-  onStatusUpdate: (reelId: number, status: "Warn" | "Block" | "Public", blockReason: string) => Promise<void>;
+  onStatusUpdate: (reelId: number, status: "Warned" | "Blocked" | "Public" | "Private", blockReason: string) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -69,7 +69,7 @@ export default function ReelDetailView({
 }: ReelDetailViewProps) {
   // Moderation Modal states
   const [showModerationModal, setShowModerationModal] = useState(false);
-  const [modStatus, setModStatus] = useState<"Warn" | "Block" | "Public">("Warn");
+  const [modStatus, setModStatus] = useState<"Warned" | "Blocked" | "Public" | "Private">("Warned");
   const [blockReason, setBlockReason] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -105,7 +105,7 @@ export default function ReelDetailView({
 
   const handleModerationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((modStatus === "Warn" || modStatus === "Block") && !blockReason.trim()) {
+    if ((modStatus === "Warned" || modStatus === "Blocked") && !blockReason.trim()) {
       setValidationError("Please provide a reason for flagging or blocking this reel.");
       return;
     }
@@ -165,7 +165,7 @@ export default function ReelDetailView({
             variant="primary"
             size="sm"
             onClick={() => {
-              setModStatus(reel.status === "Warn" ? "Warn" : reel.status === "Block" ? "Block" : "Warn");
+              setModStatus(reel.status === "Warned" ? "Warned" : reel.status === "Blocked" ? "Blocked" : "Warned");
               setBlockReason(reel.blockReason || "");
               setValidationError(null);
               setShowModerationModal(true);
@@ -179,21 +179,21 @@ export default function ReelDetailView({
       </div>
 
       {/* ── Dynamic Moderation Callout Box ── */}
-      {(reel.status === "Warn" || reel.status === "Block" || reel.status === "Blocked" || reel.status === "Failed") && (
+      {(reel.status === "Warned" || reel.status === "Blocked" || reel.status === "Failed") && (
         <div
-          className={`p-4 rounded-3xl border shadow-sm flex items-start gap-3 animate-fadeIn ${reel.status === "Warn"
+          className={`p-4 rounded-3xl border shadow-sm flex items-start gap-3 animate-fadeIn ${reel.status === "Warned"
             ? "bg-amber-50/70 border-amber-100 text-amber-800"
             : "bg-red-50/70 border-red-100 text-red-800"
             }`}
         >
           <ShieldAlert
-            className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${reel.status === "Warn" ? "text-amber-500" : "text-red-500"
+            className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${reel.status === "Warned" ? "text-amber-500" : "text-red-500"
               }`}
           />
           <div className="space-y-1">
-            <h4 className={`text-xs font-bold leading-tight uppercase ${reel.status === "Warn" ? "text-amber-900" : "text-red-900"
+            <h4 className={`text-xs font-bold leading-tight uppercase ${reel.status === "Warned" ? "text-amber-900" : "text-red-900"
               }`}>
-              {reel.status === "Warn" ? "Reel Flagged with Warning" : "Reel Blocked from Public View"}
+              {reel.status === "Warned" ? "Reel Flagged with Warning" : "Reel Blocked from Public View"}
             </h4>
             <p className="text-xs leading-relaxed opacity-95">
               <span className="font-bold text-gray-700">Reason:</span>{" "}
@@ -461,23 +461,24 @@ export default function ReelDetailView({
                 value={modStatus}
                 onChange={(e) => {
                   const nextStatus = e.target.value;
-                  if (nextStatus === "Warn" || nextStatus === "Block" || nextStatus === "Public") {
+                  if (nextStatus === "Warned" || nextStatus === "Blocked" || nextStatus === "Public" || nextStatus === "Private") {
                     setModStatus(nextStatus);
                   }
                   setValidationError(null);
                 }}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer font-semibold text-gray-600"
               >
-                <option value="Warn">Warn (Flag with explanation)</option>
-                <option value="Block">Block (Restrict public feed)</option>
+                <option value="Warned">Warned (Flag with explanation)</option>
+                <option value="Blocked">Blocked (Restrict public feed)</option>
                 <option value="Public">Public (Approve / Unblock)</option>
+                <option value="Private">Private</option>
               </select>
             </div>
 
             {/* Block Reason Text Area */}
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                Reason {modStatus !== "Public" && <span className="text-red-500">*</span>}
+                Reason {(modStatus === "Warned" || modStatus === "Blocked") && <span className="text-red-500">*</span>}
               </label>
               <textarea
                 rows={4}
@@ -487,11 +488,11 @@ export default function ReelDetailView({
                   if (e.target.value.trim()) setValidationError(null);
                 }}
                 placeholder={
-                  modStatus === "Public"
-                    ? "Optional unblock or clearance explanation..."
-                    : "Describe standard violation or reason (e.g. offensive content, trademark violations)..."
+                  modStatus === "Warned" || modStatus === "Blocked"
+                    ? "Describe standard violation or reason (e.g. offensive content, trademark violations)..."
+                    : "Optional unblock or clearance explanation..."
                 }
-                required={modStatus !== "Public"}
+                required={modStatus === "Warned" || modStatus === "Blocked"}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none leading-relaxed"
               />
             </div>
@@ -511,7 +512,7 @@ export default function ReelDetailView({
                 size="sm"
                 type="submit"
                 isLoading={isUpdating}
-                disabled={isUpdating || ((modStatus === "Warn" || modStatus === "Block") && !blockReason.trim())}
+                disabled={isUpdating || ((modStatus === "Warned" || modStatus === "Blocked") && !blockReason.trim())}
                 className="bg-amber-500 border-transparent hover:bg-amber-600 text-white flex items-center gap-1.5 font-semibold"
               >
                 Submit

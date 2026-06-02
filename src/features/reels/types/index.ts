@@ -20,7 +20,7 @@ export interface ChallengeCreateDto {
   hashtag: string;
   name: string;
   description: string;
-  bannerUrl?: string | null;
+  bannerFile?: File | null;
   startDate: string;
   endDate: string;
 }
@@ -42,7 +42,7 @@ export interface ReelDto {
   coverUrl?: string | null;
   privacy: ReelPrivacy;
   source?: string | null;
-  status?: string | null; // e.g. "Public", "Private", "Blocked", etc.
+  status?: string | null; // e.g. "Public", "Private", "Blocked", "Warned"
   blockReason?: string | null;
   viewCount: number;
   createdAt: string;
@@ -58,7 +58,7 @@ export interface ReelDto {
 }
 
 export interface WarnOrBlockReelDto {
-  status: "Public" | "Private" | "Blocked" | "Warn" | "Block";
+  status: "Public" | "Private" | "Blocked" | "Warned";
   blockReason?: string | null;
 }
 

@@ -3,6 +3,7 @@ import type { ActionResponseDto, WarnOrBlockReelDto } from "../types";
 
 /**
  * Update the status of a Reel (e.g. warn, block, toggle Public/Private).
+ * Uses query parameters as per backend API spec.
  */
 export const updateReelStatus = async (
   reelId: number,
@@ -11,7 +12,13 @@ export const updateReelStatus = async (
   return getResponseData(
     axiosClient.post<ActionResponseDto>(
       `/ReelsAdmin/reels/${reelId}/status`,
-      payload
+      null,
+      {
+        params: {
+          status: payload.status,
+          blockReason: payload.blockReason || undefined,
+        },
+      }
     )
   );
 };

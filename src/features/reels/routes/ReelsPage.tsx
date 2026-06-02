@@ -125,12 +125,12 @@ function ReelsPageContent() {
 
   const handleStatusUpdate = async (
     reelId: number,
-    status: "Warn" | "Block" | "Public",
+    status: "Warned" | "Blocked" | "Public" | "Private",
     blockReason: string
   ) => {
     setIsModerating(true);
     try {
-      // Map standard "Warn" or "Block" to correct backend status parameter
+      // Send status and blockReason as query parameters via the updated API
       await updateReelStatus(reelId, { status, blockReason });
       addToast("success", `Successfully updated reel status to "${status}".`);
 

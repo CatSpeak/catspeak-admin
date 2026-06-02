@@ -117,7 +117,6 @@ export function useChallenges() {
             name: payload.name,
             hashtag: payload.hashtag,
             description: payload.description,
-            bannerUrl: payload.bannerUrl,
             startDate: payload.startDate,
             endDate: payload.endDate,
           }

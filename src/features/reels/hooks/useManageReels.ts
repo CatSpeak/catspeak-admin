@@ -62,7 +62,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
 
     try {
       await updateReelStatus(reel.reelId, {
-        status: nextBackendStatus as "Public" | "Private" | "Blocked",
+        status: nextBackendStatus,
         blockReason: null,
       });
       addToast(
@@ -106,7 +106,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
       // If privacy is changing, sync with server status endpoint
       if (payload.privacy) {
         await updateReelStatus(reelId, {
-          status: (payload.privacy === "FriendsOnly" ? "Private" : payload.privacy) as "Public" | "Private" | "Blocked",
+          status: (payload.privacy === "FriendsOnly" ? "Private" : payload.privacy) as "Public" | "Private" | "Blocked" | "Warned",
           blockReason: null,
         });
       }
@@ -240,7 +240,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
         const results = await Promise.allSettled(
           selectedIds.map((id) =>
             updateReelStatus(id, {
-              status: nextPrivacy as "Public" | "Private" | "Blocked",
+              status: nextPrivacy as "Public" | "Private" | "Blocked" | "Warned",
               blockReason: null,
             })
           )
