@@ -8,6 +8,7 @@ import {
   MessageCircle,
   FileWarning,
   GraduationCap,
+  ChartBar,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
@@ -60,6 +61,11 @@ const navItems: NavItem[] = [
     name: "Handle Reports",
     icon: <FileWarning size={20} />,
     path: "/reports",
+  },
+  {
+    name: "Analytics",
+    icon: <ChartBar size={20} />,
+    path: "/analytics",
   },
 ];
 
