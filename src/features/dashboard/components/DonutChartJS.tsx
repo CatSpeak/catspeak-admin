@@ -24,6 +24,7 @@ export default function DonutChartJS({
   const series = segments.map((s) => s.value);
   const labels = segments.map((s) => s.label);
   const colors = segments.map((s) => s.color);
+  const total = segments.reduce((sum, s) => sum + s.value, 0);
 
   const options: ApexOptions = {
     chart: {
@@ -87,25 +88,19 @@ export default function DonutChartJS({
         )}
       </div>
 
-      {/* Legend */}
       <div className="w-full sm:w-auto sm:flex-1 lg:w-full lg:flex-none xl:w-auto xl:flex-1 space-y-2">
-        {segments.map((seg) => (
-          <div
-            key={seg.label}
-            className="flex items-center justify-between text-xs"
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className="w-3 h-3 rounded-sm"
-                style={{ backgroundColor: seg.color }}
-              />
-              <span style={{ color: "var(--color-text)" }}>{seg.label}</span>
+        {segments.map((seg) => {
+          const pct = total > 0 ? ((seg.value / total) * 100).toFixed(1) : "0.0";
+          return (
+            <div key={seg.label} className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: seg.color }} />
+                <span style={{ color: "var(--color-text)" }}>{seg.label}</span>
+              </div>
+              <span style={{ color: "var(--color-text-muted)" }}>{seg.value} ({pct}%)</span>
             </div>
-            <span style={{ color: "var(--color-text-muted)" }}>
-              {seg.value}%
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
