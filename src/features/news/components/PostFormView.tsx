@@ -32,8 +32,8 @@ export default function PostFormView({
   // Map post data or init empty strings
   const [title, setTitle] = useState(
     initialPost?.Title ||
-      initialPost?.title ||
-      (mode === "edit" ? "Untitled Post" : ""),
+    initialPost?.title ||
+    (mode === "edit" ? "Untitled Post" : ""),
   );
 
   useEffect(() => {
@@ -85,7 +85,7 @@ export default function PostFormView({
       setThumbnails(
         initialPost.media.map((m) => ({
           id: m.postMediaId,
-          src: `https://api.catspeak.com.vn${m.mediaUrl}`,
+          src: m.mediaUrl,
           alt: "Existing media",
         })),
       );

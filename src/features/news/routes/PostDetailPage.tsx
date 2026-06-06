@@ -144,13 +144,12 @@ export default function PostDetailPage() {
 
             <div className="ml-auto">
               <span
-                className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${
-                  post.privacy === "Public"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : post.privacy === "Private"
-                      ? "bg-red-50 text-red-700 border border-red-200"
-                      : "bg-amber-50 text-amber-700 border border-amber-200"
-                }`}
+                className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full capitalize ${post.privacy === "Public"
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : post.privacy === "Private"
+                    ? "bg-red-50 text-red-700 border border-red-200"
+                    : "bg-amber-50 text-amber-700 border border-amber-200"
+                  }`}
               >
                 {typeof post.privacy === "string"
                   ? post.privacy.replace(/([A-Z])/g, " $1").trim()
@@ -177,7 +176,7 @@ export default function PostDetailPage() {
                 {post.media.map((m) => (
                   <img
                     key={m.postMediaId}
-                    src={`https://api.catspeak.com.vn${m.mediaUrl}`}
+                    src={m.mediaUrl}
                     alt="attachment"
                     className="w-full h-40 object-cover rounded-lg border border-gray-100 bg-gray-50"
                   />
