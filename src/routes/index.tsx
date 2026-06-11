@@ -26,12 +26,6 @@ const InstructorApplicationDetailPage = lazy(() => import("../features/instructo
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
 
-const PageLoader = () => (
-  <div className="flex min-h-[50vh] w-full items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-  </div>
-);
-
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
     <Component />
