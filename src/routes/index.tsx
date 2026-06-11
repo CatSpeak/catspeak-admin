@@ -24,6 +24,13 @@ const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
+const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
+
+const PageLoader = () => (
+  <div className="flex min-h-[50vh] w-full items-center justify-center">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -64,6 +71,7 @@ export const router = createBrowserRouter([
           { path: "news", element: wrap(NewsPage) },
           { path: "calendar", element: wrap(CalendarPage) },
           { path: "room", element: wrap(RoomPage) },
+          { path: "analytics", element: wrap(AnalyticsPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
           { path: "news/:id", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
