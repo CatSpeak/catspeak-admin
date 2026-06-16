@@ -58,6 +58,7 @@ const periods: { value: AnalyticsPeriod; label: string }[] = [
   { value: "last7days", label: "Last 7 Days" },
   { value: "last30days", label: "Last 30 Days" },
   { value: "thismonth", label: "This Month" },
+  { value: "all", label: "All" },
   { value: "custom", label: "Custom" },
 ];
 
