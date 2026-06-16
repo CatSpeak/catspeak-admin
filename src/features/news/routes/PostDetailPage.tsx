@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { usePostDetail } from "../hooks/usePostDetail";
 import { PostFormView, PostContent, DeleteConfirmModal } from "../components";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Eye, Heart, MessageSquare, Share2 } from "lucide-react";
 import Button from "../../../components/ui/Button";
 
 function formatDate(value?: string | null) {
@@ -29,7 +29,7 @@ export default function PostDetailPage() {
       <div className="flex items-center justify-center h-64 bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col items-center gap-3 text-gray-500">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span>Loading post details...</span>
+          <span>Loading...</span>
         </div>
       </div>
     );
@@ -188,34 +188,69 @@ export default function PostDetailPage() {
 
         {/* Sidebar Info */}
         <div className="w-full lg:w-[320px] shrink-0 space-y-6">
-          <div className="bg-white p-5 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-            <h3 className="text-sm font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">
-              Post Metadata
-            </h3>
-            <dl className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Post ID</dt>
-                <dd className="font-medium text-gray-900">#{post.postId}</dd>
+          <div className="bg-white p-5 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-gray-100/50 space-y-6">
+            {/* Header section with Post ID */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Post Details</span>
+              <span className="bg-orange-50 text-primary border border-orange-100 rounded-md px-2 py-0.5 text-xs font-mono font-semibold">
+                #{post.postId}
+              </span>
+            </div>
+
+            {/* Engagement Stats Grid */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Engagement Stats</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-indigo-50/40 rounded-xl border border-indigo-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
+                    <Eye size={12} className="text-indigo-500" /> Views
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">{(post.viewCount ?? 0).toLocaleString()}</span>
+                </div>
+                <div className="p-3 bg-rose-50/40 rounded-xl border border-rose-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
+                    <Heart size={12} className="text-rose-500" /> Reactions
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">{(post.totalReactions ?? 0).toLocaleString()}</span>
+                </div>
+                <div className="p-3 bg-amber-50/40 rounded-xl border border-amber-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
+                    <MessageSquare size={12} className="text-amber-500" /> Comments
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">{(post.totalComments ?? 0).toLocaleString()}</span>
+                </div>
+                <div className="p-3 bg-emerald-50/40 rounded-xl border border-emerald-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                  <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
+                    <Share2 size={12} className="text-emerald-500" /> Shares
+                  </span>
+                  <span className="text-lg font-bold text-gray-900">{(post.shareCount ?? 0).toLocaleString()}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Created</dt>
-                <dd className="font-medium text-gray-900">
-                  {formatDate(post.createDate)}
-                </dd>
+            </div>
+
+            {/* Post Timeline */}
+            <div className="space-y-4 pt-4 border-t border-gray-100">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Timeline</h4>
+
+              <div className="relative pl-6 space-y-4">
+                {/* Visual timeline vertical line */}
+                <div className="absolute left-2.5 top-1.5 bottom-1.5 w-0.5 bg-gray-100" />
+
+                {/* Created Event */}
+                <div className="relative">
+                  <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white bg-primary ring-4 ring-orange-50" />
+                  <div className="text-xs font-semibold text-gray-400">Created</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatDate(post.createDate)}</div>
+                </div>
+
+                {/* Last Edited Event */}
+                <div className="relative">
+                  <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white bg-gray-400 ring-4 ring-gray-100" />
+                  <div className="text-xs font-semibold text-gray-400">Last Edited</div>
+                  <div className="text-sm font-semibold text-gray-800">{formatDate(post.lastEdited)}</div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Last Edited</dt>
-                <dd className="font-medium text-gray-900">
-                  {formatDate(post.lastEdited)}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-gray-500">Total Reactions</dt>
-                <dd className="font-medium text-gray-900">
-                  {post.totalReactions}
-                </dd>
-              </div>
-            </dl>
+            </div>
           </div>
         </div>
       </div>

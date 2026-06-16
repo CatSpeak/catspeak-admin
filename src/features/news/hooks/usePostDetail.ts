@@ -38,7 +38,7 @@ export function usePostDetail(postId: string | undefined) {
       // and matching the update/delete routes. If it doesn't, this part might 
       // need to fetch all and format, but standard backend provides this.
       const response = await getResponseData(
-         axiosClient.get<GetPostResponse>(`/post/${postId}`)
+        axiosClient.get<GetPostResponse>(`/post/${postId}`)
       );
       if (currentRequestId !== requestId.current) return;
       setPost(response.data);
