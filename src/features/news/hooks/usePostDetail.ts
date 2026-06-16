@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { axiosClient, getResponseData } from "../../../lib/axios";
 import { updatePost } from "../api/updatePost";
@@ -18,14 +18,18 @@ export function usePostDetail(postId: string | undefined) {
 
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   const fetchPost = useCallback(async () => {
     if (!postId) {
+      requestId.current += 1;
       setError("No post ID provided");
       setLoading(false);
       return;
     }
 
+    const currentRequestId = requestId.current + 1;
+    requestId.current = currentRequestId;
     setLoading(true);
     setError(null);
 
@@ -34,13 +38,17 @@ export function usePostDetail(postId: string | undefined) {
       // and matching the update/delete routes. If it doesn't, this part might 
       // need to fetch all and format, but standard backend provides this.
       const response = await getResponseData(
-         axiosClient.get<GetPostResponse>(`/post/${postId}`)
+        axiosClient.get<GetPostResponse>(`/post/${postId}`)
       );
+      if (currentRequestId !== requestId.current) return;
       setPost(response.data);
     } catch (err: unknown) {
+      if (currentRequestId !== requestId.current) return;
       setError(getApiErrorMessage(err, "Failed to load post details."));
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestId.current) {
+        setLoading(false);
+      }
     }
   }, [postId]);
 

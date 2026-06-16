@@ -1,4 +1,5 @@
-import { Pencil, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight, Eye, Heart, MessageSquare, Share2 } from "lucide-react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../types";
 import DataTable, { type Column } from "../../../components/ui/DataTable";
@@ -25,6 +26,7 @@ function stripHtmlAndTruncate(html: string, maxLength: number = 80) {
 function getColumns(
   onEdit: (post: Post) => void,
   onDelete: (post: Post) => void,
+  previewByPostId: Map<number, { short: string; full: string }>,
 ): Column<Post>[] {
   return [
     {
@@ -42,14 +44,17 @@ function getColumns(
     },
     {
       header: "Content Preview",
-      render: (p) => (
-        <span
-          className="text-gray-600 max-w-xs truncate block"
-          title={stripHtmlAndTruncate(p.content, 200)}
-        >
-          {stripHtmlAndTruncate(p.content)}
-        </span>
-      ),
+      render: (p) => {
+        const preview = previewByPostId.get(p.postId);
+        return (
+          <span
+            className="text-gray-600 max-w-xs truncate block"
+            title={preview?.full ?? ""}
+          >
+            {preview?.short ?? ""}
+          </span>
+        );
+      },
     },
     {
       header: "Media",
@@ -66,13 +71,12 @@ function getColumns(
       header: "Privacy",
       render: (p) => (
         <span
-          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize whitespace-nowrap ${
-            p.privacy === "Public"
-              ? "bg-green-50 text-green-600 border border-green-200"
-              : p.privacy === "Private"
-                ? "bg-red-50 text-red-500 border border-red-200"
-                : "bg-amber-50 text-amber-600 border border-amber-200"
-          }`}
+          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize whitespace-nowrap ${p.privacy === "Public"
+            ? "bg-green-50 text-green-600 border border-green-200"
+            : p.privacy === "Private"
+              ? "bg-red-50 text-red-500 border border-red-200"
+              : "bg-amber-50 text-amber-600 border border-amber-200"
+            }`}
         >
           {typeof p.privacy === "string"
             ? p.privacy.replace(/([A-Z])/g, " $1").trim()
@@ -81,8 +85,40 @@ function getColumns(
       ),
     },
     {
+      header: "Views",
+      render: (p) => (
+        <div className="flex items-center justify-center gap-1.5 text-gray-700">
+          <Eye size={14} className="text-gray-400" />
+          <span>{p.viewCount}</span>
+        </div>
+      ),
+    },
+    {
       header: "Reactions",
-      render: (p) => <span className="text-center block">{p.totalReactions}</span>,
+      render: (p) => (
+        <div className="flex items-center justify-center gap-1.5 text-gray-700">
+          <Heart size={14} className="text-gray-400" />
+          <span>{p.totalReactions}</span>
+        </div>
+      ),
+    },
+    {
+      header: "Comments",
+      render: (p) => (
+        <div className="flex items-center justify-center gap-1.5 text-gray-700">
+          <MessageSquare size={14} className="text-gray-400" />
+          <span>{p.totalComments}</span>
+        </div>
+      ),
+    },
+    {
+      header: "Shares",
+      render: (p) => (
+        <div className="flex items-center justify-center gap-1.5 text-gray-700">
+          <Share2 size={14} className="text-gray-400" />
+          <span>{p.shareCount}</span>
+        </div>
+      ),
     },
     {
       header: "Date Created",
@@ -135,7 +171,23 @@ export default function PostTable({
   onDelete,
 }: PostTableProps) {
   const navigate = useNavigate();
-  const columns = getColumns(onEdit, onDelete);
+  const previewByPostId = useMemo(
+    () =>
+      new Map(
+        posts.map((post) => [
+          post.postId,
+          {
+            short: stripHtmlAndTruncate(post.content),
+            full: stripHtmlAndTruncate(post.content, 200),
+          },
+        ]),
+      ),
+    [posts],
+  );
+  const columns = useMemo(
+    () => getColumns(onEdit, onDelete, previewByPostId),
+    [onEdit, onDelete, previewByPostId],
+  );
 
   return (
     <div className="space-y-4">

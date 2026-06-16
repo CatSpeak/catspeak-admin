@@ -17,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
   leftIcon,
   rightIcon,
   disabled,
+  type = "button",
   ...props
 }) => {
   const baseStyles =
@@ -42,6 +43,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      type={type}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || isLoading}
       {...props}

@@ -1,5 +1,6 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { useMemo } from "react";
 
 interface BarDataItem {
   label: string;
@@ -20,7 +21,7 @@ export default function BarChartJS({
   periodLabel,
   height = 240,
 }: BarChartProps) {
-  const series = [
+  const series = useMemo(() => [
     {
       name: "Primary",
       data: data.map((d) => d.values[0]),
@@ -29,9 +30,10 @@ export default function BarChartJS({
       name: "Secondary",
       data: data.map((d) => d.values[1]),
     },
-  ];
+  ], [data]);
+  const categories = useMemo(() => data.map((d) => d.label), [data]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "bar",
       height: height,
@@ -50,7 +52,7 @@ export default function BarChartJS({
     dataLabels: { enabled: false },
     stroke: { show: false },
     xaxis: {
-      categories: data.map((d) => d.label),
+      categories,
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
@@ -79,7 +81,7 @@ export default function BarChartJS({
       shared: true,
       intersect: false,
     },
-  };
+  }), [categories, height]);
 
   return (
     <div>

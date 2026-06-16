@@ -18,6 +18,7 @@ export default function DeleteConfirmModal({
 
   // Focus the cancel button on mount and handle ESC
   useEffect(() => {
+    if (!isOpen) return;
     cancelRef.current?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
@@ -25,7 +26,7 @@ export default function DeleteConfirmModal({
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

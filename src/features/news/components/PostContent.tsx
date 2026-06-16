@@ -272,7 +272,6 @@ const PostContent = ({ html, className = "" }: PostContentProps) => {
   const segments = useMemo(() => {
     const sanitized = DOMPurify.sanitize(html, {
       ADD_ATTR: [
-        "style",
         "width",
         "height",
         "border",
@@ -280,6 +279,7 @@ const PostContent = ({ html, className = "" }: PostContentProps) => {
         "cellspacing",
         "class",
       ],
+      ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/|#)/i,
     });
     return parseContentSegments(sanitized);
   }, [html]);

@@ -6,6 +6,7 @@ import type {
   UserClassificationResponse,
   ExistingUsersResponse,
   ActivityBreakdownResponse,
+  PostResponse,
   DateRange,
 } from "../types";
 
@@ -48,3 +49,7 @@ export const getActivityBreakdown = async (
 ): Promise<ActivityBreakdownResponse> => {
   return fetchWithDefaultParams<ActivityBreakdownResponse>("activity-breakdown", dateRange);
 };
+
+export const getPost = async (dateRange: DateRange): Promise<PostResponse> => {
+  return fetchWithDefaultParams<PostResponse>("posts", dateRange)
+}

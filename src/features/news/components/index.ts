@@ -6,3 +6,4 @@ export { default as SettingsSidebar } from "./SettingsSidebar";
 export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
 export { default as PostFormView } from "./PostFormView";
 export { default as PostTable } from "./PostTable";
+export { default as PostAnalyticsCards } from "./PostAnalyticsCards";

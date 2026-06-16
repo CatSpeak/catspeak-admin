@@ -1,6 +1,7 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useMemo } from "react";
 
 interface Segment {
   label: string;
@@ -21,12 +22,12 @@ export default function DonutChartJS({
   trendValue,
   centerSubtext,
 }: DonutChartProps) {
-  const series = segments.map((s) => s.value);
-  const labels = segments.map((s) => s.label);
-  const colors = segments.map((s) => s.color);
+  const series = useMemo(() => segments.map((s) => s.value), [segments]);
+  const labels = useMemo(() => segments.map((s) => s.label), [segments]);
+  const colors = useMemo(() => segments.map((s) => s.color), [segments]);
   const total = segments.reduce((sum, s) => sum + s.value, 0);
-
-  const options: ApexOptions = {
+  
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "donut",
       parentHeightOffset: 0,
@@ -50,7 +51,7 @@ export default function DonutChartJS({
         formatter: (val) => `${val}%`,
       },
     },
-  };
+  }), [colors, labels]);
 
   return (
     <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-center gap-6">

@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState } from "react";
 import UserStatsSummary from "../components/UserStatsSummary";
-// import LanguageStats from "./components/LanguageStats";
 import StatsCard from "../components/StatsCard";
 import VietNamDetailCard from "../components/VietNamDetailCard";
 import MonthlyTarget from "../components/MonthlyTarget";
@@ -94,12 +93,6 @@ const ageGenderData = [
   { label: "0-20", value: 1500, color: "#FFA500", male: 1000, female: 500 },
   { label: "20-35", value: 500, color: "#C8102E", male: 100, female: 400 },
 ];
-
-// Language statistics
-// const languageData = [
-//   { name: "China", count: 102, color: "#C8102E" },
-//   { name: "English", count: 102, color: "#C8102E" },
-// ];
 
 export default function Dashboard() {
   const [activePeriod, setActivePeriod] =
@@ -264,12 +257,6 @@ export default function Dashboard() {
           </Suspense>
         </Card>
 
-        {/* Languages - 1 col */}
-        {/* <Card className="md:col-span-1 lg:col-span-1 animate-fade-in delay-6">
-          <LanguageStats languages={languageData} />
-        </Card> */}
-
-        {/* Monthly Target - 2 cols */}
         <Card
           noPadding
           className="md:col-span-3 lg:col-span-2 animate-fade-in delay-7"

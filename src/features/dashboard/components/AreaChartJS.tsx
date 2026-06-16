@@ -1,5 +1,6 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
+import { useMemo } from "react";
 
 interface AreaDataItem {
   label: string;
@@ -13,7 +14,7 @@ interface AreaChartProps {
 }
 
 export default function AreaChartJS({ data, height = 300 }: AreaChartProps) {
-  const series = [
+  const series = useMemo(() => [
     {
       name: "Account users",
       data: data.map((d) => d.accountUsers),
@@ -22,9 +23,10 @@ export default function AreaChartJS({ data, height = 300 }: AreaChartProps) {
       name: "Active users",
       data: data.map((d) => d.activeUsers),
     },
-  ];
+  ], [data]);
+  const categories = useMemo(() => data.map((d) => d.label), [data]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "area",
       height: height,
@@ -49,7 +51,7 @@ export default function AreaChartJS({ data, height = 300 }: AreaChartProps) {
       strokeColors: "#fff",
     },
     xaxis: {
-      categories: data.map((d) => d.label),
+      categories,
       tooltip: { enabled: false },
       axisBorder: { show: false },
       axisTicks: { show: false },
@@ -86,7 +88,7 @@ export default function AreaChartJS({ data, height = 300 }: AreaChartProps) {
         formatter: (val: number) => val.toLocaleString(),
       },
     },
-  };
+  }), [categories, height]);
 
   return (
     <div>

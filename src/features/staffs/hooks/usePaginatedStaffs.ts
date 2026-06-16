@@ -15,23 +15,31 @@ export function usePaginatedStaffs(initialItemsPerPage: number = 10) {
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchStaffs = async () => {
       setLoading(true);
       setError(null);
 
       try {
         const response = await getStaffs(currentPage, itemsPerPage);
+        if (cancelled) return;
         setAccounts(response.data);
         setTotalPages(response.additionalData.totalPages);
         setTotalCount(response.additionalData.totalCount);
       } catch (fetchError: unknown) {
+        if (cancelled) return;
         setError(getApiErrorMessage(fetchError, "Failed to fetch staffs."));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchStaffs();
+    return () => {
+      cancelled = true;
+    };
   }, [currentPage, itemsPerPage]);
 
   const goToPage = useCallback(

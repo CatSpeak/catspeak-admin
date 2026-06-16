@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Save, Trophy, Calendar, Link as LinkIcon, AlertCircle } from "lucide-react";
+import { X, Save, Trophy, Calendar, Upload, AlertCircle } from "lucide-react";
 import type { ChallengeDto, ChallengeCreateDto } from "../types";
 import Button from "../../../components/ui/Button";
 
@@ -15,7 +15,8 @@ interface ChallengeFormValues {
   name: string;
   hashtag: string;
   description: string;
-  bannerUrl: string;
+  bannerFile: File | null;
+  bannerPreviewUrl: string;
   startDate: string;
   endDate: string;
 }
@@ -37,7 +38,8 @@ function getInitialFormValues(challenge: ChallengeDto | null): ChallengeFormValu
       name: challenge.name || "",
       hashtag: challenge.hashtag || "",
       description: challenge.description || "",
-      bannerUrl: challenge.bannerUrl || "",
+      bannerFile: null,
+      bannerPreviewUrl: challenge.bannerUrl || "",
       startDate: formatIsoToInput(challenge.startDate),
       endDate: formatIsoToInput(challenge.endDate),
     };
@@ -51,7 +53,8 @@ function getInitialFormValues(challenge: ChallengeDto | null): ChallengeFormValu
     name: "",
     hashtag: "",
     description: "",
-    bannerUrl: "",
+    bannerFile: null,
+    bannerPreviewUrl: "",
     startDate: formatIsoToInput(start.toISOString()),
     endDate: formatIsoToInput(end.toISOString()),
   };
@@ -73,7 +76,8 @@ export default function ChallengeFormModal({
   const [name, setName] = useState(initialValues.name);
   const [hashtag, setHashtag] = useState(initialValues.hashtag);
   const [description, setDescription] = useState(initialValues.description);
-  const [bannerUrl, setBannerUrl] = useState(initialValues.bannerUrl);
+  const [bannerFile, setBannerFile] = useState<File | null>(initialValues.bannerFile);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState(initialValues.bannerPreviewUrl);
   const [startDate, setStartDate] = useState(initialValues.startDate);
   const [endDate, setEndDate] = useState(initialValues.endDate);
 
@@ -116,12 +120,12 @@ export default function ChallengeFormModal({
     };
   }, [isOpen, onClose]);
 
-  // Automatic hashtag prepending on input blur or submit
+  // Automatic hashtag prepending and space merging on input blur or submit
   const handleHashtagBlur = () => {
     let val = hashtag.trim();
     if (!val) return;
-    // Replace all hash symbols, then prepended back exactly one
-    val = val.replace(/#/g, "");
+    // Replace all hash symbols and spaces, then prepend exactly one hash symbol to merge into a single hashtag
+    val = val.replace(/#/g, "").replace(/\s+/g, "");
     if (val) {
       setHashtag(`#${val}`);
     }
@@ -146,8 +150,8 @@ export default function ChallengeFormModal({
       return;
     }
 
-    // Auto-fix hashtag prefix on submit if not already formatted
-    trimmedHashtag = trimmedHashtag.replace(/#/g, "");
+    // Auto-fix hashtag prefix and merge multiple words/hashtags on submit if not already formatted
+    trimmedHashtag = trimmedHashtag.replace(/#/g, "").replace(/\s+/g, "");
     if (!trimmedHashtag) {
       setLocalError("A valid hashtag is required.");
       return;
@@ -183,7 +187,7 @@ export default function ChallengeFormModal({
         name: trimmedName,
         hashtag: finalHashtag,
         description: trimmedDescription,
-        bannerUrl: bannerUrl.trim() || null,
+        bannerFile: bannerFile || null,
         startDate: new Date(startDate).toISOString(),
         endDate: new Date(endDate).toISOString()
       };
@@ -297,21 +301,50 @@ export default function ChallengeFormModal({
             />
           </div>
 
-          {/* Banner URL */}
+          {/* Banner File Upload */}
           <div className="space-y-1.5">
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-              <LinkIcon className="w-3.5 h-3.5 text-gray-400" />
-              Banner Image URL
+              <Upload className="w-3.5 h-3.5 text-gray-400" />
+              Banner Image
             </label>
-            <input
-              type="url"
-              value={bannerUrl}
-              onChange={(e) => setBannerUrl(e.target.value)}
-              placeholder="e.g. https://images.unsplash.com/... or secure URL"
-              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-gray-300"
-            />
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setBannerFile(file);
+                  if (file) {
+                    const url = URL.createObjectURL(file);
+                    setBannerPreviewUrl(url);
+                  } else {
+                    setBannerPreviewUrl("");
+                  }
+                }}
+                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+              />
+            </div>
+            {bannerPreviewUrl && (
+              <div className="mt-2 relative w-full max-w-[200px]">
+                <img
+                  src={bannerPreviewUrl}
+                  alt="Banner preview"
+                  className="w-full h-auto rounded-xl border border-gray-200 object-cover max-h-32"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBannerFile(null);
+                    setBannerPreviewUrl("");
+                  }}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] hover:bg-red-600 transition-colors shadow-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <p className="text-[10px] text-gray-400">
-              Provide an image URL to style the challenge poster page. If left blank, a professional trophy illustration will be rendered.
+              Upload a banner image (JPG, PNG, or WebP) for the challenge poster. If left blank, a default illustration will be used.
             </p>
           </div>
 

@@ -33,6 +33,7 @@ export function usePaginatedUsers(initialItemsPerPage: number = 10) {
   }, [searchInput]);
 
   useEffect(() => {
+    let cancelled = false;
     const filters: AccountFilters = {};
     if (debouncedSearch) filters.search = debouncedSearch;
     if (roleId !== undefined) filters.roleId = roleId;
@@ -45,17 +46,24 @@ export function usePaginatedUsers(initialItemsPerPage: number = 10) {
 
       try {
         const response = await getAccounts(currentPage, itemsPerPage, filters);
+        if (cancelled) return;
         setAccounts(response.data);
         setTotalPages(response.additionalData.totalPages);
         setTotalCount(response.additionalData.totalCount);
       } catch (fetchError: unknown) {
+        if (cancelled) return;
         setError(getApiErrorMessage(fetchError, "Failed to fetch users."));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchAccounts();
+    return () => {
+      cancelled = true;
+    };
   }, [currentPage, itemsPerPage, debouncedSearch, roleId, level, status]);
 
   const goToPage = useCallback(

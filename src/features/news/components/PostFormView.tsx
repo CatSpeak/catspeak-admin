@@ -32,8 +32,8 @@ export default function PostFormView({
   // Map post data or init empty strings
   const [title, setTitle] = useState(
     initialPost?.Title ||
-      initialPost?.title ||
-      (mode === "edit" ? "Untitled Post" : ""),
+    initialPost?.title ||
+    (mode === "edit" ? "Untitled Post" : ""),
   );
 
   useEffect(() => {
@@ -61,13 +61,31 @@ export default function PostFormView({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const objectUrlsRef = useRef<Set<string>>(new Set());
+
+  const revokeObjectUrl = (url: string) => {
+    if (objectUrlsRef.current.has(url)) {
+      URL.revokeObjectURL(url);
+      objectUrlsRef.current.delete(url);
+    }
+  };
+
+  useEffect(() => {
+    const objectUrls = objectUrlsRef.current;
+    return () => {
+      objectUrls.forEach((url) => URL.revokeObjectURL(url));
+      objectUrls.clear();
+    };
+  }, []);
 
   useEffect(() => {
     if (mode === "edit" && initialPost?.media) {
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      objectUrlsRef.current.clear();
       setThumbnails(
         initialPost.media.map((m) => ({
           id: m.postMediaId,
-          src: `https://api.catspeak.com.vn${m.mediaUrl}`,
+          src: m.mediaUrl,
           alt: "Existing media",
         })),
       );
@@ -77,6 +95,7 @@ export default function PostFormView({
   const addFiles = (files: FileList | File[]) => {
     const newThumbnails = Array.from(files).map((file) => {
       const src = URL.createObjectURL(file);
+      objectUrlsRef.current.add(src);
       return {
         id: src,
         src,
@@ -88,7 +107,13 @@ export default function PostFormView({
   };
 
   const deleteThumbnail = (id: string | number) => {
-    setThumbnails((prev) => prev.filter((img) => img.id !== id));
+    setThumbnails((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (target) {
+        revokeObjectUrl(target.src);
+      }
+      return prev.filter((img) => img.id !== id);
+    });
   };
 
   const handleFileClick = () => fileInputRef.current?.click();

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { getInstructorApplications } from "../api/getInstructorApplications";
 import type { ApplicationStatus, InstructorApplication } from "../types";
@@ -15,8 +15,11 @@ export function useInstructorApplications(initialPageSize: number = 20) {
   const [totalCount, setTotalCount] = useState(0);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "">("");
+  const requestId = useRef(0);
 
   const fetchApplications = useCallback(async () => {
+    const currentRequestId = requestId.current + 1;
+    requestId.current = currentRequestId;
     setLoading(true);
     setError(null);
     try {
@@ -26,13 +29,17 @@ export function useInstructorApplications(initialPageSize: number = 20) {
         search: search || undefined,
         status: statusFilter || undefined,
       });
+      if (currentRequestId !== requestId.current) return;
       setApplications(response.items);
       setTotalPages(response.totalPages);
       setTotalCount(response.totalCount);
     } catch (err: unknown) {
+      if (currentRequestId !== requestId.current) return;
       setError(getApiErrorMessage(err, "Failed to fetch applications."));
     } finally {
-      setLoading(false);
+      if (currentRequestId === requestId.current) {
+        setLoading(false);
+      }
     }
   }, [currentPage, pageSize, search, statusFilter]);
 

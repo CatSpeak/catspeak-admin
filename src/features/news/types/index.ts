@@ -70,6 +70,10 @@ export interface Post {
   totalReactions: number;
   currentUserReaction: string | null;
   media: PostMedia[];
+  totalComments: number;
+  viewCount: number;
+  shareCount: number;
+  languageCommunity: string | null;
 }
 
 export interface GetPostsResponse {

@@ -1,12 +1,12 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Dropdown } from "../../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../../components/ui/dropdown/DropdownItem";
 
 export default function MonthlyTarget() {
-  const series = [75.55];
-  const options: ApexOptions = {
+  const series = useMemo(() => [75.55], []);
+  const options: ApexOptions = useMemo(() => ({
     colors: ["#465FFF"],
     chart: {
       fontFamily: "Noto Sans, sans-serif",
@@ -52,7 +52,7 @@ export default function MonthlyTarget() {
       lineCap: "round",
     },
     labels: ["Progress"],
-  };
+  }), []);
   const [isOpen, setIsOpen] = useState(false);
 
   function closeDropdown() {

@@ -9,6 +9,7 @@ export function useStaffDetail(staffId?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const id = Number(staffId);
     if (!staffId || Number.isNaN(id) || id <= 0) {
       setStaff(null);
@@ -23,16 +24,23 @@ export function useStaffDetail(staffId?: string) {
 
       try {
         const response = await getStaffDetail(id);
+        if (cancelled) return;
         setStaff(response);
       } catch (fetchError: unknown) {
+        if (cancelled) return;
         setStaff(null);
         setError(getApiErrorMessage(fetchError, "Failed to fetch staff."));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetchStaffDetail();
+    return () => {
+      cancelled = true;
+    };
   }, [staffId]);
 
   return {

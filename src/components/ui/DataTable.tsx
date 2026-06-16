@@ -40,7 +40,6 @@ export default function DataTable<T>({
   data,
   keyExtractor,
   loading = false,
-  loadingMessage = "Loading...",
   emptyMessage = "No data found",
   error,
   onRowClick,
@@ -62,9 +61,9 @@ export default function DataTable<T>({
             {/* Header */}
             <thead className="bg-primary text-white">
               <tr>
-                {columns.map((col) => (
+                {columns.map((col, index) => (
                   <th
-                    key={col.header}
+                    key={`${col.header}-${index}`}
                     className={
                       col.headerClassName ??
                       "px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
@@ -84,17 +83,26 @@ export default function DataTable<T>({
             {/* Body */}
             <tbody className="divide-y divide-gray-200">
               {loading ? (
-                <tr>
-                  <td
-                    colSpan={totalColumns}
-                    className="px-4 py-24 text-center text-sm text-gray-500"
+                Array.from({ length: 5 }).map((_, rowIndex) => (
+                  <tr
+                    key={`skeleton-row-${rowIndex}`}
+                    className={rowIndex % 2 === 0 ? "bg-gray-50/50" : "bg-white"}
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                      <span>{loadingMessage}</span>
-                    </div>
-                  </td>
-                </tr>
+                    {columns.map((col, colIndex) => (
+                      <td
+                        key={`skeleton-cell-${colIndex}`}
+                        className={col.cellClassName ?? "px-4 py-3 text-sm text-gray-700"}
+                      >
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                      </td>
+                    ))}
+                    {renderActions && (
+                      <td className="px-4 py-3 text-center">
+                        <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse mx-auto" />
+                      </td>
+                    )}
+                  </tr>
+                ))
               ) : data.length === 0 ? (
                 <tr>
                   <td
@@ -121,9 +129,9 @@ export default function DataTable<T>({
                     className={`hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${onRowClick ? "cursor-pointer" : ""
                       } ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
                   >
-                    {columns.map((col) => (
+                    {columns.map((col, index) => (
                       <td
-                        key={col.header}
+                        key={`${col.header}-${index}`}
                         className={col.cellClassName ?? "px-4 py-3 text-sm text-gray-700"}
                       >
                         {col.render(item, idx)}

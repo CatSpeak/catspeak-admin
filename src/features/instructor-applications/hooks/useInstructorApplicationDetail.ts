@@ -10,6 +10,7 @@ export function useInstructorApplicationDetail(profileId?: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const id = Number(profileId);
     if (!profileId || Number.isNaN(id) || id <= 0) {
       setApplication(null);
@@ -23,16 +24,23 @@ export function useInstructorApplicationDetail(profileId?: string) {
       setError(null);
       try {
         const data = await getInstructorApplicationDetail(id);
+        if (cancelled) return;
         setApplication(data);
       } catch (err: unknown) {
+        if (cancelled) return;
         setApplication(null);
         setError(getApiErrorMessage(err, "Failed to fetch application details."));
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     fetch();
+    return () => {
+      cancelled = true;
+    };
   }, [profileId]);
 
   return { application, loading, error };

@@ -129,12 +129,10 @@ export default function WorldMapCard({
                     graticuleLineColor="#dddddd"
                     legends={[]}
                     tooltip={({ feature }) => {
-                      const featureData = feature.data as unknown as {
-                        id?: string;
-                      };
-                      const countryData = data.find(
-                        (d) => d.id === featureData.id,
-                      );
+                      const countryId = (feature as any).id as string | undefined;
+                      const countryData = countryId
+                        ? data.find((d) => d.id === countryId)
+                        : undefined;
                       return (
                         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
                           <div className="font-semibold text-gray-900">
