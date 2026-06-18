@@ -197,6 +197,14 @@ export default function PostDetailPage() {
               </span>
             </div>
 
+            {/* Language Community Section */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Language Community</span>
+              <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
+                {post.languageCommunity || "All"}
+              </span>
+            </div>
+
             {/* Engagement Stats Grid */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Engagement Stats</h4>

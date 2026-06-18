@@ -5,8 +5,8 @@ import {
   LayoutDashboard,
   Users,
   ChevronDown,
-  MessageCircle,
-  FileWarning,
+  // MessageCircle,
+  // FileWarning,
   GraduationCap,
   ChartBar,
 } from "lucide-react";
@@ -51,18 +51,19 @@ const navItems: NavItem[] = [
     icon: <GraduationCap size={20} />,
     path: "/instructor-applications",
   },
+  // {
+  //   section: "Feedback",
+  //   name: "Live Chat Support",
+  //   icon: <MessageCircle size={20} />,
+  //   path: "/live-chat",
+  // },
+  // {
+  //   name: "Handle Reports",
+  //   icon: <FileWarning size={20} />,
+  //   path: "/reports",
+  // },
   {
     section: "Feedback",
-    name: "Live Chat Support",
-    icon: <MessageCircle size={20} />,
-    path: "/live-chat",
-  },
-  {
-    name: "Handle Reports",
-    icon: <FileWarning size={20} />,
-    path: "/reports",
-  },
-  {
     name: "Analytics",
     icon: <ChartBar size={20} />,
     path: "/analytics",

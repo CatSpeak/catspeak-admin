@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Download, RotateCcw, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
@@ -9,8 +9,6 @@ import type { Post } from "../types";
 import { getPost } from "../../analytics/api/getAnalytics";
 import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
 import { getApiErrorMessage } from "../../../lib/axios";
-
-const FILTER_TEXT_PLACEHOLDERS = ["Search posts..."];
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -25,6 +23,26 @@ export default function NewsPage() {
     confirmDelete,
     deleteTarget,
   } = useManagePosts(postsHook);
+
+  const [searchText, setSearchText] = useState("");
+  const [communityFilter, setCommunityFilter] = useState("All");
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const matchesSearch =
+        searchText.trim() === "" ||
+        (post.Title || post.title || "").toLowerCase().includes(searchText.toLowerCase()) ||
+        (post.content || "").toLowerCase().includes(searchText.toLowerCase()) ||
+        (post.authorName || "").toLowerCase().includes(searchText.toLowerCase());
+
+      const postCommunity = post.languageCommunity || "All";
+      const matchesCommunity =
+        communityFilter === "All" ||
+        postCommunity.toLowerCase() === communityFilter.toLowerCase();
+
+      return matchesSearch && matchesCommunity;
+    });
+  }, [posts, searchText, communityFilter]);
 
   // Post Analytics States
   const [selectedPeriod, setSelectedPeriod] = useState<AnalyticsPeriod>("last7days");
@@ -74,6 +92,8 @@ export default function NewsPage() {
     setSelectedPeriod("last7days");
     setFromDate("");
     setToDate("");
+    setSearchText("");
+    setCommunityFilter("All");
   };
 
   const handleEditClick = (post: Post) => {
@@ -115,14 +135,22 @@ export default function NewsPage() {
 
       {/* Optional: Filter Section matches UserTable style */}
       <div className="flex gap-3 p-4 rounded-lg bg-orange-50 border border-accent/20">
-        {FILTER_TEXT_PLACEHOLDERS.map((placeholder) => (
-          <input
-            key={placeholder}
-            type="text"
-            placeholder={placeholder}
-            className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary w-full max-w-sm"
-          />
-        ))}
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="Search posts..."
+          className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary w-full max-w-sm"
+        />
+        <select
+          value={communityFilter}
+          onChange={(e) => setCommunityFilter(e.target.value)}
+          className="px-3 py-2 text-sm rounded border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary text-gray-600 focus:border-primary"
+        >
+          <option value="All">All</option>
+          <option value="English">English</option>
+          <option value="Chinese">Chinese</option>
+        </select>
       </div>
 
       <PostAnalyticsCards
@@ -140,7 +168,7 @@ export default function NewsPage() {
       />
 
       <PostTable
-        posts={posts}
+        posts={filteredPosts}
         loading={loading}
         error={error}
         currentPage={currentPage}

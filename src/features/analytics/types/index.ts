@@ -48,7 +48,7 @@ export interface PostResponse {
   totalShares: number;
 }
 
-export type AnalyticsPeriod = "today" | "last7days" | "last30days" | "thismonth" | "custom";
+export type AnalyticsPeriod = "today" | "last7days" | "last30days" | "thismonth" | "all" | "custom";
 
 export interface DateRange {
   period: AnalyticsPeriod;

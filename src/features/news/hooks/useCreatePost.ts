@@ -7,7 +7,7 @@ export interface CreatePostForm {
   title: string;
   content: string;
   caption: string;
-  community: string;
+  community: "All" | "English" | "Chinese";
   status: PostStatus;
   privacy: "Public" | "FriendsOnly" | "Private";
   publishDate: string;
@@ -18,7 +18,7 @@ const INITIAL_FORM: CreatePostForm = {
   title: "",
   content: "",
   caption: "",
-  community: "English",
+  community: "All",
   status: "draft",
   privacy: "Public",
   publishDate: "",
@@ -105,6 +105,7 @@ export function useCreatePost() {
         Title: form.title,
         Content: form.content,
         Privacy: form.privacy,
+        LanguageCommunity: form.community,
         Files: thumbnails.map(t => t.file).filter((f): f is File => f !== undefined),
       });
       // Reset form
