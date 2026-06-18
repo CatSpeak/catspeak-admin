@@ -212,9 +212,7 @@ export default function PostTable({
 
       {/* Simple prev/next pagination (PostTable uses a different API that doesn't expose total count) */}
       {(posts.length > 0 || currentPage > 1) && (
-        <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4">
-          <span className="text-sm text-gray-600">Showing page {currentPage}</span>
-
+        <div className="flex flex-col sm:flex-row items-center justify-end px-4 py-3 rounded-lg bg-orange-50 border border-orange-100 gap-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => goToPage(currentPage - 1)}

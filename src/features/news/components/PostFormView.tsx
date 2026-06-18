@@ -163,16 +163,17 @@ export default function PostFormView({
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start">
+    <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start animate-slideUp">
       {/* Left Column — Editor */}
-      <div className="w-full xl:flex-1 space-y-6 p-6 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-        <div className="space-y-2">
-          <h2 className="text-base font-semibold text-gray-900">Post title</h2>
+      <div className="w-full xl:flex-1 space-y-4 p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        {/* Title Editor */}
+        <div className="pt-2">
           <CharCountInput
             value={title}
             onChange={setTitle}
-            placeholder="Enter title"
-            className="text-sm text-gray-800"
+            placeholder="Enter a post title..."
+            maxLength={100}
+            className="text-2xl font-extrabold text-gray-900 border-none pb-0"
           />
         </div>
 
@@ -189,29 +190,41 @@ export default function PostFormView({
           }}
         />
 
-        {/* Thumbnails - Now displays in BOTH create and edit modes */}
-        <ThumbnailGrid
-          images={thumbnails}
-          onDelete={deleteThumbnail}
-          onUpload={handleFileClick}
-        />
-
-        {/* Warning note for edit mode (Optional but recommended based on your previous comments) */}
-        {/* {mode === "edit" && (
-          <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded px-3 mt-1">
-            Note: You can add new media. Deleting existing media visually here
-            might not delete it from the server unless your API supports it.
-          </p>
-        )} */}
-
-        <div className="flex items-center justify-center relative py-4">
-          <div className="absolute w-full h-px bg-gray-200" />
-          <span className="relative bg-white px-2 text-xs font-medium text-gray-400 uppercase tracking-wider">
-            Post Content
-          </span>
+        {/* Thumbnails Manager */}
+        <div className="border-t border-gray-50 pt-6">
+          <ThumbnailGrid
+            images={thumbnails}
+            onDelete={deleteThumbnail}
+            onUpload={handleFileClick}
+          />
         </div>
 
-        <PostEditor value={content} onChange={setContent} />
+        {/* Edit mode Tip Note */}
+        {mode === "edit" && (
+          <div className="p-3.5 bg-amber-50/40 border border-amber-100/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-700">
+            <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 shrink-0 font-bold text-[9px] uppercase tracking-wider">
+              Note
+            </span>
+            <p className="font-medium leading-relaxed">
+              Adding new media will upload it on save. Removing existing media visually updates your draft but will only take effect on the server once changes are submitted.
+            </p>
+          </div>
+        )}
+
+        {/* Editor Body */}
+        <div className="border-t border-gray-100 pt-6">
+          <div className="flex flex-col gap-1 mb-4">
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Article Content
+            </label>
+            <span className="text-xs text-gray-400">
+              Format your text and embed rich elements using the editor
+            </span>
+          </div>
+          <div className="overflow-hidden">
+            <PostEditor value={content} onChange={setContent} />
+          </div>
+        </div>
       </div>
 
       {/* Right Column — Settings */}
