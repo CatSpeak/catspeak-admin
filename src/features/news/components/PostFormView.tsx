@@ -42,6 +42,9 @@ export default function PostFormView({
       if (initialTitle) {
         setTitle(initialTitle);
       }
+      if (initialPost.languageCommunity) {
+        setCommunity(initialPost.languageCommunity as "All" | "English" | "Chinese");
+      }
     }
   }, [mode, initialPost]);
 
@@ -52,7 +55,9 @@ export default function PostFormView({
 
   const [publishDate, setPublishDate] = useState("");
   const [publishTime, setPublishTime] = useState("");
-  const [community, setCommunity] = useState("English");
+  const [community, setCommunity] = useState<"All" | "English" | "Chinese">(
+    (initialPost?.languageCommunity as "All" | "English" | "Chinese") || "All"
+  );
 
   const [tags] = useState<TagItem[]>(MOCK_TAGS);
   const [activeTagId, setActiveTagId] = useState<number | null>(null);
@@ -140,6 +145,7 @@ export default function PostFormView({
           Title: title,
           Content: content,
           Privacy: privacy,
+          LanguageCommunity: community,
           Files: newFiles,
         });
       } else if (mode === "edit" && onSubmitEdit) {
@@ -147,6 +153,7 @@ export default function PostFormView({
           Title: title,
           Content: content,
           Privacy: privacy,
+          LanguageCommunity: community,
           Files: newFiles.length > 0 ? newFiles : undefined,
         } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
       }

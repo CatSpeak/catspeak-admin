@@ -15,6 +15,9 @@ export const updatePost = async (
   }
   formData.append("Content", body.Content);
   formData.append("Privacy", body.Privacy);
+  if (body.LanguageCommunity) {
+    formData.append("LanguageCommunity", body.LanguageCommunity);
+  }
 
   // Append newly added files
   if (body.Files && body.Files.length > 0) {

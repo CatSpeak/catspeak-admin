@@ -85,6 +85,14 @@ function getColumns(
       ),
     },
     {
+      header: "Community",
+      render: (p) => (
+        <span className="inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-blue-50 text-blue-600 border border-blue-200 whitespace-nowrap">
+          {p.languageCommunity || "All"}
+        </span>
+      ),
+    },
+    {
       header: "Views",
       render: (p) => (
         <div className="flex items-center justify-center gap-1.5 text-gray-700">

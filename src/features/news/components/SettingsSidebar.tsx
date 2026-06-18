@@ -1,4 +1,4 @@
-import { ChevronDown, CalendarDays, Clock } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { MOCK_EDIT_HISTORY, COMMUNITIES } from "../constants";
 import type { TagItem } from "../types";
 
@@ -11,8 +11,8 @@ interface SettingsSidebarProps {
   publishTime: string;
   onPublishDateChange: (val: string) => void;
   onPublishTimeChange: (val: string) => void;
-  community: string;
-  onCommunityChange: (val: string) => void;
+  community: "All" | "English" | "Chinese";
+  onCommunityChange: (val: "All" | "English" | "Chinese") => void;
   tags: TagItem[];
   activeTagId: number | null;
   onTagToggle: (id: number) => void;
@@ -23,15 +23,15 @@ interface SettingsSidebarProps {
 const SettingsSidebar = ({
   privacy,
   onPrivacyChange,
-  publishDate,
-  publishTime,
-  onPublishDateChange,
-  onPublishTimeChange,
+  // publishDate,
+  // publishTime,
+  // onPublishDateChange,
+  // onPublishTimeChange,
   community,
   onCommunityChange,
-  tags,
-  activeTagId,
-  onTagToggle,
+  // tags,
+  // activeTagId,
+  // onTagToggle,
   onPublish,
   isSubmitting,
 }: SettingsSidebarProps) => (
@@ -62,7 +62,7 @@ const SettingsSidebar = ({
     </div>
 
     {/* Publish Time */}
-    <div className="space-y-3">
+    {/* <div className="space-y-3">
       <span className="text-sm font-semibold text-gray-900 block">
         Publish Time
       </span>
@@ -92,7 +92,7 @@ const SettingsSidebar = ({
           className="absolute right-3 top-1/2 -translate-y-1/2 text-primary pointer-events-none"
         />
       </div>
-    </div>
+    </div> */}
 
     {/* Community */}
     <div className="flex items-center justify-between gap-4">
@@ -102,7 +102,7 @@ const SettingsSidebar = ({
       <div className="relative w-full max-w-45">
         <select
           value={community}
-          onChange={(e) => onCommunityChange(e.target.value)}
+          onChange={(e) => onCommunityChange(e.target.value as "All" | "English" | "Chinese")}
           className="w-full appearance-none bg-white border border-gray-200 rounded-full px-4 py-1.5 text-xs text-gray-600 focus:outline-none focus:border-primary shadow-sm hover:border-gray-300 transition-colors"
         >
           {COMMUNITIES.map((c) => (
@@ -119,7 +119,7 @@ const SettingsSidebar = ({
     </div>
 
     {/* Tags */}
-    <div className="space-y-3">
+    {/* <div className="space-y-3">
       <span className="text-sm font-semibold text-gray-900 block">Tags</span>
       <div className="flex flex-wrap gap-2">
         {tags.map(({ id, label }) => (
@@ -139,7 +139,7 @@ const SettingsSidebar = ({
           </span>
         ))}
       </div>
-    </div>
+    </div> */}
 
     {/* Edit History */}
     <div className="space-y-3 pt-2">
