@@ -73,7 +73,7 @@ export default function DataTable<T>({
                   </th>
                 ))}
                 {renderActions && (
-                  <th className="px-4 py-3 text-center text-xs font-bold w-12">
+                  <th key="actions-header" className="px-4 py-3 text-center text-xs font-bold w-12">
                     <span className="sr-only">Actions</span>
                   </th>
                 )}
@@ -97,7 +97,7 @@ export default function DataTable<T>({
                       </td>
                     ))}
                     {renderActions && (
-                      <td className="px-4 py-3 text-center">
+                      <td key="skeleton-actions" className="px-4 py-3 text-center">
                         <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse mx-auto" />
                       </td>
                     )}
@@ -115,7 +115,7 @@ export default function DataTable<T>({
               ) : (
                 data.map((item, idx) => (
                   <tr
-                    key={keyExtractor(item)}
+                    key={keyExtractor(item) ?? idx}
                     onClick={() => onRowClick?.(item)}
                     onKeyDown={(event) => {
                       if (!onRowClick) return;
@@ -139,6 +139,7 @@ export default function DataTable<T>({
                     ))}
                     {renderActions && (
                       <td
+                        key="actions"
                         className="px-4 py-3 text-center"
                         onClick={(e) => e.stopPropagation()}
                       >
