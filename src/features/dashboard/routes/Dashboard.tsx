@@ -1,9 +1,12 @@
 import { lazy, Suspense, useState } from "react";
+import { AlertCircle, RefreshCw } from "lucide-react";
 import UserStatsSummary from "../components/UserStatsSummary";
 import StatsCard from "../components/StatsCard";
 import VietNamDetailCard from "../components/VietNamDetailCard";
 import MonthlyTarget from "../components/MonthlyTarget";
 import Card from "../../../components/ui/Card";
+import { useDashboardStats } from "../hooks/useDashboardStats";
+import PaymentsDashboard from "../components/PaymentsDashboard";
 
 const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
 const DonutChartJS = lazy(() => import("../components/DonutChartJS"));
@@ -95,182 +98,252 @@ const ageGenderData = [
 ];
 
 export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState<"platform" | "payments">("platform");
   const [activePeriod, setActivePeriod] =
     useState<(typeof periods)[number]>("Monthly");
 
+  const {
+    data: paymentStats,
+    loading: paymentLoading,
+    error: paymentError,
+    refetch: refetchPayments,
+  } = useDashboardStats();
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* ── Page Title + Tabs ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">Overview</h1>
-
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 overflow-x-auto max-w-full no-scrollbar">
-          {periods.map((p) => (
-            <button
-              key={p}
-              onClick={() => setActivePeriod(p)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap ${activePeriod === p
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-700 hover:bg-black/5"
-                }`}
-            >
-              {p}
-            </button>
-          ))}
+      {/* ── Page Title + Tab Switcher ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-primary tracking-tight">Overview</h1>
+          <p className="text-xs text-gray-500 mt-1">Platform-wide system metrics and insights</p>
         </div>
-      </div>
 
-      {/* ── Row 1: Traffic + Detail (Asymmetric) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-        {/* Traffic Channel - 2 cols */}
-        <Card className="lg:col-span-2 animate-fade-in delay-1">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Traffic Channel
-          </h3>
-          <Suspense fallback={<ChartFallback />}>
-            <DonutChartJS
-              segments={trafficSegments}
-              trendUp
-              trendValue="21% last month"
-              centerSubtext="Total 10k connect"
-            />
-          </Suspense>
-        </Card>
-
-        {/* Detail Bar Chart - 3 cols */}
-        <Card className="lg:col-span-3 animate-fade-in delay-2">
-          <Suspense fallback={<ChartFallback />}>
-            <BarChartJS
-              data={barData}
-              title="Detail"
-              periodLabel="July, 2025"
-              height={240}
-            />
-          </Suspense>
-        </Card>
-      </div>
-
-      {/* ── Row 3: Stats Cards (Varied widths) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
-        <div className="lg:col-span-2">
-          <StatsCard
-            variant="gradient"
-            title="Total profit"
-            value="$82,373.21"
-            trend={{ value: "2.4% last month", up: true }}
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <StatsCard
-            title="Impression"
-            value="10,000"
-            trend={{ value: "2.4% last month", up: true }}
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <StatsCard
-            title="Total User"
-            value="4,000"
-            trend={{ value: "-2% last month", up: false }}
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <StatsCard
-            title="Impression"
-            value="10,000"
-            trend={{ value: "2.4% last month", up: false }}
-          />
-        </div>
-      </div>
-
-      {/* ── Row 2: World Map + Vietnam Detail Card (Asymmetric) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
-        {/* World Map - 4 cols */}
-        <Card className="lg:col-span-4 animate-fade-in delay-2">
-          <Suspense
-            fallback={
-              <div className="flex min-h-[260px] items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-              </div>
-            }
+        <div className="flex bg-gray-100 p-1 rounded-xl gap-1">
+          <button
+            onClick={() => setActiveTab("platform")}
+            className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              activeTab === "platform"
+                ? "bg-white text-gray-900 shadow-xs font-bold"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
           >
-            <WorldMapCard />
-          </Suspense>
-        </Card>
-
-        {/* Vietnam Detail Card - 1 col */}
-        <div className="lg:col-span-2 animate-fade-in delay-2">
-          <VietNamDetailCard />
+            Platform Overview
+          </button>
+          <button
+            onClick={() => setActiveTab("payments")}
+            className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              activeTab === "payments"
+                ? "bg-white text-gray-900 shadow-xs font-bold"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Payments & Claims
+          </button>
         </div>
       </div>
 
-      {/* ── Row 3: Detailed Chart + Sidebar (Asymmetric) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-        {/* Area Chart - 3 cols */}
-        <Card className="lg:col-span-4 animate-fade-in delay-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-            <h3 className="text-xl font-semibold text-gray-800">
-              Detailed user active chart
-            </h3>
-            <span className="text-xs text-gray-500">July, 2025</span>
-          </div>
-          {/* Legend */}
-          <div className="flex flex-wrap items-center gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-red-600"></span>
-              <span className="text-xs text-gray-600">Account users</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-sm bg-orange-400"></span>
-              <span className="text-xs text-gray-600">Active users</span>
+      {activeTab === "platform" ? (
+        <>
+          {/* ── Period Selector row ── */}
+          <div className="flex justify-end">
+            <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 overflow-x-auto max-w-full no-scrollbar">
+              {periods.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setActivePeriod(p)}
+                  className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer ${activePeriod === p
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-black/5"
+                    }`}
+                >
+                  {p}
+                </button>
+              ))}
             </div>
           </div>
-          <Suspense fallback={<ChartFallback height={400} />}>
-            <AreaChartJS data={areaChartData} height={400} />
-          </Suspense>
-        </Card>
 
-        {/* User Stats Summary - 2 cols */}
-        <Card className="lg:col-span-1 animate-fade-in delay-4">
-          <UserStatsSummary
-            period="In July, 2025"
-            totalUsers={4102}
-            newUsers={100}
-            lostUsers={4}
-            oldUserDeleted={1}
-            newUserDeleted={1}
-            adRemovedFromNew={1}
-            adRemovedFromOld={1}
-          />
-        </Card>
-      </div>
+          {/* ── Row 1: Traffic + Detail (Asymmetric) ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            {/* Traffic Channel - 2 cols */}
+            <Card className="lg:col-span-2 animate-fade-in delay-1">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                Traffic Channel
+              </h3>
+              <Suspense fallback={<ChartFallback />}>
+                <DonutChartJS
+                  segments={trafficSegments}
+                  trendUp
+                  trendValue="21% last month"
+                  centerSubtext="Total 10k connect"
+                />
+              </Suspense>
+            </Card>
 
-      {/* ── Row 4: Age/Gender + Languages + Monthly Target (Asymmetric) ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6">
-        {/* Age/Gender Pie Chart - 2 cols */}
-        <Card className="md:col-span-3 lg:col-span-2 animate-fade-in delay-5">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Age/Gender
-          </h3>
-          <Suspense fallback={<ChartFallback />}>
-            <PieChartJS segments={ageGenderData} showLegend={true} />
-          </Suspense>
-        </Card>
+            {/* Detail Bar Chart - 3 cols */}
+            <Card className="lg:col-span-3 animate-fade-in delay-2">
+              <Suspense fallback={<ChartFallback />}>
+                <BarChartJS
+                  data={barData}
+                  title="Detail"
+                  periodLabel="July, 2025"
+                  height={240}
+                />
+              </Suspense>
+            </Card>
+          </div>
 
-        <Card
-          noPadding
-          className="md:col-span-3 lg:col-span-2 animate-fade-in delay-7"
-        >
-          <MonthlyTarget />
-        </Card>
+          {/* ── Row 3: Stats Cards (Varied widths) ── */}
+          <div className="grid grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
+            <div className="lg:col-span-2">
+              <StatsCard
+                variant="gradient"
+                title="Total profit"
+                value="$82,373.21"
+                trend={{ value: "2.4% last month", up: true }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <StatsCard
+                title="Impression"
+                value="10,000"
+                trend={{ value: "2.4% last month", up: true }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <StatsCard
+                title="Total User"
+                value="4,000"
+                trend={{ value: "-2% last month", up: false }}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <StatsCard
+                title="Impression"
+                value="10,000"
+                trend={{ value: "2.4% last month", up: false }}
+              />
+            </div>
+          </div>
 
-        {/* Line Chart - 2 cols */}
-        <Card className="md:col-span-3 lg:col-span-3 animate-fade-in delay-8">
-          <Suspense fallback={<ChartFallback height={400} />}>
-            <LineChartJS data={lineData} height={400} />
-          </Suspense>
-        </Card>
-      </div>
+          {/* ── Row 2: World Map + Vietnam Detail Card (Asymmetric) ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
+            {/* World Map - 4 cols */}
+            <Card className="lg:col-span-4 animate-fade-in delay-2">
+              <Suspense
+                fallback={
+                  <div className="flex min-h-[260px] items-center justify-center">
+                    <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
+                  </div>
+                }
+              >
+                <WorldMapCard />
+              </Suspense>
+            </Card>
+
+            {/* Vietnam Detail Card - 1 col */}
+            <div className="lg:col-span-2 animate-fade-in delay-2">
+              <VietNamDetailCard />
+            </div>
+          </div>
+
+          {/* ── Row 3: Detailed Chart + Sidebar (Asymmetric) ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            {/* Area Chart - 3 cols */}
+            <Card className="lg:col-span-4 animate-fade-in delay-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Detailed user active chart
+                </h3>
+                <span className="text-xs text-gray-500">July, 2025</span>
+              </div>
+              {/* Legend */}
+              <div className="flex flex-wrap items-center gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-sm bg-red-600"></span>
+                  <span className="text-xs text-gray-600">Account users</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-sm bg-orange-400"></span>
+                  <span className="text-xs text-gray-600">Active users</span>
+                </div>
+              </div>
+              <Suspense fallback={<ChartFallback height={400} />}>
+                <AreaChartJS data={areaChartData} height={400} />
+              </Suspense>
+            </Card>
+
+            {/* User Stats Summary - 2 cols */}
+            <Card className="lg:col-span-1 animate-fade-in delay-4">
+              <UserStatsSummary
+                period="In July, 2025"
+                totalUsers={4102}
+                newUsers={100}
+                lostUsers={4}
+                oldUserDeleted={1}
+                newUserDeleted={1}
+                adRemovedFromNew={1}
+                adRemovedFromOld={1}
+              />
+            </Card>
+          </div>
+
+          {/* ── Row 4: Age/Gender + Languages + Monthly Target (Asymmetric) ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6">
+            {/* Age/Gender Pie Chart - 2 cols */}
+            <Card className="md:col-span-3 lg:col-span-2 animate-fade-in delay-5">
+              <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                Age/Gender
+              </h3>
+              <Suspense fallback={<ChartFallback />}>
+                <PieChartJS segments={ageGenderData} showLegend={true} />
+              </Suspense>
+            </Card>
+
+            <Card
+              noPadding
+              className="md:col-span-3 lg:col-span-2 animate-fade-in delay-7"
+            >
+              <MonthlyTarget />
+            </Card>
+
+            {/* Line Chart - 2 cols */}
+            <Card className="md:col-span-3 lg:col-span-3 animate-fade-in delay-8">
+              <Suspense fallback={<ChartFallback height={400} />}>
+                <LineChartJS data={lineData} height={400} />
+              </Suspense>
+            </Card>
+          </div>
+        </>
+      ) : (
+        /* Payments & Claims View */
+        <div className="animate-fade-in">
+          {paymentLoading && !paymentStats ? (
+            <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 bg-white rounded-3xl border border-gray-200 shadow-sm">
+              <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
+              <p className="text-sm font-medium text-gray-500">Retrieving payments statistics...</p>
+            </div>
+          ) : paymentError ? (
+            <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 bg-white rounded-3xl border border-gray-200 shadow-sm p-6 text-center">
+              <div className="p-3 bg-error-50 text-error-600 rounded-full">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-gray-800">Failed to Load Dashboard Stats</p>
+                <p className="text-sm text-gray-500 mt-1">{paymentError}</p>
+              </div>
+              <button
+                onClick={refetchPayments}
+                className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-dark text-white shadow-sm transition-all cursor-pointer"
+              >
+                <RefreshCw size={14} />
+                Try Again
+              </button>
+            </div>
+          ) : paymentStats ? (
+            <PaymentsDashboard data={paymentStats} loading={paymentLoading} refetch={refetchPayments} />
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,18 @@ export const getAccounts = async (
 ): Promise<GetAccountsResponse> => {
     const params: Record<string, unknown> = { page, pageSize };
 
-    if (filters.search) params.search = filters.search;
+    if (filters.search) {
+        const query = filters.search.trim();
+        if (query.includes("@")) {
+            params.email = query;
+        } else if (/^\+?[0-9\s\-()]{4,}$/.test(query)) {
+            // Matches phone numbers with digits, spaces, dashes, or parentheses
+            params.phoneNumber = query;
+        } else {
+            params.username = query;
+        }
+    }
+
     if (filters.roleId !== undefined) params.roleId = filters.roleId;
     if (filters.level) params.level = filters.level;
     if (filters.status !== undefined) params.status = filters.status;

@@ -37,8 +37,6 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
 
-  const dateRange: DateRange = { period: selectedPeriod as AnalyticsPeriod };
-
   async function getAnalyticsAll(range: DateRange) {
     const [newUsers, existingUsers, retention, churn, classification, activity] =
       await Promise.all([
@@ -53,8 +51,9 @@ export default function AnalyticsPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
-    getAnalyticsAll(dateRange)
+    getAnalyticsAll({ period: selectedPeriod as AnalyticsPeriod })
       .then((result) => {
         setData(result);
         setLoading(false);
