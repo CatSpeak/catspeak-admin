@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import UserStatsSummary from "../components/UserStatsSummary";
-import StatsCard from "../components/StatsCard";
+import SummaryCard from "../../../components/ui/SummaryCard";
 import VietNamDetailCard from "../components/VietNamDetailCard";
 import MonthlyTarget from "../components/MonthlyTarget";
 import Card from "../../../components/ui/Card";
@@ -195,30 +195,30 @@ export default function Dashboard() {
           {/* ── Row 3: Stats Cards (Varied widths) ── */}
           <div className="grid grid-cols-2 lg:grid-cols-8 gap-4 sm:gap-6">
             <div className="lg:col-span-2">
-              <StatsCard
+              <SummaryCard
                 variant="gradient"
-                title="Total profit"
+                label="Total profit"
                 value="$82,373.21"
                 trend={{ value: "2.4% last month", up: true }}
               />
             </div>
             <div className="lg:col-span-2">
-              <StatsCard
-                title="Impression"
+              <SummaryCard
+                label="Impression"
                 value="10,000"
                 trend={{ value: "2.4% last month", up: true }}
               />
             </div>
             <div className="lg:col-span-2">
-              <StatsCard
-                title="Total User"
+              <SummaryCard
+                label="Total User"
                 value="4,000"
                 trend={{ value: "-2% last month", up: false }}
               />
             </div>
             <div className="lg:col-span-2">
-              <StatsCard
-                title="Impression"
+              <SummaryCard
+                label="Impression"
                 value="10,000"
                 trend={{ value: "2.4% last month", up: false }}
               />

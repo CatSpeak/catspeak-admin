@@ -13,45 +13,7 @@ interface PostAnalyticsCardsProps {
   onDateRangeChange: (fromDate: string, toDate: string) => void;
 }
 
-interface MetricCardProps {
-  icon: React.ReactNode;
-  label: string;
-  value: number | undefined;
-  loading: boolean;
-  colorClass: {
-    bg: string;
-    text: string;
-    border: string;
-    iconBg: string;
-  };
-}
-
-function MetricCard({ icon, label, value, loading, colorClass }: MetricCardProps) {
-  return (
-    <div
-      className={`relative overflow-hidden ${colorClass.iconBg} rounded-2xl p-5 border ${colorClass.border} shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-default`}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-sm font-semibold text-gray-650 tracking-wide">{label}</span>
-        <div className={`p-2 rounded-xl bg-white shadow-sm ${colorClass.text}`}>
-          {icon}
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="space-y-2 animate-pulse">
-          <div className="h-8 bg-gray-200/60 rounded w-2/3" />
-        </div>
-      ) : (
-        <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-extrabold text-gray-950 tracking-tight">
-            {(value ?? 0).toLocaleString()}
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
+import SummaryCard from "../../../components/ui/SummaryCard";
 
 const periods: { value: AnalyticsPeriod; label: string }[] = [
   { value: "today", label: "Today" },
@@ -193,40 +155,50 @@ export default function PostAnalyticsCards({
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        <MetricCard
+        <SummaryCard
           icon={<FileText size={20} />}
           label="Total Posts"
-          value={analytics?.totalPosts}
+          value={analytics?.totalPosts?.toLocaleString() ?? 0}
           loading={loading}
-          colorClass={cardColors.posts}
+          iconClassName={cardColors.posts.text}
+          iconContainerClassName={cardColors.posts.iconBg}
+          className={cardColors.posts.border}
         />
-        <MetricCard
+        <SummaryCard
           icon={<Eye size={20} />}
           label="Total Views"
-          value={analytics?.totalViews}
+          value={analytics?.totalViews?.toLocaleString() ?? 0}
           loading={loading}
-          colorClass={cardColors.views}
+          iconClassName={cardColors.views.text}
+          iconContainerClassName={cardColors.views.iconBg}
+          className={cardColors.views.border}
         />
-        <MetricCard
+        <SummaryCard
           icon={<MessageSquare size={20} />}
           label="Total Comments"
-          value={analytics?.totalComments}
+          value={analytics?.totalComments?.toLocaleString() ?? 0}
           loading={loading}
-          colorClass={cardColors.comments}
+          iconClassName={cardColors.comments.text}
+          iconContainerClassName={cardColors.comments.iconBg}
+          className={cardColors.comments.border}
         />
-        <MetricCard
+        <SummaryCard
           icon={<Heart size={20} />}
           label="Total Reactions"
-          value={analytics?.totalReactions}
+          value={analytics?.totalReactions?.toLocaleString() ?? 0}
           loading={loading}
-          colorClass={cardColors.reactions}
+          iconClassName={cardColors.reactions.text}
+          iconContainerClassName={cardColors.reactions.iconBg}
+          className={cardColors.reactions.border}
         />
-        <MetricCard
+        <SummaryCard
           icon={<Share2 size={20} />}
           label="Total Shares"
-          value={analytics?.totalShares}
+          value={analytics?.totalShares?.toLocaleString() ?? 0}
           loading={loading}
-          colorClass={cardColors.shares}
+          iconClassName={cardColors.shares.text}
+          iconContainerClassName={cardColors.shares.iconBg}
+          className={cardColors.shares.border}
         />
       </div>
     </div>

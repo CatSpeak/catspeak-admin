@@ -1,5 +1,6 @@
 import React from "react";
 import { DoorOpen, Users, Wifi, Radio } from "lucide-react";
+import SummaryCard from "../../../components/ui/SummaryCard";
 
 interface Stats {
   total: number;
@@ -19,17 +20,15 @@ const RoomStats: React.FC<{ stats: Stats }> = ({ stats }) => {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {statCards.map(({ key, label, icon: Icon, color, bg, iconBg }) => (
-        <div key={key} className={`${bg} rounded-xl p-4 border border-gray-200/60 transition-all duration-300 hover:shadow-sm`}>
-          <div className="flex items-center gap-3">
-            <div className={`${iconBg} rounded-lg p-2.5`}>
-              <Icon size={18} className={color} />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats[key]}</p>
-              <p className="text-xs text-gray-500 font-medium">{label}</p>
-            </div>
-          </div>
-        </div>
+        <SummaryCard
+          key={key}
+          icon={<Icon size={18} />}
+          label={label}
+          value={stats[key]}
+          className={bg}
+          iconClassName={color}
+          iconContainerClassName={iconBg}
+        />
       ))}
     </div>
   );
