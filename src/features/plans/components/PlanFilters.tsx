@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X, Filter } from "lucide-react";
+import { Search, X } from "lucide-react";
 import type { PlanFilters as FiltersType } from "../hooks/usePlans";
 
 interface PlanFiltersProps {

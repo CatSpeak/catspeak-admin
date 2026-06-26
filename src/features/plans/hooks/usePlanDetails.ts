@@ -14,7 +14,10 @@ export const usePlanDetails = (id: number | undefined) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchPlanDetails = useCallback(async () => {
-    if (!id) return;
+    if (!id) {
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
       const [fetchedPlan, fetchedFeatures] = await Promise.all([
@@ -41,7 +44,7 @@ export const usePlanDetails = (id: number | undefined) => {
       if (success) {
         await fetchPlanDetails();
       }
-      return success;
+      return !!success;
     } catch (e) {
       return false;
     }

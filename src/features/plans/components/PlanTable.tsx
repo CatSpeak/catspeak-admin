@@ -1,8 +1,8 @@
 import React from "react";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DataTable, { type Column } from "../../../components/ui/DataTable";
-import { formatDate } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import type { Plan } from "../../../entities/types";
 
 interface PlanTableProps {
@@ -29,7 +29,7 @@ const PlanTable: React.FC<PlanTableProps> = ({ plans, loading, error, onDelete }
           )}
           <div>
             <p className="font-semibold text-gray-900">{p.planName}</p>
-            <p className="text-xs text-gray-500 max-w-[200px] truncate">{p.shortDescription || p.description}</p>
+            <p className="text-xs text-gray-500 max-w-[200px] truncate">{p.description}</p>
           </div>
         </div>
       ),
@@ -85,8 +85,20 @@ const PlanTable: React.FC<PlanTableProps> = ({ plans, loading, error, onDelete }
       },
     },
     {
+      header: "Features",
+      render: (p) => {
+        const count = p.subscriptionFeatures?.length || 0;
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-gray-900">{count}</span>
+            <span className="text-xs text-gray-500">features</span>
+          </div>
+        );
+      },
+    },
+    {
       header: "Last Updated",
-      render: (p) => <span className="text-sm text-gray-600">{formatDate(p.lastEdited)}</span>,
+      render: (p) => <span className="text-sm text-gray-600">{formatDateTime(p.lastEdited)}</span>,
     },
   ];
 
@@ -96,26 +108,15 @@ const PlanTable: React.FC<PlanTableProps> = ({ plans, loading, error, onDelete }
       data={plans}
       keyExtractor={(p) => p.planId}
       loading={loading}
-      error={error}
-      emptyMessage="No plans found matching your criteria."
+      error={error?.message || null}
+      onRowClick={(p) => navigate(`/plans/${p.planId}`)}
       renderActions={(p) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2 pr-2">
           <button
-            onClick={() => navigate(`/plans/${p.planId}`)}
-            className="p-1.5 text-gray-400 hover:text-primary transition-colors rounded hover:bg-orange-50"
-            title="View Details"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => navigate(`/plans/${p.planId}/edit`)}
-            className="p-1.5 text-gray-400 hover:text-blue-600 transition-colors rounded hover:bg-blue-50"
-            title="Edit Plan"
-          >
-            <Edit className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onDelete(p.planId)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(p.planId);
+            }}
             className="p-1.5 text-gray-400 hover:text-red-600 transition-colors rounded hover:bg-red-50"
             title="Delete Plan"
           >

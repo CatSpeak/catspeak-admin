@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../../../components/ui/Card';
 import type { Plan, SubscriptionFeature } from '../../../entities/types';
-import { Search, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Search, Plus, Trash2 } from 'lucide-react';
 
 interface PlanFeaturesTabProps {
   plan: Plan;
@@ -39,14 +39,6 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
     });
   };
 
-  const handleToggleStatus = (feature: SubscriptionFeature) => {
-    onUpdateFeature(feature.id, {
-      featureName: feature.featureName,
-      limitValue: feature.limitValue,
-      isActive: !feature.isActive,
-      displayOrder: feature.displayOrder
-    });
-  };
 
   const handleLimitChange = (feature: SubscriptionFeature, newValue: string) => {
     onUpdateFeature(feature.id, {
@@ -123,15 +115,14 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">Feature</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">Code</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32">Limit</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-center">Status</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {configuredFeatures.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                      No features have been configured for this plan yet.
+                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                      This plan does not include any features yet. Add them from the available features list on the left.
                     </td>
                   </tr>
                 ) : (
@@ -155,25 +146,12 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3 text-center">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input 
-                            type="checkbox" 
-                            className="sr-only peer" 
-                            checked={feature.isActive}
-                            onChange={() => handleToggleStatus(feature)}
-                          />
-                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-                        </label>
-                      </td>
                       <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button className="p-1.5 text-gray-400 hover:text-primary transition-colors">
-                            <Edit2 className="w-4 h-4" />
-                          </button>
+                        <div className="flex items-center justify-end">
                           <button 
                             onClick={() => onRemoveFeature(feature.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50"
+                            title="Remove Feature"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

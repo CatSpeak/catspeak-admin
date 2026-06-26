@@ -1,178 +1,316 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Eye, Send } from 'lucide-react';
-import { usePlanDetails } from '../hooks/usePlanDetails';
-import PlanGeneralTab from '../components/PlanGeneralTab';
-import PlanFeaturesTab from '../components/PlanFeaturesTab';
-import PageLoader from '../../../routes/PageLoader';
-import Button from '../../../components/ui/Button';
+import React, { useState, useEffect, useRef } from "react"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import {
+  Save,
+  Eye,
+  Send,
+  Lock,
+  EyeOff,
+  Archive,
+  ChevronRight,
+} from "lucide-react"
+import { usePlanDetails } from "../hooks/usePlanDetails"
+import { usePlanMutations } from "../hooks/usePlanMutations"
+import PlanGeneralTab from "../components/PlanGeneralTab"
+import PlanFeaturesTab from "../components/PlanFeaturesTab"
+import PageLoader from "../../../routes/PageLoader"
+import Button from "../../../components/ui/Button"
+import { formatDate, formatDateTime } from "../../../lib/utils"
+import type { Plan } from "../../../entities/types"
 
 const PlanDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'general' | 'features' | 'history'>('general');
-  const [isSaving, setIsSaving] = useState(false);
+  const { id } = useParams<{ id: string }>()
+  const isCreateMode = !id
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialTab = (searchParams.get("tab") as any) || "general"
 
-  const { 
-    plan, 
-    availableFeatures, 
-    loading, 
-    error, 
+  const [activeTab, setActiveTab] = useState<"general" | "features">(initialTab)
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Sync tab if URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab) setActiveTab(tab as any)
+  }, [searchParams])
+
+  const handleTabChange = (tab: "general" | "features") => {
+    setActiveTab(tab)
+    if (tab === "general") {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete("tab")
+      setSearchParams(newParams)
+    } else {
+      setSearchParams({ tab })
+    }
+  }
+
+  const { createPlan, isSubmitting } = usePlanMutations()
+  const {
+    plan,
+    availableFeatures,
+    loading,
+    error,
     updateGeneralInfo,
     addFeature,
     updateFeature,
-    removeFeature
-  } = usePlanDetails(Number(id));
+    removeFeature,
+  } = usePlanDetails(isCreateMode ? undefined : Number(id))
 
-  if (loading) return <PageLoader />;
-  if (error || !plan) {
+  const emptyPlan = {
+    planId: 0,
+    planName: "",
+    description: "",
+    priceVnd: 0,
+    priceUsd: 0,
+    priceYuan: 0,
+    createDate: new Date().toISOString(),
+    lastEdited: new Date().toISOString(),
+    status: 1,
+    subscriptionCode: "",
+    applicableRole: "",
+    brandColor: "#7C3AED",
+    displayOrder: 1,
+    iconUrl: "",
+    shortDescription: "",
+    billingCycle: "Monthly",
+    allowRenewal: true,
+    autoRenew: false,
+    packageStatus: "Draft",
+    subscriptionFeatures: [],
+  } as unknown as Plan
+
+  const currentPlan = isCreateMode ? emptyPlan : plan
+  const pendingStatusRef = useRef<string | undefined>(undefined)
+
+  if (loading && !isCreateMode) return <PageLoader />
+  if (!isCreateMode && (error || !plan)) {
     return (
       <div className="p-6 text-center text-red-500">
         Failed to load plan details or plan not found.
       </div>
-    );
+    )
   }
 
   const handleSaveGeneralInfo = async (formData: FormData) => {
-    setIsSaving(true);
-    const success = await updateGeneralInfo(formData);
-    setIsSaving(false);
+    if (pendingStatusRef.current)
+      formData.set("PackageStatus", pendingStatusRef.current)
+    setIsSaving(true)
+    const success = await updateGeneralInfo(formData)
+    setIsSaving(false)
+    pendingStatusRef.current = undefined
     if (success) {
-      // Optional: show a toast notification
-      console.log('Saved successfully');
+      console.log("Saved successfully")
     }
-    return success;
-  };
+    return success
+  }
 
-  const triggerSave = () => {
-    if (activeTab === 'general') {
-      const formSubmitButton = document.getElementById('submit-general-tab');
+  const handleCreateGeneralInfo = async (formData: FormData) => {
+    if (pendingStatusRef.current)
+      formData.set("PackageStatus", pendingStatusRef.current)
+    const result = await createPlan(formData)
+    pendingStatusRef.current = undefined
+    if (result) {
+      navigate(`/plans/${result.planId}?tab=features`)
+      return true
+    }
+    return false
+  }
+
+  const triggerSave = (status?: string) => {
+    if (status) pendingStatusRef.current = status
+    if (activeTab === "general") {
+      const formSubmitButton = document.getElementById("submit-general-tab")
       if (formSubmitButton) {
-        formSubmitButton.click();
+        formSubmitButton.click()
       }
     } else {
-      // If we are on features tab, it auto-saves, but user might click Save anyway.
-      // We can just show a success message or navigate.
-      console.log("Features auto-save on change.");
+      console.log("Features auto-save on change.")
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col min-h-full">
-      
-      <div className="max-w-7xl mx-auto w-full py-6 flex-1 flex flex-col">
+    <div className="flex flex-col min-h-full animate-fade-in">
+      <div className="w-full flex-1 flex flex-col">
         {/* Header */}
-      <div className="flex items-start justify-between mb-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/plans")}
-            className="p-2 text-gray-500 hover:text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{plan.planName}</h1>
-              <span className="px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary rounded-full">
-                {plan.applicableRole}
-              </span>
-              <span className="px-2 py-0.5 text-xs font-medium bg-orange-50 text-orange-600 rounded-full border border-orange-200">
-                {plan.packageStatus || 'Draft'}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-gray-500 mt-2">
-              <span>Code: {plan.subscriptionCode}</span>
-              <span>•</span>
-              <span>Created: {new Date(plan.createDate).toLocaleDateString()}</span>
-              <span>•</span>
-              <span>Last updated: {new Date(plan.lastEdited).toLocaleString()}</span>
+        <div className="mb-8 shrink-0">
+          <nav className="flex items-center text-xs font-semibold tracking-wider text-gray-400 mb-4">
+            <span
+              onClick={() => navigate("/plans")}
+              className="cursor-pointer hover:text-primary transition-colors"
+            >
+              Plans
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 mx-1" />
+            <span className="text-gray-600">
+              {isCreateMode ? "Create New Plan" : "Plan Details"}
+            </span>
+          </nav>
+
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                  {isCreateMode ? "Create New Plan" : currentPlan?.planName}
+                </h1>
+                {!isCreateMode && currentPlan && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2.5 py-0.5 text-xs font-bold bg-blue-50 text-blue-700 rounded-md border border-blue-200/60 shadow-sm">
+                      {currentPlan.applicableRole}
+                    </span>
+                    <span className="px-2.5 py-0.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md border border-gray-200 shadow-sm">
+                      {currentPlan.packageStatus || "Draft"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3 text-sm text-gray-500">
+                {isCreateMode ? (
+                  <span>Create a new service package to offer to users</span>
+                ) : currentPlan ? (
+                  <>
+                    <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
+                      <span className="font-semibold text-gray-700">Code:</span>
+                      <span className="font-mono text-gray-900">
+                        {currentPlan.subscriptionCode}
+                      </span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-gray-300" />
+                    <div>
+                      Created{" "}
+                      <span className="font-medium text-gray-700">
+                        {formatDate(currentPlan.createDate)}
+                      </span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-gray-300" />
+                    <div>
+                      Updated{" "}
+                      <span className="font-medium text-gray-700">
+                        {formatDateTime(currentPlan.lastEdited)}
+                      </span>
+                    </div>
+                  </>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
-        <Button variant="outline" size="sm">
-          Copy
-        </Button>
-      </div>
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6 shrink-0">
-        <nav className="flex items-center gap-8 px-2">
-          <button
-            onClick={() => setActiveTab('general')}
-            className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'general' 
-                ? 'border-primary text-primary' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            1. General Information
-          </button>
-          <button
-            onClick={() => setActiveTab('features')}
-            className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'features' 
-                ? 'border-primary text-primary' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            2. Features & Benefits
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'history' 
-                ? 'border-primary text-primary' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            3. Change History
-          </button>
-        </nav>
-      </div>
+        {/* Tabs */}
+        <div className="border-b border-gray-200 mb-6 shrink-0">
+          <nav className="flex items-center gap-8 px-2">
+            <button
+              onClick={() => handleTabChange("general")}
+              className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === "general"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              1. General Information
+            </button>
+            <button
+              onClick={() => !isCreateMode && handleTabChange("features")}
+              disabled={isCreateMode}
+              className={`pb-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+                activeTab === "features"
+                  ? "border-primary text-primary"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              } ${isCreateMode ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
+              {isCreateMode && <Lock className="w-4 h-4" />}
+              2. Features & Benefits
+            </button>
+          </nav>
+        </div>
 
-      {/* Tab Content */}
-      <div className="flex-1 pb-6">
-        {activeTab === 'general' && (
-          <PlanGeneralTab 
-            plan={plan} 
-            onSave={handleSaveGeneralInfo} 
-            isSaving={isSaving} 
-          />
-        )}
-        {activeTab === 'features' && (
-          <PlanFeaturesTab 
-            plan={plan} 
-            availableFeatures={availableFeatures} 
-            onAddFeature={addFeature}
-            onUpdateFeature={updateFeature}
-            onRemoveFeature={removeFeature}
-          />
-        )}
-        {activeTab === 'history' && (
-          <div className="flex items-center justify-center h-64 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-            Change history will be updated later.
-          </div>
-        )}
+        {/* Tab Content */}
+        <div className="flex-1 pb-6">
+          {activeTab === "general" && currentPlan && (
+            <PlanGeneralTab
+              plan={currentPlan}
+              onSave={
+                isCreateMode ? handleCreateGeneralInfo : handleSaveGeneralInfo
+              }
+              isSaving={isSaving || isSubmitting}
+              isCreateMode={isCreateMode}
+            />
+          )}
+          {activeTab === "features" && currentPlan && !isCreateMode && (
+            <PlanFeaturesTab
+              plan={currentPlan}
+              availableFeatures={availableFeatures}
+              onAddFeature={addFeature}
+              onUpdateFeature={updateFeature}
+              onRemoveFeature={removeFeature}
+            />
+          )}
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="sticky bottom-0 z-10 py-4 mt-auto border border-gray-200 rounded-t-md bg-white flex items-center justify-end gap-3 px-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-          <Button variant="outline" onClick={triggerSave} disabled={isSaving}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-          <Button variant="outline">
-            <Eye className="w-4 h-4 mr-2" />
-            Preview
-          </Button>
-          <Button variant="primary">
-            <Send className="w-4 h-4 mr-2" />
-            Publish
-          </Button>
+        <div className="sticky bottom-4 z-10 py-4 mt-auto border border-gray-200 rounded-xl bg-white flex items-center justify-end gap-3 px-4 shadow-md">
+          {isCreateMode ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/plans")}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => triggerSave("Draft")}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Creating..." : "Create Plan & Go to Config"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => triggerSave("Hidden")}
+                disabled={isSaving}
+              >
+                <EyeOff className="w-4 h-4 mr-2" />
+                Hide
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => triggerSave("Archived")}
+                disabled={isSaving}
+              >
+                <Archive className="w-4 h-4 mr-2" />
+                Archive
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => triggerSave("Draft")}
+                disabled={isSaving}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? "Saving..." : "Save as Draft"}
+              </Button>
+              <Button variant="outline">
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => triggerSave("Published")}
+                disabled={isSaving}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Publish
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default PlanDetailsPage;
+export default PlanDetailsPage

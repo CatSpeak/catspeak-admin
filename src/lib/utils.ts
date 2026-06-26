@@ -18,3 +18,12 @@ export function formatDateLong(value?: string | null): string {
     year: "numeric",
   });
 }
+
+/**
+ * Format a date string with time (e.g. "4/25/2026, 10:23:30 AM").
+ * Returns "—" for null/undefined values.
+ */
+export function formatDateTime(value?: string | null): string {
+  if (!value) return "—";
+  return new Date(value).toLocaleString();
+}

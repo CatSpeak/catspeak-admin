@@ -27,7 +27,7 @@ const InstructorApplicationDetailPage = lazy(() => import("../features/instructo
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
 const PlansPage = lazy(() => import("../features/plans/PlansPage"));
-const PlanCreatePage = lazy(() => import("../features/plans/routes/PlanCreatePage"));
+
 const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsPage"));
 
 const wrap = (Component: React.ComponentType) => (
@@ -72,8 +72,8 @@ export const router = createBrowserRouter([
           { path: "room", element: wrap(RoomPage) },
           { path: "analytics", element: wrap(AnalyticsPage) },
           { path: "plans", element: wrap(PlansPage) },
-          { path: "plans/create", element: wrap(PlanCreatePage) },
-          { path: "plans/:id/edit", element: wrap(PlanDetailsPage) },
+          { path: "plans/create", element: wrap(PlanDetailsPage) },
+          { path: "plans/:id", element: wrap(PlanDetailsPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
           { path: "news/:id", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
