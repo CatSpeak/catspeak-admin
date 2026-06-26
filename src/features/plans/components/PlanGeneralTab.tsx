@@ -12,7 +12,6 @@ interface PlanGeneralTabProps {
 
 const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateMode }) => {
   const { plans } = usePlans()
-  const [isActive, setIsActive] = useState(plan.status === 1)
   const [isPaid, setIsPaid] = useState(plan.priceVnd > 0 || plan.priceUsd > 0 || plan.priceYuan > 0)
   const [currencyType, setCurrencyType] = useState<'VND' | 'USD' | 'CNY'>(plan.priceUsd > 0 ? 'USD' : plan.priceYuan > 0 ? 'CNY' : 'VND')
   const [allowRenewal, setAllowRenewal] = useState(plan.allowRenewal !== false)
@@ -52,7 +51,6 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
     }
 
     formData.set("IconUrl", plan.iconUrl || "")
-    formData.set("Status", isActive ? "1" : "0")
 
     await onSave(formData)
   }
@@ -74,22 +72,6 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                 Edit basic information of the plan.
               </p>
             </div>
-            
-            <label className="flex items-center cursor-pointer group">
-              <div className="relative flex items-center">
-                <input 
-                  type="checkbox" 
-                  className="sr-only" 
-                  checked={isActive} 
-                  onChange={(e) => setIsActive(e.target.checked)} 
-                />
-                <div className={`block w-11 h-6 rounded-full transition-colors ${isActive ? 'bg-primary' : 'bg-gray-300'}`}></div>
-                <div className={`absolute left-1 bg-white w-4 h-4 rounded-full transition-transform ${isActive ? 'transform translate-x-5' : ''}`}></div>
-              </div>
-              <div className="ml-3 text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition-colors w-16">
-                {isActive ? 'Visible' : 'Hidden'}
-              </div>
-            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">

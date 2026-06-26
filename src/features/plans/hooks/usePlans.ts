@@ -5,7 +5,7 @@ import type { Plan } from "../../../entities/types";
 export interface PlanFilters {
   search?: string;
   role?: string;
-  status?: string;
+  packageStatus?: string;
   type?: string;
 }
 
@@ -17,7 +17,7 @@ export function usePlans() {
   const [filters, setFilters] = useState<PlanFilters>({
     search: "",
     role: "",
-    status: undefined,
+    packageStatus: undefined,
     type: "",
   });
 
@@ -46,7 +46,7 @@ export function usePlans() {
       if (filters.role && plan.applicableRole !== filters.role) {
         return false;
       }
-      if (filters.status !== undefined && plan.packageStatus !== filters.status) {
+      if (filters.packageStatus !== undefined && plan.packageStatus !== filters.packageStatus) {
         return false;
       }
       if (filters.type && plan.billingCycle !== filters.type) {

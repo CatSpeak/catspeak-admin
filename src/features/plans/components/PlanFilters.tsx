@@ -11,14 +11,14 @@ const PlanFilters: React.FC<PlanFiltersProps> = ({ filters, setFilters }) => {
   const hasActiveFilters =
     filters.search !== "" ||
     filters.role !== "" ||
-    filters.status !== undefined ||
+    filters.packageStatus !== undefined ||
     filters.type !== "";
 
   const clearFilters = () => {
     setFilters({
       search: "",
       role: "",
-      status: undefined,
+      packageStatus: undefined,
       type: "",
     });
   };
@@ -51,12 +51,12 @@ const PlanFilters: React.FC<PlanFiltersProps> = ({ filters, setFilters }) => {
           <option value="Business">Business</option>
         </select>
 
-        {/* Status Select */}
+        {/* Package Status Select */}
         <select
-          value={filters.status ?? ""}
+          value={filters.packageStatus ?? ""}
           onChange={(e) => setFilters(prev => ({ 
             ...prev, 
-            status: e.target.value === "" ? undefined : e.target.value 
+            packageStatus: e.target.value === "" ? undefined : e.target.value 
           }))}
           className="px-3 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary"
         >

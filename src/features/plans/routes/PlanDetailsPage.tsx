@@ -8,11 +8,13 @@ import {
   EyeOff,
   Archive,
   ChevronRight,
+  Trash2,
 } from "lucide-react"
 import { usePlanDetails } from "../hooks/usePlanDetails"
 import { usePlanMutations } from "../hooks/usePlanMutations"
 import PlanGeneralTab from "../components/PlanGeneralTab"
 import PlanFeaturesTab from "../components/PlanFeaturesTab"
+import PlanPreviewModal from "../components/PlanPreviewModal"
 import PageLoader from "../../../routes/PageLoader"
 import Button from "../../../components/ui/Button"
 import { formatDate, formatDateTime } from "../../../lib/utils"
@@ -27,6 +29,7 @@ const PlanDetailsPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<"general" | "features">(initialTab)
   const [isSaving, setIsSaving] = useState(false)
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
 
   // Sync tab if URL changes
   useEffect(() => {
@@ -45,7 +48,7 @@ const PlanDetailsPage: React.FC = () => {
     }
   }
 
-  const { createPlan, isSubmitting } = usePlanMutations()
+  const { createPlan, deletePlan, isSubmitting } = usePlanMutations()
   const {
     plan,
     availableFeatures,
@@ -129,6 +132,21 @@ const PlanDetailsPage: React.FC = () => {
     }
   }
 
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this plan? This action cannot be undone.",
+      )
+    ) {
+      setIsSaving(true)
+      const success = await deletePlan(Number(id))
+      setIsSaving(false)
+      if (success) {
+        navigate("/plans")
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-full animate-fade-in">
       <div className="w-full flex-1 flex flex-col">
@@ -194,6 +212,24 @@ const PlanDetailsPage: React.FC = () => {
                 ) : null}
               </div>
             </div>
+
+            {!isCreateMode &&
+              currentPlan &&
+              currentPlan.packageStatus !== "Published" && (
+                <div className="flex items-center shrink-0">
+                  <Button
+                    variant="primary"
+                    onClick={() => triggerSave("Published")}
+                    disabled={isSaving || isSubmitting}
+                    className="shadow-sm"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {currentPlan.packageStatus === "Draft"
+                      ? "Publish Plan"
+                      : "Republish Plan"}
+                  </Button>
+                </div>
+              )}
           </div>
         </div>
 
@@ -249,66 +285,101 @@ const PlanDetailsPage: React.FC = () => {
         </div>
 
         {/* Bottom Action Bar */}
-        <div className="sticky bottom-4 z-10 py-4 mt-auto border border-gray-200 rounded-xl bg-white flex items-center justify-end gap-3 px-4 shadow-md">
-          {isCreateMode ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/plans")}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => triggerSave("Draft")}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Creating..." : "Create Plan & Go to Config"}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => triggerSave("Hidden")}
-                disabled={isSaving}
-              >
-                <EyeOff className="w-4 h-4 mr-2" />
-                Hide
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => triggerSave("Archived")}
-                disabled={isSaving}
-              >
-                <Archive className="w-4 h-4 mr-2" />
-                Archive
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => triggerSave("Draft")}
-                disabled={isSaving}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? "Saving..." : "Save as Draft"}
-              </Button>
-              <Button variant="outline">
-                <Eye className="w-4 h-4 mr-2" />
-                Preview
-              </Button>
-              <Button
-                variant="primary"
-                onClick={() => triggerSave("Published")}
-                disabled={isSaving}
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Publish
-              </Button>
-            </>
-          )}
+        <div className="sticky bottom-6 z-10 py-5 mt-auto border border-gray-200 rounded-xl bg-white flex items-center justify-end gap-3 px-4 shadow-md">
+          {/* Right side: Primary actions */}
+          <div className="flex items-center gap-3">
+            {!isCreateMode &&
+              currentPlan &&
+              currentPlan.packageStatus !== "Published" && (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={handleDelete}
+                    disabled={isSaving}
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
+                  <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
+                </>
+              )}
+            {isCreateMode ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/plans")}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => triggerSave("Draft")}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Creating..." : "Create Plan & Go to Config"}
+                </Button>
+              </>
+            ) : (
+              <>
+                {currentPlan?.packageStatus === "Published" && (
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => triggerSave("Hidden")}
+                      disabled={isSaving}
+                    >
+                      <EyeOff className="w-4 h-4 mr-2" />
+                      Hide
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => triggerSave("Archived")}
+                      disabled={isSaving}
+                    >
+                      <Archive className="w-4 h-4 mr-2" />
+                      Archive
+                    </Button>
+                  </>
+                )}
+
+                <Button variant="outline" onClick={() => setIsPreviewOpen(true)}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+
+                {currentPlan?.packageStatus === "Draft" ? (
+                  <Button
+                    variant="primary"
+                    onClick={() => triggerSave("Draft")}
+                    disabled={isSaving}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save as Draft"}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="primary"
+                    onClick={() => triggerSave()}
+                    disabled={isSaving}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {isSaving ? "Saving..." : "Save Changes"}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      {isPreviewOpen && currentPlan && (
+        <PlanPreviewModal
+          plan={currentPlan}
+          onClose={() => setIsPreviewOpen(false)}
+        />
+      )}
     </div>
   )
 }
