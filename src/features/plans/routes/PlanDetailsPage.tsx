@@ -122,13 +122,9 @@ const PlanDetailsPage: React.FC = () => {
 
   const triggerSave = (status?: string) => {
     if (status) pendingStatusRef.current = status
-    if (activeTab === "general") {
-      const formSubmitButton = document.getElementById("submit-general-tab")
-      if (formSubmitButton) {
-        formSubmitButton.click()
-      }
-    } else {
-      console.log("Features auto-save on change.")
+    const formSubmitButton = document.getElementById("submit-general-tab")
+    if (formSubmitButton) {
+      formSubmitButton.click()
     }
   }
 
@@ -263,16 +259,18 @@ const PlanDetailsPage: React.FC = () => {
 
         {/* Tab Content */}
         <div className="flex-1 pb-6">
-          {activeTab === "general" && currentPlan && (
-            <PlanGeneralTab
-              plan={currentPlan}
-              onSave={
-                isCreateMode ? handleCreateGeneralInfo : handleSaveGeneralInfo
-              }
-              isSaving={isSaving || isSubmitting}
-              isCreateMode={isCreateMode}
-            />
-          )}
+          <div className={activeTab === "general" ? "block" : "hidden"}>
+            {currentPlan && (
+              <PlanGeneralTab
+                plan={currentPlan}
+                onSave={
+                  isCreateMode ? handleCreateGeneralInfo : handleSaveGeneralInfo
+                }
+                isSaving={isSaving || isSubmitting}
+                isCreateMode={isCreateMode}
+              />
+            )}
+          </div>
           {activeTab === "features" && currentPlan && !isCreateMode && (
             <PlanFeaturesTab
               plan={currentPlan}

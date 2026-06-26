@@ -51,6 +51,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
     }
 
     formData.set("IconUrl", plan.iconUrl || "")
+    formData.set("Status", "1")
 
     await onSave(formData)
   }
