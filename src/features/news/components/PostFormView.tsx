@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { generateSlug } from "../../../lib/slug";
 import type {
   Post,
   TagItem,
@@ -21,6 +22,8 @@ interface PostFormViewProps {
   onSubmitEdit?: (
     payload: Omit<UpdatePostPayload, "id"> & { Files?: File[] },
   ) => Promise<void>;
+  onSlugError?: (message: string | null) => void;
+  slugError?: string | null;
 }
 
 export default function PostFormView({
@@ -28,6 +31,8 @@ export default function PostFormView({
   initialPost,
   onSubmitCreate,
   onSubmitEdit,
+  onSlugError,
+  slugError,
 }: PostFormViewProps) {
   // Map post data or init empty strings
   const [title, setTitle] = useState(
@@ -41,6 +46,10 @@ export default function PostFormView({
       const initialTitle = initialPost.Title || initialPost.title;
       if (initialTitle) {
         setTitle(initialTitle);
+      }
+      if (initialPost.slug) {
+        setSlug(initialPost.slug);
+        setSlugEdited(false);
       }
     }
   }, [mode, initialPost]);
@@ -59,6 +68,36 @@ export default function PostFormView({
 
   const [thumbnails, setThumbnails] = useState<ThumbnailImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Slug state
+  const [slug, setSlug] = useState(
+    mode === "edit" ? (initialPost?.slug || "") : ""
+  );
+  const [slugEdited, setSlugEdited] = useState(false);
+
+  // Auto-generate slug from title when title changes
+  useEffect(() => {
+    if (mode === "create") {
+      if (!slugEdited) {
+        setSlug(generateSlug(title));
+      }
+    } else if (mode === "edit" && initialPost) {
+      const initialTitle = initialPost.Title || initialPost.title || "";
+      if (!slugEdited && title !== initialTitle) {
+        setSlug(generateSlug(title));
+      }
+    }
+  }, [title, slugEdited, mode, initialPost]);
+
+  const handleSlugChange = (value: string) => {
+    if (value === "") {
+      setSlugEdited(false);
+    } else {
+      setSlugEdited(true);
+    }
+    setSlug(value);
+    if (onSlugError) onSlugError(null);
+  };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const objectUrlsRef = useRef<Set<string>>(new Set());
@@ -136,20 +175,32 @@ export default function PostFormView({
         .filter((f): f is File => f !== undefined);
 
       if (mode === "create" && onSubmitCreate) {
-        await onSubmitCreate({
+        const payload = {
           Title: title,
           Content: content,
           Privacy: privacy,
+          Slug: slug || undefined,
           Files: newFiles,
+        };
+        console.log("[PostFormView] Create payload:", {
+          Title: payload.Title,
+          Slug: payload.Slug,
+          SlugLength: payload.Slug?.length,
         });
+        await onSubmitCreate(payload);
       } else if (mode === "edit" && onSubmitEdit) {
         await onSubmitEdit({
           Title: title,
           Content: content,
           Privacy: privacy,
+          Slug: slug || undefined,
           Files: newFiles.length > 0 ? newFiles : undefined,
         } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
       }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to publish post.";
+      if (onSlugError) onSlugError(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,6 +218,25 @@ export default function PostFormView({
             placeholder="Enter title"
             className="text-sm text-gray-800"
           />
+        </div>
+
+        {/* Slug field */}
+        <div className="space-y-1">
+          <h2 className="text-base font-semibold text-gray-900">Post slug</h2>
+          <input
+            type="text"
+            value={slug}
+            onChange={(e) => handleSlugChange(e.target.value)}
+            placeholder="auto-generated-from-title"
+            className="w-full border-b border-gray-200 pb-2 focus:outline-none focus:border-primary bg-transparent placeholder:text-gray-400 text-sm text-gray-800"
+          />
+          <p className="text-xs text-gray-400">/news/{slug || "..."}</p>
+          <p className="text-xs text-gray-400">
+            {slugEdited ? "Custom slug" : "Suggested from title (editable)"}
+          </p>
+          {slugError && (
+            <p className="text-xs text-red-500">{slugError}</p>
+          )}
         </div>
 
         {/* Hidden File Input */}

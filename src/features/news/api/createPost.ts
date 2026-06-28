@@ -13,6 +13,10 @@ export const createPost = async (
   formData.append("Content", payload.Content);
   formData.append("Privacy", payload.Privacy);
 
+  if (payload.Slug) {
+    formData.append("Slug", payload.Slug);
+  }
+
   if (payload.Files && payload.Files.length > 0) {
     payload.Files.forEach((file) => {
       formData.append("Files", file);

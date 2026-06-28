@@ -15,6 +15,9 @@ export const updatePost = async (
   }
   formData.append("Content", body.Content);
   formData.append("Privacy", body.Privacy);
+  if (body.Slug) {
+    formData.append("Slug", body.Slug);
+  }
 
   // Append newly added files
   if (body.Files && body.Files.length > 0) {

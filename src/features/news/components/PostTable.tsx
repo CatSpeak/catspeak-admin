@@ -168,7 +168,7 @@ export default function PostTable({
         loadingMessage="Loading posts..."
         emptyMessage="No posts found"
         error={error}
-        onRowClick={(p) => navigate(`/news/${p.postId}`)}
+        onRowClick={(p) => navigate(`/news/${p.slug}`)}
       />
 
       {/* Simple prev/next pagination (PostTable uses a different API that doesn't expose total count) */}
