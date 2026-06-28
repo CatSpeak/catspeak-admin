@@ -6,6 +6,6 @@ import type { ReelDto } from "../types";
  */
 export const getReels = async (): Promise<ReelDto[]> => {
   return getResponseData(
-    axiosClient.get<ReelDto[]>("/ReelsAdmin/reels")
+    axiosClient.get<ReelDto[]>("/api/admin/reels")
   );
 };
