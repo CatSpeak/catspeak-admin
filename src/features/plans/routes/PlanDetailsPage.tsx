@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import {
-  Save,
   Eye,
   Send,
   Lock,
   EyeOff,
   Archive,
-  ChevronRight,
   Trash2,
 } from "lucide-react"
 import { usePlanDetails } from "../hooks/usePlanDetails"
@@ -20,7 +18,7 @@ import Button from "../../../components/ui/Button"
 import Breadcrumb from "../../../components/ui/Breadcrumb"
 import PageTitle from "../../../components/ui/PageTitle"
 import Tabs from "../../../components/ui/Tabs"
-import { formatDate, formatDateTime } from "../../../lib/utils"
+import { formatDateTime } from "../../../lib/utils"
 import type { Plan } from "../../../entities/types"
 
 const PlanDetailsPage: React.FC = () => {
