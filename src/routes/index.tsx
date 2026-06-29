@@ -26,6 +26,9 @@ const InstructorApplicationsPage = lazy(() => import("../features/instructor-app
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
+const PlansPage = lazy(() => import("../features/plans/PlansPage"));
+
+const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -68,6 +71,9 @@ export const router = createBrowserRouter([
           { path: "calendar", element: wrap(CalendarPage) },
           { path: "room", element: wrap(RoomPage) },
           { path: "analytics", element: wrap(AnalyticsPage) },
+          { path: "plans", element: wrap(PlansPage) },
+          { path: "plans/create", element: wrap(PlanDetailsPage) },
+          { path: "plans/:id", element: wrap(PlanDetailsPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
           { path: "news/:id", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },

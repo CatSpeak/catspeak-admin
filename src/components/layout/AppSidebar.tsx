@@ -9,6 +9,7 @@ import {
   FileWarning,
   GraduationCap,
   ChartBar,
+  Package,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
@@ -34,6 +35,11 @@ const navItems: NavItem[] = [
       { name: "Users", path: "/users" },
       { name: "Staffs", path: "/staffs" },
     ],
+  },
+  {
+    name: "Plan Management",
+    icon: <Package size={20} />,
+    path: "/plans",
   },
   {
     name: "Cat Speak",

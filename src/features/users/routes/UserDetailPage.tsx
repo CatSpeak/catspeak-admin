@@ -258,7 +258,7 @@ export default function UserDetailPage() {
             <DetailItem icon={<Globe className="w-4 h-4" />} label="Native Language" value={user.naturalLanguage || "Not specified"} />
             <DetailItem icon={<BookOpen className="w-4 h-4" />} label="Learning Language" value={user.languageLearning || "Not specified"} />
             <DetailItem icon={<Award className="w-4 h-4" />} label="Proficiency Level" value={user.proficiency || "Not specified"} />
-            <DetailItem icon={<Globe className="w-4 h-4" />} label="Region / Country" value={user.country || "Việt Nam"} />
+            <DetailItem icon={<Globe className="w-4 h-4" />} label="Region / Country" value={user.country || "Vietnam"} />
           </div>
         </div>
       </div>
