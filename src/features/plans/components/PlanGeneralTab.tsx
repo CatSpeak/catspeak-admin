@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react"
+import { Save } from "lucide-react"
 import { usePlans } from "../hooks/usePlans"
 import Card from "../../../components/ui/Card"
+import Button from "../../../components/ui/Button"
 import type { Plan } from "../../../entities/types"
 
 interface PlanGeneralTabProps {
@@ -10,13 +12,24 @@ interface PlanGeneralTabProps {
   isCreateMode?: boolean
 }
 
-const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateMode }) => {
+const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
+  plan,
+  onSave,
+  isCreateMode,
+  isSaving,
+}) => {
   const { plans } = usePlans()
-  const [isPaid, setIsPaid] = useState(plan.priceVnd > 0 || plan.priceUsd > 0 || plan.priceYuan > 0)
-  const [currencyType, setCurrencyType] = useState<'VND' | 'USD' | 'CNY'>(plan.priceUsd > 0 ? 'USD' : plan.priceYuan > 0 ? 'CNY' : 'VND')
+  const [isPaid, setIsPaid] = useState(
+    plan.priceVnd > 0 || plan.priceUsd > 0 || plan.priceYuan > 0,
+  )
+  const [currencyType, setCurrencyType] = useState<"VND" | "USD" | "CNY">(
+    plan.priceUsd > 0 ? "USD" : plan.priceYuan > 0 ? "CNY" : "VND",
+  )
   const [allowRenewal, setAllowRenewal] = useState(plan.allowRenewal !== false)
   const [autoRenew, setAutoRenew] = useState(plan.autoRenew || false)
-  const [displayOrder, setDisplayOrder] = useState<number>(plan.displayOrder || 1)
+  const [displayOrder, setDisplayOrder] = useState<number>(
+    plan.displayOrder || 1,
+  )
   const [brandColor, setBrandColor] = useState(plan.brandColor || "#7C3AED")
   const [previewIconUrl, setPreviewIconUrl] = useState<string | null>(null)
 
@@ -39,9 +52,12 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
     formData.set("PriceYuan", "0")
 
     if (isPaid) {
-      if (currencyType === "VND") formData.set("PriceVnd", priceValue.toString())
-      if (currencyType === "USD") formData.set("PriceUsd", priceValue.toString())
-      if (currencyType === "CNY") formData.set("PriceYuan", priceValue.toString())
+      if (currencyType === "VND")
+        formData.set("PriceVnd", priceValue.toString())
+      if (currencyType === "USD")
+        formData.set("PriceUsd", priceValue.toString())
+      if (currencyType === "CNY")
+        formData.set("PriceYuan", priceValue.toString())
     }
     formData.set("AllowRenewal", allowRenewal ? "true" : "false")
     formData.set("AutoRenew", allowRenewal && autoRenew ? "true" : "false")
@@ -90,13 +106,19 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {isCreateMode ? <>Code <span className="text-red-500">*</span></> : "Code (Cannot be edited)"}
+                {isCreateMode ? (
+                  <>
+                    Code <span className="text-red-500">*</span>
+                  </>
+                ) : (
+                  "Code (Cannot be edited)"
+                )}
               </label>
               <input
                 disabled={!isCreateMode}
                 name={isCreateMode ? "SubscriptionCode" : undefined}
                 defaultValue={plan.subscriptionCode}
-                className={`w-full px-3 py-2 border border-gray-200 rounded-lg ${!isCreateMode ? 'bg-gray-50 text-gray-500' : 'focus:outline-none focus:ring-1 focus:ring-primary uppercase'}`}
+                className={`w-full px-3 py-2 border border-gray-200 rounded-lg ${!isCreateMode ? "bg-gray-50 text-gray-500" : "focus:outline-none focus:ring-1 focus:ring-primary uppercase"}`}
               />
             </div>
           </div>
@@ -118,7 +140,13 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {isCreateMode ? <>Role <span className="text-red-500">*</span></> : "Role (Cannot be edited)"}
+                {isCreateMode ? (
+                  <>
+                    Role <span className="text-red-500">*</span>
+                  </>
+                ) : (
+                  "Role (Cannot be edited)"
+                )}
               </label>
               {isCreateMode ? (
                 <select
@@ -127,7 +155,9 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                   defaultValue={plan.applicableRole || ""}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                 >
-                  <option value="" disabled>Select Role</option>
+                  <option value="" disabled>
+                    Select Role
+                  </option>
                   <option value="Learner">Learner</option>
                   <option value="Teacher">Teacher</option>
                   <option value="Club">Club</option>
@@ -141,7 +171,6 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                 />
               )}
             </div>
-
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -151,7 +180,11 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
               </label>
               {(previewIconUrl || plan.iconUrl) && (
                 <div className="mb-2">
-                  <img src={previewIconUrl || plan.iconUrl} alt="Plan Icon Preview" className="w-16 h-16 object-contain border border-gray-200 rounded-lg p-1 bg-white" />
+                  <img
+                    src={previewIconUrl || plan.iconUrl}
+                    alt="Plan Icon Preview"
+                    className="w-16 h-16 object-contain border border-gray-200 rounded-lg p-1 bg-white"
+                  />
                 </div>
               )}
               <input
@@ -189,14 +222,18 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                 </span>
               </div>
             </div>
-            
+
             {/* Visual Display Order Preview */}
             {plans && (
               <div className="mt-8 col-span-1 md:col-span-2 pt-6 border-t border-gray-100">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-900">Display Sequence</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Control the order this plan appears on the pricing page.</p>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Display Sequence
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Control the order this plan appears on the pricing page.
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
@@ -207,39 +244,54 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                       name="DisplayOrder"
                       min="1"
                       value={displayOrder}
-                      onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 1)}
+                      onChange={(e) =>
+                        setDisplayOrder(parseInt(e.target.value) || 1)
+                      }
                       className="w-20 px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-center font-bold"
                     />
                   </div>
                 </div>
-                
+
                 {plans.length > 0 && (
                   <div className="flex gap-4 overflow-x-auto py-2 px-2 items-center">
                     {(() => {
                       // Create a visual sequence of plans
                       // Exclude the current plan from the fetched list so we can insert it at the desired position
-                      const otherPlans = plans.filter(p => p.planId !== plan.planId).sort((a, b) => a.displayOrder - b.displayOrder);
-                      const previewPlans = [...otherPlans];
-                      
+                      const otherPlans = plans
+                        .filter((p) => p.planId !== plan.planId)
+                        .sort((a, b) => a.displayOrder - b.displayOrder)
+                      const previewPlans = [...otherPlans]
+
                       // Insert current plan at displayOrder - 1
-                      const insertIndex = Math.max(0, Math.min(previewPlans.length, displayOrder - 1));
-                      previewPlans.splice(insertIndex, 0, { ...plan, planName: plan.planName || "New Plan", isCurrentEditing: true } as any);
+                      const insertIndex = Math.max(
+                        0,
+                        Math.min(previewPlans.length, displayOrder - 1),
+                      )
+                      previewPlans.splice(insertIndex, 0, {
+                        ...plan,
+                        planName: plan.planName || "New Plan",
+                        isCurrentEditing: true,
+                      } as any)
 
                       return previewPlans.map((p: any, idx) => (
-                        <div 
-                          key={p.planId === plan.planId ? 'current' : p.planId} 
+                        <div
+                          key={p.planId === plan.planId ? "current" : p.planId}
                           className={`flex-shrink-0 w-28 h-20 rounded-lg border flex flex-col items-center justify-center p-2 text-center transition-all ${
-                            p.isCurrentEditing 
-                              ? 'bg-primary/10 border-primary text-primary font-bold shadow-md scale-105 z-10' 
-                              : 'bg-white border-gray-200 text-gray-500 shadow-sm opacity-75'
+                            p.isCurrentEditing
+                              ? "bg-primary/10 border-primary text-primary font-bold shadow-md scale-105 z-10"
+                              : "bg-white border-gray-200 text-gray-500 shadow-sm opacity-75"
                           }`}
                         >
-                          <span className="truncate w-full text-xs mb-1">{p.planName}</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.isCurrentEditing ? 'bg-primary/20 text-primary' : 'bg-gray-100 text-gray-500'}`}>
+                          <span className="truncate w-full text-xs mb-1">
+                            {p.planName}
+                          </span>
+                          <span
+                            className={`text-[10px] px-2 py-0.5 rounded-full ${p.isCurrentEditing ? "bg-primary/20 text-primary" : "bg-gray-100 text-gray-500"}`}
+                          >
                             Position {idx + 1}
                           </span>
                         </div>
-                      ));
+                      ))
                     })()}
                   </div>
                 )}
@@ -287,7 +339,9 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                     onChange={() => setIsPaid(true)}
                     className="text-primary focus:ring-primary cursor-pointer"
                   />
-                  <span className="text-sm font-medium cursor-pointer">Paid</span>
+                  <span className="text-sm font-medium cursor-pointer">
+                    Paid
+                  </span>
                 </label>
                 {isPaid && (
                   <div className="flex items-center gap-2 pl-6 animate-fade-in">
@@ -299,9 +353,11 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                       placeholder="0"
                       key={currencyType}
                       defaultValue={
-                        currencyType === 'USD' ? (plan.priceUsd || "") : 
-                        currencyType === 'CNY' ? (plan.priceYuan || "") : 
-                        (plan.priceVnd || "")
+                        currencyType === "USD"
+                          ? plan.priceUsd || ""
+                          : currencyType === "CNY"
+                            ? plan.priceYuan || ""
+                            : plan.priceVnd || ""
                       }
                       className="w-full sm:w-32 px-3 py-1.5 text-sm border border-gray-200 rounded-lg text-left focus:outline-none focus:ring-1 focus:ring-primary"
                     />
@@ -311,8 +367,8 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
                       className="px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       <option value="VND">VND</option>
-                      <option value="USD">USD</option>
-                      <option value="CNY">Yuan</option>
+                      {/* <option value="USD">USD</option>
+                      <option value="CNY">Yuan</option> */}
                     </select>
                   </div>
                 )}
@@ -394,6 +450,21 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({ plan, onSave, isCreateM
               </label>
             </div>
           </div>
+        </Card>
+      </div>
+
+      {/* Form Action Footer */}
+      <div className="lg:col-span-3">
+        <Card className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
+          <div className="text-sm text-gray-500">
+            Make sure to save your general information changes.
+          </div>
+          <Button type="submit" variant="primary" disabled={isSaving}>
+            <Save className="w-4 h-4 mr-2" />
+            {isCreateMode 
+              ? (isSaving ? "Creating..." : "Create Plan & Go to Config") 
+              : (plan.packageStatus === "Draft" ? (isSaving ? "Saving..." : "Save as Draft") : (isSaving ? "Saving..." : "Save Changes"))}
+          </Button>
         </Card>
       </div>
 

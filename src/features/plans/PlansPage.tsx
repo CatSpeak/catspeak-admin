@@ -2,6 +2,7 @@ import React from "react"
 import { Plus } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import Button from "../../components/ui/Button"
+import PageTitle from "../../components/ui/PageTitle"
 import PlanSummaryCards from "./components/PlanSummaryCards"
 import PlanFilters from "./components/PlanFilters"
 import PlanTable from "./components/PlanTable"
@@ -28,7 +29,7 @@ const PlansPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Plan Management</h1>
+          <PageTitle size="md" className="text-primary">Plan Management</PageTitle>
           <p className="text-gray-500 text-sm mt-1">
             Manage, create and configure service plans on the system
           </p>
