@@ -17,6 +17,9 @@ import PlanFeaturesTab from "../components/PlanFeaturesTab"
 import PlanPreviewModal from "../components/PlanPreviewModal"
 import PageLoader from "../../../routes/PageLoader"
 import Button from "../../../components/ui/Button"
+import Breadcrumb from "../../../components/ui/Breadcrumb"
+import PageTitle from "../../../components/ui/PageTitle"
+import Tabs from "../../../components/ui/Tabs"
 import { formatDate, formatDateTime } from "../../../lib/utils"
 import type { Plan } from "../../../entities/types"
 
@@ -148,45 +151,37 @@ const PlanDetailsPage: React.FC = () => {
       <div className="w-full flex-1 flex flex-col">
         {/* Header */}
         <div className="mb-8 shrink-0">
-          <nav className="flex items-center text-xs font-semibold tracking-wider text-gray-400 mb-4">
-            <span
-              onClick={() => navigate("/plans")}
-              className="cursor-pointer hover:text-primary transition-colors"
-            >
-              Plans
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 mx-1" />
-            <span className="text-gray-600">
-              {isCreateMode ? "Create New Plan" : "Plan Details"}
-            </span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { label: "Plans", onClick: () => navigate("/plans") },
+              { label: isCreateMode ? "Create New Plan" : "Plan Details" },
+            ]}
+          />
 
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                  {isCreateMode ? "Create New Plan" : currentPlan?.planName}
-                </h1>
-                {!isCreateMode && currentPlan && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="px-2.5 py-0.5 text-xs font-bold bg-blue-50 text-blue-700 rounded-md border border-blue-200/60 shadow-sm">
-                      {currentPlan.applicableRole}
-                    </span>
-                    <span className="px-2.5 py-0.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md border border-gray-200 shadow-sm">
-                      {currentPlan.packageStatus || "Draft"}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <PageTitle>
+                {isCreateMode ? "Create New Plan" : currentPlan?.planName}
+              </PageTitle>
+              {!isCreateMode && currentPlan && (
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="px-2.5 py-0.5 text-xs font-bold bg-blue-50 text-blue-700 rounded-md border border-blue-200/60 shadow-sm">
+                    {currentPlan.applicableRole}
+                  </span>
+                  <span className="px-2.5 py-0.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md border border-gray-200 shadow-sm">
+                    {currentPlan.packageStatus || "Draft"}
+                  </span>
+                </div>
+              )}
 
               <div className="flex items-center gap-3 text-sm text-gray-500">
                 {isCreateMode ? (
                   <span>Create a new service package to offer to users</span>
                 ) : currentPlan ? (
                   <>
-                    <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                      <span className="font-semibold text-gray-700">Code:</span>
-                      <span className="font-mono text-gray-900">
+                    <div className="flex items-center gap-1.5">
+                      <span>Code:</span>
+                      <span className="font-medium text-gray-700">
                         {currentPlan.subscriptionCode}
                       </span>
                     </div>
@@ -194,7 +189,7 @@ const PlanDetailsPage: React.FC = () => {
                     <div>
                       Created{" "}
                       <span className="font-medium text-gray-700">
-                        {formatDate(currentPlan.createDate)}
+                        {formatDateTime(currentPlan.createDate)}
                       </span>
                     </div>
                     <div className="w-1 h-1 rounded-full bg-gray-300" />
@@ -209,53 +204,24 @@ const PlanDetailsPage: React.FC = () => {
               </div>
             </div>
 
-            {!isCreateMode &&
-              currentPlan &&
-              currentPlan.packageStatus !== "Published" && (
-                <div className="flex items-center shrink-0">
-                  <Button
-                    variant="primary"
-                    onClick={() => triggerSave("Published")}
-                    disabled={isSaving || isSubmitting}
-                    className="shadow-sm"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {currentPlan.packageStatus === "Draft"
-                      ? "Publish Plan"
-                      : "Republish Plan"}
-                  </Button>
-                </div>
-              )}
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6 shrink-0">
-          <nav className="flex items-center gap-8 px-2">
-            <button
-              onClick={() => handleTabChange("general")}
-              className={`pb-4 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === "general"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              1. General Information
-            </button>
-            <button
-              onClick={() => !isCreateMode && handleTabChange("features")}
-              disabled={isCreateMode}
-              className={`pb-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
-                activeTab === "features"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } ${isCreateMode ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              {isCreateMode && <Lock className="w-4 h-4" />}
-              2. Features & Benefits
-            </button>
-          </nav>
-        </div>
+        <Tabs
+          tabs={[
+            { id: "general", label: "1. General Information" },
+            {
+              id: "features",
+              label: "2. Features & Benefits",
+              icon: isCreateMode ? <Lock className="w-4 h-4" /> : undefined,
+              disabled: isCreateMode,
+            },
+          ]}
+          activeTab={activeTab}
+          onChange={(id) => handleTabChange(id as "general" | "features")}
+          className="mb-6"
+        />
 
         {/* Tab Content */}
         <div className="flex-1 pb-6">
@@ -342,28 +308,25 @@ const PlanDetailsPage: React.FC = () => {
                   </>
                 )}
 
-                <Button variant="outline" onClick={() => setIsPreviewOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsPreviewOpen(true)}
+                >
                   <Eye className="w-4 h-4 mr-2" />
                   Preview
                 </Button>
 
-                {currentPlan?.packageStatus === "Draft" ? (
+                {currentPlan?.packageStatus !== "Published" && (
                   <Button
                     variant="primary"
-                    onClick={() => triggerSave("Draft")}
-                    disabled={isSaving}
+                    onClick={() => triggerSave("Published")}
+                    disabled={isSaving || isSubmitting}
+                    className="shadow-sm"
                   >
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save as Draft"}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    onClick={() => triggerSave()}
-                    disabled={isSaving}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? "Saving..." : "Save Changes"}
+                    <Send className="w-4 h-4 mr-2" />
+                    {currentPlan?.packageStatus === "Draft"
+                      ? "Publish Plan"
+                      : "Republish Plan"}
                   </Button>
                 )}
               </>
