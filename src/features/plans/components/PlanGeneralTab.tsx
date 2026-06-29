@@ -64,10 +64,12 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
     if (!isCreateMode) {
       formData.set("SubscriptionCode", plan.subscriptionCode)
       formData.set("ApplicableRole", plan.applicableRole)
+      if (plan.packageStatus) {
+        formData.set("PackageStatus", plan.packageStatus)
+      }
     }
 
     formData.set("IconUrl", plan.iconUrl || "")
-    formData.set("Status", "1")
 
     await onSave(formData)
   }
