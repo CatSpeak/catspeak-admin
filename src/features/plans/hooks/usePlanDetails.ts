@@ -6,6 +6,7 @@ import { addPlanFeature } from '../api/addPlanFeature';
 import { updatePlanFeature } from '../api/updatePlanFeature';
 import { deletePlanFeature } from '../api/deletePlanFeature';
 import { updatePlan as updatePlanApi } from '../api/updatePlan';
+import { updatePlanStatus as updatePlanStatusApi } from '../api/updatePlanStatus';
 
 export const usePlanDetails = (id: number | undefined) => {
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -50,6 +51,19 @@ export const usePlanDetails = (id: number | undefined) => {
     }
   };
 
+  const updateStatus = async (status: string): Promise<boolean> => {
+    if (!id) return false;
+    try {
+      const success = await updatePlanStatusApi(id, status);
+      if (success) {
+        await fetchPlanDetails();
+      }
+      return !!success;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const addFeature = async (featureData: any): Promise<boolean> => {
     if (!id) return false;
     const success = await addPlanFeature(id, featureData);
@@ -78,6 +92,7 @@ export const usePlanDetails = (id: number | undefined) => {
     error,
     refetch: fetchPlanDetails,
     updateGeneralInfo,
+    updateStatus,
     addFeature,
     updateFeature,
     removeFeature

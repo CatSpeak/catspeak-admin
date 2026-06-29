@@ -1,13 +1,6 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
-import {
-  Eye,
-  Send,
-  Lock,
-  EyeOff,
-  Archive,
-  Trash2,
-} from "lucide-react"
+import { Eye, Send, Lock, EyeOff, Archive, Trash2 } from "lucide-react"
 import { usePlanDetails } from "../hooks/usePlanDetails"
 import { usePlanMutations } from "../hooks/usePlanMutations"
 import PlanGeneralTab from "../components/PlanGeneralTab"
@@ -59,6 +52,7 @@ const PlanDetailsPage: React.FC = () => {
     addFeature,
     updateFeature,
     removeFeature,
+    updateStatus,
   } = usePlanDetails(isCreateMode ? undefined : Number(id))
 
   const emptyPlan = {
@@ -85,7 +79,6 @@ const PlanDetailsPage: React.FC = () => {
   } as unknown as Plan
 
   const currentPlan = isCreateMode ? emptyPlan : plan
-  const pendingStatusRef = useRef<string | undefined>(undefined)
 
   if (loading && !isCreateMode) return <PageLoader />
   if (!isCreateMode && (error || !plan)) {
@@ -97,12 +90,9 @@ const PlanDetailsPage: React.FC = () => {
   }
 
   const handleSaveGeneralInfo = async (formData: FormData) => {
-    if (pendingStatusRef.current)
-      formData.set("PackageStatus", pendingStatusRef.current)
     setIsSaving(true)
     const success = await updateGeneralInfo(formData)
     setIsSaving(false)
-    pendingStatusRef.current = undefined
     if (success) {
       console.log("Saved successfully")
     }
@@ -110,10 +100,8 @@ const PlanDetailsPage: React.FC = () => {
   }
 
   const handleCreateGeneralInfo = async (formData: FormData) => {
-    if (pendingStatusRef.current)
-      formData.set("PackageStatus", pendingStatusRef.current)
+    formData.set("PackageStatus", "Draft")
     const result = await createPlan(formData)
-    pendingStatusRef.current = undefined
     if (result) {
       navigate(`/plans/${result.planId}?tab=features`)
       return true
@@ -121,8 +109,13 @@ const PlanDetailsPage: React.FC = () => {
     return false
   }
 
-  const triggerSave = (status?: string) => {
-    if (status) pendingStatusRef.current = status
+  const handleUpdateStatus = async (status: string) => {
+    setIsSaving(true)
+    await updateStatus(status)
+    setIsSaving(false)
+  }
+
+  const triggerSave = () => {
     const formSubmitButton = document.getElementById("submit-general-tab")
     if (formSubmitButton) {
       formSubmitButton.click()
@@ -201,7 +194,6 @@ const PlanDetailsPage: React.FC = () => {
                 ) : null}
               </div>
             </div>
-
           </div>
         </div>
 
@@ -277,7 +269,7 @@ const PlanDetailsPage: React.FC = () => {
                 </Button>
                 <Button
                   variant="primary"
-                  onClick={() => triggerSave("Draft")}
+                  onClick={() => triggerSave()}
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Creating..." : "Create Plan & Go to Config"}
@@ -289,7 +281,7 @@ const PlanDetailsPage: React.FC = () => {
                   <>
                     <Button
                       variant="outline"
-                      onClick={() => triggerSave("Hidden")}
+                      onClick={() => handleUpdateStatus("Hidden")}
                       disabled={isSaving}
                     >
                       <EyeOff className="w-4 h-4 mr-2" />
@@ -297,7 +289,7 @@ const PlanDetailsPage: React.FC = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => triggerSave("Archived")}
+                      onClick={() => handleUpdateStatus("Archived")}
                       disabled={isSaving}
                     >
                       <Archive className="w-4 h-4 mr-2" />
@@ -317,7 +309,7 @@ const PlanDetailsPage: React.FC = () => {
                 {currentPlan?.packageStatus !== "Published" && (
                   <Button
                     variant="primary"
-                    onClick={() => triggerSave("Published")}
+                    onClick={() => handleUpdateStatus("Published")}
                     disabled={isSaving || isSubmitting}
                     className="shadow-sm"
                   >
