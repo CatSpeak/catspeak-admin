@@ -18,7 +18,7 @@ export const updatePost = async (
   
   if (body.Slug) {
     formData.append("Slug", body.Slug);
-    
+  } 
   if (body.LanguageCommunity) {
     formData.append("LanguageCommunity", body.LanguageCommunity);
   }

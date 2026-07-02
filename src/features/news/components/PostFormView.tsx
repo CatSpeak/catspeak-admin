@@ -50,6 +50,7 @@ export default function PostFormView({
       if (initialPost.slug) {
         setSlug(initialPost.slug);
         setSlugEdited(false);
+      }
       if (initialPost.languageCommunity) {
         setCommunity(initialPost.languageCommunity as "All" | "English" | "Chinese");
       }
