@@ -14,6 +14,10 @@ export const createPost = async (
   formData.append("Privacy", payload.Privacy);
   formData.append("LanguageCommunity", payload.LanguageCommunity);
 
+  if (payload.Slug) {
+    formData.append("Slug", payload.Slug);
+  }
+
   if (payload.Files && payload.Files.length > 0) {
     payload.Files.forEach((file) => {
       formData.append("Files", file);

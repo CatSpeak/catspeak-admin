@@ -75,7 +75,7 @@ export const router = createBrowserRouter([
           { path: "plans/create", element: wrap(PlanDetailsPage) },
           { path: "plans/:id", element: wrap(PlanDetailsPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
-          { path: "news/:id", element: wrap(PostDetailPage) },
+          { path: "news/:slug", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
           { path: "instructor-applications/:id", element: wrap(InstructorApplicationDetailPage) },
           { path: "reels", element: wrap(ReelsPage) },

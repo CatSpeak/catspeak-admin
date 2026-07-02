@@ -37,6 +37,7 @@ export interface CreatePostPayload {
   Title: string;
   Content: string;
   Privacy: "Public" | "FriendsOnly" | "Private";
+  Slug?: string;
   LanguageCommunity: "All" | "English" | "Chinese";
   Files?: File[];
 }
@@ -46,6 +47,7 @@ export interface UpdatePostPayload {
   Title?: string;
   Content: string;
   Privacy: "Public" | "FriendsOnly" | "Private";
+  Slug?: string;
   LanguageCommunity?: "All" | "English" | "Chinese";
   Files?: File[];
   DeletedMediaIds?: number[];
@@ -72,6 +74,7 @@ export interface Post {
   totalReactions: number;
   currentUserReaction: string | null;
   media: PostMedia[];
+  slug: string;
   totalComments: number;
   viewCount: number;
   shareCount: number;
