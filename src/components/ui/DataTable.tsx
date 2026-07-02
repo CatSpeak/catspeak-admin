@@ -40,7 +40,6 @@ export default function DataTable<T>({
   data,
   keyExtractor,
   loading = false,
-  loadingMessage = "Loading...",
   emptyMessage = "No data found",
   error,
   onRowClick,
@@ -74,7 +73,7 @@ export default function DataTable<T>({
                   </th>
                 ))}
                 {renderActions && (
-                  <th className="px-4 py-3 text-center text-xs font-bold w-12">
+                  <th key="actions-header" className="px-4 py-3 text-center text-xs font-bold w-12">
                     <span className="sr-only">Actions</span>
                   </th>
                 )}
@@ -84,17 +83,26 @@ export default function DataTable<T>({
             {/* Body */}
             <tbody className="divide-y divide-gray-200">
               {loading ? (
-                <tr>
-                  <td
-                    colSpan={totalColumns}
-                    className="px-4 py-24 text-center text-sm text-gray-500"
+                Array.from({ length: 5 }).map((_, rowIndex) => (
+                  <tr
+                    key={`skeleton-row-${rowIndex}`}
+                    className={rowIndex % 2 === 0 ? "bg-gray-50/50" : "bg-white"}
                   >
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-                      <span>{loadingMessage}</span>
-                    </div>
-                  </td>
-                </tr>
+                    {columns.map((col, colIndex) => (
+                      <td
+                        key={`skeleton-cell-${colIndex}`}
+                        className={col.cellClassName ?? "px-4 py-3 text-sm text-gray-700"}
+                      >
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                      </td>
+                    ))}
+                    {renderActions && (
+                      <td key="skeleton-actions" className="px-4 py-3 text-center">
+                        <div className="h-4 w-4 bg-gray-200 rounded-full animate-pulse mx-auto" />
+                      </td>
+                    )}
+                  </tr>
+                ))
               ) : data.length === 0 ? (
                 <tr>
                   <td
@@ -107,7 +115,7 @@ export default function DataTable<T>({
               ) : (
                 data.map((item, idx) => (
                   <tr
-                    key={keyExtractor(item)}
+                    key={keyExtractor(item) ?? idx}
                     onClick={() => onRowClick?.(item)}
                     onKeyDown={(event) => {
                       if (!onRowClick) return;
@@ -131,6 +139,7 @@ export default function DataTable<T>({
                     ))}
                     {renderActions && (
                       <td
+                        key="actions"
                         className="px-4 py-3 text-center"
                         onClick={(e) => e.stopPropagation()}
                       >

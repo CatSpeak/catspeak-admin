@@ -5,10 +5,11 @@ import {
   LayoutDashboard,
   Users,
   ChevronDown,
-  MessageCircle,
+  // MessageCircle,
   FileWarning,
   GraduationCap,
   ChartBar,
+  Package,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
@@ -36,6 +37,11 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    name: "Plan Management",
+    icon: <Package size={20} />,
+    path: "/plans",
+  },
+  {
     name: "Cat Speak",
     icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
     subItems: [
@@ -51,16 +57,20 @@ const navItems: NavItem[] = [
     icon: <GraduationCap size={20} />,
     path: "/instructor-applications",
   },
+  // {
+  //   section: "Feedback",
+  //   name: "Live Chat Support",
+  //   icon: <MessageCircle size={20} />,
+  //   path: "/live-chat",
+  // },
   {
     section: "Feedback",
-    name: "Live Chat Support",
-    icon: <MessageCircle size={20} />,
-    path: "/live-chat",
-  },
-  {
     name: "Handle Reports",
     icon: <FileWarning size={20} />,
-    path: "/reports",
+    subItems: [
+      { name: "Letter Reports", path: "/reports" },
+      { name: "Payment Reports", path: "/payments" },
+    ],
   },
   {
     name: "Analytics",

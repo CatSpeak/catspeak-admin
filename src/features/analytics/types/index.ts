@@ -40,7 +40,15 @@ export interface ActivityBreakdownResponse {
   dailyTrend: Array<{ date: string; count: number }>;
 }
 
-export type AnalyticsPeriod = "today" | "last7days" | "last30days" | "thisMonth" | "custom";
+export interface PostResponse {
+  totalPosts: number;
+  totalViews: number;
+  totalComments: number;
+  totalReactions: number;
+  totalShares: number;
+}
+
+export type AnalyticsPeriod = "today" | "last7days" | "last30days" | "thismonth" | "all" | "custom";
 
 export interface DateRange {
   period: AnalyticsPeriod;

@@ -15,6 +15,7 @@ const UserDetailPage = lazy(() => import("../features/users/routes/UserDetailPag
 const StaffsPage = lazy(() => import("../features/staffs/routes/StaffsPage"));
 const StaffDetailPage = lazy(() => import("../features/staffs/routes/StaffDetailPage"));
 const HandleReportsPage = lazy(() => import("../features/reports/routes/HandleReportsPage"));
+const PaymentReportsPage = lazy(() => import("../features/reports/routes/PaymentReportsPage"));
 const LiveChatPage = lazy(() => import("../features/chat/routes/LiveChatPage"));
 const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
 const CalendarPage = lazy(() => import("../features/calendar/routes/CalendarPage"));
@@ -25,6 +26,9 @@ const InstructorApplicationsPage = lazy(() => import("../features/instructor-app
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
+const PlansPage = lazy(() => import("../features/plans/PlansPage"));
+
+const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -61,11 +65,15 @@ export const router = createBrowserRouter([
           { path: "staffs", element: wrap(StaffsPage) },
           { path: "staffs/:id", element: wrap(StaffDetailPage) },
           { path: "reports", element: wrap(HandleReportsPage) },
+          { path: "payments", element: wrap(PaymentReportsPage) },
           { path: "live-chat", element: wrap(LiveChatPage) },
           { path: "news", element: wrap(NewsPage) },
           { path: "calendar", element: wrap(CalendarPage) },
           { path: "room", element: wrap(RoomPage) },
           { path: "analytics", element: wrap(AnalyticsPage) },
+          { path: "plans", element: wrap(PlansPage) },
+          { path: "plans/create", element: wrap(PlanDetailsPage) },
+          { path: "plans/:id", element: wrap(PlanDetailsPage) },
           { path: "news/create", element: wrap(PostCreatePage) },
           { path: "news/:slug", element: wrap(PostDetailPage) },
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },

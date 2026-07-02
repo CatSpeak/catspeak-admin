@@ -47,7 +47,7 @@ const columns: Column<Account>[] = [
     header: "Country",
     render: (a) => (
       <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary text-white font-medium">
-        {a.country || "Việt Nam"}
+        {a.country || "Vietnam"}
       </span>
     ),
   },
