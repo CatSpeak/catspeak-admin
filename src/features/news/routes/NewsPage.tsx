@@ -23,7 +23,7 @@ export default function NewsPage() {
   } = useManagePosts(postsHook);
 
   const handleEditClick = (post: Post) => {
-    navigate(`/news/${post.postId}`);
+    navigate(`/news/${post.slug}`);
   };
 
   return (
