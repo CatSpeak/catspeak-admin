@@ -1,4 +1,8 @@
+import { useCallback, useRef, useState } from "react";
 import { Editor } from "@tinymce/tinymce-react";
+import CarouselImageUploadDialog, {
+  type CarouselInsertImage,
+} from "./CarouselImageUploadDialog";
 
 export interface PostEditorProps {
   value?: string;
@@ -200,15 +204,14 @@ const STYLE_FORMATS = [
   },
 ];
 
-interface CarouselDialogApi {
-  getData: () => { urls?: string };
-  close: () => void;
-}
-
 interface TinyMceEditor {
   insertContent: (content: string) => void;
   notificationManager: {
-    open: (options: { text: string; type: "warning"; timeout: number }) => void;
+    open: (options: {
+      text: string;
+      type: "warning" | "error" | "success";
+      timeout: number;
+    }) => void;
   };
   ui: {
     registry: {
@@ -223,36 +226,6 @@ interface TinyMceEditor {
       addIcon?: (name: string, svg: string) => void;
     };
   };
-  windowManager: {
-    open: (config: {
-      title: string;
-      size: "medium";
-      body: {
-        type: "panel";
-        items: Array<{
-          type: "textarea";
-          name: "urls";
-          label: string;
-          maximized: boolean;
-        }>;
-      };
-      buttons: Array<{
-        type: "cancel" | "submit";
-        text: string;
-        buttonType?: "primary";
-      }>;
-      onSubmit: (api: CarouselDialogApi) => void;
-    }) => void;
-  };
-}
-
-function isAllowedImageUrl(value: string): boolean {
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
 }
 
 function escapeHtmlAttribute(value: string): string {
@@ -263,126 +236,126 @@ function escapeHtmlAttribute(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function setupEditor(editor: TinyMceEditor) {
+function setupEditor(editor: TinyMceEditor, openCarouselDialog: () => void) {
   editor.ui.registry.addButton("insertcarousel", {
     icon: "gallery",
     tooltip: "Insert image carousel",
-    onAction: () => {
-      editor.windowManager.open({
-        title: "Insert Image Carousel",
-        size: "medium",
-        body: {
-          type: "panel",
-          items: [
-            {
-              type: "textarea",
-              name: "urls",
-              label: "Image URLs (one per line)",
-              maximized: true,
-            },
-          ],
-        },
-        buttons: [
-          { type: "cancel", text: "Cancel" },
-          { type: "submit", text: "Insert", buttonType: "primary" },
-        ],
-        onSubmit: (api) => {
-          const data = api.getData();
-          const urls = (data.urls ?? "")
-            .split("\n")
-            .map((url) => url.trim())
-            .filter(isAllowedImageUrl);
-
-          if (urls.length === 0) {
-            editor.notificationManager.open({
-              text: "Please enter at least one valid image URL.",
-              type: "warning",
-              timeout: 3000,
-            });
-            return;
-          }
-
-          const imgs = urls
-            .map(
-              (url) =>
-                `<img src="${escapeHtmlAttribute(url)}" alt="carousel image" />`,
-            )
-            .join("\n  ");
-
-          editor.insertContent(
-            `<div class="cms-carousel">\n  ${imgs}\n</div><p></p>`,
-          );
-          api.close();
-        },
-      });
-    },
+    onAction: openCarouselDialog,
   });
-
-  editor.ui.registry.addIcon?.(
-    "gallery",
-    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><circle cx="8" cy="8" r="2"/><path d="m21 15-5-5L5 21"/></svg>',
-  );
 }
 
 const PostEditor = ({ value, onChange }: PostEditorProps) => {
+  const editorRef = useRef<TinyMceEditor | null>(null);
+  const [isCarouselDialogOpen, setIsCarouselDialogOpen] = useState(false);
+
+  const handleOpenCarouselDialog = useCallback(() => {
+    setIsCarouselDialogOpen(true);
+  }, []);
+
+  const handleEditorSetup = useCallback(
+    (editor: TinyMceEditor) => {
+      editorRef.current = editor;
+      setupEditor(editor, handleOpenCarouselDialog);
+    },
+    [handleOpenCarouselDialog],
+  );
+
+  const handleInsertCarousel = useCallback((images: CarouselInsertImage[]) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    if (images.length === 0) {
+      editor.notificationManager.open({
+        text: "Please upload at least one image.",
+        type: "warning",
+        timeout: 3000,
+      });
+      return;
+    }
+
+    const imgs = images
+      .map(
+        (image) =>
+          `<img src="${escapeHtmlAttribute(image.src)}" alt="${escapeHtmlAttribute(
+            image.alt || "carousel image",
+          )}" />`,
+      )
+      .join("\n  ");
+
+    editor.insertContent(`<div class="cms-carousel">\n  ${imgs}\n</div><p></p>`);
+    editor.notificationManager.open({
+      text: "Carousel inserted.",
+      type: "success",
+      timeout: 2500,
+    });
+  }, []);
+
   return (
-    <Editor
-      tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
-      value={value}
-      onEditorChange={onChange}
-      init={{
-        plugins: [
-          "anchor",
-          "autolink",
-          "charmap",
-          "codesample",
-          "emoticons",
-          "link",
-          "lists",
-          "image",
-          "media",
-          "searchreplace",
-          "table",
-          "visualblocks",
-          "wordcount",
-          "quickbars",
-          "autoresize",
-        ],
+    <>
+      <Editor
+        tinymceScriptSrc="https://cdnjs.cloudflare.com/ajax/libs/tinymce/7.6.0/tinymce.min.js"
+        value={value}
+        onEditorChange={onChange}
+        init={{
+          plugins: [
+            "anchor",
+            "autolink",
+            "charmap",
+            "codesample",
+            "emoticons",
+            "link",
+            "lists",
+            "image",
+            "media",
+            "searchreplace",
+            "table",
+            "visualblocks",
+            "wordcount",
+            "quickbars",
+            "autoresize",
+          ],
 
-        toolbar: TOOLBAR,
-        style_formats: STYLE_FORMATS,
+          toolbar: TOOLBAR,
+          style_formats: STYLE_FORMATS,
 
-        /* Image handling */
-        image_caption: true,
-        image_advtab: true,
-        image_title: true,
+          /* Image handling */
+          image_caption: true,
+          image_advtab: true,
+          image_title: true,
 
-        /* Editor appearance */
-        content_style: EDITOR_CONTENT_STYLE,
-        promotion: false,
-        branding: false,
-        min_height: 500,
-        max_height: 900,
+          /* Editor appearance */
+          content_style: EDITOR_CONTENT_STYLE,
+          promotion: false,
+          branding: false,
+          min_height: 500,
+          max_height: 900,
 
-        /* Quick toolbars */
-        quickbars_selection_toolbar:
-          "bold italic underline | quicklink h2 h3 blockquote",
-        quickbars_insert_toolbar: "quickimage quicktable",
+          /* Quick toolbars */
+          quickbars_selection_toolbar:
+            "bold italic underline | quicklink h2 h3 blockquote",
+          quickbars_insert_toolbar: "quickimage quicktable",
 
-        /* Carousel block should be treated as non-editable container */
-        valid_classes: {
-          div: "cms-carousel cms-image-grid",
-        },
+          /* Carousel block should be treated as non-editable container */
+          valid_classes: {
+            div: "cms-carousel cms-image-grid",
+          },
 
-        /* Mobile-friendly */
-        mobile: {
-          toolbar_mode: "sliding",
-        },
+          /* Mobile-friendly */
+          mobile: {
+            toolbar_mode: "sliding",
+          },
 
-        /* Register carousel button */
-        setup: setupEditor,
-      }}
-    />
+          /* Register carousel button */
+          setup: handleEditorSetup,
+        }}
+      />
+
+      <CarouselImageUploadDialog
+        isOpen={isCarouselDialogOpen}
+        onClose={() => setIsCarouselDialogOpen(false)}
+        onInsert={handleInsertCarousel}
+      />
+    </>
   );
 };
 
