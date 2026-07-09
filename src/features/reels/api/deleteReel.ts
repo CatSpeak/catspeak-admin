@@ -6,6 +6,6 @@ import type { ActionResponseDto } from "../types";
  */
 export const deleteReel = async (reelId: number): Promise<ActionResponseDto> => {
   return getResponseData(
-    axiosClient.delete<ActionResponseDto>(`/ReelsAdmin/reels/${reelId}`)
+    axiosClient.delete<ActionResponseDto>(`/api/admin/reels/${reelId}`)
   );
 };

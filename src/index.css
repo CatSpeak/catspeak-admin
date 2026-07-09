@@ -110,6 +110,27 @@
 
 /* Global Custom Scrollbar */
 @layer base {
+  /* Buttons styles */
+  button {
+    transition:
+      filter 0.2s ease,
+      cursor 0.2s ease !important;
+  }
+
+  button:hover:not(:disabled) {
+    cursor: pointer !important;
+    filter: brightness(0.85) !important; /* Giảm độ sáng xuống còn 85% */
+  }
+
+  button:active:not(:disabled) {
+    filter: brightness(0.7) !important;
+  }
+
+  button:disabled {
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+    filter: none !important;
+  }
 
   /* Firefox */
   html {
@@ -132,7 +153,6 @@
 }
 
 @utility no-scrollbar {
-
   /* Chrome, Safari and Opera */
   &::-webkit-scrollbar {
     display: none;

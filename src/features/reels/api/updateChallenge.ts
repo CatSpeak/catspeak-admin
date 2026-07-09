@@ -21,7 +21,7 @@ export const updateChallenge = async (
 
   return getResponseData(
     axiosClient.put<ChallengeResponseDto>(
-      `/ReelsAdmin/challenges/${challengeId}`,
+      `/api/admin/challenges/${challengeId}`,
       formData,
       {
         headers: {

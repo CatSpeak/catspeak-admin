@@ -11,7 +11,7 @@ export const updateReelStatus = async (
 ): Promise<ActionResponseDto> => {
   return getResponseData(
     axiosClient.post<ActionResponseDto>(
-      `/ReelsAdmin/reels/${reelId}/status`,
+      `/api/admin/reels/${reelId}/status`,
       null,
       {
         params: {

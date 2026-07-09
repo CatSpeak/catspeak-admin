@@ -19,7 +19,7 @@ export const createChallenge = async (
   formData.append("EndDate", payload.endDate);
 
   return getResponseData(
-    axiosClient.post<ChallengeResponseDto>("/ReelsAdmin/challenges", formData, {
+    axiosClient.post<ChallengeResponseDto>("/api/admin/challenges", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

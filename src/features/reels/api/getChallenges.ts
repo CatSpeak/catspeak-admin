@@ -6,6 +6,6 @@ import type { ChallengeDto } from "../types";
  */
 export const getChallenges = async (): Promise<ChallengeDto[]> => {
   return getResponseData(
-    axiosClient.get<ChallengeDto[]>("/ReelsAdmin/challenges")
+    axiosClient.get<ChallengeDto[]>("/api/admin/challenges")
   );
 };

@@ -33,7 +33,7 @@ export const uploadReel = async (
   });
 
   return getResponseData(
-    axiosClient.post<ReelResponseDto>("/ReelsAdmin/reels", formData, {
+    axiosClient.post<ReelResponseDto>("/api/admin/reels", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

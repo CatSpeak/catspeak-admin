@@ -9,7 +9,7 @@ export const deleteChallenge = async (
 ): Promise<ActionResponseDto> => {
   return getResponseData(
     axiosClient.delete<ActionResponseDto>(
-      `/ReelsAdmin/challenges/${challengeId}`
+      `/api/admin/challenges/${challengeId}`
     )
   );
 };
