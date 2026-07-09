@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PostFormView } from "../components";
 import { createPost } from "../api/createPost";
 
 export default function PostCreatePage() {
   const navigate = useNavigate();
+  const [slugError, setSlugError] = useState<string | null>(null);
 
   const goBack = () => navigate("/news");
 
@@ -29,6 +31,8 @@ export default function PostCreatePage() {
           await createPost(payload);
           navigate("/news");
         }}
+        onSlugError={setSlugError}
+        slugError={slugError}
       />
     </div>
   );

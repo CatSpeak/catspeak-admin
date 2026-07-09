@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { axiosClient, getResponseData } from "../../../lib/axios";
 import { updatePost } from "../api/updatePost";
 import { deletePost } from "../api/deletePost";
-import type { Post, GetPostResponse, UpdatePostPayload } from "../types";
+import { getPostBySlug } from "../api/getPostBySlug";
+import type { Post, UpdatePostPayload } from "../types";
 
 /**
- * Hook to manage a single post's details (fetch, update, delete).
+ * Hook to manage a single post's details (fetch by slug, update, delete).
  */
-export function usePostDetail(postId: string | undefined) {
+export function usePostDetail(slug: string | undefined) {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,9 +21,9 @@ export function usePostDetail(postId: string | undefined) {
   const requestId = useRef(0);
 
   const fetchPost = useCallback(async () => {
-    if (!postId) {
+    if (!slug) {
       requestId.current += 1;
-      setError("No post ID provided");
+      setError("No post slug provided");
       setLoading(false);
       return;
     }
@@ -34,12 +34,7 @@ export function usePostDetail(postId: string | undefined) {
     setError(null);
 
     try {
-      // Assuming a GET /post/:id route exists based on standard REST patterns,
-      // and matching the update/delete routes. If it doesn't, this part might 
-      // need to fetch all and format, but standard backend provides this.
-      const response = await getResponseData(
-        axiosClient.get<GetPostResponse>(`/post/${postId}`)
-      );
+      const response = await getPostBySlug(slug);
       if (currentRequestId !== requestId.current) return;
       setPost(response.data);
     } catch (err: unknown) {
@@ -50,7 +45,7 @@ export function usePostDetail(postId: string | undefined) {
         setLoading(false);
       }
     }
-  }, [postId]);
+  }, [slug]);
 
   useEffect(() => {
     fetchPost();
@@ -62,8 +57,12 @@ export function usePostDetail(postId: string | undefined) {
       setIsUpdating(true);
       setUpdateError(null);
       try {
-        await updatePost({ id: post.postId, ...payload });
-        await fetchPost(); // refresh data
+        const response = await updatePost({ id: post.postId, ...payload });
+        // Only fetch post if the slug didn't change, otherwise route navigation handles it
+        if (response.data && response.data.slug === post.slug) {
+          await fetchPost();
+        }
+        return response;
       } catch (err: unknown) {
         setUpdateError(getApiErrorMessage(err, "Failed to update post."));
         throw err; // re-throw so the UI can detect failure

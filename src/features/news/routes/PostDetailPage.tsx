@@ -10,7 +10,7 @@ function formatDate(value?: string | null) {
 }
 
 export default function PostDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const {
     post,
@@ -19,7 +19,7 @@ export default function PostDetailPage() {
     handleUpdate,
     handleDelete,
     isDeleting,
-  } = usePostDetail(id);
+  } = usePostDetail(slug);
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -75,8 +75,11 @@ export default function PostDetailPage() {
           mode="edit"
           initialPost={post}
           onSubmitEdit={async (payload) => {
-            await handleUpdate(payload);
+            const response = await handleUpdate(payload);
             setIsEditing(false); // return to read mode on success
+            if (response?.data?.slug && response.data.slug !== post.slug) {
+              navigate(`/news/${response.data.slug}`, { replace: true });
+            }
           }}
         />
       </div>
