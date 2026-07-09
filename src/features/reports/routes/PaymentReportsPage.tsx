@@ -1,17 +1,31 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, AlertCircle, CheckCircle, Ban, ChevronRight } from "lucide-react";
-import { getPaymentReports, processPaymentReport, type PaymentReport } from "../api/paymentReports";
+import {
+  FileText,
+  AlertCircle,
+  CheckCircle,
+  Ban,
+  ChevronRight,
+  DollarSign,
+} from "lucide-react";
+import {
+  getPaymentReports,
+  processPaymentReport,
+  type PaymentReport,
+} from "../api/paymentReports";
 import { useToastStore } from "../../../stores/toastStore";
 import PaymentReportsTable from "../components/PaymentReportsTable";
 import ProcessReportModal from "../components/ProcessReportModal";
+import { PageHeader } from "../../../components/ui/PageHeader";
 
 export default function PaymentReportsPage() {
   const navigate = useNavigate();
   const { addToast } = useToastStore();
 
   // State
-  const [selectedReport, setSelectedReport] = useState<PaymentReport | null>(null);
+  const [selectedReport, setSelectedReport] = useState<PaymentReport | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -62,14 +76,17 @@ export default function PaymentReportsPage() {
     setIsModalOpen(true);
   };
 
-  const handleProcessReport = async (action: "Accept" | "Deny", reason: string) => {
+  const handleProcessReport = async (
+    action: "Accept" | "Deny",
+    reason: string,
+  ) => {
     if (!selectedReport) return;
     setIsProcessing(true);
     try {
       await processPaymentReport(selectedReport.reportId, { action, reason });
       addToast(
         "success",
-        `Payment report #${selectedReport.reportId} has been ${action === "Accept" ? "accepted" : "denied"} successfully.`
+        `Payment report #${selectedReport.reportId} has been ${action === "Accept" ? "accepted" : "denied"} successfully.`,
       );
       // Force table and card refresh
       setRefreshTrigger((prev) => prev + 1);
@@ -84,23 +101,11 @@ export default function PaymentReportsPage() {
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       {/* Breadcrumb Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <nav className="flex items-center text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
-            <span
-              onClick={() => navigate("/")}
-              className="cursor-pointer hover:text-primary transition-colors"
-            >
-              Dashboard
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 mx-1" />
-            <span className="text-gray-600">Payment Reports</span>
-          </nav>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Payment Reports Queue
-          </h1>
-        </div>
-      </div>
+      <PageHeader
+        icon={<DollarSign />}
+        title="Payment Reports"
+        desc="Track successful transactions, refunds, and financial summaries."
+      />
 
       {/* Summary Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

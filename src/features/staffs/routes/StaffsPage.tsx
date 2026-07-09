@@ -1,37 +1,28 @@
 import StaffTable from "../components/StaffTable";
-import { RotateCcw } from "lucide-react";
+import { IdCardLanyard } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import { PageHeader } from "../../../components/ui/PageHeader";
 
 export default function StaffsPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">List of Staffs</h1>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-          >
-            <RotateCcw className="w-4 h-4 mr-2" />
-            Clear
-          </Button>
-
+      <PageHeader
+        icon={<IdCardLanyard />}
+        title="Staffs"
+        desc="Manage your core team and streamline internal permissions."
+        rightButtons={[
           <Button variant="primary" size="sm">
             Import
-          </Button>
-
+          </Button>,
           <Button variant="primary" size="sm">
             Decentralize
-          </Button>
-
+          </Button>,
           <Button variant="primary" size="sm">
             History
-          </Button>
-        </div>
-      </div>
+          </Button>,
+        ]}
+      />
 
       {/* Staff Table */}
       <StaffTable />

@@ -1,34 +1,34 @@
 import UserTable from "../components/UserTable";
-import { Download, RotateCcw } from "lucide-react";
+import { Download, RotateCcw, UsersRound } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import { PageHeader } from "../../../components/ui/PageHeader";
 
 export default function UsersPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">List of Users</h1>
-
-        <div className="flex items-center gap-2">
+      <PageHeader
+        icon={<UsersRound />}
+        title="Users"
+        desc="View profiles, track activities, and manage access for platform's users."
+        rightButtons={[
           <Button
             variant="outline"
             size="sm"
             className="bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
+            <RotateCcw className="w-4 h-4 mr-1" />
             Clear
-          </Button>
-
+          </Button>,
           <Button variant="primary" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-
+            <Download className="w-4 h-4 mr-1" />
+            Download,
+          </Button>,
           <Button variant="primary" size="sm">
             History export
-          </Button>
-        </div>
-      </div>
+          </Button>,
+        ]}
+      />
 
       {/* User Table */}
       <UserTable />

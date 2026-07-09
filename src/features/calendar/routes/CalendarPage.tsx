@@ -13,6 +13,7 @@ import { useEventDetail } from "../hooks/useEventDetail";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { formatDateKey } from "../constants";
 import type { DayEvent, WeekDay } from "../types";
+import { PageHeader } from "../../../components/ui/PageHeader";
 
 export default function CalendarPage() {
   const {
@@ -38,10 +39,17 @@ export default function CalendarPage() {
 
   // ── Event detail modal ──
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
-  const { event: detailEvent, isLoading: isDetailLoading, error: detailError } = useEventDetail(selectedEventId);
+  const {
+    event: detailEvent,
+    isLoading: isDetailLoading,
+    error: detailError,
+  } = useEventDetail(selectedEventId);
 
   // ── Delete flow ──
-  const [deleteTarget, setDeleteTarget] = useState<{ id: number; title: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: number;
+    title: string;
+  } | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -79,11 +87,14 @@ export default function CalendarPage() {
   }, []);
 
   // ── Delete from detail modal ──
-  const handleDeleteRequest = useCallback((eventId: number) => {
-    const title = detailEvent?.title ?? "this event";
-    setSelectedEventId(null);
-    setDeleteTarget({ id: eventId, title });
-  }, [detailEvent]);
+  const handleDeleteRequest = useCallback(
+    (eventId: number) => {
+      const title = detailEvent?.title ?? "this event";
+      setSelectedEventId(null);
+      setDeleteTarget({ id: eventId, title });
+    },
+    [detailEvent],
+  );
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!deleteTarget) return;
@@ -142,12 +153,11 @@ export default function CalendarPage() {
   return (
     <div className="space-y-4">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <Calendar size={24} className="text-primary" />
-          <h1 className="text-2xl text-primary font-bold text-gray-900">Calendar</h1>
-        </div>
-      </div>
+      <PageHeader
+        icon={<Calendar />}
+        title="News"
+        desc="Review the timeline and stay on top of all important dates."
+      />
 
       {/* Error state */}
       {(error || deleteError) && (
@@ -178,7 +188,10 @@ export default function CalendarPage() {
               onClick={() => setViewMode("month")}
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors cursor-pointer group"
             >
-              <ArrowLeft size={15} className="group-hover:-translate-x-0.5 transition-transform" />
+              <ArrowLeft
+                size={15}
+                className="group-hover:-translate-x-0.5 transition-transform"
+              />
               <span>Back to Month</span>
             </button>
           )}
@@ -202,7 +215,11 @@ export default function CalendarPage() {
 
           {/* Month grid */}
           {viewMode === "month" && !isLoadingCounts && (
-            <CalendarGrid days={monthDays} onDayClick={handleDayClick} onEventClick={handleEventClick} />
+            <CalendarGrid
+              days={monthDays}
+              onDayClick={handleDayClick}
+              onEventClick={handleEventClick}
+            />
           )}
 
           {/* Week view — time grid */}
