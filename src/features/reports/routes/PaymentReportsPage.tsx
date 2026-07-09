@@ -17,6 +17,9 @@ import { useToastStore } from "../../../stores/toastStore";
 import PaymentReportsTable from "../components/PaymentReportsTable";
 import ProcessReportModal from "../components/ProcessReportModal";
 import { PageHeader } from "../../../components/ui/PageHeader";
+import Table from "../../../components/ui/table/Table";
+import { formatAmount, formatDate } from "../../../lib/utils";
+import Badge from "../../../components/ui/Badge";
 
 export default function PaymentReportsPage() {
   const navigate = useNavigate();
@@ -171,7 +174,97 @@ export default function PaymentReportsPage() {
       </div>
 
       {/* Table Element */}
-      <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+      <Table<PaymentReport>
+        fetcher={() => {
+          const data = reports;
+          return {
+            data,
+            total: data.length,
+          };
+        }}
+        headers={[
+          {
+            name: "ID",
+            accessorKey: "reportId",
+          },
+          {
+            name: "Transaction ID",
+            accessorKey: "paymentId",
+          },
+          {
+            name: "Reporter",
+            accessorKey: "username",
+            render: (r) => (
+              <div className="flex flex-col">
+                <span className="font-semibold text-gray-800 text-xs">
+                  {r.username || "Unknown"}
+                </span>
+                {r.email && (
+                  <span className="text-[10px] text-gray-400 truncate max-w-[150px]">
+                    {r.email}
+                  </span>
+                )}
+              </div>
+            ),
+          },
+          {
+            name: "Amount",
+            accessorKey: "amount",
+            render: (r) => (
+              <span className="font-bold text-gray-950">
+                {formatAmount(r.amount)}
+              </span>
+            ),
+            cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
+          },
+          {
+            name: "Reason Reported",
+            accessorKey: "userExplanation",
+            render: (r) => (
+              <p
+                className="text-xs text-gray-650 max-w-xs md:max-w-md truncate"
+                title={r.userExplanation}
+              >
+                {r.userExplanation}
+              </p>
+            ),
+            cellClassName: "px-6 py-4 text-sm",
+          },
+          {
+            name: "Date Reported",
+            accessorKey: "createDate",
+            render: (r) => (
+              <span className="text-xs text-gray-500 font-medium">
+                {formatDate(r.createDate)}
+              </span>
+            ),
+            cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
+          },
+          {
+            name: "Status",
+            accessorKey: "status",
+            values: [0, 1, 2],
+            valueLabels: ["Pending", "Accepted", "Denied"],
+            render: (p) => {
+              switch (p.status) {
+                case 0:
+                  return <Badge title="Pending" type="Yellow" />;
+                case 1:
+                  return <Badge title="Accepted" type="Green" />;
+                case 2:
+                  return <Badge title="Denied" type="Red" />;
+                default:
+                  return <Badge title={p.status || "Unknown"} type="Gray" />;
+              }
+            },
+          },
+        ]}
+        onClickRow={(r) => {
+          handleReviewReport(r);
+        }}
+      />
+
+      {/* <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
         <h2 className="text-base font-bold text-gray-900 mb-4 tracking-tight">
           Reports Log
         </h2>
@@ -182,7 +275,7 @@ export default function PaymentReportsPage() {
           onReviewReport={handleReviewReport}
           onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
         />
-      </div>
+      </div> */}
 
       {/* Review Modal Dialog */}
       <ProcessReportModal

@@ -27,3 +27,14 @@ export function formatDateTime(value?: string | null): string {
   if (!value) return "—";
   return new Date(value).toLocaleString();
 }
+
+export function formatAmount(amount: number) {
+  try {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
+  } catch {
+    return `${amount} VND`;
+  }
+}
