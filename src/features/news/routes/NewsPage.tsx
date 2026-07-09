@@ -1,5 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
-import { Download, RotateCcw, Plus, Newspaper } from "lucide-react";
+import {
+  Download,
+  RotateCcw,
+  Plus,
+  Newspaper,
+  ImageIcon,
+  Eye,
+  Heart,
+  MessageSquare,
+  Share2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
 import {
@@ -14,6 +24,10 @@ import { getPost } from "../../analytics/api/getAnalytics";
 import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { PageHeader } from "../../../components/ui/PageHeader";
+import Table from "../../../components/ui/table/Table";
+import { getPosts } from "../api/getPosts";
+import { formatDate } from "../../calendar/constants";
+import Badge from "../../../components/ui/Badge";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -21,13 +35,13 @@ export default function NewsPage() {
   const { posts, loading, error, currentPage, hasNextPage, goToPage } =
     postsHook;
 
-  const {
-    isDeleting,
-    openDeleteModal,
-    closeDeleteModal,
-    confirmDelete,
-    deleteTarget,
-  } = useManagePosts(postsHook);
+  // const {
+  //   isDeleting,
+  //   openDeleteModal,
+  //   closeDeleteModal,
+  //   confirmDelete,
+  //   deleteTarget,
+  // } = useManagePosts(postsHook);
 
   const [searchText, setSearchText] = useState("");
   const [communityFilter, setCommunityFilter] = useState("All");
@@ -100,17 +114,17 @@ export default function NewsPage() {
     };
   }, [selectedPeriod, fromDate, toDate]);
 
-  const handleClearFilters = () => {
-    setSelectedPeriod("last7days");
-    setFromDate("");
-    setToDate("");
-    setSearchText("");
-    setCommunityFilter("All");
-  };
+  // const handleClearFilters = () => {
+  //   setSelectedPeriod("last7days");
+  //   setFromDate("");
+  //   setToDate("");
+  //   setSearchText("");
+  //   setCommunityFilter("All");
+  // };
 
-  const handleEditClick = (post: Post) => {
-    navigate(`/news/${post.postId}`);
-  };
+  // const handleEditClick = (post: Post) => {
+  //   navigate(`/news/${post.postId}`);
+  // };
 
   return (
     <div className="space-y-6">
@@ -144,8 +158,158 @@ export default function NewsPage() {
         ]}
       />
 
+      <PostAnalyticsCards
+        analytics={analyticsData}
+        loading={analyticsLoading}
+        error={analyticsError}
+        selectedPeriod={selectedPeriod}
+        fromDate={fromDate}
+        toDate={toDate}
+        onPeriodChange={setSelectedPeriod}
+        onDateRangeChange={(from, to) => {
+          setFromDate(from);
+          setToDate(to);
+        }}
+      />
+
+      <Table<Post>
+        fetcher={async (page, pageSize) => {
+          const data = await getPosts(page, pageSize);
+          return {
+            data: data.data,
+            total: analyticsData?.totalPosts ?? data.pageSize * data.page,
+          };
+        }}
+        onClickRow={(p) => navigate(`/news/${p.postId}`)}
+        headers={[
+          {
+            name: "ID",
+            accessorKey: "postId",
+          },
+          {
+            name: "Author",
+            accessorKey: "authorName",
+            render: (p) => (
+              <div className="flex items-center gap-2">
+                <img
+                  src={p.avatarUrl}
+                  alt=""
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+                <span className="text-gray-700 whitespace-nowrap font-bold">
+                  {p.authorName}
+                </span>
+              </div>
+            ),
+          },
+          {
+            name: "Preview",
+            accessorKey: "content",
+            render: (p) => {
+              return (
+                <span
+                  className="text-gray-600 max-w-xs truncate block"
+                  title={p.content ?? ""}
+                >
+                  {p.content ?? ""}
+                </span>
+              );
+            },
+          },
+          {
+            name: "Media",
+            accessorKey: "media",
+            render: (p) =>
+              p.media?.length ? (
+                <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded w-max">
+                  <ImageIcon size={14} /> {p.media.length}
+                </div>
+              ) : (
+                <span className="text-gray-400">—</span>
+              ),
+          },
+          {
+            name: "Privacy",
+            accessorKey: "privacy",
+            render: (p) => {
+              switch (p.privacy) {
+                case "Public":
+                  return <Badge title="Public" type="Green" />;
+                case "Private":
+                  return <Badge title="Private" type="Blue" />;
+                default:
+                  return <Badge title={p.privacy || "Unknown"} type="Gray" />;
+              }
+            },
+          },
+          {
+            name: "Community",
+            accessorKey: "languageCommunity",
+            render: (p) => <span>{p.languageCommunity || "All"}</span>,
+          },
+          {
+            name: "views",
+            accessorKey: "viewCount",
+            render: (p) => (
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <Eye size={14} className="text-gray-400" />
+                <span>{p.viewCount}</span>
+              </div>
+            ),
+          },
+          {
+            name: "Reactions",
+            accessorKey: "totalReactions",
+            render: (p) => (
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <Heart size={14} className="text-gray-400" />
+                <span>{p.totalReactions}</span>
+              </div>
+            ),
+          },
+          {
+            name: "Comments",
+            accessorKey: "totalComments",
+            render: (p) => (
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <MessageSquare size={14} className="text-gray-400" />
+                <span>{p.totalComments}</span>
+              </div>
+            ),
+          },
+          {
+            name: "Shares",
+            accessorKey: "shareCount",
+            render: (p) => (
+              <div className="flex items-center justify-center gap-1.5 text-gray-700">
+                <Share2 size={14} className="text-gray-400" />
+                <span>{p.shareCount}</span>
+              </div>
+            ),
+          },
+          {
+            name: "Date Created",
+            accessorKey: "createDate",
+            render: (p) => (
+              <span className="whitespace-nowrap">
+                {formatDate(p.createDate)}
+              </span>
+            ),
+          },
+          {
+            name: "Last Edited",
+            accessorKey: "lastEdited",
+            render: (p) => (
+              <span className="whitespace-nowrap">
+                {formatDate(p.lastEdited)}
+              </span>
+            ),
+          },
+        ]}
+      />
+
       {/* Optional: Filter Section matches UserTable style */}
-      <div className="flex gap-3 p-4 rounded-lg bg-orange-50 border border-accent/20">
+      {/* <div className="flex gap-3 p-4 rounded-lg bg-orange-50 border border-accent/20">
         <input
           type="text"
           value={searchText}
@@ -162,23 +326,9 @@ export default function NewsPage() {
           <option value="English">English</option>
           <option value="Chinese">Chinese</option>
         </select>
-      </div>
+      </div> */}
 
-      <PostAnalyticsCards
-        analytics={analyticsData}
-        loading={analyticsLoading}
-        error={analyticsError}
-        selectedPeriod={selectedPeriod}
-        fromDate={fromDate}
-        toDate={toDate}
-        onPeriodChange={setSelectedPeriod}
-        onDateRangeChange={(from, to) => {
-          setFromDate(from);
-          setToDate(to);
-        }}
-      />
-
-      <PostTable
+      {/* <PostTable
         posts={filteredPosts}
         loading={loading}
         error={error}
@@ -194,7 +344,7 @@ export default function NewsPage() {
         onClose={closeDeleteModal}
         onConfirm={confirmDelete}
         isDeleting={isDeleting}
-      />
+      /> */}
     </div>
   );
 }

@@ -1,4 +1,12 @@
-import { FileText, Eye, MessageSquare, Heart, Share2, Calendar, AlertCircle } from "lucide-react";
+import {
+  FileText,
+  Eye,
+  MessageSquare,
+  Heart,
+  Share2,
+  Calendar,
+  AlertCircle,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import type { PostResponse, AnalyticsPeriod } from "../../analytics/types";
 
@@ -89,11 +97,11 @@ export default function PostAnalyticsCards({
   return (
     <div className="space-y-4">
       {/* Header with Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2">
-        <div>
+      <div className="flex flex-col lg:flex-row lg:items-center justify-end gap-4 pb-2">
+        {/* <div>
           <h2 className="text-base font-bold text-gray-900">Post Performance</h2>
           <p className="text-xs text-gray-500">Analytics metrics and engagement overview</p>
-        </div>
+        </div> */}
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Period button group */}
@@ -103,10 +111,11 @@ export default function PostAnalyticsCards({
                 key={p.value}
                 type="button"
                 onClick={() => onPeriodChange(p.value)}
-                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${selectedPeriod === p.value
-                  ? "bg-white text-gray-950 shadow-sm"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
-                  }`}
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                  selectedPeriod === p.value
+                    ? "bg-white text-gray-950 shadow-sm"
+                    : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
+                }`}
               >
                 {p.label}
               </button>
@@ -115,7 +124,10 @@ export default function PostAnalyticsCards({
 
           {/* Custom Date Form */}
           {selectedPeriod === "custom" && (
-            <form onSubmit={handleApplyCustomRange} className="flex flex-wrap items-center gap-2">
+            <form
+              onSubmit={handleApplyCustomRange}
+              className="flex flex-wrap items-center gap-2"
+            >
               <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 border border-gray-200 rounded-xl shadow-sm">
                 <Calendar size={14} className="text-gray-400" />
                 <input
