@@ -1,4 +1,3 @@
-import StaffTable from "../components/StaffTable";
 import { IdCardLanyard } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";

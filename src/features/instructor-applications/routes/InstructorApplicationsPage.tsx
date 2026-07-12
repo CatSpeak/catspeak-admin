@@ -1,6 +1,5 @@
 import { IdCardLanyard } from "lucide-react";
 import { PageHeader } from "../../../components/ui/PageHeader";
-import ApplicationTable from "../components/ApplicationTable";
 import Table from "../../../components/ui/table/Table";
 import type { InstructorApplication } from "../types";
 import { getInstructorApplications } from "../api/getInstructorApplications";

@@ -1,7 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   Download,
-  RotateCcw,
   Plus,
   Newspaper,
   ImageIcon,
@@ -12,13 +11,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../../components/ui/Button";
-import {
-  PostTable,
-  DeleteConfirmModal,
-  PostAnalyticsCards,
-} from "../components";
-import { usePosts } from "../hooks/usePosts";
-import { useManagePosts } from "../hooks/useManagePosts";
+import { PostAnalyticsCards } from "../components";
 import type { Post } from "../types";
 import { getPost } from "../../analytics/api/getAnalytics";
 import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
@@ -31,41 +24,6 @@ import Badge from "../../../components/ui/Badge";
 
 export default function NewsPage() {
   const navigate = useNavigate();
-  const postsHook = usePosts();
-  const { posts, loading, error, currentPage, hasNextPage, goToPage } =
-    postsHook;
-
-  // const {
-  //   isDeleting,
-  //   openDeleteModal,
-  //   closeDeleteModal,
-  //   confirmDelete,
-  //   deleteTarget,
-  // } = useManagePosts(postsHook);
-
-  const [searchText, setSearchText] = useState("");
-  const [communityFilter, setCommunityFilter] = useState("All");
-
-  const filteredPosts = useMemo(() => {
-    return posts.filter((post) => {
-      const matchesSearch =
-        searchText.trim() === "" ||
-        (post.Title || post.title || "")
-          .toLowerCase()
-          .includes(searchText.toLowerCase()) ||
-        (post.content || "").toLowerCase().includes(searchText.toLowerCase()) ||
-        (post.authorName || "")
-          .toLowerCase()
-          .includes(searchText.toLowerCase());
-
-      const postCommunity = post.languageCommunity || "All";
-      const matchesCommunity =
-        communityFilter === "All" ||
-        postCommunity.toLowerCase() === communityFilter.toLowerCase();
-
-      return matchesSearch && matchesCommunity;
-    });
-  }, [posts, searchText, communityFilter]);
 
   // Post Analytics States
   const [selectedPeriod, setSelectedPeriod] =
@@ -114,18 +72,6 @@ export default function NewsPage() {
     };
   }, [selectedPeriod, fromDate, toDate]);
 
-  // const handleClearFilters = () => {
-  //   setSelectedPeriod("last7days");
-  //   setFromDate("");
-  //   setToDate("");
-  //   setSearchText("");
-  //   setCommunityFilter("All");
-  // };
-
-  // const handleEditClick = (post: Post) => {
-  //   navigate(`/news/${post.postId}`);
-  // };
-
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -134,15 +80,6 @@ export default function NewsPage() {
         title="News"
         desc="Draft, schedule, and publish official announcements and internal news updates."
         rightButtons={[
-          // <Button
-          //   variant="outline"
-          //   size="sm"
-          //   // className="bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-          //   onClick={handleClearFilters}
-          // >
-          //   <RotateCcw className="w-4 h-4 mr-1" />
-          //   Clear Filters
-          // </Button>,
           <Button variant="outline" size="sm">
             <Download className="w-4 h-4 mr-1" />
             Export

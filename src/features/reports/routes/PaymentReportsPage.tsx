@@ -1,20 +1,16 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import {
   FileText,
   AlertCircle,
   CheckCircle,
   Ban,
-  ChevronRight,
   DollarSign,
 } from "lucide-react";
 import {
-  getPaymentReports,
   processPaymentReport,
   type PaymentReport,
 } from "../api/paymentReports";
 import { useToastStore } from "../../../stores/toastStore";
-import PaymentReportsTable from "../components/PaymentReportsTable";
 import ProcessReportModal from "../components/ProcessReportModal";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
@@ -22,7 +18,6 @@ import { formatAmount, formatDate } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
 
 export default function PaymentReportsPage() {
-  const navigate = useNavigate();
   const { addToast } = useToastStore();
 
   // State
@@ -33,34 +28,7 @@ export default function PaymentReportsPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const [reports, setReports] = useState<PaymentReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch reports list once on load or refresh
-  useEffect(() => {
-    let cancelled = false;
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await getPaymentReports(null);
-        if (cancelled) return;
-        setReports(data);
-      } catch {
-        if (cancelled) return;
-        setError("Failed to load payment reports. Please try again.");
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-    fetchData();
-    return () => {
-      cancelled = true;
-    };
-  }, [refreshTrigger]);
+  const [reports] = useState<PaymentReport[]>([]);
 
   // Compute metrics in-memory from loaded reports
   const metrics = useMemo(() => {
@@ -175,6 +143,7 @@ export default function PaymentReportsPage() {
 
       {/* Table Element */}
       <Table<PaymentReport>
+        key={refreshTrigger}
         fetcher={() => {
           const data = reports;
           return {
@@ -263,19 +232,6 @@ export default function PaymentReportsPage() {
           handleReviewReport(r);
         }}
       />
-
-      {/* <div className="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
-        <h2 className="text-base font-bold text-gray-900 mb-4 tracking-tight">
-          Reports Log
-        </h2>
-        <PaymentReportsTable
-          reports={reports}
-          loading={loading}
-          error={error}
-          onReviewReport={handleReviewReport}
-          onRefresh={() => setRefreshTrigger((prev) => prev + 1)}
-        />
-      </div> */}
 
       {/* Review Modal Dialog */}
       <ProcessReportModal

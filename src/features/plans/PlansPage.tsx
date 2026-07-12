@@ -2,34 +2,18 @@ import React from "react";
 import { FileText, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
-import PageTitle from "../../components/ui/PageTitle";
 import PlanSummaryCards from "./components/PlanSummaryCards";
-import PlanFilters from "./components/PlanFilters";
-import PlanTable from "./components/PlanTable";
 import { usePlans } from "./hooks/usePlans";
-import { usePlanMutations } from "./hooks/usePlanMutations";
 import { PageHeader } from "../../components/ui/PageHeader";
 import type { Plan } from "../../entities/types";
 import { getPlans } from "./api/getPlans";
 import Table from "../../components/ui/table/Table";
 import { formatDateTime } from "../../lib/utils";
-import type { BadgeType } from "../../components/ui/Badge";
 import Badge from "../../components/ui/Badge";
 
 const PlansPage: React.FC = () => {
   const navigate = useNavigate();
-  const { plans, stats, loading, error, filters, setFilters, refetch } =
-    usePlans();
-  const { deletePlan } = usePlanMutations();
-
-  const handleDelete = async (id: number) => {
-    if (window.confirm("Are you sure you want to delete this plan?")) {
-      const success = await deletePlan(id);
-      if (success) {
-        refetch();
-      }
-    }
-  };
+  const { stats } = usePlans();
 
   return (
     <div className="space-y-6">
@@ -80,7 +64,7 @@ const PlansPage: React.FC = () => {
                 )}
                 <div>
                   <p className="font-semibold text-gray-900">{p.planName}</p>
-                  <p className="text-xs text-gray-500 max-w-[200px] truncate">
+                  <p className="text-xs text-gray-500 max-w-50 truncate">
                     {p.description}
                   </p>
                 </div>
@@ -151,15 +135,6 @@ const PlansPage: React.FC = () => {
           },
         ]}
       />
-
-      {/* <PlanFilters filters={filters} setFilters={setFilters} />
-
-      <PlanTable
-        plans={plans}
-        loading={loading}
-        error={error}
-        onDelete={handleDelete}
-      /> */}
     </div>
   );
 };

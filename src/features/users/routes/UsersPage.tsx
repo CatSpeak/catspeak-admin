@@ -1,5 +1,4 @@
-import UserTable from "../components/UserTable";
-import { Download, RotateCcw, UsersRound } from "lucide-react";
+import { Download, UsersRound } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";

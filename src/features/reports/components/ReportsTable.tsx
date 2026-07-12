@@ -1,6 +1,4 @@
 import { useState } from "react";
-import Card from "../../../components/ui/Card";
-import ReportRow from "./ReportRow";
 import Table from "../../../components/ui/table/Table";
 import Badge from "../../../components/ui/Badge";
 import Button from "../../../components/ui/Button";
@@ -47,8 +45,8 @@ export default function ReportsTable() {
 
   return (
     <Table<Report>
-      fetcher={(r) => {
-        const data = mockReports;
+      fetcher={() => {
+        const data = reports;
         return {
           data,
           total: data.length,
