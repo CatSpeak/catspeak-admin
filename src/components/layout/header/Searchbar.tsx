@@ -10,9 +10,9 @@ interface SearchItem {
 
 const searchData: SearchItem[] = [
   { title: "Dashboard", url: "/" },
-  { title: "Platform Overview", url: "/" },
-  { title: "Payment Claims", url: "/" },
-  { title: "Analytics", url: "/" },
+  { title: "Platform Overview", url: "/?tab=platform-overview" },
+  { title: "Payment Claims", url: "/?tab=payments-and-claims" },
+  { title: "Analytics", url: "/?tab=analytics" },
   { title: "User", url: "/users" },
   { title: "Staff", url: "/staffs" },
   { title: "Plan", url: "/plans" },

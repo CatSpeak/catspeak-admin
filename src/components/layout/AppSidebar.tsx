@@ -72,11 +72,11 @@ const navItems: NavItem[] = [
       { name: "Payment Reports", path: "/payments" },
     ],
   },
-  {
-    name: "Analytics",
-    icon: <ChartBar size={20} />,
-    path: "/analytics",
-  },
+  // {
+  //   name: "Analytics",
+  //   icon: <ChartBar size={20} />,
+  //   path: "/analytics",
+  // },
 ];
 
 const isPathActive = (pathname: string, path: string) => {
@@ -85,10 +85,18 @@ const isPathActive = (pathname: string, path: string) => {
 };
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleMobileSidebar } = useSidebar();
+  const {
+    isExpanded,
+    isMobileOpen,
+    isHovered,
+    setIsHovered,
+    toggleMobileSidebar,
+  } = useSidebar();
   const location = useLocation();
 
-  const [submenuOverride, setSubmenuOverride] = useState<number | null | "auto">("auto");
+  const [submenuOverride, setSubmenuOverride] = useState<
+    number | null | "auto"
+  >("auto");
 
   const isActive = (path: string) => {
     return isPathActive(location.pathname, path);
@@ -168,10 +176,11 @@ const AppSidebar: React.FC = () => {
                       aria-label={nav.name}
                       title={nav.name}
                       className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors group
-                        ${openSubmenu === index ||
+                        ${
+                          openSubmenu === index ||
                           nav.subItems.some((sub) => isActive(sub.path))
-                          ? "bg-primary/10 text-primary"
-                          : "text-gray-700 hover:bg-gray-100"
+                            ? "bg-primary/10 text-primary"
+                            : "text-gray-700 hover:bg-gray-100"
                         }
                         ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                       `}
@@ -182,8 +191,9 @@ const AppSidebar: React.FC = () => {
                           <span className="flex-1 text-left">{nav.name}</span>
                           <ChevronDown
                             size={16}
-                            className={`transition-transform duration-200 ${openSubmenu === index ? "rotate-180" : ""
-                              }`}
+                            className={`transition-transform duration-200 ${
+                              openSubmenu === index ? "rotate-180" : ""
+                            }`}
                           />
                         </>
                       )}
@@ -207,9 +217,9 @@ const AppSidebar: React.FC = () => {
                                 style={
                                   isActive(subItem.path)
                                     ? {
-                                      color: "#F5A623",
-                                      background: "rgba(245, 166, 35, 0.1)",
-                                    }
+                                        color: "#F5A623",
+                                        background: "rgba(245, 166, 35, 0.1)",
+                                      }
                                     : {}
                                 }
                               >
@@ -231,9 +241,10 @@ const AppSidebar: React.FC = () => {
                     aria-label={nav.name}
                     title={nav.name}
                     className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors
-                      ${isActive(nav.path!)
-                        ? "bg-primary/10 text-primary"
-                        : "text-gray-700 hover:bg-gray-100"
+                      ${
+                        isActive(nav.path!)
+                          ? "bg-primary/10 text-primary"
+                          : "text-gray-700 hover:bg-gray-100"
                       }
                       ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                     `}
