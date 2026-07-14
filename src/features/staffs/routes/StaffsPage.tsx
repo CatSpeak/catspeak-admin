@@ -11,7 +11,7 @@ export default function StaffsPage() {
   const navigate = useNavigate();
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
         icon={<IdCardLanyard />}
