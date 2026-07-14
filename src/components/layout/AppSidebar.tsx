@@ -5,10 +5,8 @@ import {
   LayoutDashboard,
   Users,
   ChevronDown,
-  // MessageCircle,
   FileWarning,
   GraduationCap,
-  ChartBar,
   Package,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";

@@ -1,6 +1,6 @@
 import React from "react";
 import { useSidebar } from "../../context/SidebarContext";
-import { Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import UserDropdown from "./header/UserDropdown";
 import NotificationDropdown from "./header/NotificationDropdown";
 import { SearchBar } from "./header/Searchbar";

@@ -22,6 +22,7 @@ import Card from "../../../components/ui/Card";
 import LineChartJS from "../../dashboard/components/LineChartJS";
 import DonutChartJS from "../../dashboard/components/DonutChartJS";
 import AreaChartJS from "../../dashboard/components/AreaChartJS";
+import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
 
 interface AnalyticsData {
   newUsers: NewUserResponse;
@@ -115,13 +116,12 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      {/* <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">Analytics Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-4">
         <AnalyticsPeriodSelector
           selectedPeriod={selectedPeriod}
           onPeriodChange={setSelectedPeriod}
         />
-      </div> */}
+      </div>
 
       {/* 4 Metric Cards — zero duplicates */}
       <AnalyticsMetricsCards
