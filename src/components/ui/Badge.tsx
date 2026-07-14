@@ -1,5 +1,3 @@
-import React from "react";
-
 export type BadgeType = "Red" | "Orange" | "Yellow" | "Green" | "Blue" | "Gray";
 
 // Định nghĩa props cho component

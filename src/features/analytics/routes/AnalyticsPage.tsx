@@ -17,11 +17,12 @@ import type {
   ActivityBreakdownResponse,
 } from "../types";
 import AnalyticsMetricsCards from "../components/MetricCards";
-import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
+// import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
 import Card from "../../../components/ui/Card";
 import LineChartJS from "../../dashboard/components/LineChartJS";
 import DonutChartJS from "../../dashboard/components/DonutChartJS";
 import AreaChartJS from "../../dashboard/components/AreaChartJS";
+import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
 
 interface AnalyticsData {
   newUsers: NewUserResponse;
@@ -38,16 +39,29 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
 
   async function getAnalyticsAll(range: DateRange) {
-    const [newUsers, existingUsers, retention, churn, classification, activity] =
-      await Promise.all([
-        getNewUsers(range),
-        getExistingUsers(range),
-        getRetention(range),
-        getChurn(range),
-        getUserClassification(range),
-        getActivityBreakdown(range),
-      ]);
-    return { newUsers, existingUsers, retention, churn, classification, activity };
+    const [
+      newUsers,
+      existingUsers,
+      retention,
+      churn,
+      classification,
+      activity,
+    ] = await Promise.all([
+      getNewUsers(range),
+      getExistingUsers(range),
+      getRetention(range),
+      getChurn(range),
+      getUserClassification(range),
+      getActivityBreakdown(range),
+    ]);
+    return {
+      newUsers,
+      existingUsers,
+      retention,
+      churn,
+      classification,
+      activity,
+    };
   }
 
   useEffect(() => {
@@ -72,7 +86,11 @@ export default function AnalyticsPage() {
   if (!data) return null;
 
   // Area chart: daily new users (using dailyBreakdown dates)
-  const areaChartData: Array<{ label: string; accountUsers: number; activeUsers: number }> =
+  const areaChartData: Array<{
+    label: string;
+    accountUsers: number;
+    activeUsers: number;
+  }> =
     data.newUsers.dailyBreakdown.length > 0
       ? data.newUsers.dailyBreakdown.map((d) => ({
           label: d,
@@ -83,15 +101,22 @@ export default function AnalyticsPage() {
 
   // Donut: new vs existing ratio (zero duplicate counts)
   const donutSegments = [
-    { label: "New Users", value: data.classification.newUsers, color: "#10B981" },
-    { label: "Existing Users", value: data.classification.existingUsers, color: "#3B82F6" },
+    {
+      label: "New Users",
+      value: data.classification.newUsers,
+      color: "#10B981",
+    },
+    {
+      label: "Existing Users",
+      value: data.classification.existingUsers,
+      color: "#3B82F6",
+    },
   ];
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-primary">Analytics Dashboard</h1>
+      <div className="flex flex-col sm:flex-row sm:justify-end gap-4">
         <AnalyticsPeriodSelector
           selectedPeriod={selectedPeriod}
           onPeriodChange={setSelectedPeriod}
@@ -109,12 +134,16 @@ export default function AnalyticsPage() {
       {/* Row 1: 2 cols — Growth + Retention */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="animate-fade-in delay-1">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">User Growth Trend</h3>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            User Growth Trend
+          </h3>
           <AreaChartJS data={areaChartData} height={300} />
         </Card>
 
         <Card className="animate-fade-in delay-2">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Retention Rates</h3>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            Retention Rates
+          </h3>
           <LineChartJS
             data={[
               { label: "D1", value: data.retention.d1Retention },
@@ -129,7 +158,9 @@ export default function AnalyticsPage() {
       {/* Row 2: 2 cols — Classification + Churn */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="animate-fade-in delay-3">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">User Classification</h3>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            User Classification
+          </h3>
           <DonutChartJS
             segments={donutSegments}
             trendUp
@@ -139,15 +170,21 @@ export default function AnalyticsPage() {
         </Card>
 
         <Card className="animate-fade-in delay-4">
-          <h3 className="text-xl font-semibold mb-4 text-gray-800">Churn Analysis</h3>
+          <h3 className="text-xl font-semibold mb-4 text-gray-800">
+            Churn Analysis
+          </h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-red-50 rounded-lg p-4 text-center">
               <div className="text-sm text-gray-600">Churned</div>
-              <div className="text-2xl font-bold text-red-600">{data.churn.churnedUsers}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {data.churn.churnedUsers}
+              </div>
             </div>
             <div className="bg-blue-50 rounded-lg p-4 text-center">
               <div className="text-sm text-gray-600">Active</div>
-              <div className="text-2xl font-bold text-blue-600">{data.churn.activeUsersAtPeriodStart}</div>
+              <div className="text-2xl font-bold text-blue-600">
+                {data.churn.activeUsersAtPeriodStart}
+              </div>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4 text-center">
               <div className="text-sm text-gray-600">Churn Rate</div>
@@ -161,11 +198,17 @@ export default function AnalyticsPage() {
 
       {/* Activity Breakdown */}
       <Card className="animate-fade-in">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800">Activity Breakdown</h3>
+        <h3 className="text-xl font-semibold mb-4 text-gray-800">
+          Activity Breakdown
+        </h3>
         <div className="space-y-2">
           {data.activity.eventTypes.map((item) => {
-            const total = data.activity.eventTypes.reduce((sum, i) => sum + i.count, 0);
-            const pct = total > 0 ? ((item.count / total) * 100).toFixed(1) : "0.0";
+            const total = data.activity.eventTypes.reduce(
+              (sum, i) => sum + i.count,
+              0,
+            );
+            const pct =
+              total > 0 ? ((item.count / total) * 100).toFixed(1) : "0.0";
             return (
               <div key={item.type} className="flex items-center gap-3">
                 <span className="w-32 text-sm text-gray-700 capitalize">
@@ -177,8 +220,12 @@ export default function AnalyticsPage() {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="w-16 text-sm text-gray-600 text-right">{item.count}</span>
-                <span className="w-14 text-xs text-gray-400 text-right">{pct}%</span>
+                <span className="w-16 text-sm text-gray-600 text-right">
+                  {item.count}
+                </span>
+                <span className="w-14 text-xs text-gray-400 text-right">
+                  {pct}%
+                </span>
               </div>
             );
           })}
