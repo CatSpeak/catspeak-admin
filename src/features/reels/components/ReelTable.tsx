@@ -1,4 +1,4 @@
-import type { ReelDto, ReelPrivacy } from "../types";
+import type { ReelDto } from "../types";
 import { formatDate } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
