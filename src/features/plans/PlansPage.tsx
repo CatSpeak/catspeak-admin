@@ -6,14 +6,13 @@ import PlanSummaryCards from "./components/PlanSummaryCards";
 import { usePlans } from "./hooks/usePlans";
 import { PageHeader } from "../../components/ui/PageHeader";
 import type { Plan } from "../../entities/types";
-import { getPlans } from "./api/getPlans";
 import Table from "../../components/ui/table/Table";
 import { formatDateTime } from "../../lib/utils";
 import Badge from "../../components/ui/Badge";
 
 const PlansPage: React.FC = () => {
   const navigate = useNavigate();
-  const { stats } = usePlans();
+  const { plans, stats } = usePlans();
 
   return (
     <div className="space-y-6">
@@ -38,7 +37,7 @@ const PlansPage: React.FC = () => {
 
       <Table<Plan>
         fetcher={async () => {
-          const data = await getPlans();
+          const data = plans;
           return {
             data,
             total: data.length,
@@ -92,6 +91,7 @@ const PlansPage: React.FC = () => {
           {
             name: "Status",
             accessorKey: "packageStatus",
+            values: ["Public", "Published", "Draft", "Archived"],
             render: (p) => {
               switch (p.packageStatus) {
                 case "Public":
