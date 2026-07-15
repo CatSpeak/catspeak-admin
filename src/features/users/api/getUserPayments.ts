@@ -20,7 +20,7 @@ export interface UserPayment {
 export const getUserPayments = async (userId: number): Promise<UserPayment[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/list", {
+      axiosClient.get<unknown>("/api/v1/Payments/admin/list", {
         params: { userId },
       })
     );
