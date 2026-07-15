@@ -6,9 +6,12 @@ import {
   Clock, // Thay Share2 bằng Clock (Thời gian xem) để đặc trưng hơn cho Reels
   Calendar,
   AlertCircle,
+  CheckCircle2,
+  EyeOff,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { AnalyticsPeriod } from "../../analytics/types"; // Import từ types của bạn
+import type { ReelStatisticsDto } from "../types";
 
 // Định nghĩa types nội bộ cho Reels Analytics
 export interface ReelsResponse {
@@ -20,6 +23,7 @@ export interface ReelsResponse {
 }
 
 interface ReelsAnalyticsCardsProps {
+  stats?: ReelStatisticsDto | null;
   analytics?: ReelsResponse | null;
   loading?: boolean;
   error?: string | null;
@@ -88,6 +92,7 @@ const mockAnalyticsData: Record<AnalyticsPeriod, ReelsResponse> = {
 };
 
 export default function ReelsAnalyticsCards({
+  stats,
   analytics,
   loading = false,
   error = null,
@@ -218,16 +223,38 @@ export default function ReelsAnalyticsCards({
       )}
 
       {/* Grid danh sách các thẻ thông số */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         <SummaryCard
           icon={<Video size={20} />}
           label="Total Reels"
-          value={currentAnalytics.totalReels.toLocaleString()}
+          value={stats ? stats.totalReels.toLocaleString() : currentAnalytics.totalReels.toLocaleString()}
           loading={loading}
           iconClassName={cardColors.reels.text}
           iconContainerClassName={cardColors.reels.iconBg}
           className={cardColors.reels.border}
         />
+        {stats && (
+          <>
+            <SummaryCard
+              icon={<CheckCircle2 size={20} />}
+              label="Displaying"
+              value={stats.displaying.toLocaleString()}
+              loading={loading}
+              iconClassName="text-green-600"
+              iconContainerClassName="bg-green-50"
+              className="border-green-100"
+            />
+            <SummaryCard
+              icon={<EyeOff size={20} />}
+              label="Hidden"
+              value={stats.hidden.toLocaleString()}
+              loading={loading}
+              iconClassName="text-yellow-600"
+              iconContainerClassName="bg-yellow-50"
+              className="border-yellow-100"
+            />
+          </>
+        )}
         <SummaryCard
           icon={<Eye size={20} />}
           label="Total Views"

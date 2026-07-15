@@ -67,6 +67,7 @@ function ReelsPageContent() {
     reels,
     paginatedReels,
     loading: reelsLoading,
+    stats,
 
     // Filters
     searchState,
@@ -270,7 +271,7 @@ function ReelsPageContent() {
         </button>
       </div>
 
-      <ReelsAnalyticsCards />
+      <ReelsAnalyticsCards stats={stats} loading={reelsLoading} />
 
       {/* Active Tab Panel Views */}
       {activeTab === "reels" ? (
