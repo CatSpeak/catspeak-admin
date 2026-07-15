@@ -32,7 +32,7 @@ export const updatePost = async (
   }
 
   return getResponseData(
-    axiosClient.put<GetPostResponse>(`/post/${id}`, formData, {
+    axiosClient.put<GetPostResponse>(`/api/post/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

@@ -21,7 +21,7 @@ export const createPost = async (
   }
 
   return getResponseData(
-    axiosClient.post<GetPostResponse>("/post", formData, {
+    axiosClient.post<GetPostResponse>("/api/post", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
