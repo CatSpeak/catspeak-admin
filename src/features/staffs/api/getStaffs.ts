@@ -6,7 +6,7 @@ export const getStaffs = async (
     pageSize: number = 50,
 ): Promise<GetStaffsResponse> => {
     return getResponseData(
-        axiosClient.get<GetStaffsResponse>("/admin/users?roleId=3", {
+        axiosClient.get<GetStaffsResponse>("/api/Admin/users?roleId=3", {
             params: {
                 page,
                 pageSize,
