@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getPlans } from "../api/getPlans";
 import { getPlanStats } from "../api/getPlanStats";
 import type { Plan, PlanStatisticsDto } from "../../../entities/types";
