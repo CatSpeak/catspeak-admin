@@ -3,7 +3,7 @@ import type { Plan } from "../../../entities/types";
 
 export const updatePlanStatus = async (id: number, packageStatus: string): Promise<Plan> => {
   return getResponseData(
-    axiosClient.put<Plan>(`/v1/Plans/${id}/status`, {
+    axiosClient.put<Plan>(`/api/v1/Plans/${id}/status`, {
       packageStatus,
     })
   );

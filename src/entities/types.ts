@@ -55,3 +55,12 @@ export interface Plan {
   packageStatus: string;
   subscriptionFeatures: SubscriptionFeature[];
 }
+
+export interface PlanStatisticsDto {
+  totalPlans: number;
+  displaying: number;
+  hidden: number;
+  archived: number;
+  draft: number;
+}
+

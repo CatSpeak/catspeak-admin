@@ -16,22 +16,22 @@ export const getRooms = async (
   if (filters?.roomName) params.roomName = filters.roomName;
 
   return getResponseData(
-    axiosClient.get<GetRoomsResponse>("/rooms", { params }),
+    axiosClient.get<GetRoomsResponse>("/api/rooms/rooms", { params }),
   );
 };
 
 export const deleteRoom = async (id: number): Promise<void> => {
-  await axiosClient.delete(`/rooms/${id}`);
+  await axiosClient.delete(`/api/rooms/${id}`);
 };
 
 export const createRoom = async (formData: FormData): Promise<void> => {
-  await axiosClient.post("/rooms/persistent", formData, {
+  await axiosClient.post("/api/rooms/persistent", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
 export const editRoom = async (id: number, formData: FormData): Promise<void> => {
-  await axiosClient.put(`/rooms/${id}`, formData, {
+  await axiosClient.put(`/api/rooms/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

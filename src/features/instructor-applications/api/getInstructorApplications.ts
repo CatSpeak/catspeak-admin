@@ -1,5 +1,8 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
-import type { GetInstructorApplicationsResponse, ApplicationStatus } from "../types";
+import type {
+  GetInstructorApplicationsResponse,
+  ApplicationStatus,
+} from "../types";
 
 export interface GetInstructorApplicationsParams {
   page?: number;
@@ -14,7 +17,7 @@ export const getInstructorApplications = async (
   const { page = 1, pageSize = 20, search, status } = params;
   return getResponseData(
     axiosClient.get<GetInstructorApplicationsResponse>(
-      "/Admin/instructor-profiles",
+      "/api/Admin/instructor-profiles",
       {
         params: {
           page,

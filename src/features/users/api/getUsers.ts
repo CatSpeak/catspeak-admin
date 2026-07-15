@@ -32,6 +32,6 @@ export const getAccounts = async (
     if (filters.status !== undefined) params.status = filters.status;
 
     return getResponseData(
-        axiosClient.get<GetAccountsResponse>("/admin/users", { params }),
+        axiosClient.get<GetAccountsResponse>("/api/Admin/users", { params }),
     );
 };
