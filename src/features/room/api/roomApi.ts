@@ -1,5 +1,11 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
-import type { GetRoomsResponse, RoomFilters } from "../types";
+import type { GetRoomsResponse, RoomFilters, RoomStatisticsDto } from "../types";
+
+export const getRoomStats = async (): Promise<RoomStatisticsDto> => {
+  return getResponseData(
+    axiosClient.get<RoomStatisticsDto>("/api/Admin/rooms/statistics"),
+  );
+};
 
 export const getRooms = async (
   page: number = 1,

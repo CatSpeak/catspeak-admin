@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { getRooms, deleteRoom as deleteRoomApi } from "../api/roomApi";
-import type { Room, RoomFilters, AdditionalData } from "../types";
+import { getRooms, deleteRoom as deleteRoomApi, getRoomStats } from "../api/roomApi";
+import type { Room, RoomFilters, AdditionalData, RoomStatisticsDto } from "../types";
 
 const EMPTY_FILTERS: RoomFilters = {
   roomTypes: [],
@@ -21,9 +21,17 @@ const EMPTY_PAGINATION: AdditionalData = {
   hasNextPage: false,
 };
 
+const EMPTY_STATS: RoomStatisticsDto = {
+  totalRooms: 0,
+  activeRooms: 0,
+  oneToOneRooms: 0,
+  groupRooms: 0,
+};
+
 export function useRooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [paginationData, setPaginationData] = useState<AdditionalData>(EMPTY_PAGINATION);
+  const [roomStats, setRoomStats] = useState<RoomStatisticsDto>(EMPTY_STATS);
   const [filters, setFilters] = useState<RoomFilters>(EMPTY_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(12);
@@ -31,7 +39,7 @@ export function useRooms() {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
 
-  // ── Fetch rooms from API ──
+  // ── Fetch rooms and stats from API ──
 
   const fetchRooms = useCallback(async () => {
     const currentRequestId = requestId.current + 1;
@@ -39,10 +47,14 @@ export function useRooms() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await getRooms(currentPage, pageSize, filters);
+      const [roomsResponse, statsResponse] = await Promise.all([
+        getRooms(currentPage, pageSize, filters),
+        getRoomStats(),
+      ]);
       if (currentRequestId !== requestId.current) return;
-      setRooms(response.data);
-      setPaginationData(response.additionalData);
+      setRooms(roomsResponse.data);
+      setPaginationData(roomsResponse.additionalData);
+      setRoomStats(statsResponse);
     } catch (err: unknown) {
       if (currentRequestId !== requestId.current) return;
       setError(getApiErrorMessage(err, "Failed to fetch rooms."));
@@ -111,14 +123,14 @@ export function useRooms() {
     }
   }, [fetchRooms]);
 
-  // ── Stats (computed from current page data + totals) ──
+  // ── Stats (fetched from Room statistics API) ──
 
   const stats = useMemo(() => ({
-    total: paginationData.totalCount,
-    active: rooms.filter((r) => r.status === 1).length,
-    oneToOne: rooms.filter((r) => r.roomType === "OneToOne").length,
-    group: rooms.filter((r) => r.roomType === "Group").length,
-  }), [rooms, paginationData.totalCount]);
+    total: roomStats.totalRooms,
+    active: roomStats.activeRooms,
+    oneToOne: roomStats.oneToOneRooms,
+    group: roomStats.groupRooms,
+  }), [roomStats]);
 
   return {
     rooms,
