@@ -60,6 +60,13 @@ export interface GetRoomsResponse {
   additionalData: AdditionalData;
 }
 
+export interface RoomStatisticsDto {
+  totalRooms: number;
+  activeRooms: number;
+  oneToOneRooms: number;
+  groupRooms: number;
+}
+
 export interface RoomFilters {
   roomTypes: RoomType[];
   languageTypes: LanguageType[];
