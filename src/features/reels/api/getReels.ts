@@ -5,7 +5,5 @@ import type { ReelDto } from "../types";
  * Fetch all reels in the system (administrator view).
  */
 export const getReels = async (): Promise<ReelDto[]> => {
-  return getResponseData(
-    axiosClient.get<ReelDto[]>("/api/reels/reels")
-  );
+  return getResponseData(axiosClient.get<ReelDto[]>("/reels/reels"));
 };

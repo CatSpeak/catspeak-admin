@@ -14,7 +14,13 @@ export const mockupColors = [
 ];
 
 export interface ActiveUsersParams {
-  period?: "All" | "Today" | "Last7Days" | "Last30Days" | "ThisMonth" | "ThisYear";
+  period?:
+    | "All"
+    | "Today"
+    | "Last7Days"
+    | "Last30Days"
+    | "ThisMonth"
+    | "ThisYear";
   interval?: "Daily" | "Weekly" | "Monthly" | "Yearly";
   fromDate?: string;
   toDate?: string;
@@ -50,7 +56,7 @@ export interface ActiveUsersItem {
 export const getTrafficChannelStats = async (): Promise<TrafficSegment[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/api/Analytics/traffic-channel")
+      axiosClient.get<unknown>("/Analytics/traffic-channel"),
     );
 
     let items: unknown[] = [];
@@ -58,20 +64,28 @@ export const getTrafficChannelStats = async (): Promise<TrafficSegment[]> => {
       items = response;
     } else if (response && typeof response === "object") {
       const data = response as Record<string, unknown>;
-      const target = ("data" in data && Array.isArray(data.data))
-        ? data.data
-        : ("items" in data && Array.isArray(data.items))
-        ? data.items
-        : [];
+      const target =
+        "data" in data && Array.isArray(data.data)
+          ? data.data
+          : "items" in data && Array.isArray(data.items)
+            ? data.items
+            : [];
       items = target;
     }
 
     return items
-      .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      .filter(
+        (item): item is Record<string, unknown> =>
+          typeof item === "object" && item !== null,
+      )
       .map((item, index) => {
-        const label = String(item.label ?? item.channel ?? item.name ?? `Channel ${index + 1}`);
+        const label = String(
+          item.label ?? item.channel ?? item.name ?? `Channel ${index + 1}`,
+        );
         const value = Number(item.value ?? 0);
-        const color = String(item.color ?? mockupColors[index % mockupColors.length]);
+        const color = String(
+          item.color ?? mockupColors[index % mockupColors.length],
+        );
         return { label, value, color };
       });
   } catch (error) {
@@ -87,7 +101,7 @@ export const getTrafficChannelStats = async (): Promise<TrafficSegment[]> => {
 export const getAgeGenderStats = async (): Promise<AgeGenderSegment[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/api/Analytics/age-gender")
+      axiosClient.get<unknown>("/Analytics/age-gender"),
     );
 
     let items: unknown[] = [];
@@ -95,20 +109,28 @@ export const getAgeGenderStats = async (): Promise<AgeGenderSegment[]> => {
       items = response;
     } else if (response && typeof response === "object") {
       const data = response as Record<string, unknown>;
-      const target = ("data" in data && Array.isArray(data.data))
-        ? data.data
-        : ("items" in data && Array.isArray(data.items))
-        ? data.items
-        : [];
+      const target =
+        "data" in data && Array.isArray(data.data)
+          ? data.data
+          : "items" in data && Array.isArray(data.items)
+            ? data.items
+            : [];
       items = target;
     }
 
     return items
-      .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      .filter(
+        (item): item is Record<string, unknown> =>
+          typeof item === "object" && item !== null,
+      )
       .map((item, index) => {
-        const label = String(item.label ?? item.ageGroup ?? item.group ?? `Group ${index + 1}`);
+        const label = String(
+          item.label ?? item.ageGroup ?? item.group ?? `Group ${index + 1}`,
+        );
         const value = Number(item.value ?? 0);
-        const color = String(item.color ?? mockupColors[index % mockupColors.length]);
+        const color = String(
+          item.color ?? mockupColors[index % mockupColors.length],
+        );
         const male = Number(item.male ?? 0);
         const female = Number(item.female ?? 0);
         return { label, value, color, male, female };
@@ -124,11 +146,11 @@ export const getAgeGenderStats = async (): Promise<AgeGenderSegment[]> => {
  * Uses defensive parsing to handle various backend response structures.
  */
 export const getActiveUsersStats = async (
-  params?: ActiveUsersParams
+  params?: ActiveUsersParams,
 ): Promise<ActiveUsersItem[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/api/Analytics/active-users", { params })
+      axiosClient.get<unknown>("/Analytics/active-users", { params }),
     );
 
     let items: unknown[] = [];
@@ -136,20 +158,30 @@ export const getActiveUsersStats = async (
       items = response;
     } else if (response && typeof response === "object") {
       const data = response as Record<string, unknown>;
-      const target = ("data" in data && Array.isArray(data.data))
-        ? data.data
-        : ("items" in data && Array.isArray(data.items))
-        ? data.items
-        : [];
+      const target =
+        "data" in data && Array.isArray(data.data)
+          ? data.data
+          : "items" in data && Array.isArray(data.items)
+            ? data.items
+            : [];
       items = target;
     }
 
     return items
-      .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      .filter(
+        (item): item is Record<string, unknown> =>
+          typeof item === "object" && item !== null,
+      )
       .map((item) => {
         const label = String(item.label ?? item.date ?? "");
         const activeUsers = Number(item.activeUsers ?? item.value ?? 0);
-        const accountUsers = Number(item.accountUsers ?? item.totalUsers ?? item.registeredUsers ?? item.value ?? activeUsers);
+        const accountUsers = Number(
+          item.accountUsers ??
+            item.totalUsers ??
+            item.registeredUsers ??
+            item.value ??
+            activeUsers,
+        );
         const value = Number(item.value ?? activeUsers);
         const annotation = String(item.annotation ?? "");
 

@@ -10,7 +10,7 @@ export const getPosts = async (
   pageSize: number = 10,
 ): Promise<GetPostsResponse> => {
   return getResponseData(
-    axiosClient.get<GetPostsResponse>("/api/post", {
+    axiosClient.get<GetPostsResponse>("/post", {
       params: { page, pageSize },
     }),
   );
