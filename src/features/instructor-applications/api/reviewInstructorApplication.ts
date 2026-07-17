@@ -3,7 +3,7 @@ import type { BanDuration } from "../types";
 
 export const approveApplication = async (id: number): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(`/api/Admin/instructor-profiles/${id}/approve`),
+    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/approve`),
   );
 };
 
@@ -13,7 +13,7 @@ export const rejectApplication = async (
   banDuration: BanDuration,
 ): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(`/api/Admin/instructor-profiles/${id}/reject`, {
+    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/reject`, {
       reason,
       banDuration,
     }),
@@ -25,11 +25,8 @@ export const requestEditApplication = async (
   editNote: string,
 ): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(
-      `/api/Admin/instructor-profiles/${id}/request-edit`,
-      {
-        editNote,
-      },
-    ),
+    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/request-edit`, {
+      editNote,
+    }),
   );
 };

@@ -17,7 +17,7 @@ export const getInstructorApplications = async (
   const { page = 1, pageSize = 20, search, status } = params;
   return getResponseData(
     axiosClient.get<GetInstructorApplicationsResponse>(
-      "/api/Admin/instructor-profiles",
+      "/Admin/instructor-profiles",
       {
         params: {
           page,

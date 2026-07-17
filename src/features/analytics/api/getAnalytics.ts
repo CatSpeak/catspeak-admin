@@ -18,7 +18,7 @@ const fetchWithDefaultParams = async <T>(
   if (dateRange.fromDate) params.fromDate = dateRange.fromDate;
   if (dateRange.toDate) params.toDate = dateRange.toDate;
 
-  const response = await axiosClient.get<T>(`/api/Analytics/${endpoint}`, {
+  const response = await axiosClient.get<T>(`/Analytics/${endpoint}`, {
     params,
   });
   return response.data;
