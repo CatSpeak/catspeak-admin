@@ -6,7 +6,7 @@ export const getInstructorApplicationDetail = async (
 ): Promise<InstructorApplicationDetail> => {
   return getResponseData(
     axiosClient.get<InstructorApplicationDetail>(
-      `/api/Admin/instructor-profiles/${id}`,
+      `/Admin/instructor-profiles/${id}`,
     ),
   );
 };

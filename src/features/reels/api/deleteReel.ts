@@ -4,8 +4,10 @@ import type { ActionResponseDto } from "../types";
 /**
  * Delete any Reel in the system by Admin override.
  */
-export const deleteReel = async (reelId: number): Promise<ActionResponseDto> => {
+export const deleteReel = async (
+  reelId: number,
+): Promise<ActionResponseDto> => {
   return getResponseData(
-    axiosClient.delete<ActionResponseDto>(`/api/reels/reels/${reelId}`)
+    axiosClient.delete<ActionResponseDto>(`/reels/reels/${reelId}`),
   );
 };

@@ -7,18 +7,14 @@ import type { ActionResponseDto, WarnOrBlockReelDto } from "../types";
  */
 export const updateReelStatus = async (
   reelId: number,
-  payload: WarnOrBlockReelDto
+  payload: WarnOrBlockReelDto,
 ): Promise<ActionResponseDto> => {
   return getResponseData(
-    axiosClient.post<ActionResponseDto>(
-      `/api/reels/reels/${reelId}/status`,
-      null,
-      {
-        params: {
-          status: payload.status,
-          blockReason: payload.blockReason || undefined,
-        },
-      }
-    )
+    axiosClient.post<ActionResponseDto>(`/reels/reels/${reelId}/status`, null, {
+      params: {
+        status: payload.status,
+        blockReason: payload.blockReason || undefined,
+      },
+    }),
   );
 };
