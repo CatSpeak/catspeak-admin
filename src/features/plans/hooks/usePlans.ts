@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { getPlans } from "../api/getPlans";
+import { getPlans, type PlanResponse } from "../api/getPlans";
 import { getPlanStats } from "../api/getPlanStats";
-import type { Plan, PlanStatisticsDto } from "../../../entities/types";
+import type { PlanStatisticsDto } from "../../../entities/types";
 
 export interface PlanFilters {
   search?: string;
@@ -11,7 +11,7 @@ export interface PlanFilters {
 }
 
 export function usePlans() {
-  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plans, setPlans] = useState<PlanResponse>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [stats, setStats] = useState<PlanStatisticsDto>({

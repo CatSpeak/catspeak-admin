@@ -37,10 +37,9 @@ const PlansPage: React.FC = () => {
 
       <Table<Plan>
         fetcher={async () => {
-          const data = plans;
           return {
-            data,
-            total: data.length,
+            data: plans?.data || [],
+            total: plans?.total_records || 0,
           };
         }}
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
