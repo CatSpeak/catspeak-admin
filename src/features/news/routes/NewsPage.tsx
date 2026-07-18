@@ -114,7 +114,7 @@ export default function NewsPage() {
           const data = await getPosts(page, pageSize);
           return {
             data: data.data,
-            total: analyticsData?.totalPosts ?? data.pageSize * data.page,
+            total: data.total_records,
           };
         }}
         onClickRow={(p) => navigate(`/news/${p.postId}`)}
