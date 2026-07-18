@@ -36,7 +36,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const typeStyle = ROOM_TYPE_STYLES[room.roomType];
+  const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
   const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
 
