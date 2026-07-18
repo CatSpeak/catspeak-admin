@@ -109,7 +109,9 @@ const RoomPage: React.FC = () => {
             filters={filters}
             activeFilterCount={activeFilterCount}
             onSearch={(v) => updateFilter("roomName", v)}
+            onHostSearch={(v) => updateFilter("hostName", v)}
             onToggle={(key, value) => toggleFilterValue(key, value as never)}
+            onUpdate={(key, value) => updateFilter(key, value as never)}
             onClear={clearFilters}
           />
 

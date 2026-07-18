@@ -67,13 +67,19 @@ export interface RoomStatisticsDto {
   groupRooms: number;
 }
 
+export type RoomSortBy = "Name" | "CreateDate" | "Status";
+export type RoomSortOrder = "Asc" | "Desc";
+
+/** Matches GET /Admin/rooms query parameters */
 export interface RoomFilters {
-  roomTypes: RoomType[];
-  languageTypes: LanguageType[];
-  requiredLevels: RequiredLevel[];
-  categories: RoomCategory[];
-  topics: RoomTopic[];
   roomName: string;
+  hostName: string;
+  roomTypes: number[];
+  statuses: number[];
+  createdFrom: string;
+  createdTo: string;
+  sortBy: RoomSortBy | "";
+  sortOrder: RoomSortOrder;
 }
 
 export interface CreateRoomPayload {

@@ -4,12 +4,14 @@ import { getRooms, deleteRoom as deleteRoomApi, getRoomStats } from "../api/room
 import type { Room, RoomFilters, AdditionalData, RoomStatisticsDto } from "../types";
 
 const EMPTY_FILTERS: RoomFilters = {
-  roomTypes: [],
-  languageTypes: [],
-  requiredLevels: [],
-  categories: [],
-  topics: [],
   roomName: "",
+  hostName: "",
+  roomTypes: [],
+  statuses: [],
+  createdFrom: "",
+  createdTo: "",
+  sortBy: "",
+  sortOrder: "Desc",
 };
 
 const EMPTY_PAGINATION: AdditionalData = {
@@ -103,11 +105,13 @@ export function useRooms() {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    if (filters.roomName) count++;
+    if (filters.hostName) count++;
     if (filters.roomTypes.length) count++;
-    if (filters.languageTypes.length) count++;
-    if (filters.requiredLevels.length) count++;
-    if (filters.categories.length) count++;
-    if (filters.topics.length) count++;
+    if (filters.statuses.length) count++;
+    if (filters.createdFrom) count++;
+    if (filters.createdTo) count++;
+    if (filters.sortBy) count++;
     return count;
   }, [filters]);
 
