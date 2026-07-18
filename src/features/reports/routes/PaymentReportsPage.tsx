@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   FileText,
   AlertCircle,
@@ -44,6 +44,16 @@ export default function PaymentReportsPage() {
     });
     return counts;
   }, [reports]);
+
+  const fetcher = useCallback(async () => {
+    const data = await getPaymentReports(statusFilter);
+    setReports(data);
+    return {
+      data,
+      total: data.length,
+    };
+  }, [statusFilter]);
+
 
   const handleReviewReport = (report: PaymentReport) => {
     setSelectedReport(report);
@@ -147,14 +157,7 @@ export default function PaymentReportsPage() {
       {/* Table Element */}
       <Table<PaymentReport>
         key={`${refreshTrigger}-${statusFilter}`}
-        fetcher={async () => {
-          const data = await getPaymentReports(statusFilter);
-          setReports(data);
-          return {
-            data,
-            total: data.length,
-          };
-        }}
+        fetcher={fetcher}
         headers={[
           {
             name: "ID",
