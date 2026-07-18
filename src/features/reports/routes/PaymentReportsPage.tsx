@@ -7,6 +7,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import {
+  getPaymentReports,
   processPaymentReport,
   type PaymentReport,
 } from "../api/paymentReports";
@@ -27,8 +28,10 @@ export default function PaymentReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const [reports] = useState<PaymentReport[]>([]);
+  const [reports, setReports] = useState<PaymentReport[]>([]);
+  const [statusFilter] = useState<
+    "Pending" | "Accepted" | "Denied" | "All" | null
+  >(null);
 
   // Compute metrics in-memory from loaded reports
   const metrics = useMemo(() => {
@@ -143,9 +146,10 @@ export default function PaymentReportsPage() {
 
       {/* Table Element */}
       <Table<PaymentReport>
-        key={refreshTrigger}
-        fetcher={() => {
-          const data = reports;
+        key={`${refreshTrigger}-${statusFilter}`}
+        fetcher={async () => {
+          const data = await getPaymentReports(statusFilter);
+          setReports(data);
           return {
             data,
             total: data.length,
