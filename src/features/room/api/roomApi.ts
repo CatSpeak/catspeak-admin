@@ -19,16 +19,14 @@ export const getRooms = async (
   const params: Record<string, unknown> = { page, pageSize };
 
   if (filters?.roomTypes?.length) params.roomTypes = filters.roomTypes;
-  if (filters?.languageTypes?.length)
-    params.languageTypes = filters.languageTypes;
-  if (filters?.requiredLevels?.length)
-    params.requiredLevels = filters.requiredLevels;
+  if (filters?.languageTypes?.length) params.languageTypes = filters.languageTypes;
+  if (filters?.requiredLevels?.length) params.requiredLevels = filters.requiredLevels;
   if (filters?.categories?.length) params.categories = filters.categories;
   if (filters?.topics?.length) params.topics = filters.topics;
   if (filters?.roomName) params.roomName = filters.roomName;
 
   return getResponseData(
-    axiosClient.get<GetRoomsResponse>("/rooms/rooms", { params }),
+    axiosClient.get<GetRoomsResponse>("/rooms", { params }),
   );
 };
 
