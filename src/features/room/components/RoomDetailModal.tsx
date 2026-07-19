@@ -34,7 +34,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
   if (!room) return null;
 
   const flag = LANGUAGE_FLAGS[room.languageType];
-  const typeStyle = ROOM_TYPE_STYLES[room.roomType];
+  const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
   const isActive = room.status === 1;
   const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
   const createdDate = new Date(room.createDate).toLocaleDateString("en-US", {

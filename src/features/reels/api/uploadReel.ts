@@ -17,7 +17,7 @@ export interface UploadReelApiPayload {
  */
 export const uploadReel = async (
   payload: UploadReelApiPayload,
-  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void
+  onUploadProgress?: (progressEvent: AxiosProgressEvent) => void,
 ): Promise<ReelResponseDto> => {
   const formData = new FormData();
   formData.append("Title", payload.Title);
@@ -33,11 +33,11 @@ export const uploadReel = async (
   });
 
   return getResponseData(
-    axiosClient.post<ReelResponseDto>("/api/admin/reels", formData, {
+    axiosClient.post<ReelResponseDto>("/reels/reels", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress,
-    })
+    }),
   );
 };

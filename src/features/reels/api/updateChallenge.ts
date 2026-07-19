@@ -7,7 +7,7 @@ import type { ChallengeCreateDto, ChallengeResponseDto } from "../types";
  */
 export const updateChallenge = async (
   challengeId: number,
-  payload: ChallengeCreateDto
+  payload: ChallengeCreateDto,
 ): Promise<ChallengeResponseDto> => {
   const formData = new FormData();
   formData.append("Hashtag", payload.hashtag);
@@ -21,13 +21,13 @@ export const updateChallenge = async (
 
   return getResponseData(
     axiosClient.put<ChallengeResponseDto>(
-      `/api/admin/challenges/${challengeId}`,
+      `/reels/challenges/${challengeId}`,
       formData,
       {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
-    )
+      },
+    ),
   );
 };

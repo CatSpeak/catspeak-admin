@@ -7,6 +7,6 @@ export const createPlan = async (formData: FormData): Promise<Plan> => {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    })
+    }),
   );
 };

@@ -1,5 +1,12 @@
 import React, { useState, useCallback } from "react";
-import { Plus, LayoutGrid, List, DoorOpen, Loader2, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  LayoutGrid,
+  List,
+  DoorOpen,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { useRooms } from "../hooks/useRooms";
 import {
   RoomCard,
@@ -13,6 +20,8 @@ import {
   Pagination,
 } from "../components";
 import type { ViewMode, Room } from "../types";
+import { PageHeader } from "../../../components/ui/PageHeader";
+import Button from "../../../components/ui/Button";
 
 const RoomPage: React.FC = () => {
   const {
@@ -75,23 +84,21 @@ const RoomPage: React.FC = () => {
   return (
     <div className="min-h-full">
       <div className="mx-auto space-y-6">
-        {/* ── Page Header ── */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl text-primary font-bold text-gray-900 flex items-center gap-2">
-              <DoorOpen size={24} className="text-primary" />
-              Room Management
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">Manage video call rooms — create, monitor, and remove rooms.</p>
-          </div>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dark shadow-sm hover:shadow-md transition-all duration-200"
-          >
-            <Plus size={16} />
-            Create New Room
-          </button>
-        </div>
+        <PageHeader
+          icon={<DoorOpen />}
+          title="Rooms"
+          desc="Manage video call rooms — create, monitor, and remove rooms."
+          rightButtons={[
+            <Button
+              size="sm"
+              onClick={() => setIsCreateOpen(true)}
+              // className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dark shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <Plus className="size-4 mr-1" />
+              Create Room
+            </Button>,
+          ]}
+        />
 
         {/* ── Stats ── */}
         <RoomStats stats={stats} />
@@ -102,28 +109,39 @@ const RoomPage: React.FC = () => {
             filters={filters}
             activeFilterCount={activeFilterCount}
             onSearch={(v) => updateFilter("roomName", v)}
+            onHostSearch={(v) => updateFilter("hostName", v)}
             onToggle={(key, value) => toggleFilterValue(key, value as never)}
+            onUpdate={(key, value) => updateFilter(key, value as never)}
             onClear={clearFilters}
           />
 
           {/* View toggle + result count */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-500">
-              <span className="font-medium text-gray-700">{pagination.totalItems}</span> rooms found
+              <span className="font-medium text-gray-700">
+                {pagination.totalItems}
+              </span>{" "}
+              rooms found
             </p>
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
               <button
                 onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-md transition-all duration-200 ${viewMode === "grid" ? "bg-white shadow-sm text-primary" : "text-gray-500 hover:text-gray-700"
-                  }`}
+                className={`p-2 rounded-md transition-all duration-200 ${
+                  viewMode === "grid"
+                    ? "bg-white shadow-sm text-primary"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
                 title="Grid view"
               >
                 <LayoutGrid size={16} />
               </button>
               <button
                 onClick={() => setViewMode("table")}
-                className={`p-2 rounded-md transition-all duration-200 ${viewMode === "table" ? "bg-white shadow-sm text-primary" : "text-gray-500 hover:text-gray-700"
-                  }`}
+                className={`p-2 rounded-md transition-all duration-200 ${
+                  viewMode === "table"
+                    ? "bg-white shadow-sm text-primary"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
                 title="Table view"
               >
                 <List size={16} />
@@ -137,7 +155,12 @@ const RoomPage: React.FC = () => {
           <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
             <AlertCircle size={18} />
             <p className="text-sm">{error}</p>
-            <button onClick={refetch} className="ml-auto text-sm font-medium underline hover:no-underline">Retry</button>
+            <button
+              onClick={refetch}
+              className="ml-auto text-sm font-medium underline hover:no-underline"
+            >
+              Retry
+            </button>
           </div>
         )}
 
@@ -153,14 +176,19 @@ const RoomPage: React.FC = () => {
             <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
               <DoorOpen size={28} className="text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-700 mb-1">No rooms found</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">
+              No rooms found
+            </h3>
             <p className="text-sm text-gray-400 max-w-sm">
               {activeFilterCount > 0
                 ? "Try adjusting your filters or search term."
                 : "Create your first room to get started."}
             </p>
             {activeFilterCount > 0 && (
-              <button onClick={clearFilters} className="mt-4 text-sm text-primary font-medium hover:underline">
+              <button
+                onClick={clearFilters}
+                className="mt-4 text-sm text-primary font-medium hover:underline"
+              >
                 Clear all filters
               </button>
             )}
@@ -168,11 +196,22 @@ const RoomPage: React.FC = () => {
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {rooms.map((room) => (
-              <RoomCard key={room.roomId} room={room} onDelete={handleDeleteRequest} onEdit={handleEditRequest} onClick={setSelectedRoom} />
+              <RoomCard
+                key={room.roomId}
+                room={room}
+                onDelete={handleDeleteRequest}
+                onEdit={handleEditRequest}
+                onClick={setSelectedRoom}
+              />
             ))}
           </div>
         ) : (
-          <RoomTable rooms={rooms} onDelete={handleDeleteRequest} onEdit={handleEditRequest} onClick={setSelectedRoom} />
+          <RoomTable
+            rooms={rooms}
+            onDelete={handleDeleteRequest}
+            onEdit={handleEditRequest}
+            onClick={setSelectedRoom}
+          />
         )}
 
         {/* ── Pagination ── */}

@@ -1,12 +1,18 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { getReels } from "../api/getReels";
-import type { ReelDto, ReelStatus } from "../types";
+import { getReelStats } from "../api/getReelStats";
+import type { ReelDto, ReelStatus, ReelStatisticsDto } from "../types";
 import { DEBOUNCE_DELAY_MS } from "../constants";
 
 export function useReels() {
   const [reels, setReels] = useState<ReelDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<ReelStatisticsDto>({
+    totalReels: 0,
+    displaying: 0,
+    hidden: 0,
+  });
 
   // Filter and Sorting states
   const [searchState, setSearchState] = useState("");
@@ -42,10 +48,13 @@ export function useReels() {
     setLoading(true);
     setError(null);
     try {
-      const data = await getReels();
+      const [reelsData, statsData] = await Promise.all([
+        getReels(),
+        getReelStats(),
+      ]);
       if (currentRequestId !== requestId.current) return;
-      if (data && data.length > 0) {
-        setReels(data.map((reel, index) => ({
+      if (reelsData && reelsData.length > 0) {
+        setReels(reelsData.map((reel, index) => ({
           ...reel,
           // Guarantee some default fallbacks for simulated values
           duration: reel.duration || (12 + (index % 5) * 6),
@@ -53,6 +62,9 @@ export function useReels() {
         })));
       } else {
         setReels([]);
+      }
+      if (statsData) {
+        setStats(statsData);
       }
     } catch (err) {
       if (currentRequestId !== requestId.current) return;
@@ -229,5 +241,6 @@ export function useReels() {
     getMappedStatus,
     refetch: fetchReels,
     setReels, // Needed for optimistic updates in useManageReels
+    stats,
   };
 }

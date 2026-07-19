@@ -1,5 +1,8 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
-import type { GetInstructorApplicationsResponse, ApplicationStatus } from "../types";
+import type {
+  GetInstructorApplicationsResponse,
+  ApplicationStatus,
+} from "../types";
 
 export interface GetInstructorApplicationsParams {
   page?: number;

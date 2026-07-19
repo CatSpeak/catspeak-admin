@@ -17,12 +17,14 @@ export interface UserPayment {
  * Fetch transaction history for a specific user.
  * Supports defensive checks to handle variations in backend return formats.
  */
-export const getUserPayments = async (userId: number): Promise<UserPayment[]> => {
+export const getUserPayments = async (
+  userId: number,
+): Promise<UserPayment[]> => {
   try {
     const response = await getResponseData(
       axiosClient.get<unknown>("/v1/Payments/admin/list", {
         params: { userId },
-      })
+      }),
     );
 
     // Defensive parsing for backend structures

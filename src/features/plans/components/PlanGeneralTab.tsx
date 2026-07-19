@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react"
-import { Save } from "lucide-react"
-import { usePlans } from "../hooks/usePlans"
-import Card from "../../../components/ui/Card"
-import Button from "../../../components/ui/Button"
-import type { Plan } from "../../../entities/types"
+import React, { useState, useEffect } from "react";
+import { Save } from "lucide-react";
+import { usePlans } from "../hooks/usePlans";
+import Card from "../../../components/ui/Card";
+import Button from "../../../components/ui/Button";
+import type { Plan } from "../../../entities/types";
 
 interface PlanGeneralTabProps {
-  plan: Plan
-  onSave: (formData: FormData) => Promise<boolean>
-  isSaving: boolean
-  isCreateMode?: boolean
+  plan: Plan;
+  onSave: (formData: FormData) => Promise<boolean>;
+  isSaving: boolean;
+  isCreateMode?: boolean;
 }
 
 const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
@@ -18,61 +18,61 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
   isCreateMode,
   isSaving,
 }) => {
-  const { plans } = usePlans()
+  const { plans } = usePlans();
   const [isPaid, setIsPaid] = useState(
     plan.priceVnd > 0 || plan.priceUsd > 0 || plan.priceYuan > 0,
-  )
+  );
   const [currencyType, setCurrencyType] = useState<"VND" | "USD" | "CNY">(
     plan.priceUsd > 0 ? "USD" : plan.priceYuan > 0 ? "CNY" : "VND",
-  )
-  const [allowRenewal, setAllowRenewal] = useState(plan.allowRenewal !== false)
-  const [autoRenew, setAutoRenew] = useState(plan.autoRenew || false)
+  );
+  const [allowRenewal, setAllowRenewal] = useState(plan.allowRenewal !== false);
+  const [autoRenew, setAutoRenew] = useState(plan.autoRenew || false);
   const [displayOrder, setDisplayOrder] = useState<number>(
     plan.displayOrder || 1,
-  )
-  const [brandColor, setBrandColor] = useState(plan.brandColor || "#7C3AED")
-  const [previewIconUrl, setPreviewIconUrl] = useState<string | null>(null)
+  );
+  const [brandColor, setBrandColor] = useState(plan.brandColor || "#7C3AED");
+  const [previewIconUrl, setPreviewIconUrl] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
-      if (previewIconUrl) URL.revokeObjectURL(previewIconUrl)
-    }
-  }, [previewIconUrl])
+      if (previewIconUrl) URL.revokeObjectURL(previewIconUrl);
+    };
+  }, [previewIconUrl]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
 
     // Append boolean/calculated values that might not be in inputs
-    const priceValue = Number(formData.get("PriceValue") || 0)
+    const priceValue = Number(formData.get("PriceValue") || 0);
 
     // Reset all to 0
-    formData.set("PriceVnd", "0")
-    formData.set("PriceUsd", "0")
-    formData.set("PriceYuan", "0")
+    formData.set("PriceVnd", "0");
+    formData.set("PriceUsd", "0");
+    formData.set("PriceYuan", "0");
 
     if (isPaid) {
       if (currencyType === "VND")
-        formData.set("PriceVnd", priceValue.toString())
+        formData.set("PriceVnd", priceValue.toString());
       if (currencyType === "USD")
-        formData.set("PriceUsd", priceValue.toString())
+        formData.set("PriceUsd", priceValue.toString());
       if (currencyType === "CNY")
-        formData.set("PriceYuan", priceValue.toString())
+        formData.set("PriceYuan", priceValue.toString());
     }
-    formData.set("AllowRenewal", allowRenewal ? "true" : "false")
-    formData.set("AutoRenew", allowRenewal && autoRenew ? "true" : "false")
+    formData.set("AllowRenewal", allowRenewal ? "true" : "false");
+    formData.set("AutoRenew", allowRenewal && autoRenew ? "true" : "false");
     if (!isCreateMode) {
-      formData.set("SubscriptionCode", plan.subscriptionCode)
-      formData.set("ApplicableRole", plan.applicableRole)
+      formData.set("SubscriptionCode", plan.subscriptionCode);
+      formData.set("ApplicableRole", plan.applicableRole);
       if (plan.packageStatus) {
-        formData.set("PackageStatus", plan.packageStatus)
+        formData.set("PackageStatus", plan.packageStatus);
       }
     }
 
-    formData.set("IconUrl", plan.iconUrl || "")
+    formData.set("IconUrl", plan.iconUrl || "");
 
-    await onSave(formData)
-  }
+    await onSave(formData);
+  };
 
   return (
     <form
@@ -194,11 +194,11 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                 name="iconFile"
                 accept=".png,.jpg,.jpeg,.svg"
                 onChange={(e) => {
-                  const file = e.target.files?.[0]
+                  const file = e.target.files?.[0];
                   if (file) {
-                    setPreviewIconUrl(URL.createObjectURL(file))
+                    setPreviewIconUrl(URL.createObjectURL(file));
                   } else {
-                    setPreviewIconUrl(null)
+                    setPreviewIconUrl(null);
                   }
                 }}
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
@@ -254,26 +254,26 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                   </div>
                 </div>
 
-                {plans.length > 0 && (
+                {plans.data.length > 0 && (
                   <div className="flex gap-4 overflow-x-auto py-2 px-2 items-center">
                     {(() => {
                       // Create a visual sequence of plans
                       // Exclude the current plan from the fetched list so we can insert it at the desired position
-                      const otherPlans = plans
+                      const otherPlans = plans.data
                         .filter((p) => p.planId !== plan.planId)
-                        .sort((a, b) => a.displayOrder - b.displayOrder)
-                      const previewPlans = [...otherPlans]
+                        .sort((a, b) => a.displayOrder - b.displayOrder);
+                      const previewPlans = [...otherPlans];
 
                       // Insert current plan at displayOrder - 1
                       const insertIndex = Math.max(
                         0,
                         Math.min(previewPlans.length, displayOrder - 1),
-                      )
+                      );
                       previewPlans.splice(insertIndex, 0, {
                         ...plan,
                         planName: plan.planName || "New Plan",
                         isCurrentEditing: true,
-                      } as any)
+                      } as any);
 
                       return previewPlans.map((p: any, idx) => (
                         <div
@@ -293,7 +293,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                             Position {idx + 1}
                           </span>
                         </div>
-                      ))
+                      ));
                     })()}
                   </div>
                 )}
@@ -423,8 +423,8 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                     type="checkbox"
                     checked={allowRenewal}
                     onChange={(e) => {
-                      setAllowRenewal(e.target.checked)
-                      if (!e.target.checked) setAutoRenew(false)
+                      setAllowRenewal(e.target.checked);
+                      if (!e.target.checked) setAutoRenew(false);
                     }}
                     disabled={!isPaid}
                     className="rounded text-primary focus:ring-primary"
@@ -463,9 +463,17 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           </div>
           <Button type="submit" variant="primary" disabled={isSaving}>
             <Save className="w-4 h-4 mr-2" />
-            {isCreateMode 
-              ? (isSaving ? "Creating..." : "Create Plan & Go to Config") 
-              : (plan.packageStatus === "Draft" ? (isSaving ? "Saving..." : "Save as Draft") : (isSaving ? "Saving..." : "Save Changes"))}
+            {isCreateMode
+              ? isSaving
+                ? "Creating..."
+                : "Create Plan & Go to Config"
+              : plan.packageStatus === "Draft"
+                ? isSaving
+                  ? "Saving..."
+                  : "Save as Draft"
+                : isSaving
+                  ? "Saving..."
+                  : "Save Changes"}
           </Button>
         </Card>
       </div>
@@ -473,7 +481,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
       {/* Hidden button so we can submit via ref or externally */}
       <button type="submit" id="submit-general-tab" className="hidden"></button>
     </form>
-  )
-}
+  );
+};
 
-export default PlanGeneralTab
+export default PlanGeneralTab;

@@ -99,3 +99,10 @@ export interface ReelFilterParams {
   sortBy: "createdAt" | "viewCount" | "duration" | "title";
   sortOrder: "asc" | "desc";
 }
+
+export interface ReelStatisticsDto {
+  totalReels: number;
+  displaying: number;
+  hidden: number;
+}
+

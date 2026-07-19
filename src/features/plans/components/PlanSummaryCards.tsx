@@ -1,15 +1,10 @@
 import React from "react";
 import SummaryCard from "../../../components/ui/SummaryCard";
 import { Package, CheckCircle2, EyeOff, Archive, FileEdit } from "lucide-react";
+import type { PlanStatisticsDto } from "../../../entities/types";
 
 interface PlanSummaryCardsProps {
-  stats: {
-    total: number;
-    active: number;
-    hidden: number;
-    archived: number;
-    draft: number;
-  };
+  stats: PlanStatisticsDto;
 }
 
 const PlanSummaryCards: React.FC<PlanSummaryCardsProps> = ({ stats }) => {
@@ -18,13 +13,13 @@ const PlanSummaryCards: React.FC<PlanSummaryCardsProps> = ({ stats }) => {
       <SummaryCard
         icon={<Package size={20} />}
         label="Total Plans"
-        value={stats.total}
+        value={stats.totalPlans}
         color="#EF4444"
       />
       <SummaryCard
         icon={<CheckCircle2 size={20} />}
         label="Displaying"
-        value={stats.active}
+        value={stats.displaying}
         color="#22C55E"
       />
       <SummaryCard
