@@ -103,11 +103,19 @@ export default function CalendarPage() {
 
   // Format nhãn tiêu đề danh sách sự kiện bên phải
   const eventListLabel = useMemo(() => {
-    if (!selectedDayDate) return "Lịch trình sự kiện";
+    if (!selectedDayDate) return "Events";
     const d = selectedDayDate.getDate();
     const m = selectedDayDate.getMonth() + 1;
-    return `Lịch trình sự kiện ngày ${d}/${m}`;
+    return `Events on ${d}/${m}`;
   }, [selectedDayDate]);
+
+  const handleGoToToday = useCallback(() => {
+    const today = new Date();
+
+    goToToday(); // Đưa view lịch về tháng hiện tại
+    goToDate(today); // Cập nhật selectedDayDate về ngày hôm nay để sáng đèn highlight
+    fetchDayEvents(today); // Tải danh sách sự kiện của ngày hôm nay
+  }, [goToToday, goToDate, fetchDayEvents]);
 
   return (
     <div className="space-y-4 px-6 pt-5 pb-8">
@@ -120,10 +128,10 @@ export default function CalendarPage() {
         />
         <div className="flex items-center gap-2">
           <button
-            onClick={goToToday}
+            onClick={handleGoToToday}
             className="px-4 py-1.5 rounded-full border border-[#990011] text-sm font-medium hover:bg-[#990011]/5 transition-colors text-[#990011]"
           >
-            Hôm nay
+            Today
           </button>
         </div>
       </div>
@@ -229,12 +237,12 @@ export default function CalendarPage() {
                     {/* Chấm tròn/Thanh hiển thị có sự kiện ở dưới góc hoặc bottom */}
                     {cell.eventCount > 0 && (
                       <span
-                        className={`absolute top-0 right-0 size-5 rounded-full flex items-center justify-center text-sm font-bold shadow-sm border
-            ${
-              isSelected
-                ? "bg-white text-[#990011] border-[#990011]"
-                : "bg-[#990011] text-white border-white"
-            }`}
+                        className={`absolute top-0 right-0 size-7 rounded-full flex items-center justify-center text-sm font-bold shadow-sm border
+                          ${
+                            isSelected
+                              ? "bg-white text-[#990011] border-[#990011]"
+                              : "bg-[#990011] text-white border-white"
+                          }`}
                       >
                         {cell.eventCount}
                       </span>
@@ -253,13 +261,13 @@ export default function CalendarPage() {
                   01
                 </span>
               </div>
-              <span className="text-[12px] text-gray-500">Ngày hôm nay</span>
+              <span className="text-[12px] text-gray-500">Today</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#990011] flex items-center justify-center">
                 <span className="text-[10px] text-white font-semibold">01</span>
               </div>
-              <span className="text-[12px] text-gray-500">Ngày được chọn</span>
+              <span className="text-[12px] text-gray-500">Selected</span>
             </div>
           </div>
         </div>
@@ -272,7 +280,7 @@ export default function CalendarPage() {
             </h3>
             {dayEvents.length > 0 && (
               <span className="text-xs bg-[#990011]/10 text-[#990011] px-2.5 py-1 rounded-full font-medium">
-                {dayEvents.length} Sự kiện
+                {dayEvents.length} event(s)
               </span>
             )}
           </div>
@@ -285,7 +293,7 @@ export default function CalendarPage() {
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400 py-20 space-y-2">
               <Calendar size={36} className="stroke-[1.5]" />
               <p className="text-sm">
-                Không có lịch trình sự kiện nào trong ngày này.
+                There are no events scheduled for this day.
               </p>
             </div>
           ) : (
@@ -333,7 +341,7 @@ export default function CalendarPage() {
                             <span>{`${startHour} - ${endHour}`}</span>
                           </div>
 
-                          <div className="flex items-center gap-2 text-xs text-black/75">
+                          {/* <div className="flex items-center gap-2 text-xs text-black/75">
                             <MapPin
                               size={14}
                               className="shrink-0 text-black/60"
@@ -341,14 +349,14 @@ export default function CalendarPage() {
                             <span className="truncate">
                               Hội trường / Trực tuyến
                             </span>
-                          </div>
+                          </div> */}
                         </div>
 
                         {/* Người tham gia hoặc Slot trạng thái */}
                         <div className="shrink-0 flex flex-col items-end gap-1 min-w-[70px]">
                           <div className="flex items-center gap-1 text-[11px] text-gray-500">
                             <Tag size={12} className="shrink-0" />
-                            <span>Slot</span>
+                            <span>Slot(s)</span>
                           </div>
                           <span className="text-xs font-bold text-[#990011]">
                             {event.currentParticipants}/{event.maxParticipants}
