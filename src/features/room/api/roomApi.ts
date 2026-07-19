@@ -7,7 +7,7 @@ import type {
 
 export const getRoomStats = async (): Promise<RoomStatisticsDto> => {
   return getResponseData(
-    axiosClient.get<RoomStatisticsDto>("/Admin/rooms/statistics"),
+    axiosClient.get<RoomStatisticsDto>("/admin/rooms/statistics"),
   );
 };
 
@@ -28,16 +28,16 @@ export const getRooms = async (
   if (filters?.sortOrder) params.SortOrder = filters.sortOrder;
 
   return getResponseData(
-    axiosClient.get<GetRoomsResponse>("/Admin/rooms", { params }),
+    axiosClient.get<GetRoomsResponse>("/admin/rooms", { params }),
   );
 };
 
 export const deleteRoom = async (id: number): Promise<void> => {
-  await axiosClient.delete(`/rooms/${id}`);
+  await axiosClient.delete(`/admin/rooms/${id}`);
 };
 
 export const createRoom = async (formData: FormData): Promise<void> => {
-  await axiosClient.post("/rooms/persistent", formData, {
+  await axiosClient.post("/admin/rooms/persistent", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
@@ -46,7 +46,7 @@ export const editRoom = async (
   id: number,
   formData: FormData,
 ): Promise<void> => {
-  await axiosClient.put(`/rooms/${id}`, formData, {
+  await axiosClient.put(`/admin/rooms/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };

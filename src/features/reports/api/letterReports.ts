@@ -27,7 +27,7 @@ export const getLetterReports = async (
   pageSize: number,
 ): Promise<LetterReportsResponse> => {
   return getResponseData(
-    axiosClient.get<LetterReportsResponse>("/Admin/letter-reports", {
+    axiosClient.get<LetterReportsResponse>("/user-stories", {
       params: {
         Page: page,
         PageSize: pageSize,
@@ -43,7 +43,7 @@ export const getLetterReportById = async (
   id: number | string,
 ): Promise<LetterReport> => {
   return getResponseData(
-    axiosClient.get<LetterReport>(`/Admin/letter-reports/${id}`),
+    axiosClient.get<LetterReport>(`/user-stories/${id}`),
   );
 };
 
@@ -54,6 +54,6 @@ export const deleteLetterReport = async (
   id: number | string,
 ): Promise<void> => {
   return getResponseData(
-    axiosClient.delete<void>(`/Admin/letter-reports/${id}`),
+    axiosClient.delete<void>(`/user-stories/${id}`),
   );
 };
