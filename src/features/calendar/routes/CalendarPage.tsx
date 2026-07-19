@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  MapPin,
   Tag,
 } from "lucide-react";
 import { EventDetailModal, DeleteEventDialog } from "../components";
