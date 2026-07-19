@@ -1,6 +1,7 @@
-import type { ReelDto, ReelPrivacy } from "../types";
+import type { ReelDto } from "../types";
 import { formatDate } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
+import Badge from "../../../components/ui/Badge";
 
 interface ReelTableProps {
   reels: ReelDto[];
@@ -23,17 +24,13 @@ function extractFilename(videoUrl?: string | null, reelId?: number): string {
   } catch {
     const lastSlash = videoUrl.lastIndexOf("/");
     if (lastSlash !== -1) {
-      return videoUrl.substring(lastSlash + 1) || `video_${reelId || "temp"}.mp4`;
+      return (
+        videoUrl.substring(lastSlash + 1) || `video_${reelId || "temp"}.mp4`
+      );
     }
     return `video_${reelId || "temp"}.mp4`;
   }
 }
-
-const PRIVACY_BADGE_STYLE: Record<ReelPrivacy, string> = {
-  Public: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Private: "bg-red-50 text-red-600 border-red-150",
-  FriendsOnly: "bg-amber-50 text-amber-700 border-amber-200",
-};
 
 export default function ReelTable({
   reels,
@@ -43,7 +40,8 @@ export default function ReelTable({
   onSelectAll,
   onRowClick,
 }: ReelTableProps) {
-  const allSelected = reels.length > 0 && reels.every((r) => selectedIds.includes(r.reelId));
+  const allSelected =
+    reels.length > 0 && reels.every((r) => selectedIds.includes(r.reelId));
 
   const handleSelectAllChange = () => {
     onSelectAll(reels.map((r) => r.reelId));
@@ -55,7 +53,10 @@ export default function ReelTable({
       <div className="w-full space-y-4 animate-pulse">
         <div className="h-10 w-full bg-gray-150 rounded-xl" />
         {Array.from({ length: 6 }).map((_, idx) => (
-          <div key={idx} className="flex items-center space-x-4 py-3 border-b border-gray-100">
+          <div
+            key={idx}
+            className="flex items-center space-x-4 py-3 border-b border-gray-100"
+          >
             <div className="h-4.5 w-4.5 bg-gray-200 rounded" />
             <div className="h-4 w-10 bg-gray-250 rounded" />
             <div className="h-4 w-20 bg-gray-250 rounded" />
@@ -80,127 +81,156 @@ export default function ReelTable({
         <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center mb-5 text-primary">
           <Film className="w-7 h-7" />
         </div>
-        <h3 className="text-base font-bold text-gray-900 mb-1">No reels found</h3>
+        <h3 className="text-base font-bold text-gray-900 mb-1">
+          No reels found
+        </h3>
         <p className="text-xs text-gray-500 max-w-sm leading-relaxed">
-          There are no video reels matching your search criteria or status filters.
+          There are no video reels matching your search criteria or status
+          filters.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto rounded-2xl border border-gray-100/90 shadow-sm bg-white scrollbar-thin">
-      <table className="w-full border-collapse text-left text-xs text-gray-500">
-        <thead className="bg-gray-50 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 select-none">
+    <div className="w-full overflow-x-auto">
+      <table className="min-w-full">
+        <thead className="bg-primary text-white sticky top-0 z-10">
           <tr>
             {/* Multi-selection header checkbox */}
-            <th className="py-4 px-4 w-10 text-center">
+            <th className="px-4 py-3 text-center w-12">
               <input
                 type="checkbox"
                 checked={allSelected}
                 onChange={handleSelectAllChange}
-                className="w-4.5 h-4.5 rounded border-gray-300 text-primary focus:ring-primary accent-primary cursor-pointer transition-all"
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer transition-all"
                 aria-label="Select all reels"
               />
             </th>
-            <th className="py-4 px-3 font-semibold text-gray-400">ID</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">Author</th>
-            <th className="py-4 px-3 font-semibold text-gray-400 max-w-xs">Description</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">Privacy</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">File Upload</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">Date Uploaded</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">Last Edited</th>
-            <th className="py-4 px-3 font-semibold text-gray-400">Total Reaction</th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              ID
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              Author
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap max-w-xs">
+              Description
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              Privacy
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              File Upload
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              Date Uploaded
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              Last Edited
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              Total Reaction
+            </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100/80">
-          {reels.map((reel) => {
+        <tbody className="divide-y divide-gray-200">
+          {reels.map((reel, idx) => {
             const isSelected = selectedIds.includes(reel.reelId);
             const fileName = extractFilename(reel.videoUrl, reel.reelId);
-
-            // Last edited: use createdAt or fallback nicely
             const lastEditedDate = reel.createdAt;
-
-            // Total Reaction representation
             const totalReaction = reel.likesCount || 0;
 
             return (
               <tr
                 key={reel.reelId}
                 onClick={() => onRowClick(reel)}
-                className={`group hover:bg-gray-50/70 transition-colors duration-150 cursor-pointer 
-                  ${isSelected ? "bg-primary/[0.02]" : ""}`}
+                className={`hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer ${
+                  idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"
+                } ${isSelected ? "bg-primary/5 hover:bg-primary/10" : ""}`}
               >
                 {/* Row Checkbox Selector */}
                 <td
-                  className="py-3.5 px-4 text-center"
+                  className="px-4 py-3 text-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => onSelect(reel.reelId)}
-                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary accent-primary cursor-pointer transition-all"
+                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer transition-all"
                     aria-label={`Select reel ${reel.title || "Untitled"}`}
                   />
                 </td>
 
                 {/* ID Column */}
-                <td className="py-3.5 px-3 font-bold text-gray-800 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-800 tabular-nums">
                   {String(reel.reelId).padStart(2, "0")}
                 </td>
 
                 {/* Author Column */}
-                <td className="py-3.5 px-3 font-semibold text-gray-600">
+                <td className="px-4 py-3 text-sm font-semibold text-gray-700">
                   {reel.username || "admin"}
                 </td>
 
                 {/* Description Column */}
-                <td className="py-3.5 px-3 max-w-xs">
-                  <div className="space-y-1">
-                    <p className="text-gray-900 font-medium truncate group-hover:text-primary transition-colors">
+                <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-gray-900 font-medium truncate">
                       {reel.title || "Untitled Reel"}
                     </p>
                     {reel.description ? (
-                      <p className="text-gray-400 text-[11px] truncate leading-relaxed">
+                      <p className="text-gray-400 text-xs truncate leading-relaxed">
                         {reel.description}
                       </p>
                     ) : (
-                      <p className="text-gray-300 italic text-[11px]">No description.</p>
+                      <p className="text-gray-300 italic text-xs">
+                        No description.
+                      </p>
                     )}
                   </div>
                 </td>
 
                 {/* Privacy Badge Column */}
-                <td className="py-3.5 px-3">
-                  <span
-                    className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold border ${PRIVACY_BADGE_STYLE[reel.privacy] || PRIVACY_BADGE_STYLE.Public
-                      }`}
-                  >
-                    {reel.privacy || "Public"}
-                  </span>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {(() => {
+                    switch (reel.privacy) {
+                      case "Public":
+                        return <Badge title="Public" type="Green" />;
+                      case "FriendsOnly":
+                        return <Badge title="Friends Only" type="Blue" />;
+                      case "Private":
+                        return <Badge title="Private" type="Gray" />;
+                      default:
+                        return (
+                          <Badge
+                            title={reel.privacy || "Unknown"}
+                            type="Gray"
+                          />
+                        );
+                    }
+                  })()}
                 </td>
 
                 {/* File Upload link Column */}
-                <td className="py-3.5 px-3 text-blue-600 font-semibold hover:underline">
-                  <div className="flex items-center gap-1">
-                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-60" />
+                <td className="px-4 py-3 text-sm font-medium text-blue-600 hover:underline">
+                  <div className="flex items-center gap-1.5">
+                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-70" />
                     <span>{fileName}</span>
                   </div>
                 </td>
 
                 {/* Date Uploaded Column */}
-                <td className="py-3.5 px-3 text-gray-400 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
                   {formatDate(reel.createdAt)}
                 </td>
 
                 {/* Last Edited Column */}
-                <td className="py-3.5 px-3 text-gray-400 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
                   {formatDate(lastEditedDate)}
                 </td>
 
                 {/* Total Reaction Column */}
-                <td className="py-3.5 px-3 font-bold text-gray-700 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-700 tabular-nums">
                   {totalReaction}
                 </td>
               </tr>

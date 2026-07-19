@@ -1,8 +1,9 @@
 import React from "react";
 import { useSidebar } from "../../context/SidebarContext";
-import { Menu, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import UserDropdown from "./header/UserDropdown";
 import NotificationDropdown from "./header/NotificationDropdown";
+import { SearchBar } from "./header/Searchbar";
 
 const AppHeader: React.FC = () => {
   const { toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -44,13 +45,13 @@ const AppHeader: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="hidden sm:block ml-4">
+        {/* <div className="hidden sm:block ml-4">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="relative">
               <label htmlFor="search-input" className="sr-only">
                 Search
               </label>
-              <button 
+              <button
                 type="submit"
                 aria-label="Submit search"
                 className="absolute left-0 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-md"
@@ -67,9 +68,12 @@ const AppHeader: React.FC = () => {
                 placeholder="Type to search..."
                 className="w-full bg-transparent pl-11 pr-4 py-2 text-sm font-medium focus:outline-none xl:w-125"
               />
+              
             </div>
           </form>
-        </div>
+        </div> */}
+
+        <SearchBar />
 
         {/* Header Right Side */}
         <div className="flex items-center gap-3 2xsm:gap-7 ml-auto">

@@ -1,8 +1,8 @@
-import type { Report, ReportDecision } from "./ReportsTable";
+import type { LetterReport } from "../api/letterReports";
 
 interface ReportRowProps {
-  report: Report;
-  onDecision: (reportId: string, decision: ReportDecision) => void;
+  report: LetterReport;
+  onDecision: (reportId: number, decision: string) => void;
 }
 
 export default function ReportRow({ report, onDecision }: ReportRowProps) {

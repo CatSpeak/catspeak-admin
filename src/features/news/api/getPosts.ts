@@ -8,11 +8,10 @@ import type { GetPostsResponse } from "../types";
 export const getPosts = async (
   page: number = 1,
   pageSize: number = 10,
-  status?: string,
 ): Promise<GetPostsResponse> => {
   return getResponseData(
     axiosClient.get<GetPostsResponse>("/post", {
-      params: { page, pageSize, status },
+      params: { page, pageSize },
     }),
   );
 };

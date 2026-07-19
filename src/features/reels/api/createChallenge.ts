@@ -6,7 +6,7 @@ import type { ChallengeCreateDto, ChallengeResponseDto } from "../types";
  * Uses multipart/form-data as per backend API spec.
  */
 export const createChallenge = async (
-  payload: ChallengeCreateDto
+  payload: ChallengeCreateDto,
 ): Promise<ChallengeResponseDto> => {
   const formData = new FormData();
   formData.append("Hashtag", payload.hashtag);
@@ -19,10 +19,10 @@ export const createChallenge = async (
   formData.append("EndDate", payload.endDate);
 
   return getResponseData(
-    axiosClient.post<ChallengeResponseDto>("/api/admin/challenges", formData, {
+    axiosClient.post<ChallengeResponseDto>("/reels/challenges", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    })
+    }),
   );
 };

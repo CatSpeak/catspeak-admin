@@ -81,10 +81,21 @@ export interface Post {
   languageCommunity: string | null;
 }
 
+export interface PostAdditionalData {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalCount: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+}
+
 export interface GetPostsResponse {
   data: Post[];
   page: number;
   pageSize: number;
+  total_records: number;
+  additionalData: PostAdditionalData;
 }
 
 export interface GetPostResponse {
