@@ -155,7 +155,7 @@ export default function CalendarPage() {
       {/* Page header */}
       <PageHeader
         icon={<Calendar />}
-        title="News"
+        title="Calendar"
         desc="Review the timeline and stay on top of all important dates."
       />
 
