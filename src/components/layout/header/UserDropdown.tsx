@@ -23,20 +23,18 @@ export default function UserDropdown() {
         aria-label="User menu"
         aria-expanded={isOpen}
         onClick={toggleDropdown}
-        className="flex items-center text-gray-700 dropdown-toggle focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-full sm:rounded-md p-1 -m-1"
+        className="flex items-center text-gray-700 dropdown-toggle focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-full sm:rounded-md p-1 -m-1 max-w-full"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 bg-gray-200 flex items-center justify-center">
+        <span className="mr-3 overflow-hidden rounded-full size-10 bg-gray-200 flex items-center justify-center shrink-0">
           <span className="text-sm font-bold text-gray-600">
             {user?.username?.charAt(0).toUpperCase() || "A"}
           </span>
-          {/* <img src="/images/user/owner.jpg" alt="User" /> */}
         </span>
-
-        <span className="hidden sm:block mr-1 font-medium text-sm">
+        <span className="hidden sm:block mr-1 font-medium text-sm truncate max-w-30">
           {user?.username || "User"}
         </span>
         <ChevronDown
-          className={`text-gray-500 transition-transform duration-200 ${
+          className={`text-gray-500 transition-transform duration-200 shrink-0 ${
             isOpen ? "rotate-180" : ""
           }`}
           size={18}
