@@ -117,7 +117,7 @@ export default function NewsPage() {
             total: data.total_records,
           };
         }}
-        onClickRow={(p) => navigate(`/news/${p.postId}`)}
+        onClickRow={(p) => navigate(`/news/${p.slug}`)}
         headers={[
           {
             name: "ID",
