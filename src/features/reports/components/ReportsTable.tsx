@@ -1,9 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import Table from "../../../components/ui/table/Table";
-import Badge from "../../../components/ui/Badge";
-import Button from "../../../components/ui/Button";
 import { getLetterReports, type LetterReport } from "../api/letterReports";
-import { Eye } from "lucide-react";
+import { LANGUAGE_FLAGS } from "../../room/constants";
+import type { LanguageType } from "../../room/types";
 
 export default function ReportsTable() {
   const navigate = useNavigate();
@@ -25,32 +24,33 @@ export default function ReportsTable() {
           };
         }
       }}
-      onClickRow={(r) => navigate(`/reports/${r.id}`)}
+      onClickRow={(r) => navigate(`/reports/${r.storyId}`)}
       headers={[
         {
           name: "ID",
-          accessorKey: "id",
+          accessorKey: "storyId",
           render: (r) => (
-            <span className="font-semibold text-gray-900">
-              #{r.id}
-            </span>
+            <span className="font-semibold text-gray-900">#{r.storyId}</span>
           ),
         },
         {
           name: "Author",
-          accessorKey: "authorUsername",
+          accessorKey: "username",
           render: (r) => (
             <span className="font-medium text-gray-700">
-              {r.authorUsername || r.ownerId || "—"}
+              {r.username || "—"}
             </span>
           ),
         },
         {
           name: "Content",
-          accessorKey: "content",
+          accessorKey: "storyContent",
           render: (r) => (
-            <p className="text-sm text-gray-650 max-w-md truncate" title={r.content}>
-              {r.content}
+            <p
+              className="text-sm text-gray-650 max-w-md truncate"
+              title={r.storyContent}
+            >
+              {r.storyContent}
             </p>
           ),
         },
@@ -64,40 +64,33 @@ export default function ReportsTable() {
           ),
         },
         {
-          name: "Status",
-          accessorKey: "status",
+          name: "Language",
+          accessorKey: "languageCommunity",
           render: (r) => {
-            const statusVal = r.status !== undefined ? r.status : r.decision;
-            if (statusVal === 1 || statusVal === "innocent" || statusVal === "Innocent") {
-              return <Badge title="Innocent" type="Green" />;
-            }
-            if (statusVal === 2 || statusVal === "violation" || statusVal === "Violation") {
-              return <Badge title="Violation" type="Red" />;
-            }
-            if (statusVal === 0 || statusVal === "pending" || statusVal === "Pending") {
-              return <Badge title="Pending" type="Yellow" />;
-            }
-            return <Badge title={String(statusVal ?? "Undecided")} type="Gray" />;
+            const lang = r.languageCommunity as LanguageType;
+
+            if (!lang)
+              return (
+                <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary/10 text-primary font-medium">
+                  —
+                </span>
+              );
+
+            const flag = LANGUAGE_FLAGS[lang];
+
+            if (!flag) return <>{lang}</>;
+            else
+              return (
+                <span className="inline-flex items-center gap-1.5">
+                  <img
+                    src={flag}
+                    alt={lang}
+                    className="w-4 h-3.5 rounded-sm shadow-sm object-cover"
+                  />
+                  <span>{lang}</span>
+                </span>
+              );
           },
-        },
-        {
-          name: "",
-          allowSort: false,
-          render: (r) => (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/reports/${r.id}`);
-              }}
-              aria-label={`View report ${r.id} details`}
-              className="inline-flex items-center gap-1"
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Details
-            </Button>
-          ),
         },
       ]}
     />
