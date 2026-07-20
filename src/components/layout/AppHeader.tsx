@@ -9,7 +9,7 @@ const AppHeader: React.FC = () => {
   const { toggleSidebar, toggleMobileSidebar } = useSidebar();
 
   const handleToggle = () => {
-    if (window.innerWidth >= 1280) {
+    if (window.innerWidth >= 768) {
       toggleSidebar();
     } else {
       toggleMobileSidebar();
@@ -19,21 +19,21 @@ const AppHeader: React.FC = () => {
   return (
     <header className="sticky top-0 z-40 flex w-full bg-white border-b border-gray-200">
       <div className="flex grow items-center justify-between px-4 py-3 shadow-none md:px-6 2xl:px-11">
-        <div className="flex items-center gap-2 sm:gap-4 xl:hidden">
+        <div className="flex items-center gap-2 sm:gap-4 md:hidden">
           {/* Hamburger Toggle */}
           <button
             aria-controls="sidebar"
             aria-label="Toggle mobile menu"
             type="button"
             onClick={handleToggle}
-            className="z-50 block rounded-sm border border-gray-200 bg-white p-1.5 shadow-sm xl:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+            className="z-50 block rounded-sm border border-gray-200 bg-white p-1.5 shadow-sm md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
           >
             <Menu size={24} className="text-gray-600" />
           </button>
         </div>
 
         {/* Desktop Toggle (Optional, can be hidden if Sidebar handles it) */}
-        <div className="hidden xl:block">
+        <div className="hidden md:block">
           <button
             aria-label="Toggle sidebar"
             type="button"
