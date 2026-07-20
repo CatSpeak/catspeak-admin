@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ReportsSummaryCards from "../components/ReportsSummaryCards";
+// import ReportsSummaryCards from "../components/ReportsSummaryCards";
 import ReportDialog from "../components/ReportDialog";
 import { LANGUAGE_FLAGS } from "../../room/constants";
 import type { LanguageType } from "../../room/types";
@@ -14,7 +14,7 @@ export default function HandleReportsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Summary Cards */}
-      <ReportsSummaryCards />
+      {/* <ReportsSummaryCards /> */}
 
       {/* Reports Table */}
       <Table<LetterReport>
