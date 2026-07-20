@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ReportsSummaryCards from "../components/ReportsSummaryCards";
-import ReportsTable from "../components/ReportsTable";
 import ReportDialog from "../components/ReportDialog";
+import { LANGUAGE_FLAGS } from "../../room/constants";
+import type { LanguageType } from "../../room/types";
+import Table from "../../../components/ui/table/Table";
+import { getLetterReports, type LetterReport } from "../api/letterReports";
 
 export default function HandleReportsPage() {
-  const { id } = useParams<{ id: string }>();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const navigate = useNavigate();
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-
-  const handleRefresh = () => {
-    setRefreshTrigger((prev) => prev + 1);
-  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -19,15 +17,91 @@ export default function HandleReportsPage() {
       <ReportsSummaryCards />
 
       {/* Reports Table */}
-      <ReportsTable key={refreshTrigger} />
+      <Table<LetterReport>
+        fetcher={async (page = 1, pageSize = 10) => {
+          try {
+            const response = await getLetterReports(page, pageSize);
+            return {
+              data: response.data || [],
+              total: response.total_records || 0,
+            };
+          } catch (error) {
+            console.error("Error fetching letter reports:", error);
+            return {
+              data: [],
+              total: 0,
+            };
+          }
+        }}
+        onClickRow={(r) => setSelectedId(r.storyId)}
+        headers={[
+          {
+            name: "ID",
+            accessorKey: "storyId",
+            render: (r) => (
+              <span className="font-semibold text-gray-900">#{r.storyId}</span>
+            ),
+          },
+          {
+            name: "Author",
+            accessorKey: "username",
+            render: (r) => (
+              <span className="font-medium text-gray-700">
+                {r.username || "—"}
+              </span>
+            ),
+          },
+          {
+            name: "Content",
+            accessorKey: "storyContent",
+            render: (r) => (
+              <p
+                className="text-sm text-gray-650 max-w-md truncate"
+                title={r.storyContent}
+              >
+                {r.storyContent}
+              </p>
+            ),
+          },
+          {
+            name: "Language",
+            accessorKey: "languageCommunity",
+            render: (r) => {
+              const lang = r.languageCommunity as LanguageType;
 
-      {id && (
+              if (!lang)
+                return (
+                  <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary/10 text-primary font-medium">
+                    —
+                  </span>
+                );
+
+              const flag = LANGUAGE_FLAGS[lang];
+
+              if (!flag) return <>{lang}</>;
+              else
+                return (
+                  <span className="inline-flex items-center gap-1.5">
+                    <img
+                      src={flag}
+                      alt={lang}
+                      className="w-4 h-3.5 rounded-sm shadow-sm object-cover"
+                    />
+                    <span>{lang}</span>
+                  </span>
+                );
+            },
+          },
+        ]}
+      />
+
+      {selectedId && (
         <ReportDialog
-          id={id}
+          id={selectedId}
           onClose={() => navigate("/reports")}
           onDeleteSuccess={() => {
-            handleRefresh();
-            navigate("/reports");
+            setSelectedId(null);
+            window.location.reload();
           }}
         />
       )}
