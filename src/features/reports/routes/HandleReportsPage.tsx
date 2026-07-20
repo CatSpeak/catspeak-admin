@@ -66,15 +66,6 @@ export default function HandleReportsPage() {
           {
             name: "Language",
             accessorKey: "languageCommunity",
-            render: (r) => (
-              <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary/10 text-primary font-medium">
-                {r.languageCommunity || "—"}
-              </span>
-            ),
-          },
-          {
-            name: "Language",
-            accessorKey: "languageCommunity",
             render: (r) => {
               const lang = r.languageCommunity as LanguageType;
 
