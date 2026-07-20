@@ -16,15 +16,15 @@ export default function UsersPage() {
         icon={<UsersRound />}
         title="Users"
         desc="View profiles, track activities, and manage access for platform's users."
-        rightButtons={[
-          <Button variant="primary" size="sm">
-            <Download className="w-4 h-4 mr-1" />
-            Download
-          </Button>,
-          <Button variant="primary" size="sm">
-            History export
-          </Button>,
-        ]}
+        // rightButtons={[
+        //   <Button variant="primary" size="sm">
+        //     <Download className="w-4 h-4 mr-1" />
+        //     Download
+        //   </Button>,
+        //   <Button variant="primary" size="sm">
+        //     History export
+        //   </Button>,
+        // ]}
       />
 
       {/* User Table */}

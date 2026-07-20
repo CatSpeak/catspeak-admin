@@ -80,10 +80,10 @@ export default function NewsPage() {
         title="News"
         desc="Draft, schedule, and publish official announcements and internal news updates."
         rightButtons={[
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-1" />
-            Export
-          </Button>,
+          // <Button variant="outline" size="sm">
+          //   <Download className="w-4 h-4 mr-1" />
+          //   Export
+          // </Button>,
           <Button
             variant="primary"
             size="sm"
