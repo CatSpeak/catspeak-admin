@@ -1,5 +1,5 @@
-import { Download, UsersRound } from "lucide-react";
-import Button from "../../../components/ui/Button";
+import { UsersRound } from "lucide-react";
+// import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
 import { getAccounts } from "../api/getUsers";
