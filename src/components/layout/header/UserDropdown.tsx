@@ -55,7 +55,7 @@ export default function UserDropdown() {
           </span>
         </div>
 
-        <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200">
+        {/* <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200">
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -89,7 +89,7 @@ export default function UserDropdown() {
               Support
             </DropdownItem>
           </li>
-        </ul>
+        </ul> */}
         <button
           type="button"
           onClick={() => {

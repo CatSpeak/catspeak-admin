@@ -336,7 +336,7 @@ export default function PaymentsDashboard({
         )}
       </div>
 
-      {/* ── Daily Revenue & Transactions Trend Chart ── */}
+      {/* ── Daily Revenue & Transactions Trend Chart (Powered by GET /v1/Payments/admin/dashboard - dailyRevenue array, fallback: []) ── */}
       <Card>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 border-b border-gray-100 pb-4">
           <div>
