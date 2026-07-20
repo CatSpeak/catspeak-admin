@@ -10,16 +10,16 @@ import {
 import Card from "../../../components/ui/Card";
 import SummaryCard from "../../../components/ui/SummaryCard";
 import UserStatsSummary from "../components/UserStatsSummary";
-import VietNamDetailCard from "../components/VietNamDetailCard";
-import MonthlyTarget from "../components/MonthlyTarget";
+// import VietNamDetailCard from "../components/VietNamDetailCard";
+// import MonthlyTarget from "../components/MonthlyTarget";
 import { useOverviewStats } from "../hooks/useOverviewStats";
 import { mockupColors } from "../api/getOverviewStats";
 
 // Lazy-loaded charts
-const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
+// const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
 const DonutChartJS = lazy(() => import("../components/DonutChartJS"));
 const BarChartJS = lazy(() => import("../components/BarChartJS"));
-const LineChartJS = lazy(() => import("../components/LineChartJS"));
+// const LineChartJS = lazy(() => import("../components/LineChartJS"));
 const AreaChartJS = lazy(() => import("../components/AreaChartJS"));
 const PieChartJS = lazy(() => import("../components/PieChartJS"));
 
@@ -37,72 +37,72 @@ function ChartFallback({ height = 240 }: { height?: number }) {
 const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 
 // Default mockup data fallbacks if the API returns empty/no data
-const defaultTrafficSegments = [
-  { label: "Youtube", value: 35, color: "#C8102E" },
-  { label: "Facebook", value: 23, color: "#1877F2" },
-  { label: "Instagram", value: 42, color: "#E1306C" },
-  { label: "Twitter", value: 1.5, color: "#FF6B6B" },
-];
+// const defaultTrafficSegments = [
+//   { label: "Youtube", value: 35, color: "#C8102E" },
+//   { label: "Facebook", value: 23, color: "#1877F2" },
+//   { label: "Instagram", value: 42, color: "#E1306C" },
+//   { label: "Twitter", value: 1.5, color: "#FF6B6B" },
+// ];
 
-const defaultBarData = [
-  { label: "Jul", values: [1200, 800] as [number, number], annotation: "" },
-  {
-    label: "5",
-    values: [1800, 1400] as [number, number],
-    annotation: "1189 user",
-  },
-  { label: "10", values: [2200, 1600] as [number, number], annotation: "" },
-  { label: "15", values: [1600, 900] as [number, number], annotation: "" },
-  {
-    label: "20",
-    values: [1400, 1100] as [number, number],
-    annotation: "5/8/2025",
-  },
-  {
-    label: "25",
-    values: [800, 600] as [number, number],
-    annotation: "(0/7/8025)",
-  },
-  {
-    label: "31",
-    values: [1000, 700] as [number, number],
-    annotation: "Users #981",
-  },
-  { label: "5-Aug", values: [600, 400] as [number, number], annotation: "" },
-  { label: "now", values: [700, 500] as [number, number], annotation: "" },
-];
+// const defaultBarData = [
+//   { label: "Jul", values: [1200, 800] as [number, number], annotation: "" },
+//   {
+//     label: "5",
+//     values: [1800, 1400] as [number, number],
+//     annotation: "1189 user",
+//   },
+//   { label: "10", values: [2200, 1600] as [number, number], annotation: "" },
+//   { label: "15", values: [1600, 900] as [number, number], annotation: "" },
+//   {
+//     label: "20",
+//     values: [1400, 1100] as [number, number],
+//     annotation: "5/8/2025",
+//   },
+//   {
+//     label: "25",
+//     values: [800, 600] as [number, number],
+//     annotation: "(0/7/8025)",
+//   },
+//   {
+//     label: "31",
+//     values: [1000, 700] as [number, number],
+//     annotation: "Users #981",
+//   },
+//   { label: "5-Aug", values: [600, 400] as [number, number], annotation: "" },
+//   { label: "now", values: [700, 500] as [number, number], annotation: "" },
+// ];
 
-const defaultLineData = [
-  { label: "01 Jun", value: 210 },
-  { label: "02 Jun", value: 230 },
-  { label: "03 Jun", value: 195 },
-  { label: "04 Jun", value: 260 },
-  { label: "05 Jun", value: 240 },
-  { label: "06 Jun", value: 280 },
-  { label: "07 Jun", value: 310 },
-  { label: "08 Jun", value: 290 },
-  { label: "09 Jun", value: 340 },
-  { label: "10 Jun", value: 380 },
-  { label: "11 Jun", value: 420 },
-  { label: "12 Jun", value: 580 },
-];
+// const defaultLineData = [
+//   { label: "01 Jun", value: 210 },
+//   { label: "02 Jun", value: 230 },
+//   { label: "03 Jun", value: 195 },
+//   { label: "04 Jun", value: 260 },
+//   { label: "05 Jun", value: 240 },
+//   { label: "06 Jun", value: 280 },
+//   { label: "07 Jun", value: 310 },
+//   { label: "08 Jun", value: 290 },
+//   { label: "09 Jun", value: 340 },
+//   { label: "10 Jun", value: 380 },
+//   { label: "11 Jun", value: 420 },
+//   { label: "12 Jun", value: 580 },
+// ];
 
-const defaultAreaChartData = [
-  { label: "Jul", accountUsers: 3400, activeUsers: 2200 },
-  { label: "5", accountUsers: 3450, activeUsers: 2450 },
-  { label: "10", accountUsers: 3500, activeUsers: 2500 },
-  { label: "15", accountUsers: 3550, activeUsers: 2400 },
-  { label: "20", accountUsers: 3600, activeUsers: 2350 },
-  { label: "25", accountUsers: 3650, activeUsers: 2300 },
-  { label: "31", accountUsers: 4100, activeUsers: 2400 },
-  { label: "5-Aug", accountUsers: 4102, activeUsers: 2418 },
-];
+// const defaultAreaChartData = [
+//   { label: "Jul", accountUsers: 3400, activeUsers: 2200 },
+//   { label: "5", accountUsers: 3450, activeUsers: 2450 },
+//   { label: "10", accountUsers: 3500, activeUsers: 2500 },
+//   { label: "15", accountUsers: 3550, activeUsers: 2400 },
+//   { label: "20", accountUsers: 3600, activeUsers: 2350 },
+//   { label: "25", accountUsers: 3650, activeUsers: 2300 },
+//   { label: "31", accountUsers: 4100, activeUsers: 2400 },
+//   { label: "5-Aug", accountUsers: 4102, activeUsers: 2418 },
+// ];
 
-const defaultAgeGenderData = [
-  { label: "<35", value: 1500, color: "#3B82F6", male: 1000, female: 500 },
-  { label: "0-20", value: 1500, color: "#FFA500", male: 1000, female: 500 },
-  { label: "20-35", value: 500, color: "#C8102E", male: 100, female: 400 },
-];
+// const defaultAgeGenderData = [
+//   { label: "<35", value: 1500, color: "#3B82F6", male: 1000, female: 500 },
+//   { label: "0-20", value: 1500, color: "#FFA500", male: 1000, female: 500 },
+//   { label: "20-35", value: 500, color: "#C8102E", male: 100, female: 400 },
+// ];
 
 export default function PlatformOverview() {
   const [activePeriod, setActivePeriod] =
@@ -137,7 +137,7 @@ export default function PlatformOverview() {
   // Mapped data with fallback handling
   const currentTrafficSegments = useMemo(() => {
     if (!trafficSegments || trafficSegments.length === 0) {
-      return defaultTrafficSegments;
+      return [];
     }
     // Cycle through mockupColors if "color" is missing or check if mapping was already done by API module
     return trafficSegments.map((item, index) => ({
@@ -149,14 +149,14 @@ export default function PlatformOverview() {
 
   const currentAgeGenderData = useMemo(() => {
     if (!ageGenderData || ageGenderData.length === 0) {
-      return defaultAgeGenderData;
+      return [];
     }
     return ageGenderData;
   }, [ageGenderData]);
 
   const barData = useMemo(() => {
     if (!activeUsersData || activeUsersData.length === 0) {
-      return defaultBarData;
+      return [];
     }
     return activeUsersData.map((item) => ({
       label: item.label,
@@ -167,7 +167,7 @@ export default function PlatformOverview() {
 
   const areaChartData = useMemo(() => {
     if (!activeUsersData || activeUsersData.length === 0) {
-      return defaultAreaChartData;
+      return [];
     }
     return activeUsersData.map((item) => ({
       label: item.label,
@@ -176,15 +176,15 @@ export default function PlatformOverview() {
     }));
   }, [activeUsersData]);
 
-  const lineData = useMemo(() => {
-    if (!activeUsersData || activeUsersData.length === 0) {
-      return defaultLineData;
-    }
-    return activeUsersData.map((item) => ({
-      label: item.label,
-      value: item.activeUsers,
-    }));
-  }, [activeUsersData]);
+  // const lineData = useMemo(() => {
+  //   if (!activeUsersData || activeUsersData.length === 0) {
+  //     return [];
+  //   }
+  //   return activeUsersData.map((item) => ({
+  //     label: item.label,
+  //     value: item.activeUsers,
+  //   }));
+  // }, [activeUsersData]);
 
   // Format header period label dynamically
   const activePeriodLabel = useMemo(() => {
@@ -338,7 +338,7 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 3: World Map + Vietnam Detail Card ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
         <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense
             fallback={
@@ -354,7 +354,7 @@ export default function PlatformOverview() {
         <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
           <VietNamDetailCard />
         </div>
-      </div>
+      </div> */}
 
       {/* ── Row 4: Detailed Chart + Sidebar ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -401,7 +401,7 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 5: Age/Gender + Monthly Target + Line Chart ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 sm:gap-6">
+      <div className="flex items-start justify-between">
         <Card className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             Age/Gender
@@ -411,18 +411,18 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        <Card
+        {/* <Card
           noPadding
           className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md"
         >
           <MonthlyTarget />
-        </Card>
+        </Card> */}
 
-        <Card className="md:col-span-3 lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+        {/* <Card className="md:col-span-3 lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense fallback={<ChartFallback height={400} />}>
             <LineChartJS data={lineData} height={400} />
           </Suspense>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
