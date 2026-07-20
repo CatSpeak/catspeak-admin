@@ -1,16 +1,15 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
 
 export interface LetterReport {
-  id: number;
-  letterId?: string;
-  ownerId?: string;
-  reportersCount?: number;
-  content: string;
-  decision?: string;
-  authorUsername?: string;
-  createDate?: string;
-  status?: number;
+  storyId: number;
+  accountId: number;
+  username: string;
+  avatarImageUrl?: string;
+  storyContent: string;
   languageCommunity?: string;
+  createDate?: string;
+  expiresAt?: string;
+  status?: number;
 }
 
 export interface LetterReportsResponse {
@@ -42,9 +41,7 @@ export const getLetterReports = async (
 export const getLetterReportById = async (
   id: number | string,
 ): Promise<LetterReport> => {
-  return getResponseData(
-    axiosClient.get<LetterReport>(`/user-stories/${id}`),
-  );
+  return getResponseData(axiosClient.get<LetterReport>(`/user-stories/${id}`));
 };
 
 /**
@@ -53,7 +50,5 @@ export const getLetterReportById = async (
 export const deleteLetterReport = async (
   id: number | string,
 ): Promise<void> => {
-  return getResponseData(
-    axiosClient.delete<void>(`/user-stories/${id}`),
-  );
+  return getResponseData(axiosClient.delete<void>(`/user-stories/${id}`));
 };

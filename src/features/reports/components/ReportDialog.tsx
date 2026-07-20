@@ -9,7 +9,11 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react";
-import { getLetterReportById, deleteLetterReport, type LetterReport } from "../api/letterReports";
+import {
+  getLetterReportById,
+  deleteLetterReport,
+  type LetterReport,
+} from "../api/letterReports";
 import { useToastStore } from "../../../stores/toastStore";
 import { formatDateTime } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
@@ -21,7 +25,11 @@ interface ReportDialogProps {
   onDeleteSuccess: () => void;
 }
 
-export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDialogProps) {
+export default function ReportDialog({
+  id,
+  onClose,
+  onDeleteSuccess,
+}: ReportDialogProps) {
   const { addToast } = useToastStore();
   const [report, setReport] = useState<LetterReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +78,7 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
 
       if (e.key === "Tab" && modalRef.current) {
         const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (focusable.length === 0) return;
         const first = focusable[0];
@@ -112,14 +120,14 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
   };
 
   const getStatusBadge = (r: LetterReport) => {
-    const statusVal = r.status !== undefined ? r.status : r.decision;
-    if (statusVal === 1 || statusVal === "innocent" || statusVal === "Innocent") {
+    const statusVal = r.status;
+    if (statusVal === 1) {
       return <Badge title="Innocent" type="Green" />;
     }
-    if (statusVal === 2 || statusVal === "violation" || statusVal === "Violation") {
+    if (statusVal === 2) {
       return <Badge title="Violation" type="Red" />;
     }
-    if (statusVal === 0 || statusVal === "pending" || statusVal === "Pending") {
+    if (statusVal === 0) {
       return <Badge title="Pending" type="Yellow" />;
     }
     return <Badge title={String(statusVal ?? "Undecided")} type="Gray" />;
@@ -221,7 +229,7 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
                     ”
                   </span>
                   <p className="text-sm text-gray-800 leading-relaxed font-medium whitespace-pre-wrap relative z-10">
-                    {report.content}
+                    {report.storyContent}
                   </p>
                 </div>
               </div>
@@ -233,8 +241,16 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
                     Author
                   </span>
                   <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                    <User className="w-3.5 h-3.5 text-gray-400" />
-                    {report.authorUsername || report.ownerId || "Unknown"}
+                    {report.avatarImageUrl ? (
+                      <img
+                        src={report.avatarImageUrl}
+                        alt={report.username}
+                        className="w-4 h-4 rounded-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-gray-400" />
+                    )}
+                    {report.username || `Account ID: ${report.accountId}`}
                   </span>
                 </div>
 
@@ -254,17 +270,20 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
                   </span>
                   <span className="text-xs text-gray-650 flex items-center gap-1.5 font-medium">
                     <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                    {report.createDate ? formatDateTime(report.createDate) : "Unknown Date"}
+                    {report.createDate
+                      ? formatDateTime(report.createDate)
+                      : "Unknown Date"}
                   </span>
                 </div>
 
-                {report.reportersCount !== undefined && (
+                {report.expiresAt && (
                   <div className="space-y-0.5 col-span-2 pt-2 border-t border-gray-100">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                      Reporters Count
+                      Expires At
                     </span>
-                    <span className="text-xs text-gray-650 flex items-center gap-1.5 font-bold text-red-600 bg-red-50/50 w-max px-2.5 py-0.5 rounded-lg border border-red-100">
-                      {report.reportersCount} reporter(s)
+                    <span className="text-xs text-gray-650 flex items-center gap-1.5 font-medium">
+                      <Calendar className="w-3.5 h-3.5 text-red-400" />
+                      {formatDateTime(report.expiresAt)}
                     </span>
                   </div>
                 )}
@@ -285,11 +304,7 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
           </Button>
 
           {!loading && !error && report && (
-            <Button
-            size="sm"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
+            <Button size="sm" onClick={handleDelete} disabled={isDeleting}>
               {isDeleting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
@@ -298,8 +313,8 @@ export default function ReportDialog({ id, onClose, onDeleteSuccess }: ReportDia
               {isDeleting
                 ? "Deleting..."
                 : confirmDelete
-                ? "Click to Confirm Delete"
-                : "Delete"}
+                  ? "Click to Confirm Delete"
+                  : "Delete"}
             </Button>
           )}
         </div>
