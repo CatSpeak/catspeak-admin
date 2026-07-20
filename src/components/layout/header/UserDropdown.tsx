@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Dropdown } from "../../ui/dropdown/Dropdown";
-import { DropdownItem } from "../../ui/dropdown/DropdownItem";
+// import { DropdownItem } from "../../ui/dropdown/DropdownItem";
 import { useAuthStore } from "../../../stores/authStore";
-import { User, Settings, LifeBuoy, LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
