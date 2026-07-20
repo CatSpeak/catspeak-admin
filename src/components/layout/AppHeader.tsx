@@ -77,10 +77,9 @@ const AppHeader: React.FC = () => {
 
         {/* Header Right Side */}
         <div className="flex items-center gap-3 2xsm:gap-7 ml-auto">
-          <ul className="flex items-center gap-2 2xsm:gap-4">
-            {/* Notification Dropdown */}
+          {/* <ul className="flex items-center gap-2 2xsm:gap-4">
             <NotificationDropdown />
-          </ul>
+          </ul> */}
 
           {/* User Dropdown */}
           <UserDropdown />
