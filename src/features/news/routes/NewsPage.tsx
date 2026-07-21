@@ -18,7 +18,7 @@ import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { getPosts } from "../api/getPosts";
+import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts";
 import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
 
@@ -116,6 +116,43 @@ export default function NewsPage() {
             data: data.data,
             total: data.total_records,
           };
+        }}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: PostSortBy | undefined = undefined;
+          if (attribute === "createDate" || attribute === "lastEdited") {
+            sortBy = "CreateDate";
+          } else if (
+            attribute === "content" ||
+            attribute === "postId" ||
+            attribute === "authorName"
+          ) {
+            sortBy = "Title";
+          }
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          const res = await getPosts({ SortBy: sortBy, SortOrder: order });
+          return res.data;
+        }}
+        filter={async (attribute, value) => {
+          const params: GetPostsParams = {};
+          if (
+            attribute === "global" ||
+            attribute === "content" ||
+            attribute === "postId" ||
+            attribute === "authorName"
+          ) {
+            params.Title = value ? String(value) : undefined;
+          } else if (attribute === "languageCommunity" && value) {
+            params.LanguageCommunities = Array.isArray(value)
+              ? value
+              : [String(value)];
+          }
+          const res = await getPosts(params);
+          return res.data;
         }}
         onClickRow={(p) => navigate(`/news/${p.slug}`)}
         headers={[

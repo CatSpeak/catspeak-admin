@@ -5,7 +5,12 @@ import ReportDialog from "../components/ReportDialog";
 import { LANGUAGE_FLAGS } from "../../room/constants";
 import type { LanguageType } from "../../room/types";
 import Table from "../../../components/ui/table/Table";
-import { getLetterReports, type LetterReport } from "../api/letterReports";
+import {
+  getLetterReports,
+  type LetterReport,
+  type LetterReportSortBy,
+  type GetLetterReportsParams,
+} from "../api/letterReports";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { FileText } from "lucide-react";
 
@@ -39,6 +44,36 @@ export default function HandleReportsPage() {
               total: 0,
             };
           }
+        }}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: LetterReportSortBy | undefined = undefined;
+          if (attribute === "storyContent") sortBy = "Content";
+          else if (attribute === "username") sortBy = "AuthorUsername";
+          else if (attribute === "createDate") sortBy = "CreateDate";
+          else if (attribute === "status") sortBy = "Status";
+
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          const res = await getLetterReports({ SortBy: sortBy, SortOrder: order });
+          return res.data || [];
+        }}
+        filter={async (attribute, value) => {
+          const params: GetLetterReportsParams = {};
+          if (attribute === "global" || attribute === "storyContent") {
+            params.Content = value ? String(value) : undefined;
+          } else if (attribute === "username") {
+            params.AuthorUsername = value ? String(value) : undefined;
+          } else if (attribute === "languageCommunity" && value) {
+            params.LanguageCommunities = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)];
+          }
+          const res = await getLetterReports(params);
+          return res.data || [];
         }}
         onClickRow={(r) => setSelectedId(r.storyId)}
         headers={[
