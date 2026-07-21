@@ -1,6 +1,28 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
 import type { GetAccountsResponse } from "../types";
 
+export type UserSortBy = "Username" | "CreateDate";
+export type SortOrder = "Asc" | "Desc";
+
+export interface GetUsersParams {
+  Username?: string;
+  Email?: string;
+  PhoneNumber?: string;
+  RoleIds?: number[];
+  Countries?: string[];
+  PreferredLanguages?: string[];
+  Levels?: string[];
+  FromDate?: string;
+  ToDate?: string;
+  AmountSpentMinVnd?: number;
+  AmountSpentMaxVnd?: number;
+  VisitDurationPeriod?: string;
+  SortBy?: UserSortBy;
+  Page?: number;
+  PageSize?: number;
+  SortOrder?: SortOrder;
+}
+
 export interface AccountFilters {
   search?: string;
   roleId?: number;
@@ -8,30 +30,41 @@ export interface AccountFilters {
   status?: number;
 }
 
+/**
+ * Fetch paginated list of accounts/users for Admin.
+ * Accepts legacy (page, pageSize, filters) signature or direct GetUsersParams object.
+ */
 export const getAccounts = async (
-  page: number = 1,
-  pageSize: number = 50,
+  pageOrParams: number | GetUsersParams = 1,
+  pageSizeParam: number = 50,
   filters: AccountFilters = {},
 ): Promise<GetAccountsResponse> => {
-  const params: Record<string, unknown> = { page, pageSize };
+  let params: GetUsersParams & Record<string, unknown> = {};
 
-  if (filters.search) {
-    const query = filters.search.trim();
-    if (query.includes("@")) {
-      params.email = query;
-    } else if (/^\+?[0-9\s\-()]{4,}$/.test(query)) {
-      // Matches phone numbers with digits, spaces, dashes, or parentheses
-      params.phoneNumber = query;
-    } else {
-      params.username = query;
+  if (typeof pageOrParams === "number") {
+    params.Page = pageOrParams;
+    params.PageSize = pageSizeParam;
+
+    if (filters.search) {
+      const query = filters.search.trim();
+      if (query.includes("@")) {
+        params.Email = query;
+      } else if (/^\+?[0-9\s\-()]{4,}$/.test(query)) {
+        params.PhoneNumber = query;
+      } else {
+        params.Username = query;
+      }
     }
-  }
 
-  if (filters.roleId !== undefined) params.roleId = filters.roleId;
-  if (filters.level) params.level = filters.level;
-  if (filters.status !== undefined) params.status = filters.status;
+    if (filters.roleId !== undefined) params.RoleIds = [filters.roleId];
+    if (filters.level) params.Levels = [filters.level];
+    if (filters.status !== undefined) params.status = filters.status;
+  } else {
+    params = { ...pageOrParams };
+  }
 
   return getResponseData(
     axiosClient.get<GetAccountsResponse>("/Admin/users", { params }),
   );
 };
+

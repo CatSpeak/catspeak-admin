@@ -24,19 +24,46 @@ export interface ProcessReportPayload {
   reason: string;
 }
 
+export type PaymentReportSortBy = "ReportDate" | "Amount" | "Status";
+export type SortOrder = "Asc" | "Desc";
+
+export interface GetPaymentReportsParams {
+  UserEmail?: string;
+  MaxAmount?: number;
+  Statuses?: number[];
+  SortBy?: PaymentReportSortBy;
+  Reason?: string;
+  FromDate?: string;
+  ToDate?: string;
+  Page?: number;
+  PageSize?: number;
+  SortOrder?: SortOrder;
+}
+
+export type PaymentReportStatusFilter = "Pending" | "Accepted" | "Denied" | "All" | null;
+
 /**
- * Fetch payment reports from the backend, supporting status filtering.
- * Maps client tab string options ("Pending", "Accepted", "Denied") to backend status numbers (0, 1, 2).
+ * Fetch payment reports from the backend.
+ * Accepts either a GetPaymentReportsParams object or legacy statusFilter string.
  */
 export const getPaymentReports = async (
-  statusFilter?: "Pending" | "Accepted" | "Denied" | "All" | null
+  paramsOrStatusFilter?: GetPaymentReportsParams | PaymentReportStatusFilter
 ): Promise<PaymentReport[]> => {
-  const params: Record<string, number> = {};
+  let params: GetPaymentReportsParams = {};
 
-  if (statusFilter && statusFilter !== "All") {
-    if (statusFilter === "Pending") params.status = 0;
-    else if (statusFilter === "Accepted") params.status = 1;
-    else if (statusFilter === "Denied") params.status = 2;
+  if (
+    paramsOrStatusFilter === null ||
+    paramsOrStatusFilter === undefined ||
+    typeof paramsOrStatusFilter === "string"
+  ) {
+    const statusFilter = paramsOrStatusFilter as PaymentReportStatusFilter;
+    if (statusFilter && statusFilter !== "All") {
+      if (statusFilter === "Pending") params.Statuses = [0];
+      else if (statusFilter === "Accepted") params.Statuses = [1];
+      else if (statusFilter === "Denied") params.Statuses = [2];
+    }
+  } else {
+    params = paramsOrStatusFilter;
   }
 
   try {
