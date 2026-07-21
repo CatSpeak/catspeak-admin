@@ -183,6 +183,8 @@ export type TableFetcher<T> = (
   pageSize?: number,
 ) => Promise<TableFetcherResult<T>> | TableFetcherResult<T>;
 
+export type SortOrder = "asc" | "desc" | undefined;
+
 interface TableProps<T> {
   headers: TableHeader<T>[];
   /**
@@ -190,6 +192,14 @@ interface TableProps<T> {
    * declared params) selects server-side vs. client-side pagination.
    */
   fetcher: TableFetcher<T>;
+  sorter?: (
+    attribute: keyof T | string,
+    sortOrder: SortOrder,
+  ) => T[] | Promise<T[]>;
+  filter?: (
+    attribute: keyof T | string,
+    value: any,
+  ) => T[] | Promise<T[]>;
   onClickRow?: (row: T) => void;
   actions?: TableAction<T>[];
   loading?: boolean;
@@ -375,6 +385,8 @@ function renderCellValue<T>(
 export default function Table<T>({
   headers,
   fetcher,
+  sorter,
+  filter,
   onClickRow,
   actions,
   loading = false,
@@ -394,6 +406,8 @@ export default function Table<T>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [searchInputValue, setSearchInputValue] = useState("");
+  const [customData, setCustomData] = useState<T[] | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: defaultPageSize,
@@ -457,8 +471,56 @@ export default function Table<T>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetcher, usesServerPagination, depPageIndex, depPageSize]);
 
-  const data = fetchedData;
+  const data = customData ?? fetchedData;
   const effectiveLoading = loading || fetchLoading;
+
+  const runCustomFilter = (attribute: keyof T | string, value: any) => {
+    if (filter) {
+      setFetchLoading(true);
+      Promise.resolve(filter(attribute, value))
+        .then((res) => {
+          setCustomData(res);
+        })
+        .catch((err) => {
+          console.error("Filter error:", err);
+        })
+        .finally(() => {
+          setFetchLoading(false);
+        });
+    }
+  };
+
+  const handleSortingChange = (
+    updaterOrValue: SortingState | ((old: SortingState) => SortingState),
+  ) => {
+    setSorting((prev) => {
+      const next =
+        typeof updaterOrValue === "function"
+          ? updaterOrValue(prev)
+          : updaterOrValue;
+      if (sorter) {
+        const item = next[0];
+        const attr = item ? item.id : "";
+        const order: SortOrder = item
+          ? item.desc
+            ? "desc"
+            : "asc"
+          : undefined;
+        setFetchLoading(true);
+        Promise.resolve(sorter(attr as keyof T | string, order))
+          .then((res) => {
+            setCustomData(res);
+          })
+          .catch((err) => {
+            console.error("Sorter error:", err);
+          })
+          .finally(() => {
+            setFetchLoading(false);
+          });
+      }
+      return next;
+    });
+  };
 
   const hasActions = !!actions && actions.length > 0;
 
@@ -508,7 +570,7 @@ export default function Table<T>({
     data,
     columns,
     state: { sorting, columnFilters, globalFilter, pagination },
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
@@ -552,6 +614,13 @@ export default function Table<T>({
   const clearAll = () => {
     setColumnFilters([]);
     setGlobalFilter("");
+    setSearchInputValue("");
+    setCustomData(null);
+  };
+
+  const executeGlobalFilter = (val: string) => {
+    setGlobalFilter(val);
+    runCustomFilter("global", val);
   };
 
   if (!configValid) {
@@ -579,14 +648,23 @@ export default function Table<T>({
                 <input
                   type="text"
                   placeholder={`Search ${entityName}s…`}
-                  value={globalFilter}
-                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  value={searchInputValue}
+                  onChange={(e) => setSearchInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      executeGlobalFilter(searchInputValue);
+                    }
+                  }}
                   className="w-full pl-9 pr-9 py-2 text-sm bg-white border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 shadow-sm"
                 />
-                {globalFilter && (
+                {searchInputValue && (
                   <button
                     type="button"
-                    onClick={() => setGlobalFilter("")}
+                    onClick={() => {
+                      setSearchInputValue("");
+                      executeGlobalFilter("");
+                    }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
                     title="Clear search"
                   >
@@ -654,7 +732,11 @@ export default function Table<T>({
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-white">
                 {filterableColumns.map((column) => (
-                  <ColumnFilterControl key={column.id} column={column} />
+                  <ColumnFilterControl
+                    key={column.id}
+                    column={column}
+                    onFilterSubmit={(attr, val) => runCustomFilter(attr, val)}
+                  />
                 ))}
               </div>
             </div>
@@ -865,8 +947,10 @@ export default function Table<T>({
 
 function ColumnFilterControl<T>({
   column,
+  onFilterSubmit,
 }: {
   column: TanstackColumn<T, any>;
+  onFilterSubmit?: (attribute: string, value: any) => void;
 }) {
   const meta = column.columnDef.meta;
   const label =
@@ -885,7 +969,9 @@ function ColumnFilterControl<T>({
       const next = selected.includes(value)
         ? selected.filter((v) => v !== value)
         : [...selected, value];
-      column.setFilterValue(next.length ? next : undefined);
+      const val = next.length ? next : undefined;
+      column.setFilterValue(val);
+      onFilterSubmit?.(column.id, val);
     };
 
     return (
@@ -916,12 +1002,49 @@ function ColumnFilterControl<T>({
   }
 
   return (
+    <ColumnTextFilterInput
+      column={column}
+      label={label}
+      onFilterSubmit={onFilterSubmit}
+    />
+  );
+}
+
+function ColumnTextFilterInput<T>({
+  column,
+  label,
+  onFilterSubmit,
+}: {
+  column: TanstackColumn<T, any>;
+  label: string;
+  onFilterSubmit?: (attribute: string, value: any) => void;
+}) {
+  const filterValue = column.getFilterValue();
+  const [localText, setLocalText] = useState((filterValue as string) ?? "");
+
+  useEffect(() => {
+    setLocalText((filterValue as string) ?? "");
+  }, [filterValue]);
+
+  const submitFilter = () => {
+    const val = localText || undefined;
+    column.setFilterValue(val);
+    onFilterSubmit?.(column.id, val);
+  };
+
+  return (
     <div className="flex flex-col gap-1.5">
       <label className="text-xs font-semibold text-gray-500">{label}</label>
       <input
         type="text"
-        value={(filterValue as string) ?? ""}
-        onChange={(e) => column.setFilterValue(e.target.value || undefined)}
+        value={localText}
+        onChange={(e) => setLocalText(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitFilter();
+          }
+        }}
         placeholder={`Filter ${label.toLowerCase()}…`}
         className="w-full px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
       />

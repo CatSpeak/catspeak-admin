@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Dropdown } from "../../ui/dropdown/Dropdown";
-import { DropdownItem } from "../../ui/dropdown/DropdownItem";
+// import { DropdownItem } from "../../ui/dropdown/DropdownItem";
 import { useAuthStore } from "../../../stores/authStore";
-import { User, Settings, LifeBuoy, LogOut, ChevronDown } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +55,7 @@ export default function UserDropdown() {
           </span>
         </div>
 
-        <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200">
+        {/* <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200">
           <li>
             <DropdownItem
               onItemClick={closeDropdown}
@@ -89,7 +89,7 @@ export default function UserDropdown() {
               Support
             </DropdownItem>
           </li>
-        </ul>
+        </ul> */}
         <button
           type="button"
           onClick={() => {

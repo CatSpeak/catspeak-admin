@@ -1,10 +1,15 @@
-import { Download, UsersRound } from "lucide-react";
-import Button from "../../../components/ui/Button";
+import { UsersRound } from "lucide-react";
+// import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { getAccounts } from "../api/getUsers";
+import {
+  getAccounts,
+  type GetUsersParams,
+  type UserSortBy,
+} from "../api/getUsers";
 import { useNavigate } from "react-router-dom";
 import { formatDateTime } from "../../../lib/utils";
+import type { Account } from "../types";
 
 export default function UsersPage() {
   const navigate = useNavigate();
@@ -16,19 +21,18 @@ export default function UsersPage() {
         icon={<UsersRound />}
         title="Users"
         desc="View profiles, track activities, and manage access for platform's users."
-        rightButtons={[
-          <Button variant="primary" size="sm">
-            <Download className="w-4 h-4 mr-1" />
-            Download
-          </Button>,
-          <Button variant="primary" size="sm">
-            History export
-          </Button>,
-        ]}
+        // rightButtons={[
+        //   <Button variant="primary" size="sm">
+        //     <Download className="w-4 h-4 mr-1" />
+        //     Download
+        //   </Button>,
+        //   <Button variant="primary" size="sm">
+        //     History export
+        //   </Button>,
+        // ]}
       />
 
-      {/* User Table */}
-      <Table
+      <Table<Account>
         fetcher={async (page, pageSize) => {
           const res = await getAccounts(page, pageSize);
 
@@ -36,6 +40,40 @@ export default function UsersPage() {
             data: res.data,
             total: res.additionalData.totalCount,
           };
+        }}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: UserSortBy | undefined = undefined;
+          if (attribute === "username") sortBy = "Username";
+          else if (attribute === "createDate") sortBy = "CreateDate";
+
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          const res = await getAccounts({ SortBy: sortBy, SortOrder: order });
+          return res.data;
+        }}
+        filter={async (attribute, value) => {
+          const params: GetUsersParams = {};
+          if (attribute === "global" || attribute === "username") {
+            params.Username = value ? String(value) : undefined;
+          } else if (attribute === "email") {
+            params.Email = value ? String(value) : undefined;
+          } else if (attribute === "phoneNumber") {
+            params.PhoneNumber = value ? String(value) : undefined;
+          } else if (attribute === "country" && value) {
+            params.Countries = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)];
+          } else if (attribute === "level" && value) {
+            params.Levels = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)];
+          }
+          const res = await getAccounts(params);
+          return res.data;
         }}
         onClickRow={(r) => navigate(`/users/${r.accountId}`)}
         headers={[

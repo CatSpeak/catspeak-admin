@@ -10,6 +10,8 @@ import {
   getPaymentReports,
   processPaymentReport,
   type PaymentReport,
+  type PaymentReportSortBy,
+  type GetPaymentReportsParams,
 } from "../api/paymentReports";
 import { useToastStore } from "../../../stores/toastStore";
 import ProcessReportModal from "../components/ProcessReportModal";
@@ -158,6 +160,44 @@ export default function PaymentReportsPage() {
       <Table<PaymentReport>
         key={`${refreshTrigger}-${statusFilter}`}
         fetcher={fetcher}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: PaymentReportSortBy | undefined = undefined;
+          if (attribute === "createDate") sortBy = "ReportDate";
+          else if (attribute === "amount") sortBy = "Amount";
+          else if (attribute === "status") sortBy = "Status";
+
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          return await getPaymentReports({ SortBy: sortBy, SortOrder: order });
+        }}
+        filter={async (attribute, value) => {
+          const params: GetPaymentReportsParams = {};
+          if (
+            attribute === "global" ||
+            attribute === "username" ||
+            attribute === "email"
+          ) {
+            params.UserEmail = value ? String(value) : undefined;
+          } else if (
+            attribute === "userExplanation" ||
+            attribute === "reason"
+          ) {
+            params.Reason = value ? String(value) : undefined;
+          } else if (
+            attribute === "status" &&
+            value !== undefined &&
+            value !== null
+          ) {
+            params.Statuses = Array.isArray(value)
+              ? value.map(Number)
+              : [Number(value)];
+          }
+          return await getPaymentReports(params);
+        }}
         headers={[
           {
             name: "ID",

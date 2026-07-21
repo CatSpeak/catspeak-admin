@@ -1,17 +1,8 @@
-import { FileText } from "lucide-react";
-import { PageHeader } from "../../../components/ui/PageHeader";
 import ReportSummaryCard from "./ReportSummaryCard";
 
 export default function ReportsSummaryCards() {
   return (
     <div className="space-y-6">
-      {/* Header Text */}
-      <PageHeader
-        icon={<FileText />}
-        title="Letter Reports"
-        desc="Here is the information you need to handle today."
-      />
-
       {/* Summary Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <ReportSummaryCard

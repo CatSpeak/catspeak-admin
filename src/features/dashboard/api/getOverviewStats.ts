@@ -41,7 +41,10 @@ export interface AgeGenderSegment {
 }
 
 export interface ActiveUsersItem {
+  periodStart?: string;
+  periodEnd?: string;
   label: string;
+  newAccounts: number;
   accountUsers: number;
   activeUsers: number;
   value: number;
@@ -173,25 +176,40 @@ export const getActiveUsersStats = async (
           typeof item === "object" && item !== null,
       )
       .map((item) => {
-        const label = String(item.label ?? item.date ?? "");
-        const activeUsers = Number(item.activeUsers ?? item.value ?? 0);
-        const accountUsers = Number(
-          item.accountUsers ??
-            item.totalUsers ??
-            item.registeredUsers ??
-            item.value ??
-            activeUsers,
+        const periodStart = String(item.periodStart ?? "");
+        const periodEnd = String(item.periodEnd ?? "");
+        const newAccounts = Number(
+          item.newAccounts ?? item.accountUsers ?? item.newUsers ?? 0,
         );
+        const activeUsers = Number(item.activeUsers ?? item.value ?? 0);
+
+        let label = String(item.label ?? item.date ?? "");
+        if (!label && periodStart) {
+          const d = new Date(periodStart);
+          if (!isNaN(d.getTime())) {
+            label = d.toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            });
+          } else {
+            label = periodStart;
+          }
+        }
+
+        const accountUsers = newAccounts;
         const value = Number(item.value ?? activeUsers);
         const annotation = String(item.annotation ?? "");
 
-        let values: [number, number] = [accountUsers, activeUsers];
+        let values: [number, number] = [newAccounts, activeUsers];
         if (Array.isArray(item.values) && item.values.length >= 2) {
           values = [Number(item.values[0]), Number(item.values[1])];
         }
 
         return {
+          periodStart,
+          periodEnd,
           label,
+          newAccounts,
           accountUsers,
           activeUsers,
           value,

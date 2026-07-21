@@ -6,17 +6,17 @@ import { SidebarProvider, useSidebar } from "../../context/SidebarContext";
 import Backdrop from "./Backdrop";
 
 const LayoutContent: React.FC = () => {
-  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+  const { isExpanded, isMobileOpen } = useSidebar();
 
   return (
-    <div className="min-h-screen xl:flex">
+    <div className="min-h-screen md:flex w-full overflow-x-hidden">
       <div>
         <AppSidebar />
         <Backdrop />
       </div>
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isExpanded || isHovered ? "xl:ml-72.5" : "xl:ml-22.5"
+        className={`flex-1 min-w-0 transition-all duration-300 ease-in-out ${
+          isExpanded ? "md:ml-72.5" : "md:ml-22.5"
         } ${isMobileOpen ? "ml-0" : ""}`}
       >
         <AppHeader />

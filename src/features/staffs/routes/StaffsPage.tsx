@@ -1,8 +1,9 @@
 import { IdCardLanyard } from "lucide-react";
-import Button from "../../../components/ui/Button";
+// import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { getStaffs } from "../api/getStaffs";
+import { getStaffs, type GetStaffsParams } from "../api/getStaffs";
+import type { UserSortBy } from "../../users/api/getUsers";
 import { useNavigate } from "react-router-dom";
 import type { Account } from "../types";
 import { formatDateTime } from "../../../lib/utils";
@@ -17,17 +18,17 @@ export default function StaffsPage() {
         icon={<IdCardLanyard />}
         title="Staffs"
         desc="Manage your core team and streamline internal permissions."
-        rightButtons={[
-          <Button variant="primary" size="sm">
-            Import
-          </Button>,
-          <Button variant="primary" size="sm">
-            Decentralize
-          </Button>,
-          <Button variant="primary" size="sm">
-            History
-          </Button>,
-        ]}
+        // rightButtons={[
+        //   <Button variant="primary" size="sm">
+        //     Import
+        //   </Button>,
+        //   <Button variant="primary" size="sm">
+        //     Decentralize
+        //   </Button>,
+        //   <Button variant="primary" size="sm">
+        //     History
+        //   </Button>,
+        // ]}
       />
 
       {/* Staff Table */}
@@ -38,6 +39,32 @@ export default function StaffsPage() {
             data: res.data,
             total: res.additionalData.totalCount,
           };
+        }}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: UserSortBy | undefined = undefined;
+          if (attribute === "username") sortBy = "Username";
+          else if (attribute === "createDate") sortBy = "CreateDate";
+
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          const res = await getStaffs({ SortBy: sortBy, SortOrder: order });
+          return res.data;
+        }}
+        filter={async (attribute, value) => {
+          const params: GetStaffsParams = {};
+          if (attribute === "global" || attribute === "username") {
+            params.Username = value ? String(value) : undefined;
+          } else if (attribute === "email") {
+            params.Email = value ? String(value) : undefined;
+          } else if (attribute === "phoneNumber") {
+            params.PhoneNumber = value ? String(value) : undefined;
+          }
+          const res = await getStaffs(params);
+          return res.data;
         }}
         onClickRow={(r) => navigate(`/staffs/${r.accountId}`)}
         headers={[

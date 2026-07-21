@@ -1,16 +1,15 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
 
 export interface LetterReport {
-  id: number;
-  letterId?: string;
-  ownerId?: string;
-  reportersCount?: number;
-  content: string;
-  decision?: string;
-  authorUsername?: string;
-  createDate?: string;
-  status?: number;
+  storyId: number;
+  accountId: number;
+  username: string;
+  avatarImageUrl?: string;
+  storyContent: string;
   languageCommunity?: string;
+  createDate?: string;
+  expiresAt?: string;
+  status?: number;
 }
 
 export interface LetterReportsResponse {
@@ -18,20 +17,48 @@ export interface LetterReportsResponse {
   total_records: number;
 }
 
+export type LetterReportSortBy =
+  | "Content"
+  | "AuthorUsername"
+  | "CreateDate"
+  | "Status";
+export type SortOrder = "Asc" | "Desc";
+
+export interface GetLetterReportsParams {
+  Content?: string;
+  AuthorUsername?: string;
+  Statuses?: number[];
+  FromDate?: string;
+  ToDate?: string;
+  LanguageCommunities?: string[];
+  SortBy?: LetterReportSortBy;
+  Page?: number;
+  PageSize?: number;
+  SortOrder?: SortOrder;
+}
+
 /**
  * Fetch paginated list of user stories (letter reports) for Admin.
- * Only uses page and pageSize parameters.
+ * Accepts either a GetLetterReportsParams object or legacy (page, pageSize) arguments.
  */
 export const getLetterReports = async (
-  page: number,
-  pageSize: number,
+  paramsOrPage: GetLetterReportsParams | number = 1,
+  pageSizeParam?: number,
 ): Promise<LetterReportsResponse> => {
+  let params: GetLetterReportsParams;
+
+  if (typeof paramsOrPage === "number") {
+    params = {
+      Page: paramsOrPage,
+      PageSize: pageSizeParam,
+    };
+  } else {
+    params = paramsOrPage;
+  }
+
   return getResponseData(
     axiosClient.get<LetterReportsResponse>("/user-stories", {
-      params: {
-        Page: page,
-        PageSize: pageSize,
-      },
+      params,
     }),
   );
 };
@@ -42,9 +69,7 @@ export const getLetterReports = async (
 export const getLetterReportById = async (
   id: number | string,
 ): Promise<LetterReport> => {
-  return getResponseData(
-    axiosClient.get<LetterReport>(`/user-stories/${id}`),
-  );
+  return getResponseData(axiosClient.get<LetterReport>(`/user-stories/${id}`));
 };
 
 /**
@@ -53,7 +78,5 @@ export const getLetterReportById = async (
 export const deleteLetterReport = async (
   id: number | string,
 ): Promise<void> => {
-  return getResponseData(
-    axiosClient.delete<void>(`/user-stories/${id}`),
-  );
+  return getResponseData(axiosClient.delete<void>(`/user-stories/${id}`));
 };
