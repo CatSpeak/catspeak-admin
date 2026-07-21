@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import ReportsSummaryCards from "../components/ReportsSummaryCards";
+import ReportsSummaryCards from "../components/ReportsSummaryCards";
 import ReportDialog from "../components/ReportDialog";
 import { LANGUAGE_FLAGS } from "../../room/constants";
 import type { LanguageType } from "../../room/types";
 import Table from "../../../components/ui/table/Table";
 import { getLetterReports, type LetterReport } from "../api/letterReports";
+import { PageHeader } from "../../../components/ui/PageHeader";
+import { FileText } from "lucide-react";
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -13,8 +15,13 @@ export default function HandleReportsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Summary Cards */}
-      {/* <ReportsSummaryCards /> */}
+      <PageHeader
+        icon={<FileText />}
+        title="Letter Reports"
+        desc="Here is the information you need to handle today."
+      />
+
+      <ReportsSummaryCards />
 
       {/* Reports Table */}
       <Table<LetterReport>
