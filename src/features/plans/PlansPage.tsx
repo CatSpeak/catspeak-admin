@@ -7,6 +7,7 @@ import { usePlans } from "./hooks/usePlans";
 import { PageHeader } from "../../components/ui/PageHeader";
 import type { Plan } from "../../entities/types";
 import Table from "../../components/ui/table/Table";
+import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans";
 import { formatDateTime } from "../../lib/utils";
 import Badge from "../../components/ui/Badge";
 
@@ -41,6 +42,34 @@ const PlansPage: React.FC = () => {
             data: plans?.data || [],
             total: plans?.total_records || 0,
           };
+        }}
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: PlanSortBy | undefined = undefined;
+          if (attribute === "planName") sortBy = "PlanName";
+          else if (attribute === "priceVnd") sortBy = "Price";
+          else if (attribute === "lastEdited" || attribute === "createDate")
+            sortBy = "CreateDate";
+
+          const order =
+            sortOrder === "asc"
+              ? "Asc"
+              : sortOrder === "desc"
+                ? "Desc"
+                : undefined;
+          const res = await getPlans({ SortBy: sortBy, SortOrder: order });
+          return res.data;
+        }}
+        filter={async (attribute, value) => {
+          const params: GetPlansParams = {};
+          if (attribute === "global" || attribute === "planName") {
+            params.PlanName = value ? String(value) : undefined;
+          } else if (attribute === "packageStatus" && value) {
+            params.PackageStatuses = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)];
+          }
+          const res = await getPlans(params);
+          return res.data;
         }}
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
         headers={[
