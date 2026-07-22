@@ -17,13 +17,13 @@ import {
   resetPassword,
 } from "../api/forgotPassword";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { useLanguage, type Language } from "../../../stores/languageStore";
+import { useLanguage } from "../../../stores/languageStore";
 
 type Step = "email" | "otp" | "reset" | "success";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<Step>("email");
   const [error, setError] = useState<string | null>(null);
 
@@ -67,9 +67,7 @@ export default function ForgotPassword() {
       await sendForgotPasswordOtp({ email: email.trim() });
       setCurrentStep("otp");
     } catch (err) {
-      setError(
-        getApiErrorMessage(err, t.auth.sendOtpFailed),
-      );
+      setError(getApiErrorMessage(err, t.auth.sendOtpFailed));
     } finally {
       setIsSendingOtp(false);
     }
@@ -129,7 +127,10 @@ export default function ForgotPassword() {
 
     setIsVerifyingOtp(true);
     try {
-      const response = await verifyResetOtp({ email: email.trim(), otp: otpValue });
+      const response = await verifyResetOtp({
+        email: email.trim(),
+        otp: otpValue,
+      });
       setOtpToken(response.resetToken);
       setCurrentStep("reset");
     } catch (err) {
@@ -190,7 +191,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
           <Mail className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">{t.auth.forgotPasswordTitle}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t.auth.forgotPasswordTitle}
+        </h2>
         <p className="mt-1.5 text-sm text-gray-500">
           {t.auth.forgotPasswordSubtitle}
         </p>
@@ -244,7 +247,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50">
           <ShieldCheck className="h-7 w-7 text-amber-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">{t.auth.checkYourEmail}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t.auth.checkYourEmail}
+        </h2>
         <p className="mt-1.5 text-sm text-gray-500">
           {t.auth.sentCodeTo}{" "}
           <span className="font-medium text-gray-700">{email}</span>
@@ -316,7 +321,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50">
           <Lock className="h-7 w-7 text-violet-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">{t.auth.setNewPasswordTitle}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t.auth.setNewPasswordTitle}
+        </h2>
         <p className="mt-1.5 text-sm text-gray-500">
           {t.auth.setNewPasswordSubtitle}
         </p>
@@ -422,7 +429,9 @@ export default function ForgotPassword() {
         <CheckCircle2 className="h-8 w-8 text-emerald-500" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">{t.auth.passwordUpdatedTitle}</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {t.auth.passwordUpdatedTitle}
+        </h2>
         <p className="mt-1.5 text-sm text-gray-500">
           {t.auth.passwordUpdatedSubtitle}
         </p>
@@ -447,18 +456,6 @@ export default function ForgotPassword() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl shadow-gray-200/50 ring-1 ring-gray-900/5">
-        <div className="flex justify-end">
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as Language)}
-            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-          >
-            <option value="vi">🇻🇳 Tiếng Việt</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="zh">🇨🇳 中文</option>
-          </select>
-        </div>
-
         {/* Step Content */}
         <div>{stepContent[currentStep]()}</div>
 
