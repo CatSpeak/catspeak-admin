@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuthStore } from "../../../stores/authStore";
-import { useLanguage, type Language } from "../../../stores/languageStore";
+import { useLanguage } from "../../../stores/languageStore";
 import { loginWithEmailAndPassword } from "../api/login";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import type { AuthUser } from "../types";
@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuthStore();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
 
   const from = location.state?.from?.pathname || "/";
 

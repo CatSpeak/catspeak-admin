@@ -17,13 +17,13 @@ import {
   resetPassword,
 } from "../api/forgotPassword";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { useLanguage, type Language } from "../../../stores/languageStore";
+import { useLanguage } from "../../../stores/languageStore";
 
 type Step = "email" | "otp" | "reset" | "success";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<Step>("email");
   const [error, setError] = useState<string | null>(null);
 
