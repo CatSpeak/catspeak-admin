@@ -79,7 +79,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
           className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium ${typeStyle.bg} ${typeStyle.text}`}
         >
           <Users size={12} />
-          {room.roomType === "OneToOne" ? "1:1" : "Group"}
+          {room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
         </span>
       </td>
 
@@ -148,7 +148,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
           <span
             className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`}
           />
-          {isActive ? "Active" : "Inactive"}
+          {isActive ? t.common.active : t.common.inactive}
         </span>
       </td>
 
@@ -166,7 +166,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
           ) : (
             <Globe size={12} />
           )}
-          {room.privacy}
+          {room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
         </span>
       </td>
 
@@ -242,31 +242,31 @@ const RoomTable: React.FC<RoomTableProps> = ({
           <thead className="bg-primary text-white sticky top-0 z-10">
             <tr>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Room Name
+                {t.room.roomName}
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Type
+                {t.common.type}
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Language
+                {t.room.language}
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Level
+                {t.room.level}
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Topic
+                {t.room.topic}
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
-                Participants
+                {t.room.participants}
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
-                Duration
+                {t.room.duration}
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
                 {t.common.status}
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
-                Privacy
+                {t.room.privacy}
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
                 {t.common.createdDate}

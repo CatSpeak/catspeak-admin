@@ -1,7 +1,16 @@
 import React from "react";
 import {
-  X, Loader2, Calendar, Clock, MapPin, Users, Tag,
-  Repeat, Globe, AlertCircle, Trash2,
+  X,
+  Loader2,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Tag,
+  Repeat,
+  Globe,
+  AlertCircle,
+  Trash2,
 } from "lucide-react";
 import type { EventDetail } from "../types";
 import { getColorClasses, formatDate, formatTime } from "../constants";
@@ -16,15 +25,20 @@ interface EventDetailModalProps {
   onDelete: (eventId: number) => void;
 }
 
-const SCOPE_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
-  PUBLIC: { label: "Public", icon: <Globe size={12} /> },
-  COMMUNITY_ONLY: { label: "Community", icon: <Users size={12} /> },
-  SHARED_LINK_ONLY: { label: "Shared Link", icon: <Tag size={12} /> },
-};
+// const SCOPE_LABELS: Record<string, { label: string; icon: React.ReactNode }> = {
+//   PUBLIC: { label: "Public", icon: <Globe size={12} /> },
+//   COMMUNITY_ONLY: { label: "Community", icon: <Users size={12} /> },
+//   SHARED_LINK_ONLY: { label: "Shared Link", icon: <Tag size={12} /> },
+// };
 
 const WEEKDAY_MAP: Record<string, string> = {
-  MON: "Monday", TUE: "Tuesday", WED: "Wednesday",
-  THU: "Thursday", FRI: "Friday", SAT: "Saturday", SUN: "Sunday",
+  MON: "Monday",
+  TUE: "Tuesday",
+  WED: "Wednesday",
+  THU: "Thursday",
+  FRI: "Friday",
+  SAT: "Saturday",
+  SUN: "Sunday",
 };
 
 const EventDetailModal: React.FC<EventDetailModalProps> = ({
@@ -38,8 +52,15 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
   const { t } = useLanguage();
   if (!isOpen) return null;
 
+  const scopeLabels: Record<string, { label: string; icon: React.ReactNode }> =
+    {
+      PUBLIC: { label: t.news.publicLabel, icon: <Globe size={12} /> },
+      COMMUNITY_ONLY: { label: t.news.community, icon: <Users size={12} /> },
+      SHARED_LINK_ONLY: { label: t.common.details, icon: <Tag size={12} /> },
+    };
+
   const color = getColorClasses(event?.color);
-  const scope = SCOPE_LABELS[event?.visibilityScope ?? ""] ?? SCOPE_LABELS.PUBLIC;
+  const scope = scopeLabels[event?.visibilityScope ?? ""] ?? scopeLabels.PUBLIC;
 
   return (
     <div
@@ -51,11 +72,15 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className={`flex items-start justify-between p-5 border-b border-gray-100`}>
+        <div
+          className={`flex items-start justify-between p-5 border-b border-gray-100`}
+        >
           <div className="flex items-center gap-3 min-w-0">
             <span className={`w-3 h-3 rounded-full shrink-0 ${color.dot}`} />
             <h2 className="text-lg font-bold text-gray-900 truncate">
-              {isLoading ? t.common.loading : event?.title || "(No title)"}
+              {isLoading
+                ? t.common.loading
+                : event?.title || t.calendar.noTitle}
             </h2>
           </div>
           <button
@@ -91,7 +116,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 </span>
                 {event.isRecurring && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600">
-                    <Repeat size={12} /> Recurring
+                    <Repeat size={12} /> {t.calendar.recurring}
                   </span>
                 )}
               </div>
@@ -107,14 +132,17 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
               <div className="grid gap-3">
                 {/* Date & Time */}
                 {!event.isRecurring && event.startTime && event.endTime && (
-                  <InfoRow icon={<Calendar size={15} />} label="Date">
+                  <InfoRow
+                    icon={<Calendar size={15} />}
+                    label={t.common.createdDate}
+                  >
                     {formatDate(event.startTime) === formatDate(event.endTime)
                       ? formatDate(event.startTime)
                       : `${formatDate(event.startTime)} – ${formatDate(event.endTime)}`}
                   </InfoRow>
                 )}
                 {!event.isRecurring && event.startTime && event.endTime && (
-                  <InfoRow icon={<Clock size={15} />} label="Time">
+                  <InfoRow icon={<Clock size={15} />} label={t.common.time}>
                     {formatTime(event.startTime)} – {formatTime(event.endTime)}
                   </InfoRow>
                 )}
@@ -122,19 +150,32 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 {/* Recurrence rule */}
                 {event.isRecurring && event.recurrenceRule && (
                   <>
-                    <InfoRow icon={<Repeat size={15} />} label="Repeats">
-                      {event.recurrenceRule.frequency}, every {event.recurrenceRule.interval}{" "}
-                      {event.recurrenceRule.frequency === "WEEKLY" ? "week(s)" : "interval(s)"}
+                    <InfoRow
+                      icon={<Repeat size={15} />}
+                      label={t.calendar.repeats}
+                    >
+                      {event.recurrenceRule.frequency}, every{" "}
+                      {event.recurrenceRule.interval}{" "}
+                      {event.recurrenceRule.frequency === "WEEKLY"
+                        ? "week(s)"
+                        : "interval(s)"}
                     </InfoRow>
-                    <InfoRow icon={<Calendar size={15} />} label="Days">
+                    <InfoRow
+                      icon={<Calendar size={15} />}
+                      label={t.calendar.days}
+                    >
                       {event.recurrenceRule.byWeekDay
                         .map((d) => WEEKDAY_MAP[d] ?? d)
                         .join(", ")}
                     </InfoRow>
-                    <InfoRow icon={<Clock size={15} />} label="Time">
-                      {event.recurrenceRule.startTime} – {event.recurrenceRule.endTime}
+                    <InfoRow icon={<Clock size={15} />} label={t.common.time}>
+                      {event.recurrenceRule.startTime} –{" "}
+                      {event.recurrenceRule.endTime}
                     </InfoRow>
-                    <InfoRow icon={<Calendar size={15} />} label="Period">
+                    <InfoRow
+                      icon={<Calendar size={15} />}
+                      label={t.calendar.period}
+                    >
                       {formatDate(event.recurrenceRule.recurrenceStartDate)} →{" "}
                       {formatDate(event.recurrenceRule.recurrenceEndDate)}
                     </InfoRow>
@@ -143,13 +184,19 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
                 {/* Location */}
                 {event.location && (
-                  <InfoRow icon={<MapPin size={15} />} label="Location">
+                  <InfoRow
+                    icon={<MapPin size={15} />}
+                    label={t.calendar.location}
+                  >
                     {event.location}
                   </InfoRow>
                 )}
 
                 {/* Participants */}
-                <InfoRow icon={<Users size={15} />} label="Max Participants">
+                <InfoRow
+                  icon={<Users size={15} />}
+                  label={t.calendar.maxParticipants}
+                >
                   {event.maxParticipants}
                 </InfoRow>
               </div>
@@ -158,7 +205,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
               {(event.conditions?.length ?? 0) > 0 && (
                 <div>
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                    Conditions
+                    {t.calendar.conditions}
                   </h4>
                   <div className="space-y-2">
                     {event.conditions!.map((cond) => (
@@ -166,9 +213,13 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                         key={cond.id}
                         className="p-2.5 rounded-lg bg-gray-50 border border-gray-100"
                       >
-                        <p className="text-sm font-medium text-gray-800">{cond.title}</p>
+                        <p className="text-sm font-medium text-gray-800">
+                          {cond.title}
+                        </p>
                         {cond.description && (
-                          <p className="text-xs text-gray-500 mt-0.5">{cond.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {cond.description}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -178,7 +229,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
               {/* Created at */}
               <p className="text-xs text-gray-400">
-                Created {formatDate(event.createdAt)}
+                {t.calendar.createdOn} {formatDate(event.createdAt)}
               </p>
             </div>
           )}
@@ -221,7 +272,9 @@ const InfoRow: React.FC<{
       {icon}
     </div>
     <div className="min-w-0">
-      <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{label}</p>
+      <p className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">
+        {label}
+      </p>
       <p className="text-sm text-gray-800">{children}</p>
     </div>
   </div>

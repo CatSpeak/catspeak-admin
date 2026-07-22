@@ -4,6 +4,7 @@ import { usePlans } from "../hooks/usePlans";
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
 import type { Plan } from "../../../entities/types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface PlanGeneralTabProps {
   plan: Plan;
@@ -19,6 +20,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
   isSaving,
 }) => {
   const { plans } = usePlans();
+  const { t } = useLanguage();
   const [isPaid, setIsPaid] = useState(
     plan.priceVnd > 0 || plan.priceUsd > 0 || plan.priceYuan > 0,
   );
@@ -74,6 +76,21 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
     await onSave(formData);
   };
 
+  const getCycleLabel = (cycle: string) => {
+    switch (cycle) {
+      case "Monthly":
+        return t.plans.monthlyCycle;
+      case "Quarterly":
+        return t.plans.quarterlyCycle;
+      case "Yearly":
+        return t.plans.yearlyCycle;
+      case "Lifetime":
+        return t.plans.lifetimeCycle;
+      default:
+        return cycle;
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -85,10 +102,10 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           <div className="flex items-start sm:items-center justify-between gap-4 flex-col sm:flex-row mb-4">
             <div>
               <h2 className="text-lg font-bold text-gray-900">
-                General Information
+                {t.plans.generalInformation}
               </h2>
               <p className="text-sm text-gray-500">
-                Edit basic information of the plan.
+                {t.plans.editBasicInfo}
               </p>
             </div>
           </div>
@@ -96,7 +113,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Plan Name <span className="text-red-500">*</span>
+                {t.plans.planName} <span className="text-red-500">*</span>
               </label>
               <input
                 required
@@ -110,10 +127,10 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {isCreateMode ? (
                   <>
-                    Code <span className="text-red-500">*</span>
+                    {t.plans.code} <span className="text-red-500">*</span>
                   </>
                 ) : (
-                  "Code (Cannot be edited)"
+                  t.plans.codeCannotEdit
                 )}
               </label>
               <input
@@ -127,7 +144,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
 
           <div className="mb-5">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description <span className="text-red-500">*</span>
+              {t.common.description} <span className="text-red-500">*</span>
             </label>
             <textarea
               required
@@ -144,10 +161,10 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {isCreateMode ? (
                   <>
-                    Role <span className="text-red-500">*</span>
+                    {t.users.role} <span className="text-red-500">*</span>
                   </>
                 ) : (
-                  "Role (Cannot be edited)"
+                  t.plans.roleCannotEdit
                 )}
               </label>
               {isCreateMode ? (
@@ -158,7 +175,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   <option value="" disabled>
-                    Select Role
+                    {t.plans.selectRole}
                   </option>
                   <option value="Learner">Learner</option>
                   <option value="Teacher">Teacher</option>
@@ -178,7 +195,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Icon <span className="text-red-500">*</span>
+                {t.plans.icon} <span className="text-red-500">*</span>
               </label>
               {(previewIconUrl || plan.iconUrl) && (
                 <div className="mb-2">
@@ -204,12 +221,12 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
               />
               <p className="text-xs text-gray-500 mt-1">
-                PNG, JPG, SVG. Max 2MB
+                {t.plans.iconHint}
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Brand Color <span className="text-red-500">*</span>
+                {t.plans.brandColor} <span className="text-red-500">*</span>
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -231,15 +248,15 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
                     <h3 className="text-sm font-medium text-gray-900">
-                      Display Sequence
+                      {t.plans.displaySequence}
                     </h3>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Control the order this plan appears on the pricing page.
+                      {t.plans.displaySeqDesc}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                      Position <span className="text-red-500">*</span>
+                      {t.plans.position} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -290,7 +307,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full ${p.isCurrentEditing ? "bg-primary/20 text-primary" : "bg-gray-100 text-gray-500"}`}
                           >
-                            Position {idx + 1}
+                            {t.plans.position} {idx + 1}
                           </span>
                         </div>
                       ));
@@ -308,17 +325,17 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
         <Card>
           <div className="mb-4">
             <h2 className="text-lg font-bold text-gray-900">
-              Price & Cycle Settings
+              {t.plans.priceAndCycle}
             </h2>
             <p className="text-sm text-gray-500">
-              Configure price, cycle and payment options for the plan.
+              {t.plans.priceAndCycleDesc}
             </p>
           </div>
 
           {/* Pricing */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price
+              {t.plans.price}
             </label>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
@@ -329,7 +346,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                   onChange={() => setIsPaid(false)}
                   className="text-primary focus:ring-primary cursor-pointer"
                 />
-                <span className="text-sm font-medium cursor-pointer">Free</span>
+                <span className="text-sm font-medium cursor-pointer">{t.plans.free}</span>
               </label>
 
               <div>
@@ -342,7 +359,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                     className="text-primary focus:ring-primary cursor-pointer"
                   />
                   <span className="text-sm font-medium cursor-pointer">
-                    Paid
+                    {t.plans.paid}
                   </span>
                 </label>
                 {isPaid && (
@@ -381,7 +398,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           {/* Cycle */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Cycle
+              {t.plans.cycle}
             </label>
             <div className="grid grid-cols-2 gap-3">
               {["Monthly", "Quarterly", "Yearly", "Lifetime"].map((cycle) => (
@@ -393,7 +410,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                     defaultChecked={plan.billingCycle === cycle}
                     className="text-primary focus:ring-primary"
                   />
-                  <span className="text-sm">{cycle}</span>
+                  <span className="text-sm">{getCycleLabel(cycle)}</span>
                 </label>
               ))}
             </div>
@@ -402,7 +419,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
           {/* Payment Options */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Options
+              {t.plans.paymentOptions}
             </label>
             <div className="space-y-3">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -412,7 +429,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                   disabled
                   className="rounded text-primary focus:ring-primary opacity-50"
                 />
-                <span className="text-sm">Allow Purchase</span>
+                <span className="text-sm">{t.plans.allowPurchase}</span>
               </label>
 
               <div>
@@ -429,11 +446,11 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                     disabled={!isPaid}
                     className="rounded text-primary focus:ring-primary"
                   />
-                  <span className="text-sm">Allow Renewal</span>
+                  <span className="text-sm">{t.plans.allowRenewal}</span>
                 </label>
                 {!isPaid && (
                   <p className="text-[11px] text-gray-400 mt-1 pl-6">
-                    (Only applicable to paid plans)
+                    {t.plans.paidOnlyHint}
                   </p>
                 )}
               </div>
@@ -448,7 +465,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
                   disabled={!allowRenewal}
                   className="rounded text-primary focus:ring-primary"
                 />
-                <span className="text-sm">Auto Renew</span>
+                <span className="text-sm">{t.plans.autoRenew}</span>
               </label>
             </div>
           </div>
@@ -459,21 +476,21 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
       <div className="lg:col-span-3">
         <Card className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
           <div className="text-sm text-gray-500">
-            Make sure to save your general information changes.
+            {t.plans.saveHint}
           </div>
           <Button type="submit" variant="primary" disabled={isSaving}>
             <Save className="w-4 h-4 mr-2" />
             {isCreateMode
               ? isSaving
-                ? "Creating..."
-                : "Create Plan & Go to Config"
+                ? t.plans.creating
+                : t.plans.createAndConfig
               : plan.packageStatus === "Draft"
                 ? isSaving
-                  ? "Saving..."
-                  : "Save as Draft"
+                  ? t.plans.saving
+                  : t.plans.saveDraft
                 : isSaving
-                  ? "Saving..."
-                  : "Save Changes"}
+                  ? t.plans.saving
+                  : t.plans.saveChanges}
           </Button>
         </Card>
       </div>

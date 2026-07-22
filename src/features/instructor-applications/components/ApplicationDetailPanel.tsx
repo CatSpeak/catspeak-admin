@@ -250,7 +250,7 @@ export default function ApplicationDetailPanel({
               leftIcon={<CheckCircle2 className="w-4 h-4" />}
               onClick={() => setModalAction("approve")}
             >
-              Approve
+              {t.instructorApplications.approve}
             </Button>
             <Button
               size="sm"
@@ -258,7 +258,7 @@ export default function ApplicationDetailPanel({
               leftIcon={<Edit3 className="w-4 h-4" />}
               onClick={() => setModalAction("requestEdit")}
             >
-              Request Edit
+              {t.instructorApplications.requestEdit}
             </Button>
             <Button
               variant="danger"
@@ -266,7 +266,7 @@ export default function ApplicationDetailPanel({
               leftIcon={<XCircle className="w-4 h-4" />}
               onClick={() => setModalAction("reject")}
             >
-              Reject
+              {t.instructorApplications.reject}
             </Button>
           </div>
         )}
@@ -276,11 +276,11 @@ export default function ApplicationDetailPanel({
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
           {/* Personal Info */}
-          <SectionCard title="Personal Information">
+          <SectionCard title={t.common.personalInformation}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InfoRow
                 icon={<Mail className="w-4 h-4" />}
-                label="Account Email"
+                label={t.instructorApplications.accountEmail}
                 value={
                   <a
                     href={`mailto:${application.accountEmail}`}
@@ -292,38 +292,38 @@ export default function ApplicationDetailPanel({
               />
               <InfoRow
                 icon={<Mail className="w-4 h-4" />}
-                label="Profile Email"
+                label={t.instructorApplications.profileEmail}
                 value={application.email || "—"}
               />
               <InfoRow
                 icon={<Phone className="w-4 h-4" />}
-                label="Phone"
+                label={t.users.phone}
                 value={application.phoneNumber || "—"}
               />
               <InfoRow
                 icon={<Globe className="w-4 h-4" />}
-                label="Nationality"
+                label={t.instructorApplications.nationality}
                 value={application.nationality || "—"}
               />
               <InfoRow
                 icon={<MapPin className="w-4 h-4" />}
-                label="Address"
+                label={t.instructorApplications.address}
                 value={application.address || "—"}
               />
               <InfoRow
                 icon={<Languages className="w-4 h-4" />}
-                label="Native Language"
+                label={t.instructorApplications.nativeLanguage}
                 value={application.nativeLanguage || "—"}
               />
             </div>
           </SectionCard>
 
           {/* Teaching Info */}
-          <SectionCard title="Teaching Profile">
+          <SectionCard title={t.instructorApplications.teachingProfile}>
             <div className="space-y-4">
               <InfoRow
                 icon={<BookOpen className="w-4 h-4" />}
-                label="Languages to Teach"
+                label={t.instructorApplications.languagesTeach}
                 value={
                   languages.length > 0 ? (
                     <div className="flex flex-wrap gap-1.5 mt-1">
@@ -346,17 +346,17 @@ export default function ApplicationDetailPanel({
               />
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                  Introduction
+                  {t.instructorApplications.introduction}
                 </p>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  {application.introduction || "No introduction provided."}
+                  {application.introduction || t.instructorApplications.noIntroduction}
                 </p>
               </div>
             </div>
           </SectionCard>
 
           {/* Credentials */}
-          <SectionCard title="Credentials">
+          <SectionCard title={t.instructorApplications.credentials}>
             {credentials.length > 0 ? (
               <ul className="space-y-2">
                 {credentials.map((url, i) => (
@@ -368,19 +368,19 @@ export default function ApplicationDetailPanel({
                       className="flex items-center gap-2 text-sm text-primary hover:underline"
                     >
                       <FileText className="w-4 h-4 shrink-0" />
-                      Credential {i + 1}
+                      {t.instructorApplications.credentialItem.replace("{index}", String(i + 1))}
                     </a>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">No credentials uploaded.</p>
+              <p className="text-sm text-gray-500">{t.instructorApplications.noCredentials}</p>
             )}
           </SectionCard>
 
           {/* Intro Video */}
           {application.introVideoUrl && (
-            <SectionCard title="Introduction Video">
+            <SectionCard title={t.instructorApplications.introVideo}>
               <a
                 href={application.introVideoUrl}
                 target="_blank"
@@ -388,7 +388,7 @@ export default function ApplicationDetailPanel({
                 className="flex items-center gap-2 text-sm text-primary hover:underline"
               >
                 <Video className="w-4 h-4 shrink-0" />
-                Watch intro video
+                {t.instructorApplications.watchIntroVideo}
               </a>
             </SectionCard>
           )}
@@ -397,53 +397,53 @@ export default function ApplicationDetailPanel({
         {/* Right column */}
         <div className="space-y-4">
           {/* ID Cards */}
-          <SectionCard title="Identity Verification">
+          <SectionCard title={t.instructorApplications.identityVerification}>
             <div className="space-y-3">
               {application.idCardFrontUrl ? (
                 <ImagePreview
                   src={application.idCardFrontUrl}
-                  label="ID Card – Front"
+                  label={t.instructorApplications.idCardFront}
                 />
               ) : (
-                <p className="text-sm text-gray-500">No front ID uploaded.</p>
+                <p className="text-sm text-gray-500">{t.instructorApplications.noFrontId}</p>
               )}
               {application.idCardBackUrl ? (
                 <ImagePreview
                   src={application.idCardBackUrl}
-                  label="ID Card – Back"
+                  label={t.instructorApplications.idCardBack}
                 />
               ) : (
-                <p className="text-sm text-gray-500">No back ID uploaded.</p>
+                <p className="text-sm text-gray-500">{t.instructorApplications.noBackId}</p>
               )}
             </div>
           </SectionCard>
 
           {/* Review Meta */}
-          <SectionCard title="Review History">
+          <SectionCard title={t.instructorApplications.reviewHistory}>
             <div className="space-y-3 text-sm">
               <InfoRow
                 icon={<Clock className="w-4 h-4" />}
-                label="Submitted"
+                label={t.instructorApplications.submitted}
                 value={formatDate(application.submittedAt)}
               />
               {application.reviewedAt && (
                 <InfoRow
                   icon={<Clock className="w-4 h-4" />}
-                  label="Last Reviewed"
+                  label={t.instructorApplications.lastReviewed}
                   value={formatDate(application.reviewedAt)}
                 />
               )}
               {application.reviewedByAdminUsername && (
                 <InfoRow
                   icon={<ShieldCheck className="w-4 h-4" />}
-                  label="Reviewed By"
+                  label={t.instructorApplications.reviewedBy}
                   value={`@${application.reviewedByAdminUsername}`}
                 />
               )}
               {application.rejectionReason && (
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Rejection Reason
+                    {t.instructorApplications.rejectionReason}
                   </p>
                   <p className="mt-1 text-sm text-red-700 bg-red-50 rounded-lg px-3 py-2 border border-red-100">
                     {application.rejectionReason}
@@ -453,7 +453,7 @@ export default function ApplicationDetailPanel({
               {application.editRequestNote && (
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    Edit Request Note
+                    {t.instructorApplications.editRequestNote}
                   </p>
                   <p className="mt-1 text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2 border border-blue-100">
                     {application.editRequestNote}
@@ -463,7 +463,7 @@ export default function ApplicationDetailPanel({
               {application.banUntil && (
                 <InfoRow
                   icon={<XCircle className="w-4 h-4 text-red-400" />}
-                  label="Banned Until"
+                  label={t.instructorApplications.bannedUntil}
                   value={
                     <span className="text-red-600 font-medium">
                       {formatDate(application.banUntil)}

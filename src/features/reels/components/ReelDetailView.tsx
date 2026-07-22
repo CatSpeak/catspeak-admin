@@ -167,7 +167,7 @@ export default function ReelDetailView({
             className="bg-amber-500 border-transparent hover:bg-amber-600 text-white flex items-center gap-1.5 font-semibold"
           >
             <ShieldAlert className="w-4 h-4" />
-            Block Reel
+            {t.reels.blockReel}
           </Button>
         </div>
       </div>
@@ -187,11 +187,11 @@ export default function ReelDetailView({
           <div className="space-y-1">
             <h4 className={`text-xs font-bold leading-tight uppercase ${reel.status === "Warned" ? "text-amber-900" : "text-red-900"
               }`}>
-              {reel.status === "Warned" ? "Reel Flagged with Warning" : "Reel Blocked from Public View"}
+              {reel.status === "Warned" ? t.reels.reelFlaggedWarning : t.reels.reelBlockedPublicView}
             </h4>
             <p className="text-xs leading-relaxed opacity-95">
-              <span className="font-bold text-gray-700">Reason:</span>{" "}
-              {reel.blockReason || "No explanation provided."}
+              <span className="font-bold text-gray-700">{t.reels.reason}:</span>{" "}
+              {reel.blockReason || t.reels.noExplanation}
             </p>
           </div>
         </div>
@@ -208,13 +208,13 @@ export default function ReelDetailView({
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-base font-bold text-gray-900 leading-snug truncate">
-                {reel.title || "Untitled Reel"}
+                {reel.title || t.reels.untitledReel}
               </h3>
               <p className="text-xs text-gray-500 font-semibold mt-1">
                 {fileName}
               </p>
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-0.5">
-                Uploaded ({simulatedSize} MB)
+                {t.reels.uploaded.replace("{size}", simulatedSize)}
               </p>
             </div>
           </div>
@@ -222,13 +222,13 @@ export default function ReelDetailView({
           {/* Card 2: Description Box (Read-Only) */}
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-3">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
-              Description
+              {t.common.description}
             </h4>
             <div className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100/80 rounded-2xl p-4 whitespace-pre-line font-medium">
-              {reel.description ? highlightText(reel.description) : <span className="text-gray-400 italic">No description added.</span>}
+              {reel.description ? highlightText(reel.description) : <span className="text-gray-400 italic">{t.reels.noDescriptionAdded}</span>}
               {reel.description && (
                 <span className="block text-[9px] text-gray-400 text-right mt-3 select-none">
-                  {reel.description.length} characters
+                  {reel.description.length} {t.reels.characters}
                 </span>
               )}
             </div>
@@ -237,16 +237,16 @@ export default function ReelDetailView({
           {/* Card 3: Privacy Setting (Read-Only) */}
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-3">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
-              Privacy Settings
+              {t.reels.privacySettings}
             </h4>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 font-semibold">Visibility:</span>
+              <span className="text-xs text-gray-500 font-semibold">{t.reels.visibility}:</span>
               <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${PRIVACY_COLORS[reel.privacy] || PRIVACY_COLORS.Public
                   }`}
               >
                 <Globe className="w-3.5 h-3.5 mr-1" />
-                {reel.privacy}
+                {reel.privacy === "Public" ? t.reels.privacyPublic : reel.privacy === "Private" ? t.reels.privacyPrivate : t.reels.privacyFriendsOnly}
               </span>
             </div>
           </div>
@@ -254,7 +254,7 @@ export default function ReelDetailView({
           {/* Card 4: Cover Image Thumbnail (Read-Only) */}
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-3">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
-              Cover Frame
+              {t.reels.coverFrame}
             </h4>
             <div className="w-32 h-48 rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:scale-[1.02] transition-transform duration-350 bg-gray-900">
               {reel.coverUrl ? (
@@ -266,7 +266,7 @@ export default function ReelDetailView({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-500 text-[10px] font-bold p-2 text-center">
-                  No Cover Image
+                  {t.reels.noCoverImage}
                 </div>
               )}
             </div>
@@ -276,7 +276,7 @@ export default function ReelDetailView({
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-4">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
               <Trophy className="w-4 h-4 text-orange-500" />
-              Connected Challenges
+              {t.reels.connectedChallenges}
             </h4>
 
             {matchedChallenges.length > 0 ? (
@@ -284,7 +284,7 @@ export default function ReelDetailView({
                 {matchedChallenges.map((challenge: ChallengeDto) => {
                   const isActive = new Date(challenge.startDate) <= new Date() && new Date() <= new Date(challenge.endDate);
                   const isCompleted = new Date() > new Date(challenge.endDate);
-                  const challengeStatus = isActive ? "Active" : isCompleted ? "Completed" : "Upcoming";
+                  const challengeStatus = isActive ? t.common.active : isCompleted ? t.common.completed : "Upcoming";
 
                   return (
                     <div
@@ -293,9 +293,9 @@ export default function ReelDetailView({
                     >
                       <div className="space-y-1">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider mb-2 ${challengeStatus === "Active"
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider mb-2 ${challengeStatus === t.common.active || challengeStatus === "Active"
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : challengeStatus === "Completed"
+                            : isCompleted
                               ? "bg-gray-100 text-gray-600 border-gray-200"
                               : "bg-blue-50 text-blue-700 border-blue-200"
                             }`}
@@ -321,7 +321,7 @@ export default function ReelDetailView({
               </div>
             ) : (
               <div className="p-6 text-center bg-gray-50 border border-gray-100/80 rounded-2xl">
-                <p className="text-xs text-gray-400 italic">No connected challenges matching this reel.</p>
+                <p className="text-xs text-gray-400 italic">{t.reels.noConnectedChallenges}</p>
               </div>
             )}
           </div>
@@ -332,7 +332,7 @@ export default function ReelDetailView({
           {/* Card 6: Info metadata */}
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-4">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none border-b border-gray-50 pb-2">
-              Metadata
+              {t.reels.metadata}
             </h4>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between items-center py-0.5">
@@ -342,39 +342,39 @@ export default function ReelDetailView({
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">Uploaded By</span>
+                <span className="text-gray-400 font-semibold">{t.reels.uploadedBy}</span>
                 <span className="font-semibold text-gray-800">
                   @{reel.username || "admin"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">Date Uploaded</span>
+                <span className="text-gray-400 font-semibold">{t.reels.dateUploaded}</span>
                 <span className="font-semibold text-gray-700 tabular-nums">
                   {formatDate(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">Last Edited</span>
+                <span className="text-gray-400 font-semibold">{t.reels.lastEdited}</span>
                 <span className="font-semibold text-gray-700 tabular-nums">
                   {formatDate(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5 border-t border-gray-50 pt-3">
-                <span className="text-gray-400 font-semibold">Total Views</span>
+                <span className="text-gray-400 font-semibold">{t.news.totalViews}</span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <Eye className="w-3.5 h-3.5 text-gray-400" />
                   {reel.viewCount || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">Total Reaction</span>
+                <span className="text-gray-400 font-semibold">{t.reels.totalReaction}</span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
                   {reel.likesCount || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">Comments Count</span>
+                <span className="text-gray-400 font-semibold">{t.reels.commentsCount}</span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
                   {reel.commentsCount || 0}
@@ -386,7 +386,7 @@ export default function ReelDetailView({
           {/* Card 7: Video Preview Card */}
           <div className="bg-white border border-gray-100/90 rounded-3xl p-5 shadow-sm hover:shadow-md transition-shadow space-y-3">
             <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 select-none">
-              Preview
+              {t.reels.preview}
             </h4>
             <div className="relative aspect-[9/16] w-full bg-black rounded-2xl overflow-hidden border border-gray-250/50 shadow-inner flex items-center justify-center">
               {reel.videoUrl ? (
@@ -428,7 +428,7 @@ export default function ReelDetailView({
             <div className="flex justify-between items-center pb-2">
               <div className="flex items-center gap-2 text-amber-600">
                 <ShieldAlert className="w-5.5 h-5.5" />
-                <h3 className="text-base font-bold text-gray-900">Moderate Video Reel</h3>
+                <h3 className="text-base font-bold text-gray-900">{t.reels.moderateVideoReel}</h3>
               </div>
               <button
                 type="button"
@@ -449,7 +449,7 @@ export default function ReelDetailView({
             {/* Moderation Type select input */}
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                Select Action Status
+                {t.reels.selectActionStatus}
               </label>
               <select
                 value={modStatus}
@@ -462,17 +462,17 @@ export default function ReelDetailView({
                 }}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer font-semibold text-gray-600"
               >
-                <option value="Warned">Warned (Flag with explanation)</option>
-                <option value="Blocked">Blocked (Restrict public feed)</option>
-                <option value="Public">Public (Approve / Unblock)</option>
-                <option value="Private">Private</option>
+                <option value="Warned">{t.reels.reelFlaggedWarning}</option>
+                <option value="Blocked">{t.reels.reelBlockedPublicView}</option>
+                <option value="Public">{t.reels.privacyPublic}</option>
+                <option value="Private">{t.reels.privacyPrivate}</option>
               </select>
             </div>
 
             {/* Block Reason Text Area */}
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                Reason {(modStatus === "Warned" || modStatus === "Blocked") && <span className="text-red-500">*</span>}
+                {t.reels.reason} {(modStatus === "Warned" || modStatus === "Blocked") && <span className="text-red-500">*</span>}
               </label>
               <textarea
                 rows={4}
@@ -483,7 +483,7 @@ export default function ReelDetailView({
                 }}
                 placeholder={
                   modStatus === "Warned" || modStatus === "Blocked"
-                    ? "Describe standard violation or reason (e.g. offensive content, trademark violations)..."
+                    ? "Describe standard violation or reason..."
                     : "Optional unblock or clearance explanation..."
                 }
                 required={modStatus === "Warned" || modStatus === "Blocked"}
@@ -499,7 +499,7 @@ export default function ReelDetailView({
                 onClick={() => setShowModerationModal(false)}
                 disabled={isUpdating}
               >
-                Cancel
+                {t.common.cancel}
               </Button>
               <Button
                 variant="primary"
@@ -509,7 +509,7 @@ export default function ReelDetailView({
                 disabled={isUpdating || ((modStatus === "Warned" || modStatus === "Blocked") && !blockReason.trim())}
                 className="bg-amber-500 border-transparent hover:bg-amber-600 text-white flex items-center gap-1.5 font-semibold"
               >
-                Submit
+                {t.common.submit}
               </Button>
             </div>
           </form>

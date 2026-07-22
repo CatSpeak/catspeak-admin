@@ -131,29 +131,29 @@ export default function ChallengeFormModal({
     const trimmedDescription = description.trim();
 
     if (!trimmedName) {
-      setLocalError("Challenge Name is required.");
+      setLocalError(t.reels.challengeNameRequired);
       return;
     }
 
     if (!trimmedHashtag) {
-      setLocalError("Hashtag is required.");
+      setLocalError(t.reels.hashtagRequired);
       return;
     }
 
     trimmedHashtag = trimmedHashtag.replace(/#/g, "").replace(/\s+/g, "");
     if (!trimmedHashtag) {
-      setLocalError("A valid hashtag is required.");
+      setLocalError(t.reels.validHashtagRequired);
       return;
     }
     const finalHashtag = `#${trimmedHashtag}`;
 
     if (!trimmedDescription) {
-      setLocalError("Challenge description is required.");
+      setLocalError(t.reels.descriptionRequired);
       return;
     }
 
     if (!startDate || !endDate) {
-      setLocalError("Both Start and End dates are required.");
+      setLocalError(t.reels.bothDatesRequired);
       return;
     }
 
@@ -161,12 +161,12 @@ export default function ChallengeFormModal({
     const endMs = new Date(endDate).getTime();
 
     if (isNaN(startMs) || isNaN(endMs)) {
-      setLocalError("Please enter valid dates.");
+      setLocalError(t.reels.validDatesRequired);
       return;
     }
 
     if (endMs <= startMs) {
-      setLocalError("End Date must be strictly after the Start Date.");
+      setLocalError(t.reels.endDateAfterStartDate);
       return;
     }
 
@@ -237,7 +237,7 @@ export default function ChallengeFormModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Challenge Name <span className="text-red-500">*</span>
+                {t.reels.challengeName} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -245,14 +245,14 @@ export default function ChallengeFormModal({
                 maxLength={100}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Cat Dance Fever"
+                placeholder={t.reels.challengeNamePlaceholder}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-gray-300 font-medium"
               />
             </div>
 
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Hashtag <span className="text-red-500">*</span>
+                {t.reels.hashtag} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -267,7 +267,7 @@ export default function ChallengeFormModal({
 
           <div className="space-y-1.5">
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-              Description <span className="text-red-500">*</span>
+              {t.reels.descriptionInput} <span className="text-red-500">*</span>
             </label>
             <textarea
               rows={3}
@@ -282,7 +282,7 @@ export default function ChallengeFormModal({
           <div className="space-y-1.5">
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
               <Upload className="w-3.5 h-3.5 text-gray-400" />
-              Banner Image
+              {t.reels.bannerImage}
             </label>
             <div className="relative">
               <input
@@ -321,7 +321,7 @@ export default function ChallengeFormModal({
               </div>
             )}
             <p className="text-[10px] text-gray-400">
-              Upload a banner image (JPG, PNG, or WebP) for the challenge poster. If left blank, a default illustration will be used.
+              {t.reels.bannerHelp}
             </p>
           </div>
 
@@ -331,7 +331,7 @@ export default function ChallengeFormModal({
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                Start Date <span className="text-red-500">*</span>
+                {t.reels.startDate} <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -346,7 +346,7 @@ export default function ChallengeFormModal({
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                End Date <span className="text-red-500">*</span>
+                {t.reels.endDate} <span className="text-red-500">*</span>
               </label>
               <input
                 type="datetime-local"
@@ -367,7 +367,7 @@ export default function ChallengeFormModal({
             onClick={onClose}
             disabled={isSaving}
           >
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant="primary"
@@ -378,7 +378,7 @@ export default function ChallengeFormModal({
             className="shadow-sm font-semibold"
           >
             <Save className="w-4 h-4 mr-2" />
-            {challenge ? "Save Changes" : "Create Challenge"}
+            {challenge ? t.reels.saveChanges : t.reels.createChallenge}
           </Button>
         </div>
       </div>
