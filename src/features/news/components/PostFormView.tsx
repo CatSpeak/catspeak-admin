@@ -13,8 +13,6 @@ import PostEditor from "./PostEditor";
 import SettingsSidebar from "./SettingsSidebar";
 import { MOCK_TAGS } from "../constants";
 
-import { useLanguage } from "../../../stores/languageStore";
-
 type FormMode = "create" | "edit";
 
 interface PostFormViewProps {
@@ -36,7 +34,6 @@ export default function PostFormView({
   onSlugError,
   slugError,
 }: PostFormViewProps) {
-  const { t } = useLanguage();
   // Map post data or init empty strings
   const [title, setTitle] = useState(
     initialPost?.Title ||

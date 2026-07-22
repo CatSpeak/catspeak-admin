@@ -204,6 +204,16 @@ export default function ReelUploadZone({
             </div>
           ) : (
             <div className="space-y-5">
+              {/* Hidden Video Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ALLOWED_VIDEO_TYPES.join(",")}
+                onChange={handleVideoSelect}
+                className="hidden"
+                aria-label="Upload video file"
+              />
+
               {/* Dropzone Container */}
               <div
                 onDragEnter={handleDrag}
@@ -219,6 +229,81 @@ export default function ReelUploadZone({
                     : "border-gray-200 hover:border-primary/50 hover:bg-gray-50/50"
                 }`}
               >
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  {videoFile ? (
+                    <FileVideo className="w-6 h-6 text-emerald-600" />
+                  ) : (
+                    <Upload className="w-6 h-6" />
+                  )}
+                </div>
+                {videoFile ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-emerald-700 truncate max-w-xs">
+                      {videoFile.name}
+                    </p>
+                    <p className="text-[11px] text-emerald-600 font-medium">
+                      {(videoFile.size / (1024 * 1024)).toFixed(2)} MB — Click
+                      to change
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-gray-700">
+                      Drag & drop video file here, or{" "}
+                      <span className="text-primary underline">browse</span>
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      Supports MP4, MOV, WEBM (Max {MAX_REEL_FILE_SIZE_MB}MB)
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Title Input */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter reel title..."
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                />
+              </div>
+
+              {/* Description Input */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Write a description for your reel..."
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none font-medium"
+                />
+              </div>
+
+              {/* Tags Input */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Tags (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={tagsInput}
+                  onChange={(e) => setTagsInput(e.target.value)}
+                  placeholder="e.g. cats, cute, viral"
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                />
+              </div>
+
+              {/* Privacy & Cover controls */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Privacy Mode */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -227,7 +312,7 @@ export default function ReelUploadZone({
                   <select
                     value={privacy}
                     onChange={(e) => setPrivacy(e.target.value as ReelPrivacy)}
-                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
                   >
                     <option value="Public">Public (Publish Immediately)</option>
                     <option value="Private">Private (Draft)</option>

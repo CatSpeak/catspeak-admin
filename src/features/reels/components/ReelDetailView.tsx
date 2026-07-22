@@ -78,20 +78,22 @@ export default function ReelDetailView({
   const [blockReason, setBlockReason] = useState(reel.blockReason || "");
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const matchedChallenge = useMemo(() => {
-    if (!challenges || challenges.length === 0) return null;
+  const matchedChallenges = useMemo(() => {
+    if (!challenges || challenges.length === 0) return [];
     const lowerTitle = (reel.title || "").toLowerCase();
     const lowerDesc = (reel.description || "").toLowerCase();
 
-    return (
-      challenges.find((ch) => {
-        const tag = (ch.hashtag || "").replace(/^#/, "").toLowerCase();
-        return tag && (lowerTitle.includes(`#${tag}`) || lowerDesc.includes(`#${tag}`));
-      }) || null
-    );
+    return challenges.filter((ch) => {
+      const tag = (ch.hashtag || "").replace(/^#/, "").toLowerCase();
+      return tag && (lowerTitle.includes(`#${tag}`) || lowerDesc.includes(`#${tag}`));
+    });
   }, [reel, challenges]);
 
   const fileName = extractFilename(reel.videoUrl, reel.reelId);
+  const simulatedSize = useMemo(
+    () => ((reel.reelId * 17) % 35 + 3.5).toFixed(1),
+    [reel.reelId],
+  );
 
   const handleModerationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,7 +211,7 @@ export default function ReelDetailView({
                 {reel.title || "Untitled Reel"}
               </h3>
               <p className="text-xs text-gray-500 font-semibold mt-1">
-                {filename}
+                {fileName}
               </p>
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-0.5">
                 Uploaded ({simulatedSize} MB)
@@ -279,7 +281,7 @@ export default function ReelDetailView({
 
             {matchedChallenges.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {matchedChallenges.map((challenge) => {
+                {matchedChallenges.map((challenge: ChallengeDto) => {
                   const isActive = new Date(challenge.startDate) <= new Date() && new Date() <= new Date(challenge.endDate);
                   const isCompleted = new Date() > new Date(challenge.endDate);
                   const challengeStatus = isActive ? "Active" : isCompleted ? "Completed" : "Upcoming";

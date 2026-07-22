@@ -71,7 +71,6 @@ export default function ChallengeFormModal({
   const { t } = useLanguage();
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const initialValues = getInitialFormValues(challenge);
 
@@ -122,14 +121,6 @@ export default function ChallengeFormModal({
       previouslyActive?.focus();
     };
   }, [isOpen, onClose]);
-
-  const handleBannerSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setBannerFile(file);
-      setBannerPreviewUrl(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

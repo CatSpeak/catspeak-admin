@@ -54,6 +54,7 @@ export default function ReelTable({
       <div className="bg-white rounded-xl shadow-sm p-4 space-y-4 animate-pulse">
         {Array.from({ length: 5 }).map((_, idx) => (
           <div
+            key={idx}
             className="flex items-center space-x-4 py-3 border-b border-gray-100"
           >
             <div className="h-4.5 w-4.5 bg-gray-200 rounded" />

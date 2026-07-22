@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   Users,
-  Clock,
   Trash2,
   Pencil,
   GraduationCap,
@@ -12,6 +11,8 @@ import {
 } from "lucide-react";
 import type { Room } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
+import { formatDate } from "../../../lib/utils";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -33,12 +34,14 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
   onEdit,
   onClick,
 }) => {
+  const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
   const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
+  const createdDate = formatDate(room.createDate);
 
   useEffect(() => {
     if (!menuOpen) return;
