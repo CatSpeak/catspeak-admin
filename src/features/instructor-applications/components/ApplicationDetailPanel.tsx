@@ -28,6 +28,7 @@ import {
   requestEditApplication,
 } from "../api/reviewInstructorApplication";
 import type { InstructorApplicationDetail } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ApplicationDetailPanelProps {
   application: InstructorApplicationDetail;
@@ -124,7 +125,7 @@ function ImagePreview({ src, label }: { src: string; label: string }) {
         </p>
         <button
           onClick={() => setOpen(true)}
-          className="block w-full rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors group"
+          className="block w-full rounded-lg overflow-hidden border border-gray-200 hover:border-primary transition-colors group cursor-pointer"
         >
           <img
             src={src}
@@ -158,6 +159,7 @@ export default function ApplicationDetailPanel({
   application,
   onReviewed,
 }: ApplicationDetailPanelProps) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
   const [modalAction, setModalAction] = useState<ReviewAction | null>(null);
@@ -202,9 +204,9 @@ export default function ApplicationDetailPanel({
         <nav className="flex items-center gap-2 text-sm text-gray-500">
           <button
             onClick={() => navigate("/instructor-applications")}
-            className="hover:text-primary transition-colors"
+            className="hover:text-primary transition-colors cursor-pointer"
           >
-            Instructor Applications
+            {t.instructorApplications.title}
           </button>
           <span>/</span>
           <span className="text-gray-800 font-medium">
@@ -216,8 +218,9 @@ export default function ApplicationDetailPanel({
           size="sm"
           leftIcon={<ArrowLeft className="w-4 h-4" />}
           onClick={() => navigate("/instructor-applications")}
+          className="cursor-pointer"
         >
-          Back
+          {t.common.back}
         </Button>
       </div>
 

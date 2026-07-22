@@ -6,6 +6,7 @@ import {
   UserX,
   AlertCircle,
 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface StatItem {
   icon: React.ReactNode;
@@ -35,43 +36,45 @@ export default function UserStatsSummary({
   adRemovedFromNew,
   adRemovedFromOld,
 }: UserStatsSummaryProps) {
+  const { t } = useLanguage();
+
   const stats: StatItem[] = [
     {
       icon: <Users size={14} className="text-gray-600" />,
-      label: "Total",
-      value: `${totalUsers.toLocaleString()} users`,
+      label: t.common.total,
+      value: `${totalUsers.toLocaleString()} ${t.users.title.toLowerCase()}`,
       color: "#C8102E",
     },
     {
       icon: <TrendingUp size={14} className="text-green-600" />,
-      label: "Reach",
-      value: `${newUsers} new users`,
+      label: t.dashboard.reach,
+      value: `${newUsers} ${t.analytics.newUsers.toLowerCase()}`,
       color: "#10B981",
     },
     {
       icon: <TrendingDown size={14} className="text-red-600" />,
-      label: "Loss",
-      value: `${lostUsers} users`,
+      label: t.dashboard.loss,
+      value: `${lostUsers} ${t.users.title.toLowerCase()}`,
       color: "#EF4444",
     },
     {
       icon: <UserMinus size={14} className="text-gray-600" />,
-      label: "Old user deleted",
+      label: t.dashboard.oldUserDeleted,
       value: oldUserDeleted,
     },
     {
       icon: <UserX size={14} className="text-gray-600" />,
-      label: "New user deleted",
+      label: t.dashboard.newUserDeleted,
       value: newUserDeleted,
     },
     {
       icon: <AlertCircle size={14} className="text-gray-600" />,
-      label: "AD removed from new",
+      label: t.dashboard.adRemovedFromNew,
       value: adRemovedFromNew,
     },
     {
       icon: <AlertCircle size={14} className="text-gray-600" />,
-      label: "AD removed from old",
+      label: t.dashboard.adRemovedFromOld,
       value: adRemovedFromOld,
     },
   ];
@@ -87,7 +90,7 @@ export default function UserStatsSummary({
             style={{ backgroundColor: "#C8102E" }}
           />
           <span className="text-sm font-medium text-gray-700">
-            Account users
+            {t.dashboard.accountUsers}
           </span>
         </div>
       </div>

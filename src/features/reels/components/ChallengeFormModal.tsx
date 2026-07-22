@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, Save, Trophy, Calendar, Upload, AlertCircle } from "lucide-react";
 import type { ChallengeDto, ChallengeCreateDto } from "../types";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ChallengeFormModalProps {
   challenge: ChallengeDto | null;
@@ -67,6 +68,7 @@ export default function ChallengeFormModal({
   onSave,
   isSaving
 }: ChallengeFormModalProps) {
+  const { t } = useLanguage();
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -120,22 +122,10 @@ export default function ChallengeFormModal({
     };
   }, [isOpen, onClose]);
 
-  // Automatic hashtag prepending and space merging on input blur or submit
-  const handleHashtagBlur = () => {
-    let val = hashtag.trim();
-    if (!val) return;
-    // Replace all hash symbols and spaces, then prepend exactly one hash symbol to merge into a single hashtag
-    val = val.replace(/#/g, "").replace(/\s+/g, "");
-    if (val) {
-      setHashtag(`#${val}`);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError(null);
 
-    // Form Trim validations
     const trimmedName = name.trim();
     let trimmedHashtag = hashtag.trim();
     const trimmedDescription = description.trim();
@@ -150,7 +140,6 @@ export default function ChallengeFormModal({
       return;
     }
 
-    // Auto-fix hashtag prefix and merge multiple words/hashtags on submit if not already formatted
     trimmedHashtag = trimmedHashtag.replace(/#/g, "").replace(/\s+/g, "");
     if (!trimmedHashtag) {
       setLocalError("A valid hashtag is required.");
@@ -181,7 +170,6 @@ export default function ChallengeFormModal({
       return;
     }
 
-    // Validation passed, fire the mutation!
     try {
       const payload: ChallengeCreateDto = {
         name: trimmedName,
@@ -195,7 +183,6 @@ export default function ChallengeFormModal({
       await onSave(payload);
       onClose();
     } catch (err) {
-      // API notifications will handle toast errors; we just set local error for modal
       console.error(err);
       setLocalError("Failed to save challenge. Please check the backend errors.");
     }
@@ -210,25 +197,22 @@ export default function ChallengeFormModal({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      {/* Dynamic Glass Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-[fadeIn_200ms_ease-out]"
         onClick={onClose}
       />
 
-      {/* Modal Dialog Panel */}
       <div
         ref={modalRef}
         className="relative bg-white rounded-3xl w-full max-w-lg shadow-2xl flex flex-col z-10 overflow-hidden animate-[scaleIn_200ms_ease-out] border border-gray-100 max-h-[90vh]"
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <Trophy className="w-5 h-5 text-primary stroke-[2]" />
             </div>
             <h2 id="modal-title" className="text-lg font-bold text-gray-900 leading-tight">
-              {challenge ? "Edit Challenge" : "Create Challenge"}
+              {challenge ? t.reels.challengesTitle : t.reels.createChallenge}
             </h2>
           </div>
 
@@ -242,7 +226,6 @@ export default function ChallengeFormModal({
           </button>
         </div>
 
-        {/* Content Body Form */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {localError && (
             <div className="flex gap-2 p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs border border-red-100 font-medium animate-fadeIn">
@@ -251,9 +234,7 @@ export default function ChallengeFormModal({
             </div>
           )}
 
-          {/* Grid Layout fields: Name & Hashtag */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Challenge Name */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                 Challenge Name <span className="text-red-500">*</span>
@@ -269,7 +250,6 @@ export default function ChallengeFormModal({
               />
             </div>
 
-            {/* Hashtag */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                 Hashtag <span className="text-red-500">*</span>
@@ -279,14 +259,12 @@ export default function ChallengeFormModal({
                 required
                 value={hashtag}
                 onChange={(e) => setHashtag(e.target.value)}
-                onBlur={handleHashtagBlur}
                 placeholder="e.g. #catdance"
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-gray-300 font-semibold text-primary accent-primary"
               />
             </div>
           </div>
 
-          {/* Description */}
           <div className="space-y-1.5">
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
               Description <span className="text-red-500">*</span>
@@ -301,7 +279,6 @@ export default function ChallengeFormModal({
             />
           </div>
 
-          {/* Banner File Upload */}
           <div className="space-y-1.5">
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
               <Upload className="w-3.5 h-3.5 text-gray-400" />

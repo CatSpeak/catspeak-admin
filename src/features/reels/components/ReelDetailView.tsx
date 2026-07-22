@@ -3,6 +3,7 @@ import { ArrowLeft, Trash2, ShieldAlert, FileVideo, Globe, Calendar, Trophy, Eye
 import type { ReelDto, ReelPrivacy, ChallengeDto } from "../types";
 import { formatDate, formatDateLong } from "../../../lib/utils";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ReelDetailViewProps {
   reel: ReelDto;
@@ -67,75 +68,68 @@ export default function ReelDetailView({
   onStatusUpdate,
   isUpdating,
 }: ReelDetailViewProps) {
-  // Moderation Modal states
-  const [showModerationModal, setShowModerationModal] = useState(false);
-  const [modStatus, setModStatus] = useState<"Warned" | "Blocked" | "Public" | "Private">("Warned");
-  const [blockReason, setBlockReason] = useState("");
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  // Video Ref
+  const { t } = useLanguage();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Dynamic file sizing
-  const simulatedSize = ((reel.duration || 15) * 1.6).toFixed(1);
-  const filename = extractFilename(reel.videoUrl, reel.reelId);
+  const [showModerationModal, setShowModerationModal] = useState(false);
+  const [modStatus, setModStatus] = useState<"Warned" | "Blocked" | "Public" | "Private">(
+    reel.status === "Warned" ? "Warned" : reel.status === "Blocked" ? "Blocked" : "Warned",
+  );
+  const [blockReason, setBlockReason] = useState(reel.blockReason || "");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Dynamic Challenge Matching
   const matchedChallenges = useMemo(() => {
-    const directMatches = reel.connectedChallenges || [];
-    const directIds = new Set(directMatches.map((c) => c.challengeId));
+    if (!challenges || challenges.length === 0) return [];
+    const lowerTitle = (reel.title || "").toLowerCase();
+    const lowerDesc = (reel.description || "").toLowerCase();
 
-    const reelHashtags = new Set(
-      (reel.hashtags || []).map((h) => h.toLowerCase().replace("#", ""))
-    );
-
-    const descTags = (reel.description || "").match(/#\w+/g) || [];
-    descTags.forEach((tag) => {
-      reelHashtags.add(tag.toLowerCase().replace("#", ""));
+    return challenges.filter((ch) => {
+      const tag = (ch.hashtag || "").replace(/^#/, "").toLowerCase();
+      return tag && (lowerTitle.includes(`#${tag}`) || lowerDesc.includes(`#${tag}`));
     });
-
-    const dynamicMatches = challenges.filter((challenge) => {
-      if (!challenge.hashtag) return false;
-      const challengeTag = challenge.hashtag.toLowerCase().replace("#", "");
-      return reelHashtags.has(challengeTag) && !directIds.has(challenge.challengeId);
-    });
-
-    return [...directMatches, ...dynamicMatches];
   }, [reel, challenges]);
+
+  const fileName = extractFilename(reel.videoUrl, reel.reelId);
+  const simulatedSize = useMemo(
+    () => ((reel.reelId * 17) % 35 + 3.5).toFixed(1),
+    [reel.reelId],
+  );
 
   const handleModerationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((modStatus === "Warned" || modStatus === "Blocked") && !blockReason.trim()) {
-      setValidationError("Please provide a reason for flagging or blocking this reel.");
+    setValidationError(null);
+
+    const trimmedReason = blockReason.trim();
+    if ((modStatus === "Warned" || modStatus === "Blocked") && !trimmedReason) {
+      setValidationError("Please enter a moderation reason or note.");
       return;
     }
 
-    setValidationError(null);
     try {
-      await onStatusUpdate(reel.reelId, modStatus, blockReason.trim());
+      await onStatusUpdate(reel.reelId, modStatus, trimmedReason);
       setShowModerationModal(false);
-      setBlockReason("");
-    } catch (err) {
-      console.error("Moderation update failed:", err);
+    } catch {
+      setValidationError("Failed to update status. Please try again.");
     }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-8">
-      {/* ── Breadcrumb & Top Action Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white border border-gray-100/90 rounded-2xl p-4 shadow-sm">
-        <div className="flex items-center gap-2">
+    <div className="space-y-6 animate-fadeIn pb-12">
+      {/* Navigation Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-gray-100">
+        <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={onBack}
-            className="p-1.5 hover:bg-gray-50 text-gray-500 hover:text-gray-900 rounded-lg transition-colors border border-gray-200"
+            className="p-1.5 hover:bg-gray-50 text-gray-500 hover:text-gray-900 rounded-lg transition-colors border border-gray-200 cursor-pointer"
             title="Back to list"
           >
             <ArrowLeft className="w-4.5 h-4.5" />
           </button>
           <div className="text-xs font-semibold text-gray-400 flex items-center gap-1.5 select-none">
-            <span>Reels</span>
+            <span>{t.reels.title}</span>
             <span className="text-gray-300">/</span>
-            <span className="text-gray-800 font-bold">Detail</span>
+            <span className="text-gray-800 font-bold">{t.common.details}</span>
           </div>
         </div>
 
@@ -145,19 +139,19 @@ export default function ReelDetailView({
             variant="outline"
             size="sm"
             onClick={onBack}
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 cursor-pointer"
           >
-            Back to list
+            {t.common.back}
           </Button>
 
           <Button
             variant="outline"
             size="sm"
             onClick={() => onDelete(reel)}
-            className="text-red-500 hover:bg-red-50 hover:text-red-600 border-red-200 flex items-center gap-1.5"
+            className="text-red-500 hover:bg-red-50 hover:text-red-600 border-red-200 flex items-center gap-1.5 cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
-            Delete
+            {t.common.delete}
           </Button>
 
           {/* Warn / Block button */}
@@ -217,7 +211,7 @@ export default function ReelDetailView({
                 {reel.title || "Untitled Reel"}
               </h3>
               <p className="text-xs text-gray-500 font-semibold mt-1">
-                {filename}
+                {fileName}
               </p>
               <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mt-0.5">
                 Uploaded ({simulatedSize} MB)
@@ -287,7 +281,7 @@ export default function ReelDetailView({
 
             {matchedChallenges.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {matchedChallenges.map((challenge) => {
+                {matchedChallenges.map((challenge: ChallengeDto) => {
                   const isActive = new Date(challenge.startDate) <= new Date() && new Date() <= new Date(challenge.endDate);
                   const isCompleted = new Date() > new Date(challenge.endDate);
                   const challengeStatus = isActive ? "Active" : isCompleted ? "Completed" : "Upcoming";

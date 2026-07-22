@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertTriangle, X, Loader2 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface DeleteRoomDialogProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface DeleteRoomDialogProps {
 }
 
 const DeleteRoomDialog: React.FC<DeleteRoomDialogProps> = ({ isOpen, roomName, onConfirm, onCancel, isDeleting = false }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   return (
@@ -22,9 +24,9 @@ const DeleteRoomDialog: React.FC<DeleteRoomDialogProps> = ({ isOpen, roomName, o
             <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50">
               <AlertTriangle size={20} className="text-red-500" />
             </div>
-            <h3 className="font-bold text-gray-900">Delete Room</h3>
+            <h3 className="font-bold text-gray-900">{t.room.deleteRoom}</h3>
           </div>
-          <button onClick={onCancel} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+          <button onClick={onCancel} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer">
             <X size={16} />
           </button>
         </div>
@@ -40,17 +42,17 @@ const DeleteRoomDialog: React.FC<DeleteRoomDialogProps> = ({ isOpen, roomName, o
           <button
             onClick={onCancel}
             disabled={isDeleting}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           <button
             onClick={onConfirm}
             disabled={isDeleting}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isDeleting && <Loader2 size={14} className="animate-spin" />}
-            {isDeleting ? "Deleting…" : "Delete"}
+            {isDeleting ? t.common.loading : t.common.delete}
           </button>
         </div>
       </div>

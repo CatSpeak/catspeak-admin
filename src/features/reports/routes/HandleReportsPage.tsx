@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ReportsSummaryCards from "../components/ReportsSummaryCards";
 import ReportDialog from "../components/ReportDialog";
 import { LANGUAGE_FLAGS } from "../../room/constants";
@@ -17,7 +16,6 @@ import { useLanguage } from "../../../stores/languageStore";
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const navigate = useNavigate();
   const { t } = useLanguage();
 
   return (
@@ -142,7 +140,7 @@ export default function HandleReportsPage() {
       {selectedId && (
         <ReportDialog
           id={selectedId}
-          onClose={() => navigate("/reports")}
+          onClose={() => setSelectedId(null)}
           onDeleteSuccess={() => {
             setSelectedId(null);
             window.location.reload();
