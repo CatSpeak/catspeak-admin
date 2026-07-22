@@ -50,12 +50,7 @@ export default function Login() {
       navigate(from, { replace: true });
     } catch (error: unknown) {
       console.error("Login failed", error);
-      setError(
-        getApiErrorMessage(
-          error,
-          t.auth.loginFailed,
-        ),
-      );
+      setError(getApiErrorMessage(error, t.auth.loginFailed));
     } finally {
       setIsLoading(false);
     }
@@ -64,25 +59,11 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
-        <div className="flex justify-end">
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as Language)}
-            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-          >
-            <option value="vi">🇻🇳 Tiếng Việt</option>
-            <option value="en">🇬🇧 English</option>
-            <option value="zh">🇨🇳 中文</option>
-          </select>
-        </div>
-
         <div className="text-center">
           <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
             {t.auth.title}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {t.auth.loginSubtitle}
-          </p>
+          <p className="mt-2 text-sm text-gray-600">{t.auth.loginSubtitle}</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
