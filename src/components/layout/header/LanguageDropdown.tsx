@@ -18,7 +18,8 @@ export const LanguageDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const currentLang = languages.find((item) => item.code === language) || languages[0];
+  const currentLang =
+    languages.find((item) => item.code === language) || languages[0];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,7 +49,7 @@ export const LanguageDropdown: React.FC = () => {
         >
           <img
             alt={currentLang.name}
-            className="pointer-events-none block h-full w-full object-cover"
+            className="pointer-events-none block h-full w-full object-cover scale-130"
             draggable={false}
             src={currentLang.flag}
           />
@@ -86,7 +87,7 @@ export const LanguageDropdown: React.FC = () => {
                       <span className="flex h-7 w-7 shrink-0 overflow-hidden rounded-full border border-gray-100">
                         <img
                           alt={item.name}
-                          className="block h-full w-full object-cover"
+                          className="block h-full w-full object-cover scale-125"
                           draggable={false}
                           src={item.flag}
                         />
