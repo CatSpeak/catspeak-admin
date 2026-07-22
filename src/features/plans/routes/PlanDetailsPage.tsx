@@ -13,6 +13,7 @@ import PageTitle from "../../../components/ui/PageTitle"
 import Tabs from "../../../components/ui/Tabs"
 import { formatDateTime } from "../../../lib/utils"
 import type { Plan } from "../../../entities/types"
+import { useLanguage } from "../../../stores/languageStore"
 
 const PlanDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ const PlanDetailsPage: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialTab = (searchParams.get("tab") as any) || "general"
+  const { t } = useLanguage()
 
   const [activeTab, setActiveTab] = useState<"general" | "features">(initialTab)
   const [isSaving, setIsSaving] = useState(false)
@@ -144,15 +146,15 @@ const PlanDetailsPage: React.FC = () => {
         <div className="mb-8 shrink-0">
           <Breadcrumb
             items={[
-              { label: "Plans", onClick: () => navigate("/plans") },
-              { label: isCreateMode ? "Create New Plan" : "Plan Details" },
+              { label: t.plans.title, onClick: () => navigate("/plans") },
+              { label: isCreateMode ? t.plans.createPlan : t.plans.planDetails },
             ]}
           />
 
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
               <PageTitle>
-                {isCreateMode ? "Create New Plan" : currentPlan?.planName}
+                {isCreateMode ? t.plans.createPlan : currentPlan?.planName}
               </PageTitle>
               {!isCreateMode && currentPlan && (
                 <div className="flex items-center gap-2 mb-4">

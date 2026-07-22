@@ -2,6 +2,7 @@ import type { ReelDto } from "../types";
 import { formatDate } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ReelTableProps {
   reels: ReelDto[];
@@ -40,6 +41,7 @@ export default function ReelTable({
   onSelectAll,
   onRowClick,
 }: ReelTableProps) {
+  const { t } = useLanguage();
   const allSelected =
     reels.length > 0 && reels.every((r) => selectedIds.includes(r.reelId));
 
@@ -47,13 +49,6 @@ export default function ReelTable({
     onSelectAll(reels.map((r) => r.reelId));
   };
 
-  // Skeleton Loader elements matching layout
-  const renderSkeletons = () => {
-    return (
-      <div className="w-full space-y-4 animate-pulse">
-        <div className="h-10 w-full bg-gray-150 rounded-xl" />
-        {Array.from({ length: 6 }).map((_, idx) => (
-          <div
             key={idx}
             className="flex items-center space-x-4 py-3 border-b border-gray-100"
           >

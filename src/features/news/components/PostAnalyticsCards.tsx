@@ -7,7 +7,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import type { PostResponse, AnalyticsPeriod } from "../../analytics/types";
 import SummaryCard from "../../../components/ui/SummaryCard";
 import { useLanguage } from "../../../stores/languageStore";
@@ -37,15 +37,16 @@ export default function PostAnalyticsCards({
   const [localFromDate, setLocalFromDate] = useState(fromDate);
   const [localToDate, setLocalToDate] = useState(toDate);
 
-  const periods: { value: AnalyticsPeriod; label: string }[] = useMemo(() => [
+  const periods: { value: AnalyticsPeriod; label: string }[] = [
     { value: "today", label: t.analytics.today },
     { value: "last7days", label: t.analytics.last7days },
     { value: "last30days", label: t.analytics.last30days },
     { value: "thismonth", label: t.analytics.thisMonth },
-    { value: "all", label: t.dashboard.all },
-    { value: "custom", label: t.news.custom },
-  ], [t]);
+    { value: "all", label: t.common.total },
+    { value: "custom", label: "Custom" },
+  ];
 
+  // Keep local date state in sync with parent when parent changes
   useEffect(() => {
     setLocalFromDate(fromDate);
   }, [fromDate]);
@@ -132,7 +133,7 @@ export default function PostAnalyticsCards({
                   className="text-xs text-gray-700 bg-transparent border-none focus:outline-none focus:ring-0"
                   required
                 />
-                <span className="text-gray-400 text-xs px-1">{t.news.to}</span>
+                <span className="text-gray-400 text-xs px-1">to</span>
                 <input
                   type="date"
                   value={localToDate}
@@ -145,7 +146,7 @@ export default function PostAnalyticsCards({
                 type="submit"
                 className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-xl hover:bg-primary/95 shadow-sm transition-colors cursor-pointer"
               >
-                {t.news.apply}
+                {t.common.apply}
               </button>
             </form>
           )}

@@ -18,12 +18,14 @@ import {
   ChevronRight,
   AlertTriangle
 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading, error } = useUserDetail(id);
   const { payments, loading: paymentsLoading, error: paymentsError } = useUserPayments(id);
+  const { t } = useLanguage();
 
   // Calculate transaction stats
   const stats = useMemo(() => {
@@ -170,23 +172,23 @@ export default function UserDetailPage() {
             onClick={() => navigate("/users")}
             className="cursor-pointer hover:text-primary transition-colors"
           >
-            Users
+            {t.users.title}
           </span>
           <ChevronRight className="w-3.5 h-3.5 mx-1" />
-          <span className="text-gray-600">User Profile</span>
+          <span className="text-gray-600">{t.users.userProfile}</span>
         </nav>
 
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            User details
+            {t.users.userDetails}
           </h1>
 
           <button
             onClick={() => navigate("/users")}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t.common.back}
           </button>
         </div>
       </div>
@@ -238,13 +240,13 @@ export default function UserDetailPage() {
         <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
           <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
             <User className="w-5 h-5 text-primary" />
-            Personal Information
+            {t.common.personalInformation}
           </h3>
           <div className="space-y-4">
             <DetailItem icon={<Clock className="w-4 h-4" />} label="Account ID" value={`#${user.accountId}`} />
-            <DetailItem icon={<Mail className="w-4 h-4" />} label="Email Address" value={user.email} copyable />
-            <DetailItem icon={<Phone className="w-4 h-4" />} label="Phone Number" value={user.phoneNumber || "Not registered"} />
-            <DetailItem icon={<Calendar className="w-4 h-4" />} label="Created Date" value={user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }) : "Unknown"} />
+            <DetailItem icon={<Mail className="w-4 h-4" />} label={t.users.email} value={user.email} copyable />
+            <DetailItem icon={<Phone className="w-4 h-4" />} label={t.users.phone} value={user.phoneNumber || "Not registered"} />
+            <DetailItem icon={<Calendar className="w-4 h-4" />} label={t.common.createdDate} value={user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }) : "Unknown"} />
           </div>
         </div>
 
@@ -252,13 +254,13 @@ export default function UserDetailPage() {
         <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
           <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
             <BookOpen className="w-5 h-5 text-primary" />
-            Learning Settings
+            {t.common.learningSettings}
           </h3>
           <div className="space-y-4">
             <DetailItem icon={<Globe className="w-4 h-4" />} label="Native Language" value={user.naturalLanguage || "Not specified"} />
             <DetailItem icon={<BookOpen className="w-4 h-4" />} label="Learning Language" value={user.languageLearning || "Not specified"} />
-            <DetailItem icon={<Award className="w-4 h-4" />} label="Proficiency Level" value={user.proficiency || "Not specified"} />
-            <DetailItem icon={<Globe className="w-4 h-4" />} label="Region / Country" value={user.country || "Vietnam"} />
+            <DetailItem icon={<Award className="w-4 h-4" />} label={t.users.level} value={user.proficiency || "Not specified"} />
+            <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.country} value={user.country || "Vietnam"} />
           </div>
         </div>
       </div>
@@ -267,7 +269,7 @@ export default function UserDetailPage() {
       <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
         <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
           <CreditCard className="w-5 h-5 text-primary" />
-          Payment History
+          {t.common.paymentHistory}
         </h3>
 
         {/* Dynamic Aggregated Metrics */}

@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import type { Room } from "../types";
 import { LANGUAGE_FLAGS, ROOM_TYPE_STYLES } from "../constants";
+import { useLanguage } from "../../../stores/languageStore";
 
 const DEFAULT_THUMBNAIL =
   "https://i.ibb.co/23fT32Dq/meeting-room-filled-with-chairs-and-a-large-table-in-a-modern-office-setting-details-free-photo.webp";
@@ -31,6 +32,7 @@ const DetailRow: React.FC<DetailRowProps> = ({ icon, label, children }) => (
 );
 
 const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
+  const { t } = useLanguage();
   if (!room) return null;
 
   const flag = LANGUAGE_FLAGS[room.languageType];
@@ -62,81 +64,77 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
             className="w-full h-full object-cover"
             onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
           />
-
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/30 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/50 transition-colors"
+            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors backdrop-blur-sm cursor-pointer"
           >
-            <X size={16} />
+            <X size={18} />
           </button>
 
-          {/* Overlay badges */}
-          <div className="absolute top-3 left-3 flex gap-1.5">
-            <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm ${typeStyle.bg} ${typeStyle.text}`}>
-              <Users size={10} />
-              {room.roomType === "OneToOne" ? "1:1" : "Group"}
-            </span>
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold backdrop-blur-sm ${isActive ? "bg-emerald-50/90 text-emerald-600" : "bg-gray-100/90 text-gray-500"}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`} />
-              {isActive ? "Active" : "Inactive"}
-            </span>
+          {/* Title overlay */}
+          <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${typeStyle.bg} ${typeStyle.text} mb-1.5`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${typeStyle.dot}`} />
+                {room.roomType}
+              </span>
+              <h2 className="text-lg font-bold text-white truncate drop-shadow-sm">{room.name}</h2>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm">
+              <span
+                className={`w-2 h-2 rounded-full ${isActive ? "bg-emerald-500 animate-pulse" : "bg-gray-400"
+                  }`}
+              />
+              <span className={isActive ? "text-emerald-700" : "text-gray-600"}>
+                {isActive ? t.common.active : t.common.inactive}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          {/* Room name */}
-          <h2 className="text-lg font-bold text-gray-900 leading-snug mb-1">{room.name}</h2>
-          {/* Description */}
-          {room.description && room.description !== "string" && (
-            <p className="text-sm text-gray-600 leading-relaxed mb-4 pb-4 border-b border-gray-100">
-              {room.description}
-            </p>
-          )}
+        {/* Content body */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-1">
+          <div className="grid grid-cols-2 gap-x-4 divide-y divide-gray-100 sm:divide-y-0">
 
-          {/* Detail rows */}
-          <div className="divide-y divide-gray-50">
-            <DetailRow icon={<Globe size={15} />} label="Language">
-              <img src={flag} alt={room.languageType} className="w-4 h-4 rounded-sm inline-block align-text-bottom" /> {room.languageType}
-            </DetailRow>
-
-            {room.requiredLevel && (
-              <DetailRow icon={<GraduationCap size={15} />} label="Required Level">
-                {room.requiredLevel}
-              </DetailRow>
-            )}
-
-            {room.topic && (
-              <DetailRow icon={<Tag size={15} />} label="Topic">
-                {room.topic}
-              </DetailRow>
-            )}
-
-            <DetailRow icon={<Users size={15} />} label="Participants">
-              <span className="font-medium">{room.currentParticipantCount}</span>
-              {room.maxParticipants != null && (
-                <span className="text-gray-400"> / {room.maxParticipants} max</span>
-              )}
-            </DetailRow>
-
-            {room.duration != null && (
-              <DetailRow icon={<Timer size={15} />} label="Duration">
-                {room.duration} minutes
-              </DetailRow>
-            )}
-
-            <DetailRow icon={<Shield size={15} />} label="Privacy">
-              <span className="inline-flex items-center gap-1">
-                {room.privacy === "Private" ? <Lock size={13} className="text-amber-500" /> : <Globe size={13} className="text-sky-500" />}
-                {room.privacy}
-                {room.hasPassword && <span className="text-[10px] text-gray-400 ml-1">(password protected)</span>}
+            <DetailRow icon={<Hash size={15} />} label="Room Code">
+              <span className="font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                {room.roomId}
               </span>
             </DetailRow>
 
-            <DetailRow icon={<Hash size={15} />} label="Room ID">
-              #{room.roomId}
+            <DetailRow icon={<Globe size={15} />} label="Language">
+              <span className="flex items-center gap-1.5 font-medium">
+                {flag && <img src={flag} alt={room.languageType} className="w-4 h-4 rounded-sm" />}
+                {room.languageType}
+              </span>
+            </DetailRow>
+
+            <DetailRow icon={<GraduationCap size={15} />} label="Required Level">
+              <span className="font-medium">{room.requiredLevel}</span>
+            </DetailRow>
+
+            <DetailRow icon={<Tag size={15} />} label="Topic">
+              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                {room.topic || "General"}
+              </span>
+            </DetailRow>
+
+            <DetailRow icon={<Users size={15} />} label="Participants">
+              <span className="font-medium">{room.currentParticipantCount} members</span>
+            </DetailRow>
+
+            <DetailRow icon={<Shield size={15} />} label="Privacy">
+              <span className="font-medium flex items-center gap-1">
+                {room.privacy === "Private" && <Lock size={13} className="text-amber-500" />}
+                {room.privacy}
+              </span>
+            </DetailRow>
+
+            <DetailRow icon={<Timer size={15} />} label="Duration">
+              <span className="font-medium">{room.duration} minutes</span>
             </DetailRow>
 
             <DetailRow icon={<Calendar size={15} />} label="Created">
@@ -150,9 +148,9 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
         <div className="flex items-center justify-end px-5 py-3 border-t border-gray-100 bg-gray-50/50 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            Close
+            {t.common.close}
           </button>
         </div>
       </div>

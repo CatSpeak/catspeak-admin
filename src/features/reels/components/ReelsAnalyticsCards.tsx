@@ -57,7 +57,7 @@ export default function ReelsAnalyticsCards({
         />
         <SummaryCard
           icon={<CheckCircle2 size={20} />}
-          label={t.reels.displaying}
+          label={t.plans.displaying}
           value={stats ? stats.displaying.toLocaleString() : "?"}
           loading={loading}
           iconClassName={cardColors.displaying.text}
@@ -66,7 +66,7 @@ export default function ReelsAnalyticsCards({
         />
         <SummaryCard
           icon={<EyeOff size={20} />}
-          label={t.reels.hidden}
+          label={t.plans.hidden}
           value={stats ? stats.hidden.toLocaleString() : "?"}
           loading={loading}
           iconClassName={cardColors.hidden.text}

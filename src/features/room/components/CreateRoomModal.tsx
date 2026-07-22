@@ -3,6 +3,7 @@ import { X, Users, Globe, GraduationCap, Tag, Shield, Lock, ImagePlus, Eye, EyeO
 import { useCreateRoom } from "../hooks/useCreateRoom";
 import { ROOM_TYPES, LANGUAGE_TYPES, REQUIRED_LEVELS, ROOM_TOPICS } from "../constants";
 import type { LanguageType, RequiredLevel, RoomPrivacy, RoomTopic, RoomType } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface CreateRoomModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ const PRIVACY_OPTIONS: { value: RoomPrivacy; label: string; desc: string }[] = [
 ];
 
 const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCreated }) => {
+  const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
   const { form, errors, isSubmitting, updateField, handleSubmit, resetForm } = useCreateRoom(
     () => {
@@ -47,8 +49,8 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col animate-slideUp">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">Create New Room</h2>
-          <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+          <h2 className="text-lg font-bold text-gray-900">{t.room.createRoom}</h2>
+          <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
             <X size={18} />
           </button>
         </div>
@@ -82,7 +84,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   key={t.value}
                   onClick={() => updateField("roomType", t.value as RoomType)}
-                  className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${form.roomType === t.value
+                  className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 cursor-pointer ${form.roomType === t.value
                     ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
@@ -103,7 +105,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   key={l.value}
                   onClick={() => updateField("languageType", l.value as LanguageType)}
-                  className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ${form.languageType === l.value
+                  className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 cursor-pointer ${form.languageType === l.value
                     ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                     }`}
@@ -122,7 +124,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
             <select
               value={form.requiredLevel}
               onChange={(e) => updateField("requiredLevel", e.target.value as RequiredLevel | "")}
-              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none"
+              className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none cursor-pointer"
             >
               <option value="">Select a Level</option>
               <optgroup label="HSK Levels">
@@ -155,7 +157,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                   <button
                     key={t.value}
                     onClick={() => updateField("topic", active ? "" : t.value as RoomTopic)}
-                    className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${active
+                    className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 cursor-pointer ${active
                       ? "bg-primary/10 border-primary/30 text-primary"
                       : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
                       }`}
@@ -177,7 +179,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   key={opt.value}
                   onClick={() => updateField("privacy", opt.value)}
-                  className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-left ${form.privacy === opt.value
+                  className={`flex-1 px-4 py-2.5 rounded-lg border transition-all duration-200 text-left cursor-pointer ${form.privacy === opt.value
                     ? "bg-primary/10 border-primary/30 shadow-sm"
                     : "bg-white border-gray-200 hover:bg-gray-50"
                     }`}
@@ -209,7 +211,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -233,7 +235,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-primary/40 hover:text-primary/70 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm text-gray-500 hover:border-primary/40 hover:text-primary/70 transition-colors cursor-pointer"
             >
               {form.thumbnail ? (
                 <span className="truncate max-w-[280px]">📎 {form.thumbnail.name}</span>
@@ -250,7 +252,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
                   updateField("thumbnail", null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
-                className="text-xs text-red-400 hover:text-red-500 mt-1 transition-colors"
+                className="text-xs text-red-400 hover:text-red-500 mt-1 transition-colors cursor-pointer"
               >
                 Remove file
               </button>
@@ -262,16 +264,16 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({ isOpen, onClose, onCr
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            {isSubmitting ? "Creating…" : "Create Room"}
+            {isSubmitting ? t.common.loading : t.room.createRoom}
           </button>
         </div>
       </div>

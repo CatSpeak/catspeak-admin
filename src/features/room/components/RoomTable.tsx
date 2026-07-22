@@ -167,33 +167,25 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
         </span>
       </td>
 
-      {/* Created At Column */}
-      <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
-        <span className="inline-flex items-center gap-1.5">
-          <Clock size={12} className="text-gray-400" />
-          {new Date(room.createDate).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          })}
-        </span>
+      {/* Created At */}
+      <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
+        {createdDate}
       </td>
 
-      {/* Actions Column */}
+      {/* Actions */}
       <td
-        className="px-4 py-3 text-center"
+        className="px-4 py-3 text-center text-sm relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative inline-block text-left" ref={menuRef}>
+        <div ref={menuRef} className="relative inline-block text-left">
           <button
             type="button"
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
-            aria-label="Room actions"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer"
           >
             <MoreVertical size={16} />
           </button>
+
           {menuOpen && (
             <div
               role="menu"
@@ -206,10 +198,10 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
                   setMenuOpen(false);
                   onEdit?.(room);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 <Pencil size={14} className="text-gray-450" />
-                Edit room
+                {t.common.edit}
               </button>
               <button
                 type="button"
@@ -218,10 +210,10 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
                   setMenuOpen(false);
                   onDelete(room.roomId);
                 }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-red-605 hover:bg-red-50 transition-colors"
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
               >
                 <Trash2 size={14} />
-                Delete room
+                {t.common.delete}
               </button>
             </div>
           )}
@@ -238,6 +230,8 @@ const RoomTable: React.FC<RoomTableProps> = ({
   onEdit,
   onClick,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -266,16 +260,16 @@ const RoomTable: React.FC<RoomTableProps> = ({
                 Duration
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
-                Status
+                {t.common.status}
               </th>
               <th className="px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap">
                 Privacy
               </th>
               <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-                Created At
+                {t.common.createdDate}
               </th>
               <th className="px-4 py-3 text-center text-xs font-bold w-12">
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{t.common.actions}</span>
               </th>
             </tr>
           </thead>

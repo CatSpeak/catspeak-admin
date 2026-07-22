@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import type { EventDetail } from "../types";
 import { getColorClasses, formatDate, formatTime } from "../constants";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface EventDetailModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
   onClose,
   onDelete,
 }) => {
+  const { t } = useLanguage();
   if (!isOpen) return null;
 
   const color = getColorClasses(event?.color);
@@ -53,7 +55,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
           <div className="flex items-center gap-3 min-w-0">
             <span className={`w-3 h-3 rounded-full shrink-0 ${color.dot}`} />
             <h2 className="text-lg font-bold text-gray-900 truncate">
-              {isLoading ? "Loading…" : event?.title || "(No title)"}
+              {isLoading ? t.common.loading : event?.title || "(No title)"}
             </h2>
           </div>
           <button
@@ -69,7 +71,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 size={28} className="text-primary animate-spin mb-2" />
-              <p className="text-sm text-gray-400">Loading event details…</p>
+              <p className="text-sm text-gray-400">{t.common.loading}</p>
             </div>
           )}
 
@@ -190,7 +192,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
               className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
                 hover:bg-gray-100 transition-colors cursor-pointer"
             >
-              Close
+              {t.common.close}
             </button>
             <button
               onClick={() => onDelete(event.id)}
@@ -199,7 +201,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 transition-colors cursor-pointer"
             >
               <Trash2 size={14} />
-              Delete
+              {t.common.delete}
             </button>
           </div>
         )}

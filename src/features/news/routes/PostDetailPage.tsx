@@ -4,6 +4,7 @@ import { usePostDetail } from "../hooks/usePostDetail";
 import { PostFormView, PostContent, DeleteConfirmModal } from "../components";
 import { Pencil, Trash2, Eye, Heart, MessageSquare, Share2 } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 function formatDate(value?: string | null) {
   return value ? new Date(value).toLocaleDateString() : "—";
@@ -12,6 +13,7 @@ function formatDate(value?: string | null) {
 export default function PostDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const {
     post,
     loading,
@@ -29,7 +31,7 @@ export default function PostDetailPage() {
       <div className="flex items-center justify-center h-64 bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col items-center gap-3 text-gray-500">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span>Loading...</span>
+          <span>{t.common.loading}</span>
         </div>
       </div>
     );
@@ -57,17 +59,17 @@ export default function PostDetailPage() {
               className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
               onClick={goBack}
             >
-              News
+              {t.news.title}
             </span>
             <span className="mx-2">{">"}</span>
             <span
               className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
               onClick={() => setIsEditing(false)}
             >
-              Post Detail
+              {t.news.postDetails}
             </span>
             <span className="mx-2">{">"}</span>
-            <span className="text-gray-900 font-medium">Edit</span>
+            <span className="text-gray-900 font-medium">{t.common.edit}</span>
           </nav>
         </div>
 
@@ -96,7 +98,7 @@ export default function PostDetailPage() {
             className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
             onClick={goBack}
           >
-            News
+            {t.news.title}
           </span>
           <span className="mx-2">{">"}</span>
           <span className="text-gray-900 font-medium">Detail</span>

@@ -18,6 +18,7 @@ import { useToastStore } from "../../../stores/toastStore";
 import { formatDateTime } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ReportDialogProps {
   id: string | number;
@@ -30,6 +31,7 @@ export default function ReportDialog({
   onClose,
   onDeleteSuccess,
 }: ReportDialogProps) {
+  const { t } = useLanguage();
   const { addToast } = useToastStore();
   const [report, setReport] = useState<LetterReport | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,7 +130,7 @@ export default function ReportDialog({
       return <Badge title="Violation" type="Red" />;
     }
     if (statusVal === 0) {
-      return <Badge title="Pending" type="Yellow" />;
+      return <Badge title={t.common.pending} type="Yellow" />;
     }
     return <Badge title={String(statusVal ?? "Undecided")} type="Gray" />;
   };
@@ -155,7 +157,7 @@ export default function ReportDialog({
           <div>
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
-              Report Details
+              {t.reports.reportDetails}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
               Reviewing letter report #{id}
@@ -164,7 +166,7 @@ export default function ReportDialog({
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
             aria-label="Close details"
           >
             <X className="w-5 h-5" />
@@ -202,8 +204,8 @@ export default function ReportDialog({
               <p className="text-sm font-semibold text-red-700 bg-red-50 px-4 py-2 rounded-xl">
                 {error}
               </p>
-              <Button size="sm" variant="outline" onClick={onClose}>
-                Close Dialog
+              <Button size="sm" variant="outline" onClick={onClose} className="cursor-pointer">
+                {t.common.close}
               </Button>
             </div>
           )}
@@ -238,7 +240,7 @@ export default function ReportDialog({
               <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-150">
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Author
+                    {t.news.author}
                   </span>
                   <span className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
                     {report.avatarImageUrl ? (
@@ -266,7 +268,7 @@ export default function ReportDialog({
 
                 <div className="space-y-0.5 col-span-2 pt-2">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Created At
+                    {t.common.createdDate}
                   </span>
                   <span className="text-xs text-gray-650 flex items-center gap-1.5 font-medium">
                     <Calendar className="w-3.5 h-3.5 text-gray-400" />
@@ -299,22 +301,23 @@ export default function ReportDialog({
             onClick={onClose}
             disabled={isDeleting}
             size="sm"
+            className="cursor-pointer"
           >
-            Cancel
+            {t.common.cancel}
           </Button>
 
           {!loading && !error && report && (
-            <Button size="sm" onClick={handleDelete} disabled={isDeleting}>
+            <Button size="sm" onClick={handleDelete} disabled={isDeleting} className="cursor-pointer">
               {isDeleting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Trash2 className="w-4 h-4" />
               )}
               {isDeleting
-                ? "Deleting..."
+                ? t.common.loading
                 : confirmDelete
-                  ? "Click to Confirm Delete"
-                  : "Delete"}
+                  ? t.common.confirm
+                  : t.common.delete}
             </Button>
           )}
         </div>
