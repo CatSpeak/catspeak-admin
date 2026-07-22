@@ -1,6 +1,7 @@
 import { Video, AlertCircle, CheckCircle2, EyeOff } from "lucide-react";
 import type { ReelStatisticsDto } from "../types";
 import SummaryCard from "../../../components/ui/SummaryCard";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ReelsAnalyticsCardsProps {
   stats?: ReelStatisticsDto | null;
@@ -13,6 +14,8 @@ export default function ReelsAnalyticsCards({
   loading = false,
   error = null,
 }: ReelsAnalyticsCardsProps) {
+  const { t } = useLanguage();
+
   const cardColors = {
     reels: {
       text: "text-purple-600",
@@ -45,7 +48,7 @@ export default function ReelsAnalyticsCards({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SummaryCard
           icon={<Video size={20} />}
-          label="Total Reels"
+          label={t.reels.totalReels}
           value={stats ? stats.totalReels.toLocaleString() : "?"}
           loading={loading}
           iconClassName={cardColors.reels.text}
@@ -54,7 +57,7 @@ export default function ReelsAnalyticsCards({
         />
         <SummaryCard
           icon={<CheckCircle2 size={20} />}
-          label="Displaying"
+          label={t.plans.displaying}
           value={stats ? stats.displaying.toLocaleString() : "?"}
           loading={loading}
           iconClassName={cardColors.displaying.text}
@@ -63,7 +66,7 @@ export default function ReelsAnalyticsCards({
         />
         <SummaryCard
           icon={<EyeOff size={20} />}
-          label="Hidden"
+          label={t.plans.hidden}
           value={stats ? stats.hidden.toLocaleString() : "?"}
           loading={loading}
           iconClassName={cardColors.hidden.text}

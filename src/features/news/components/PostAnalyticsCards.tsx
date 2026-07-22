@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { PostResponse, AnalyticsPeriod } from "../../analytics/types";
+import SummaryCard from "../../../components/ui/SummaryCard";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface PostAnalyticsCardsProps {
   analytics: PostResponse | null;
@@ -21,17 +23,6 @@ interface PostAnalyticsCardsProps {
   onDateRangeChange: (fromDate: string, toDate: string) => void;
 }
 
-import SummaryCard from "../../../components/ui/SummaryCard";
-
-const periods: { value: AnalyticsPeriod; label: string }[] = [
-  { value: "today", label: "Today" },
-  { value: "last7days", label: "Last 7 Days" },
-  { value: "last30days", label: "Last 30 Days" },
-  { value: "thismonth", label: "This Month" },
-  { value: "all", label: "All" },
-  { value: "custom", label: "Custom" },
-];
-
 export default function PostAnalyticsCards({
   analytics,
   loading,
@@ -42,8 +33,18 @@ export default function PostAnalyticsCards({
   onPeriodChange,
   onDateRangeChange,
 }: PostAnalyticsCardsProps) {
+  const { t } = useLanguage();
   const [localFromDate, setLocalFromDate] = useState(fromDate);
   const [localToDate, setLocalToDate] = useState(toDate);
+
+  const periods: { value: AnalyticsPeriod; label: string }[] = [
+    { value: "today", label: t.analytics.today },
+    { value: "last7days", label: t.analytics.last7days },
+    { value: "last30days", label: t.analytics.last30days },
+    { value: "thismonth", label: t.analytics.thisMonth },
+    { value: "all", label: t.common.total },
+    { value: "custom", label: "Custom" },
+  ];
 
   // Keep local date state in sync with parent when parent changes
   useEffect(() => {
@@ -98,11 +99,6 @@ export default function PostAnalyticsCards({
     <div className="space-y-4">
       {/* Header with Filters */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-end gap-4 pb-2">
-        {/* <div>
-          <h2 className="text-base font-bold text-gray-900">Post Performance</h2>
-          <p className="text-xs text-gray-500">Analytics metrics and engagement overview</p>
-        </div> */}
-
         <div className="flex flex-wrap items-center gap-3">
           {/* Period button group */}
           <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 overflow-x-auto">
@@ -111,7 +107,7 @@ export default function PostAnalyticsCards({
                 key={p.value}
                 type="button"
                 onClick={() => onPeriodChange(p.value)}
-                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap ${
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
                   selectedPeriod === p.value
                     ? "bg-white text-gray-950 shadow-sm"
                     : "text-gray-500 hover:text-gray-900 hover:bg-black/5"
@@ -148,9 +144,9 @@ export default function PostAnalyticsCards({
               </div>
               <button
                 type="submit"
-                className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-xl hover:bg-primary/95 shadow-sm transition-colors"
+                className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-xl hover:bg-primary/95 shadow-sm transition-colors cursor-pointer"
               >
-                Apply
+                {t.common.apply}
               </button>
             </form>
           )}
@@ -169,7 +165,7 @@ export default function PostAnalyticsCards({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <SummaryCard
           icon={<FileText size={20} />}
-          label="Total Posts"
+          label={t.news.totalPosts}
           value={analytics?.totalPosts?.toLocaleString() ?? 0}
           loading={loading}
           iconClassName={cardColors.posts.text}
@@ -178,7 +174,7 @@ export default function PostAnalyticsCards({
         />
         <SummaryCard
           icon={<Eye size={20} />}
-          label="Total Views"
+          label={t.news.totalViews}
           value={analytics?.totalViews?.toLocaleString() ?? 0}
           loading={loading}
           iconClassName={cardColors.views.text}
@@ -187,7 +183,7 @@ export default function PostAnalyticsCards({
         />
         <SummaryCard
           icon={<MessageSquare size={20} />}
-          label="Total Comments"
+          label={t.news.totalComments}
           value={analytics?.totalComments?.toLocaleString() ?? 0}
           loading={loading}
           iconClassName={cardColors.comments.text}
@@ -196,7 +192,7 @@ export default function PostAnalyticsCards({
         />
         <SummaryCard
           icon={<Heart size={20} />}
-          label="Total Reactions"
+          label={t.news.totalReactions}
           value={analytics?.totalReactions?.toLocaleString() ?? 0}
           loading={loading}
           iconClassName={cardColors.reactions.text}
@@ -205,7 +201,7 @@ export default function PostAnalyticsCards({
         />
         <SummaryCard
           icon={<Share2 size={20} />}
-          label="Total Shares"
+          label={t.news.totalShares}
           value={analytics?.totalShares?.toLocaleString() ?? 0}
           loading={loading}
           iconClassName={cardColors.shares.text}

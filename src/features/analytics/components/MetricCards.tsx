@@ -7,6 +7,7 @@ import type {
 } from "../types";
 
 import SummaryCard from "../../../components/ui/SummaryCard";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface AnalyticsMetricsCardsProps {
   newUsers: NewUserResponse;
@@ -21,6 +22,7 @@ export default function AnalyticsMetricsCards({
   retention,
   churn,
 }: AnalyticsMetricsCardsProps) {
+  const { t } = useLanguage();
   const avgRetention = (
     (retention.d1Retention + retention.d7Retention + retention.d30Retention) / 3
   ).toFixed(1);
@@ -40,28 +42,28 @@ export default function AnalyticsMetricsCards({
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       <SummaryCard
         icon={<Users size={18} />}
-        label="New Users"
+        label={t.analytics.newUsers}
         value={newUsers.totalNewUsers.toLocaleString()}
         trend={formatChange(newUsers.prevPeriod)}
         color="#10B981"
       />
       <SummaryCard
         icon={<Users size={18} />}
-        label="Existing Users"
+        label={t.analytics.existingUsers}
         value={existingUsers.totalExistingUsers.toLocaleString()}
         trend={{ value: "Established", up: true }}
         color="#3B82F6"
       />
       <SummaryCard
         icon={<TrendingUp size={18} />}
-        label="Avg Retention"
+        label={t.analytics.avgRetention}
         value={`${avgRetention}%`}
         trend={{ value: `D1: ${retention.d1Retention}% - D7: ${retention.d7Retention}%`, up: true }}
         color="#F59E0B"
       />
       <SummaryCard
         icon={<TrendingDown size={18} />}
-        label="Churn Rate"
+        label={t.analytics.churnRate}
         value={`${churn.currentChurnRate.toFixed(1)}%`}
         trend={formatChange(churn.prevPeriod)}
         color="#EF4444"

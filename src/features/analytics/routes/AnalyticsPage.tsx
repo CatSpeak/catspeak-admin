@@ -17,12 +17,12 @@ import type {
   ActivityBreakdownResponse,
 } from "../types";
 import AnalyticsMetricsCards from "../components/MetricCards";
-// import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
 import Card from "../../../components/ui/Card";
 import LineChartJS from "../../dashboard/components/LineChartJS";
 import DonutChartJS from "../../dashboard/components/DonutChartJS";
 import AreaChartJS from "../../dashboard/components/AreaChartJS";
 import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface AnalyticsData {
   newUsers: NewUserResponse;
@@ -34,6 +34,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+  const { t } = useLanguage();
   const [selectedPeriod, setSelectedPeriod] = useState("last7days");
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -85,7 +86,6 @@ export default function AnalyticsPage() {
 
   if (!data) return null;
 
-  // Area chart: daily new users (using dailyBreakdown dates)
   const areaChartData: Array<{
     label: string;
     accountUsers: number;
@@ -99,15 +99,14 @@ export default function AnalyticsPage() {
         }))
       : [];
 
-  // Donut: new vs existing ratio (zero duplicate counts)
   const donutSegments = [
     {
-      label: "New Users",
+      label: t.analytics.newUsers,
       value: data.classification.newUsers,
       color: "#10B981",
     },
     {
-      label: "Existing Users",
+      label: t.analytics.existingUsers,
       value: data.classification.existingUsers,
       color: "#3B82F6",
     },
@@ -123,7 +122,7 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* 4 Metric Cards — zero duplicates */}
+      {/* 4 Metric Cards */}
       <AnalyticsMetricsCards
         newUsers={data.newUsers}
         existingUsers={data.existingUsers}
@@ -135,14 +134,14 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="animate-fade-in delay-1">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            User Growth Trend
+            {t.analytics.userGrowthTrend}
           </h3>
           <AreaChartJS data={areaChartData} height={300} />
         </Card>
 
         <Card className="animate-fade-in delay-2">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Retention Rates
+            {t.analytics.retentionRates}
           </h3>
           <LineChartJS
             data={[
@@ -159,35 +158,35 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card className="animate-fade-in delay-3">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            User Classification
+            {t.analytics.userClassification}
           </h3>
           <DonutChartJS
             segments={donutSegments}
             trendUp
-            trendValue={`${data.classification.newUserRatio.toFixed(1)}% new users`}
-            centerSubtext={`${data.classification.newUsers + data.classification.existingUsers} total`}
+            trendValue={`${data.classification.newUserRatio.toFixed(1)}% ${t.analytics.newUsers}`}
+            centerSubtext={`${data.classification.newUsers + data.classification.existingUsers} ${t.common.total}`}
           />
         </Card>
 
         <Card className="animate-fade-in delay-4">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Churn Analysis
+            {t.analytics.churnAnalysis}
           </h3>
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-red-50 rounded-lg p-4 text-center">
-              <div className="text-sm text-gray-600">Churned</div>
+              <div className="text-sm text-gray-600">{t.analytics.churned}</div>
               <div className="text-2xl font-bold text-red-600">
                 {data.churn.churnedUsers}
               </div>
             </div>
             <div className="bg-blue-50 rounded-lg p-4 text-center">
-              <div className="text-sm text-gray-600">Active</div>
+              <div className="text-sm text-gray-600">{t.analytics.active}</div>
               <div className="text-2xl font-bold text-blue-600">
                 {data.churn.activeUsersAtPeriodStart}
               </div>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4 text-center">
-              <div className="text-sm text-gray-600">Churn Rate</div>
+              <div className="text-sm text-gray-600">{t.analytics.churnRate}</div>
               <div className="text-2xl font-bold text-yellow-600">
                 {data.churn.currentChurnRate.toFixed(1)}%
               </div>
@@ -199,7 +198,7 @@ export default function AnalyticsPage() {
       {/* Activity Breakdown */}
       <Card className="animate-fade-in">
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
-          Activity Breakdown
+          {t.analytics.activityBreakdown}
         </h3>
         <div className="space-y-2">
           {data.activity.eventTypes.map((item) => {

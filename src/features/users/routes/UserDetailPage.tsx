@@ -18,12 +18,14 @@ import {
   ChevronRight,
   AlertTriangle
 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, loading, error } = useUserDetail(id);
   const { payments, loading: paymentsLoading, error: paymentsError } = useUserPayments(id);
+  const { t } = useLanguage();
 
   // Calculate transaction stats
   const stats = useMemo(() => {
@@ -155,7 +157,7 @@ export default function UserDetailPage() {
       <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="flex items-center gap-2 text-error-600">
           <AlertTriangle className="w-5 h-5" />
-          <span className="font-semibold">{error ?? "User not found"}</span>
+          <span className="font-semibold">{error ?? t.users.userNotFound}</span>
         </div>
       </div>
     );
@@ -170,23 +172,23 @@ export default function UserDetailPage() {
             onClick={() => navigate("/users")}
             className="cursor-pointer hover:text-primary transition-colors"
           >
-            Users
+            {t.users.title}
           </span>
           <ChevronRight className="w-3.5 h-3.5 mx-1" />
-          <span className="text-gray-600">User Profile</span>
+          <span className="text-gray-600">{t.users.userProfile}</span>
         </nav>
 
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            User details
+            {t.users.userDetails}
           </h1>
 
           <button
             onClick={() => navigate("/users")}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0"
+            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t.common.back}
           </button>
         </div>
       </div>
@@ -210,7 +212,7 @@ export default function UserDetailPage() {
               ? "bg-success-50 text-success-700 border-success-100"
               : "bg-error-50 text-error-700 border-error-100"
               }`}>
-              {user.status !== 0 ? "Active" : "Banned"}
+              {user.status !== 0 ? t.common.active : t.users.banned}
             </span>
           </div>
 
@@ -222,11 +224,11 @@ export default function UserDetailPage() {
           <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 text-xs text-gray-400 font-medium">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
-              Last active: {user.lastSeen ? new Date(user.lastSeen).toLocaleString("en-GB") : "Never"}
+              {t.users.lastActive}: {user.lastSeen ? new Date(user.lastSeen).toLocaleString("en-GB") : t.users.never}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              Joined: {user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB") : "Unknown"}
+              {t.users.joined}: {user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB") : t.users.unknown}
             </span>
           </div>
         </div>
@@ -238,13 +240,13 @@ export default function UserDetailPage() {
         <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
           <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
             <User className="w-5 h-5 text-primary" />
-            Personal Information
+            {t.common.personalInformation}
           </h3>
           <div className="space-y-4">
-            <DetailItem icon={<Clock className="w-4 h-4" />} label="Account ID" value={`#${user.accountId}`} />
-            <DetailItem icon={<Mail className="w-4 h-4" />} label="Email Address" value={user.email} copyable />
-            <DetailItem icon={<Phone className="w-4 h-4" />} label="Phone Number" value={user.phoneNumber || "Not registered"} />
-            <DetailItem icon={<Calendar className="w-4 h-4" />} label="Created Date" value={user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }) : "Unknown"} />
+            <DetailItem icon={<Clock className="w-4 h-4" />} label={t.users.accountId} value={`#${user.accountId}`} />
+            <DetailItem icon={<Mail className="w-4 h-4" />} label={t.users.email} value={user.email} copyable />
+            <DetailItem icon={<Phone className="w-4 h-4" />} label={t.users.phone} value={user.phoneNumber || t.common.notRegistered} />
+            <DetailItem icon={<Calendar className="w-4 h-4" />} label={t.common.createdDate} value={user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }) : t.users.unknown} />
           </div>
         </div>
 
@@ -252,13 +254,13 @@ export default function UserDetailPage() {
         <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
           <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
             <BookOpen className="w-5 h-5 text-primary" />
-            Learning Settings
+            {t.common.learningSettings}
           </h3>
           <div className="space-y-4">
-            <DetailItem icon={<Globe className="w-4 h-4" />} label="Native Language" value={user.naturalLanguage || "Not specified"} />
-            <DetailItem icon={<BookOpen className="w-4 h-4" />} label="Learning Language" value={user.languageLearning || "Not specified"} />
-            <DetailItem icon={<Award className="w-4 h-4" />} label="Proficiency Level" value={user.proficiency || "Not specified"} />
-            <DetailItem icon={<Globe className="w-4 h-4" />} label="Region / Country" value={user.country || "Vietnam"} />
+            <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.nativeLanguage} value={user.naturalLanguage || t.common.notSpecified} />
+            <DetailItem icon={<BookOpen className="w-4 h-4" />} label={t.users.learningLanguage} value={user.languageLearning || t.common.notSpecified} />
+            <DetailItem icon={<Award className="w-4 h-4" />} label={t.users.level} value={user.proficiency || t.common.notSpecified} />
+            <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.country} value={user.country || "Vietnam"} />
           </div>
         </div>
       </div>
@@ -267,7 +269,7 @@ export default function UserDetailPage() {
       <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
         <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
           <CreditCard className="w-5 h-5 text-primary" />
-          Payment History
+          {t.common.paymentHistory}
         </h3>
 
         {/* Dynamic Aggregated Metrics */}
@@ -278,7 +280,7 @@ export default function UserDetailPage() {
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Spent</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.totalSpent}</span>
                 <span className="text-base font-bold text-success-700 block mt-0.5">
                   {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(stats.totalSpent)}
                 </span>
@@ -290,9 +292,9 @@ export default function UserDetailPage() {
                 <CreditCard className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Total Orders</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.totalOrders}</span>
                 <span className="text-base font-bold text-gray-900 block mt-0.5">
-                  {stats.totalCount} ({stats.successfulCount} Success)
+                  {stats.totalCount} ({stats.successfulCount} {t.common.approved})
                 </span>
               </div>
             </div>
@@ -302,9 +304,9 @@ export default function UserDetailPage() {
                 <XCircle className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Cancelled Orders</span>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.cancelledOrders}</span>
                 <span className="text-base font-bold text-error-700 block mt-0.5">
-                  {stats.cancelledCount} Orders
+                  {stats.cancelledCount}
                 </span>
               </div>
             </div>
@@ -318,16 +320,16 @@ export default function UserDetailPage() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Time
+                    {t.common.time}
                   </th>
                   <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Details
+                    {t.common.details}
                   </th>
                   <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Amount
+                    {t.reports.amount}
                   </th>
                   <th className="px-5 py-3.5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    Status
+                    {t.common.status}
                   </th>
                 </tr>
               </thead>
@@ -340,7 +342,7 @@ export default function UserDetailPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span className="text-gray-500 font-semibold">Loading payments history...</span>
+                        <span className="text-gray-500 font-semibold">{t.users.loadingPaymentHistory}</span>
                       </div>
                     </td>
                   </tr>
@@ -357,15 +359,15 @@ export default function UserDetailPage() {
                     switch (payment.status) {
                       case 1:
                         statusStyles = "bg-success-50 text-success-700 border-success-100";
-                        statusText = "Success";
+                        statusText = t.common.approved;
                         break;
                       case 2:
                         statusStyles = "bg-error-50 text-error-700 border-error-100";
-                        statusText = "Cancelled";
+                        statusText = t.common.cancel;
                         break;
                       default:
                         statusStyles = "bg-warning-50 text-warning-700 border-warning-100";
-                        statusText = "Pending";
+                        statusText = t.common.pending;
                     }
 
                     return (
@@ -388,7 +390,7 @@ export default function UserDetailPage() {
                             {payment.method}
                           </div>
                           <div className="text-[10px] text-gray-400 font-mono mt-0.5">
-                            Code: {payment.orderCode}
+                            {t.plans.code}: {payment.orderCode}
                           </div>
                           {payment.adminNote && (
                             <div className="mt-2 text-[10px] text-gray-600 italic bg-gray-50 p-2 rounded-xl border border-gray-200 leading-normal max-w-sm">
@@ -416,7 +418,7 @@ export default function UserDetailPage() {
                       colSpan={4}
                       className="px-5 py-8 text-center text-sm text-gray-500 font-medium"
                     >
-                      No payments history found
+                      {t.users.noPaymentHistory}
                     </td>
                   </tr>
                 )}

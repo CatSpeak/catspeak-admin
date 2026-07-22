@@ -4,6 +4,7 @@ import { X, ShieldCheck, ShieldAlert, DollarSign, AlertCircle, Calendar, User, M
 import type { PaymentReport } from "../api/paymentReports";
 import Button from "../../../components/ui/Button";
 import { getApiErrorMessage } from "../../../lib/axios";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ProcessReportModalProps {
   report: PaymentReport | null;
@@ -20,6 +21,7 @@ export default function ProcessReportModal({
   onProcess,
   isProcessing,
 }: ProcessReportModalProps) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -128,14 +130,14 @@ export default function ProcessReportModal({
               <DollarSign className="w-5 h-5 text-primary stroke-[2]" />
             </div>
             <h2 id="modal-title" className="text-lg font-bold text-gray-900 leading-tight">
-              Review Payment Report
+              {t.reports.reportDetails}
             </h2>
           </div>
 
           <button
             ref={closeButtonRef}
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200 cursor-pointer"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -164,7 +166,7 @@ export default function ProcessReportModal({
               </div>
               <div className="text-right">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Report Date
+                  {t.reports.dateReported}
                 </span>
                 <span className="text-xs text-gray-600 flex items-center justify-end gap-1 font-medium">
                   <Calendar className="w-3.5 h-3.5 text-gray-400" />
@@ -176,7 +178,7 @@ export default function ProcessReportModal({
             <div className="grid grid-cols-2 gap-4 pt-3 border-t border-gray-200/60">
               <div>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Reporter (User ID: {report.userId})
+                  {t.reports.reporter} (User ID: {report.userId})
                 </span>
                 <div className="space-y-0.5 mt-0.5">
                   <span className="text-xs font-semibold text-gray-800 flex items-center gap-1">
@@ -195,17 +197,17 @@ export default function ProcessReportModal({
                       onClose();
                       navigate(`/users/${report.userId}`);
                     }}
-                    className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg border border-primary/20 bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all shadow-sm focus:outline-none"
+                    className="mt-2 inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-lg border border-primary/20 bg-primary/5 text-primary hover:bg-primary hover:text-white transition-all shadow-sm focus:outline-none cursor-pointer"
                   >
                     <ExternalLink className="w-3 h-3" />
-                    View Profile
+                    {t.reports.viewProfile}
                   </button>
                 </div>
               </div>
 
               <div>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Amount Reported
+                  {t.reports.amount}
                 </span>
                 <span className="text-base font-bold text-primary block mt-0.5">
                   {formatAmount(report.amount)}
@@ -221,7 +223,7 @@ export default function ProcessReportModal({
             {/* Reported Explanation */}
             <div className="pt-3 border-t border-gray-200/60">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                User Report Explanation
+                {t.reports.reasonReported}
               </span>
               <div className="mt-1 flex items-start gap-1.5 bg-white p-3 rounded-xl border border-gray-150">
                 <MessageSquare className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
@@ -235,7 +237,7 @@ export default function ProcessReportModal({
             {report.proofUrl && (
               <div className="pt-3 border-t border-gray-200/60">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Attachment Proof
+                  {t.reports.attachmentProof}
                 </span>
                 <a
                   href={report.proofUrl}
@@ -243,7 +245,7 @@ export default function ProcessReportModal({
                   rel="noopener noreferrer"
                   className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs text-primary hover:text-primary-dark hover:bg-gray-50 transition-colors font-bold shadow-sm"
                 >
-                  View Attachment Proof Document ↗
+                  {t.reports.viewAttachmentProof}
                 </a>
               </div>
             )}
@@ -255,35 +257,35 @@ export default function ProcessReportModal({
               {/* Decision Type Buttons */}
               <div className="space-y-2">
                 <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  Action Decision <span className="text-red-500">*</span>
+                  {t.reports.actionDecision} <span className="text-red-500">*</span>
                 </span>
                 <div className="grid grid-cols-2 gap-3.5">
                   {/* Accept Option Card */}
                   <button
                     type="button"
                     onClick={() => setAction("Accept")}
-                    className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-success-500/20 ${action === "Accept"
+                    className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-success-500/20 cursor-pointer ${action === "Accept"
                       ? "border-success-500 bg-success-50/50 text-success-700 shadow-sm"
                       : "border-gray-200 bg-transparent text-gray-500 hover:bg-gray-50"
                       }`}
                   >
                     <ShieldCheck className={`w-6 h-6 mb-1 ${action === "Accept" ? "text-success-600 animate-pulse" : "text-gray-400"}`} />
-                    <span className="text-sm font-bold">Accept Report</span>
-                    <span className="text-[10px] text-gray-400 mt-0.5">Approve user request</span>
+                    <span className="text-sm font-bold">{t.reports.acceptReport}</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">{t.reports.approveUserRequest}</span>
                   </button>
 
                   {/* Deny Option Card */}
                   <button
                     type="button"
                     onClick={() => setAction("Deny")}
-                    className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-error-500/20 ${action === "Deny"
+                    className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-error-500/20 cursor-pointer ${action === "Deny"
                       ? "border-error-500 bg-error-50/50 text-error-700 shadow-sm"
                       : "border-gray-200 bg-transparent text-gray-500 hover:bg-gray-50"
                       }`}
                   >
                     <ShieldAlert className={`w-6 h-6 mb-1 ${action === "Deny" ? "text-error-600 animate-pulse" : "text-gray-400"}`} />
-                    <span className="text-sm font-bold">Deny Report</span>
-                    <span className="text-[10px] text-gray-400 mt-0.5">Reject user claim</span>
+                    <span className="text-sm font-bold">{t.reports.denyReport}</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">{t.reports.rejectUserClaim}</span>
                   </button>
                 </div>
               </div>
@@ -291,7 +293,7 @@ export default function ProcessReportModal({
               {/* Decision Reason Textarea */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  Process Reason / Note <span className="text-red-500">*</span>
+                  {t.reports.processReasonNote} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   rows={3}
@@ -307,7 +309,7 @@ export default function ProcessReportModal({
             // Processed history details (status is 1 or 2)
             <div className="p-4 rounded-2xl border border-dashed border-gray-200 space-y-3">
               <span className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Processing Decision Details
+                {t.reports.processingDetails}
               </span>
               <div className="flex items-center gap-2">
                 <span
@@ -316,7 +318,7 @@ export default function ProcessReportModal({
                     : "bg-error-50 text-error-700 border border-error-100"
                     }`}
                 >
-                  {report.status === 1 ? "Accepted" : "Denied"}
+                  {report.status === 1 ? t.reports.acceptedClaims : t.reports.deniedClaims}
                 </span>
                 {report.processedAt && (
                   <span className="text-xs text-gray-500">
@@ -326,13 +328,13 @@ export default function ProcessReportModal({
               </div>
               {report.adminResponseReason && (
                 <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-xl border border-gray-100 font-medium">
-                  <span className="font-bold text-gray-700 block mb-1">Reason:</span>
+                  <span className="font-bold text-gray-700 block mb-1">{t.reels.reason}:</span>
                   {report.adminResponseReason}
                 </div>
               )}
               {report.processedBy && (
                 <span className="text-[10px] text-gray-400 block font-medium">
-                  Handled by {report.processedBy}
+                  {t.reports.handledBy.replace("{name}", report.processedBy)}
                 </span>
               )}
             </div>
@@ -346,8 +348,9 @@ export default function ProcessReportModal({
             size="sm"
             onClick={onClose}
             disabled={isProcessing}
+            className="cursor-pointer"
           >
-            Close
+            {t.common.close}
           </Button>
           {report.status === 0 && (
             <Button
@@ -356,9 +359,9 @@ export default function ProcessReportModal({
               onClick={handleSubmit}
               isLoading={isProcessing}
               disabled={isProcessing}
-              className="shadow-sm font-semibold"
+              className="shadow-sm font-semibold cursor-pointer"
             >
-              Confirm {action}
+              {t.common.confirm} {action}
             </Button>
           )}
         </div>

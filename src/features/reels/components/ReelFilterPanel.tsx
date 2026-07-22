@@ -3,6 +3,7 @@ import { Search, Filter, RotateCcw, Calendar, ChevronDown, ChevronUp, SlidersHor
 import type { ReelStatus } from "../types";
 import Card from "../../../components/ui/Card";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 type ReelStatusFilter = ReelStatus | "All";
 type ReelSortBy = "createdAt" | "viewCount" | "duration" | "title";
@@ -69,6 +70,7 @@ export default function ReelFilterPanel({
   onSortOrderChange,
   onReset,
 }: ReelFilterPanelProps) {
+  const { t } = useLanguage();
   const [isOpenMobile, setIsOpenMobile] = useState(false);
 
   return (
@@ -79,7 +81,7 @@ export default function ReelFilterPanel({
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search reels..."
+            placeholder={t.reels.searchReels}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
@@ -92,7 +94,7 @@ export default function ReelFilterPanel({
           aria-label="Toggle Filters Drawer"
         >
           <Filter className="w-4.5 h-4.5" />
-          <span className="text-xs font-bold uppercase tracking-wider">Filters</span>
+          <span className="text-xs font-bold uppercase tracking-wider">{t.table.filters}</span>
           {isOpenMobile ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>
@@ -107,15 +109,15 @@ export default function ReelFilterPanel({
           <div className="hidden md:flex items-center justify-between border-b border-gray-100 pb-3">
             <span className="text-sm font-bold text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
               <SlidersHorizontal className="w-4 h-4 text-primary" />
-              Filter
+              {t.common.filter}
             </span>
             <button
               onClick={onReset}
               className="text-xs font-semibold text-gray-400 hover:text-primary transition-colors flex items-center gap-1"
-              title="Reset Filters"
+              title={t.reels.resetFilters}
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Reset
+              {t.common.reset}
             </button>
           </div>
 
@@ -123,13 +125,13 @@ export default function ReelFilterPanel({
             {/* Desktop Search */}
             <div className="hidden md:block space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Full-Text Search
+                {t.reels.fullTextSearch}
               </label>
               <div className="relative">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search by title, tag..."
+                  placeholder={t.reels.searchPlaceholder}
                   value={search}
                   onChange={(e) => onSearchChange(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -140,18 +142,18 @@ export default function ReelFilterPanel({
             {/* Status Filter */}
             <div className="space-y-1.5">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Status Badge
+                {t.reels.statusBadge}
               </label>
               <select
                 value={status}
                 onChange={(e) => onStatusChange(toReelStatusFilter(e.target.value))}
                 className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
               >
-                <option value="All">All Statuses</option>
-                <option value="Published">Published (Public)</option>
-                <option value="Draft">Draft (Private)</option>
-                <option value="Processing">Processing</option>
-                <option value="Failed">Failed / Blocked</option>
+                <option value="All">{t.reels.allStatuses}</option>
+                <option value="Published">{t.reels.publishedPublic}</option>
+                <option value="Draft">{t.reels.draftPrivate}</option>
+                <option value="Processing">{t.reels.processing}</option>
+                <option value="Failed">{t.reels.failedBlocked}</option>
               </select>
             </div>
 
@@ -159,7 +161,7 @@ export default function ReelFilterPanel({
             <div className="space-y-2">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                 <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                Date Range
+                {t.reels.dateRange}
               </label>
               <div className="space-y-2">
                 <input
@@ -182,7 +184,7 @@ export default function ReelFilterPanel({
             {/* Sorting Criteria */}
             <div className="space-y-2">
               <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Sort Criteria
+                {t.reels.sortCriteria}
               </label>
               <div className="flex gap-2">
                 <select
@@ -190,18 +192,18 @@ export default function ReelFilterPanel({
                   onChange={(e) => onSortByChange(toReelSortBy(e.target.value))}
                   className="flex-1 px-3 py-2.5 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                 >
-                  <option value="createdAt">Upload Date</option>
-                  <option value="viewCount">Views</option>
-                  <option value="duration">Duration</option>
-                  <option value="title">Title</option>
+                  <option value="createdAt">{t.reels.dateUploaded}</option>
+                  <option value="viewCount">{t.reels.views}</option>
+                  <option value="duration">{t.room.duration}</option>
+                  <option value="title">{t.reels.titleInput}</option>
                 </select>
                 <select
                   value={sortOrder}
                   onChange={(e) => onSortOrderChange(toSortOrder(e.target.value))}
                   className="px-2 py-2.5 text-xs rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer shrink-0"
                 >
-                  <option value="desc">Desc</option>
-                  <option value="asc">Asc</option>
+                  <option value="desc">{t.common.descending}</option>
+                  <option value="asc">{t.common.ascending}</option>
                 </select>
               </div>
             </div>
@@ -215,7 +217,7 @@ export default function ReelFilterPanel({
                 className="w-full flex items-center justify-center gap-1.5"
               >
                 <RotateCcw className="w-4 h-4" />
-                Reset Filters
+                {t.reels.resetFilters}
               </Button>
             </div>
           </div>

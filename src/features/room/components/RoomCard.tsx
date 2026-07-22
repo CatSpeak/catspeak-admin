@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe } from "lucide-react";
 import type { Room } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
+import { useLanguage } from "../../../stores/languageStore";
 
 const DEFAULT_THUMBNAIL =
   "https://i.ibb.co/23fT32Dq/meeting-room-filled-with-chairs-and-a-large-table-in-a-modern-office-setting-details-free-photo.webp";
@@ -14,6 +15,7 @@ interface RoomCardProps {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) => {
+  const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -53,11 +55,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="absolute top-2 left-2 flex gap-1.5">
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
-            {isActive ? "Active" : "Inactive"}
+            {isActive ? t.common.active : t.common.inactive}
           </span>
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ${room.privacy === "Private" ? "bg-amber-500/90 text-white" : "bg-white/80 text-gray-600"}`}>
             {room.privacy === "Private" ? <Lock size={9} /> : <Globe size={9} />}
-            {room.privacy}
+            {room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
           </span>
         </div>
         {/* Menu — always visible on card */}
@@ -76,14 +78,14 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 <Pencil size={14} />
-                Edit room
+                {t.common.edit}
               </button>
               <button
                 onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 <Trash2 size={14} />
-                Delete room
+                {t.common.delete}
               </button>
             </div>
           )}
@@ -106,7 +108,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           <div className="flex items-center">
             <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${typeStyle.bg} ${typeStyle.text}`}>
               <Users size={9} />
-              {room.roomType === "OneToOne" ? "1:1" : "Group"}
+              {room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
             </span>
           </div>
           {/* Level */}
@@ -125,7 +127,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400">
           <span className="inline-flex items-center gap-1">
             <Users size={11} />
-            {room.currentParticipantCount}{room.maxParticipants != null ? `/${room.maxParticipants}` : ""} participants
+            {room.currentParticipantCount}{room.maxParticipants != null ? `/${room.maxParticipants}` : ""} {t.room.participants}
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock size={11} />

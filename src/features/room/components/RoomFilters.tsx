@@ -1,6 +1,7 @@
 import React from "react";
 import { Search, X, Filter, ChevronDown, ChevronUp, User } from "lucide-react";
 import type { RoomFilters as Filters } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface RoomFiltersProps {
   filters: Filters;
@@ -12,14 +13,14 @@ interface RoomFiltersProps {
   onClear: () => void;
 }
 
-const ROOM_TYPE_CHIPS: { value: number; label: string }[] = [
-  { value: 0, label: "1:1" },
-  { value: 1, label: "Group" },
+const ROOM_TYPE_CHIPS: { value: number }[] = [
+  { value: 0 },
+  { value: 1 },
 ];
 
-const STATUS_CHIPS: { value: number; label: string; color: string; activeColor: string }[] = [
-  { value: 1, label: "Active", color: "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50", activeColor: "bg-emerald-50 border-emerald-300 text-emerald-700" },
-  { value: 0, label: "Inactive", color: "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50", activeColor: "bg-red-50 border-red-300 text-red-600" },
+const STATUS_CHIPS: { value: number; color: string; activeColor: string }[] = [
+  { value: 1, color: "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50", activeColor: "bg-emerald-50 border-emerald-300 text-emerald-700" },
+  { value: 0, color: "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50", activeColor: "bg-red-50 border-red-300 text-red-600" },
 ];
 
 const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
@@ -31,6 +32,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
   onUpdate,
   onClear,
 }) => {
+  const { t } = useLanguage();
   const [isExpanded, setIsExpanded] = React.useState(false);
 
   return (
@@ -42,7 +44,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search room name…"
+            placeholder={t.room.searchRoomName}
             value={filters.roomName}
             onChange={(e) => onSearch(e.target.value)}
             className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
@@ -59,7 +61,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search host name…"
+            placeholder={t.room.searchHostName}
             value={filters.hostName}
             onChange={(e) => onHostSearch(e.target.value)}
             className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
@@ -81,7 +83,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           }`}
         >
           <Filter size={15} />
-          Filters
+          {t.table.filters}
           {activeFilterCount > 0 && (
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold">
               {activeFilterCount}
@@ -92,7 +94,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
 
         {activeFilterCount > 0 && (
           <button onClick={onClear} className="text-xs text-gray-400 hover:text-red-500 transition-colors font-medium">
-            Clear all
+            {t.table.clearAll}
           </button>
         )}
       </div>
@@ -105,10 +107,11 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Room Types */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Room Type</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.room.roomType}</p>
               <div className="flex flex-wrap gap-1.5">
                 {ROOM_TYPE_CHIPS.map((chip) => {
                   const active = filters.roomTypes.includes(chip.value);
+                  const label = chip.value === 0 ? t.room.oneToOneRooms : t.room.groupRooms;
                   return (
                     <button
                       key={chip.value}
@@ -119,7 +122,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
                           : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                       }`}
                     >
-                      {chip.label}
+                      {label}
                     </button>
                   );
                 })}
@@ -128,10 +131,11 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
 
             {/* Statuses */}
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Status</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.common.status}</p>
               <div className="flex flex-wrap gap-1.5">
                 {STATUS_CHIPS.map((chip) => {
                   const active = filters.statuses.includes(chip.value);
+                  const label = chip.value === 1 ? t.common.active : t.common.inactive;
                   return (
                     <button
                       key={chip.value}
@@ -140,7 +144,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
                         active ? chip.activeColor : chip.color
                       }`}
                     >
-                      {chip.label}
+                      {label}
                     </button>
                   );
                 })}
@@ -151,7 +155,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           {/* Date range row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Created From</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.common.createdFrom}</p>
               <input
                 type="date"
                 value={filters.createdFrom ? filters.createdFrom.substring(0, 10) : ""}
@@ -162,7 +166,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
               />
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Created To</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.common.createdTo}</p>
               <input
                 type="date"
                 value={filters.createdTo ? filters.createdTo.substring(0, 10) : ""}
@@ -177,27 +181,27 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
           {/* Sort row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sort By</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.common.sortBy}</p>
               <select
                 value={filters.sortBy}
                 onChange={(e) => onUpdate("sortBy", e.target.value as Filters["sortBy"])}
                 className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
               >
-                <option value="">Default</option>
-                <option value="Name">Name</option>
-                <option value="CreateDate">Create Date</option>
-                <option value="Status">Status</option>
+                <option value="">{t.common.default}</option>
+                <option value="Name">{t.common.name}</option>
+                <option value="CreateDate">{t.common.createdDate}</option>
+                <option value="Status">{t.common.status}</option>
               </select>
             </div>
             <div>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sort Order</p>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t.common.sortOrder}</p>
               <select
                 value={filters.sortOrder}
                 onChange={(e) => onUpdate("sortOrder", e.target.value as Filters["sortOrder"])}
                 className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
               >
-                <option value="Desc">Descending</option>
-                <option value="Asc">Ascending</option>
+                <option value="Desc">{t.common.descending}</option>
+                <option value="Asc">{t.common.ascending}</option>
               </select>
             </div>
           </div>

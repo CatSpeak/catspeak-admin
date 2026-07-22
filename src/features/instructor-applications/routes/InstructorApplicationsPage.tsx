@@ -6,16 +6,18 @@ import { getInstructorApplications } from "../api/getInstructorApplications";
 import { useNavigate } from "react-router-dom";
 import { formatDateLong } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function InstructorApplicationsPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       <PageHeader
         icon={<IdCardLanyard />}
-        title="Instructor Applications"
-        desc="Review and manage instructor profile applications."
+        title={t.instructorApplications.title}
+        desc={t.instructorApplications.desc}
       />
 
       <Table<InstructorApplication>
@@ -31,11 +33,11 @@ export default function InstructorApplicationsPage() {
         }
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "profileId",
           },
           {
-            name: "Name",
+            name: t.users.username,
             accessorKey: "fullName",
             render: (app) => (
               <div>
@@ -47,19 +49,19 @@ export default function InstructorApplicationsPage() {
             ),
           },
           {
-            name: "Email",
+            name: t.users.email,
             accessorKey: "accountEmail",
             render: (app) => (
               <span className="text-primary underline">{app.accountEmail}</span>
             ),
           },
           {
-            name: "Phone",
+            name: t.users.phone,
             accessorKey: "phoneNumber",
             render: (app) => <>{app.phoneNumber || "—"}</>,
           },
           {
-            name: "Submitted",
+            name: t.common.createdDate,
             accessorKey: "submittedAt",
             render: (app) => (
               <span className="whitespace-nowrap text-gray-600">
@@ -68,17 +70,17 @@ export default function InstructorApplicationsPage() {
             ),
           },
           {
-            name: "Status",
+            name: t.common.status,
             accessorKey: "status",
             values: ["Pending", "Approved", "Rejected", "RequestEdit"],
             render: (p) => {
               switch (p.status) {
                 case "Pending":
-                  return <Badge title="Public" type="Blue" />;
+                  return <Badge title={t.common.pending} type="Blue" />;
                 case "Approved":
-                  return <Badge title="Approved" type="Green" />;
+                  return <Badge title={t.common.approved} type="Green" />;
                 case "Rejected":
-                  return <Badge title="Rejected" type="Red" />;
+                  return <Badge title={t.common.rejected} type="Red" />;
                 case "RequestEdit":
                   return <Badge title="Request Edit" type="Orange" />;
                 default:
@@ -88,7 +90,6 @@ export default function InstructorApplicationsPage() {
           },
         ]}
       />
-      {/* <ApplicationTable /> */}
     </div>
   );
 }

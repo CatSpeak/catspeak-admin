@@ -4,6 +4,7 @@ import { usePostDetail } from "../hooks/usePostDetail";
 import { PostFormView, PostContent, DeleteConfirmModal } from "../components";
 import { Pencil, Trash2, Eye, Heart, MessageSquare, Share2 } from "lucide-react";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 function formatDate(value?: string | null) {
   return value ? new Date(value).toLocaleDateString() : "—";
@@ -12,6 +13,7 @@ function formatDate(value?: string | null) {
 export default function PostDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const {
     post,
     loading,
@@ -29,7 +31,7 @@ export default function PostDetailPage() {
       <div className="flex items-center justify-center h-64 bg-white rounded-xl shadow-sm border border-gray-100">
         <div className="flex flex-col items-center gap-3 text-gray-500">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span>Loading...</span>
+          <span>{t.common.loading}</span>
         </div>
       </div>
     );
@@ -39,7 +41,7 @@ export default function PostDetailPage() {
     return (
       <div className="flex h-64 items-center justify-center bg-white rounded-xl shadow-sm border border-red-100">
         <span className="text-red-500 font-medium">
-          {detailError ?? "Post not found"}
+          {detailError ?? t.news.postNotFound}
         </span>
       </div>
     );
@@ -57,17 +59,17 @@ export default function PostDetailPage() {
               className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
               onClick={goBack}
             >
-              News
+              {t.news.title}
             </span>
             <span className="mx-2">{">"}</span>
             <span
               className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
               onClick={() => setIsEditing(false)}
             >
-              Post Detail
+              {t.news.postDetails}
             </span>
             <span className="mx-2">{">"}</span>
-            <span className="text-gray-900 font-medium">Edit</span>
+            <span className="text-gray-900 font-medium">{t.common.edit}</span>
           </nav>
         </div>
 
@@ -96,15 +98,15 @@ export default function PostDetailPage() {
             className="cursor-pointer hover:underline hover:text-gray-900 transition-colors"
             onClick={goBack}
           >
-            News
+            {t.news.title}
           </span>
           <span className="mx-2">{">"}</span>
-          <span className="text-gray-900 font-medium">Detail</span>
+          <span className="text-gray-900 font-medium">{t.common.details}</span>
         </nav>
 
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={goBack}>
-            Back to List
+            {t.news.backToList}
           </Button>
           <Button
             variant="outline"
@@ -113,7 +115,7 @@ export default function PostDetailPage() {
             className="text-red-600 border-red-200 hover:bg-red-50"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete
+            {t.common.delete}
           </Button>
           <Button
             variant="primary"
@@ -121,7 +123,7 @@ export default function PostDetailPage() {
             onClick={() => setIsEditing(true)}
           >
             <Pencil className="w-4 h-4 mr-2" />
-            Edit Post
+            {t.news.editPost}
           </Button>
         </div>
       </div>
@@ -156,7 +158,7 @@ export default function PostDetailPage() {
               >
                 {typeof post.privacy === "string"
                   ? post.privacy.replace(/([A-Z])/g, " $1").trim()
-                  : String(post.privacy || "Unknown")}
+                  : String(post.privacy || t.users.unknown)}
               </span>
             </div>
           </div>
@@ -173,7 +175,7 @@ export default function PostDetailPage() {
           {post.media && post.media.length > 0 && (
             <div className="mt-8 space-y-3">
               <h3 className="text-sm font-semibold text-gray-900">
-                Attached Media ({post.media.length})
+                {t.news.attachedMedia.replace("{count}", String(post.media.length))}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {post.media.map((m) => (
@@ -194,7 +196,7 @@ export default function PostDetailPage() {
           <div className="bg-white p-5 rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.04)] border border-gray-100/50 space-y-6">
             {/* Header section with Post ID */}
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Post Details</span>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.news.postDetails}</span>
               <span className="bg-orange-50 text-primary border border-orange-100 rounded-md px-2 py-0.5 text-xs font-mono font-semibold">
                 #{post.postId}
               </span>
@@ -202,37 +204,37 @@ export default function PostDetailPage() {
 
             {/* Language Community Section */}
             <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Language Community</span>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.news.languageCommunity}</span>
               <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
-                {post.languageCommunity || "All"}
+                {post.languageCommunity || t.common.all}
               </span>
             </div>
 
             {/* Engagement Stats Grid */}
             <div className="space-y-3">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Engagement Stats</h4>
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.news.engagementStats}</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 bg-indigo-50/40 rounded-xl border border-indigo-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                   <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
-                    <Eye size={12} className="text-indigo-500" /> Views
+                    <Eye size={12} className="text-indigo-500" /> {t.news.views}
                   </span>
                   <span className="text-lg font-bold text-gray-900">{(post.viewCount ?? 0).toLocaleString()}</span>
                 </div>
                 <div className="p-3 bg-rose-50/40 rounded-xl border border-rose-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                   <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
-                    <Heart size={12} className="text-rose-500" /> Reactions
+                    <Heart size={12} className="text-rose-500" /> {t.news.reactions}
                   </span>
                   <span className="text-lg font-bold text-gray-900">{(post.totalReactions ?? 0).toLocaleString()}</span>
                 </div>
                 <div className="p-3 bg-amber-50/40 rounded-xl border border-amber-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                   <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
-                    <MessageSquare size={12} className="text-amber-500" /> Comments
+                    <MessageSquare size={12} className="text-amber-500" /> {t.news.comments}
                   </span>
                   <span className="text-lg font-bold text-gray-900">{(post.totalComments ?? 0).toLocaleString()}</span>
                 </div>
                 <div className="p-3 bg-emerald-50/40 rounded-xl border border-emerald-100/30 flex flex-col gap-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
                   <span className="text-xs font-semibold text-gray-500 flex items-center gap-1">
-                    <Share2 size={12} className="text-emerald-500" /> Shares
+                    <Share2 size={12} className="text-emerald-500" /> {t.news.shares}
                   </span>
                   <span className="text-lg font-bold text-gray-900">{(post.shareCount ?? 0).toLocaleString()}</span>
                 </div>
@@ -241,7 +243,7 @@ export default function PostDetailPage() {
 
             {/* Post Timeline */}
             <div className="space-y-4 pt-4 border-t border-gray-100">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Timeline</h4>
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">{t.news.timeline}</h4>
 
               <div className="relative pl-6 space-y-4">
                 {/* Visual timeline vertical line */}
@@ -250,14 +252,14 @@ export default function PostDetailPage() {
                 {/* Created Event */}
                 <div className="relative">
                   <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white bg-primary ring-4 ring-orange-50" />
-                  <div className="text-xs font-semibold text-gray-400">Created</div>
+                  <div className="text-xs font-semibold text-gray-400">{t.news.created}</div>
                   <div className="text-sm font-semibold text-gray-800">{formatDate(post.createDate)}</div>
                 </div>
 
                 {/* Last Edited Event */}
                 <div className="relative">
                   <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-white bg-gray-400 ring-4 ring-gray-100" />
-                  <div className="text-xs font-semibold text-gray-400">Last Edited</div>
+                  <div className="text-xs font-semibold text-gray-400">{t.news.lastEdited}</div>
                   <div className="text-sm font-semibold text-gray-800">{formatDate(post.lastEdited)}</div>
                 </div>
               </div>

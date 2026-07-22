@@ -10,26 +10,29 @@ import Table from "../../components/ui/table/Table";
 import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans";
 import { formatDateTime } from "../../lib/utils";
 import Badge from "../../components/ui/Badge";
+import { useLanguage } from "../../stores/languageStore";
 
 const PlansPage: React.FC = () => {
   const navigate = useNavigate();
   const { plans, stats } = usePlans();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
         icon={<FileText />}
-        title="Plans"
-        desc="Manage, create and configure service plans on the system"
+        title={t.plans.title}
+        desc={t.plans.desc}
         rightButtons={[
           <Button
+            key="create-plan"
             variant="primary"
             size="sm"
             onClick={() => navigate("/plans/create")}
           >
             <Plus className="size-4 mr-1" />
-            Create Plan
+            {t.plans.createPlan}
           </Button>,
         ]}
       />
@@ -74,7 +77,7 @@ const PlansPage: React.FC = () => {
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
         headers={[
           {
-            name: "Name",
+            name: t.users.username,
             accessorKey: "planName",
             render: (p) => (
               <div className="flex items-center gap-3">
@@ -99,11 +102,11 @@ const PlansPage: React.FC = () => {
             ),
           },
           {
-            name: "Role",
+            name: t.users.role,
             accessorKey: "applicableRole",
           },
           {
-            name: "Price",
+            name: t.plans.price,
             accessorKey: "priceVnd",
             render: (p) => (
               <div>
@@ -117,7 +120,7 @@ const PlansPage: React.FC = () => {
             ),
           },
           {
-            name: "Status",
+            name: t.common.status,
             accessorKey: "packageStatus",
             values: ["Public", "Published", "Draft", "Archived"],
             render: (p) => {
@@ -138,7 +141,7 @@ const PlansPage: React.FC = () => {
             },
           },
           {
-            name: "Features",
+            name: t.plans.features,
             accessorKey: "subscriptionFeatures",
             render: (p) => {
               const count = p.subscriptionFeatures?.length || 0;
@@ -147,13 +150,13 @@ const PlansPage: React.FC = () => {
                   <span className="text-sm font-medium text-gray-900">
                     {count}
                   </span>
-                  <span className="text-xs text-gray-500">features</span>
+                  <span className="text-xs text-gray-500">{t.plans.features.toLowerCase()}</span>
                 </div>
               );
             },
           },
           {
-            name: "Last Updated",
+            name: t.plans.lastUpdated,
             accessorKey: "lastEdited",
             render: (p) => (
               <span className="text-sm text-gray-600">

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Card from "../../../components/ui/Card";
 import type { DashboardStats } from "../api/getDashboardStats";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface PaymentsDashboardProps {
   data: DashboardStats;
@@ -29,6 +30,7 @@ export default function PaymentsDashboard({
 }: PaymentsDashboardProps) {
   const navigate = useNavigate();
   const [chartMode, setChartMode] = useState<"revenue" | "transactions">("revenue");
+  const { t } = useLanguage();
 
   // Format currency helpers
   const formatVND = (value: number) => {
@@ -129,19 +131,19 @@ export default function PaymentsDashboard({
     if (chartMode === "revenue") {
       return [
         {
-          name: "Daily Revenue",
+          name: t.dashboard.dailyRevenueTrend,
           data: chartData.revenue,
         },
       ];
     } else {
       return [
         {
-          name: "Daily Transactions",
+          name: t.dashboard.dailyTransactionsTrend,
           data: chartData.transactions,
         },
       ];
     }
-  }, [chartMode, chartData]);
+  }, [chartMode, chartData, t]);
 
   return (
     <div className="space-y-6">
@@ -153,13 +155,13 @@ export default function PaymentsDashboard({
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 transition-all shadow-sm active:scale-95 disabled:opacity-50 cursor-pointer"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-          Refresh Stats
+          {t.dashboard.refreshStats}
         </button>
       </div>
 
       {/* ── Payments Summary Metrics ── */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">Payments & Revenue</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">{t.dashboard.paymentsAndRevenue}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           
           {/* Revenue Card (Double width in desktop) */}
@@ -167,7 +169,7 @@ export default function PaymentsDashboard({
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-white/85 uppercase tracking-wider block">
-                  Total Revenue
+                  {t.dashboard.totalRevenue}
                 </span>
                 <span className="text-3xl font-extrabold block mt-2">
                   {formatVND(data.totalRevenueVnd)}
@@ -179,7 +181,7 @@ export default function PaymentsDashboard({
             </div>
             <div className="mt-4 flex items-center gap-1.5 text-xs text-white/90">
               <TrendingUp size={14} />
-              <span>Accrued platform profit</span>
+              <span>{t.dashboard.accruedProfit}</span>
             </div>
           </div>
 
@@ -188,7 +190,7 @@ export default function PaymentsDashboard({
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                  Successful Trans
+                  {t.dashboard.successfulTrans}
                 </span>
                 <span className="text-2xl font-bold text-success-600 block mt-2">
                   {data.successfulTransactions}
@@ -200,8 +202,8 @@ export default function PaymentsDashboard({
             </div>
             <div className="mt-2 text-xs text-gray-500">
               {data.totalTransactions > 0 
-                ? `${((data.successfulTransactions / data.totalTransactions) * 100).toFixed(1)}% success rate` 
-                : "No transactions"}
+                ? `${((data.successfulTransactions / data.totalTransactions) * 100).toFixed(1)}% ${t.dashboard.successRate}` 
+                : t.common.noTransactions}
             </div>
           </div>
 
@@ -210,7 +212,7 @@ export default function PaymentsDashboard({
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                  Pending Trans
+                  {t.dashboard.pendingTrans}
                 </span>
                 <span className="text-2xl font-bold text-warning-500 block mt-2">
                   {data.pendingTransactions}
@@ -221,7 +223,7 @@ export default function PaymentsDashboard({
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Awaiting confirmation
+              {t.dashboard.awaitingConfirmation}
             </div>
           </div>
 
@@ -230,7 +232,7 @@ export default function PaymentsDashboard({
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                  Failed & Cancelled
+                  {t.dashboard.failedAndCancelled}
                 </span>
                 <span className="text-2xl font-bold text-error-600 block mt-2">
                   {data.failedTransactions + data.cancelledTransactions}
@@ -241,7 +243,7 @@ export default function PaymentsDashboard({
               </div>
             </div>
             <div className="mt-2 text-xs text-gray-500">
-              Failed: {data.failedTransactions} | Cancelled: {data.cancelledTransactions}
+              {t.common.rejected}: {data.failedTransactions} | {t.common.cancel}: {data.cancelledTransactions}
             </div>
           </div>
 
@@ -250,7 +252,7 @@ export default function PaymentsDashboard({
 
       {/* ── Reports & Claims Summary Metrics ── */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">Payment Claims & Reports</h2>
+        <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">{t.reports.paymentClaimsAndReports}</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           
           {/* Total Reports */}
@@ -260,7 +262,7 @@ export default function PaymentsDashboard({
             </div>
             <div>
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                Total Claims
+                {t.reports.totalClaims}
               </span>
               <span className="text-2xl font-bold text-gray-900 block mt-0.5">
                 {data.totalReports}
@@ -275,7 +277,7 @@ export default function PaymentsDashboard({
             </div>
             <div>
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                Pending Claims
+                {t.reports.pendingClaims}
               </span>
               <span className={`text-2xl font-bold block mt-0.5 ${data.pendingReports > 0 ? "text-warning-800" : "text-gray-900"}`}>
                 {data.pendingReports}
@@ -290,7 +292,7 @@ export default function PaymentsDashboard({
             </div>
             <div>
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                Approved Claims
+                {t.reports.approvedClaims}
               </span>
               <span className="text-2xl font-bold text-success-700 block mt-0.5">
                 {data.acceptedReports}
@@ -305,7 +307,7 @@ export default function PaymentsDashboard({
             </div>
             <div>
               <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-                Denied Claims
+                {t.reports.deniedClaims}
               </span>
               <span className="text-2xl font-bold text-error-700 block mt-0.5">
                 {data.deniedReports}
@@ -321,29 +323,29 @@ export default function PaymentsDashboard({
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 mt-0.5 text-amber-700 shrink-0" />
               <div>
-                <p className="text-sm font-semibold">Pending Payment Reports Require Verification</p>
-                <p className="text-xs text-amber-700 mt-0.5">There are currently {data.pendingReports} payment report claims awaiting staff or admin approval.</p>
+                <p className="text-sm font-semibold">{t.reports.pendingAlertTitle}</p>
+                <p className="text-xs text-amber-700 mt-0.5">{t.reports.pendingAlertDesc.replace("{count}", data.pendingReports.toString())}</p>
               </div>
             </div>
             <button
               onClick={() => navigate("/payments")}
               className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer"
             >
-              Go to Claim Queue
+              {t.reports.goToClaimQueue}
               <ArrowRight size={14} />
             </button>
           </div>
         )}
       </div>
 
-      {/* ── Daily Revenue & Transactions Trend Chart (Powered by GET /v1/Payments/admin/dashboard - dailyRevenue array, fallback: []) ── */}
+      {/* ── Daily Revenue & Transactions Trend Chart ── */}
       <Card>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 border-b border-gray-100 pb-4">
           <div>
             <h3 className="text-lg font-bold text-gray-800">
-              {chartMode === "revenue" ? "Daily Revenue Trend" : "Daily Transactions Trend"}
+              {chartMode === "revenue" ? t.dashboard.dailyRevenueTrend : t.dashboard.dailyTransactionsTrend}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">Track daily activity and platform gains over time</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t.dashboard.dailyTrendDesc}</p>
           </div>
           
           <div className="flex bg-gray-100 p-1 rounded-xl gap-1 self-start sm:self-auto">
@@ -355,7 +357,7 @@ export default function PaymentsDashboard({
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              Revenue (VND)
+              {t.dashboard.revenueVnd}
             </button>
             <button
               onClick={() => setChartMode("transactions")}
@@ -365,14 +367,14 @@ export default function PaymentsDashboard({
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              Transactions Count
+              {t.dashboard.transactionsCount}
             </button>
           </div>
         </div>
 
         {data.dailyRevenue.length === 0 ? (
           <div className="flex min-h-[300px] items-center justify-center text-gray-400 text-sm">
-            No daily data available
+            {t.common.noDailyData}
           </div>
         ) : (
           <div className="w-full min-h-[350px]">
