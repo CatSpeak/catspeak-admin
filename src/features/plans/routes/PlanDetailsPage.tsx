@@ -13,6 +13,7 @@ import PageTitle from "../../../components/ui/PageTitle"
 import Tabs from "../../../components/ui/Tabs"
 import { formatDateTime } from "../../../lib/utils"
 import type { Plan } from "../../../entities/types"
+import { useLanguage } from "../../../stores/languageStore"
 
 const PlanDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +21,7 @@ const PlanDetailsPage: React.FC = () => {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialTab = (searchParams.get("tab") as any) || "general"
+  const { t } = useLanguage()
 
   const [activeTab, setActiveTab] = useState<"general" | "features">(initialTab)
   const [isSaving, setIsSaving] = useState(false)
@@ -84,7 +86,7 @@ const PlanDetailsPage: React.FC = () => {
   if (!isCreateMode && (error || !plan)) {
     return (
       <div className="p-6 text-center text-red-500">
-        Failed to load plan details or plan not found.
+        {t.plans.loadError}
       </div>
     )
   }
@@ -125,7 +127,7 @@ const PlanDetailsPage: React.FC = () => {
   const handleDelete = async () => {
     if (
       window.confirm(
-        "Are you sure you want to delete this plan? This action cannot be undone.",
+        t.plans.confirmDelete,
       )
     ) {
       setIsSaving(true)
@@ -144,15 +146,15 @@ const PlanDetailsPage: React.FC = () => {
         <div className="mb-8 shrink-0">
           <Breadcrumb
             items={[
-              { label: "Plans", onClick: () => navigate("/plans") },
-              { label: isCreateMode ? "Create New Plan" : "Plan Details" },
+              { label: t.plans.title, onClick: () => navigate("/plans") },
+              { label: isCreateMode ? t.plans.createPlan : t.plans.planDetails },
             ]}
           />
 
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div>
               <PageTitle>
-                {isCreateMode ? "Create New Plan" : currentPlan?.planName}
+                {isCreateMode ? t.plans.createPlan : currentPlan?.planName}
               </PageTitle>
               {!isCreateMode && currentPlan && (
                 <div className="flex items-center gap-2 mb-4">
@@ -160,32 +162,32 @@ const PlanDetailsPage: React.FC = () => {
                     {currentPlan.applicableRole}
                   </span>
                   <span className="px-2.5 py-0.5 text-xs font-bold bg-gray-100 text-gray-700 rounded-md border border-gray-200 shadow-sm">
-                    {currentPlan.packageStatus || "Draft"}
+                    {currentPlan.packageStatus || t.plans.draft}
                   </span>
                 </div>
               )}
 
               <div className="flex items-center gap-3 text-sm text-gray-500">
                 {isCreateMode ? (
-                  <span>Create a new service package to offer to users</span>
+                  <span>{t.plans.createPlanSub}</span>
                 ) : currentPlan ? (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span>Code:</span>
+                      <span>{t.plans.code}:</span>
                       <span className="font-medium text-gray-700">
                         {currentPlan.subscriptionCode}
                       </span>
                     </div>
                     <div className="w-1 h-1 rounded-full bg-gray-300" />
                     <div>
-                      Created{" "}
+                      {t.plans.created}{" "}
                       <span className="font-medium text-gray-700">
                         {formatDateTime(currentPlan.createDate)}
                       </span>
                     </div>
                     <div className="w-1 h-1 rounded-full bg-gray-300" />
                     <div>
-                      Updated{" "}
+                      {t.plans.updated}{" "}
                       <span className="font-medium text-gray-700">
                         {formatDateTime(currentPlan.lastEdited)}
                       </span>
@@ -200,10 +202,10 @@ const PlanDetailsPage: React.FC = () => {
         {/* Tabs */}
         <Tabs
           tabs={[
-            { id: "general", label: "1. General Information" },
+            { id: "general", label: t.plans.tabGeneral },
             {
               id: "features",
-              label: "2. Features & Benefits",
+              label: t.plans.tabFeatures,
               icon: isCreateMode ? <Lock className="w-4 h-4" /> : undefined,
               disabled: isCreateMode,
             },
@@ -253,7 +255,7 @@ const PlanDetailsPage: React.FC = () => {
                     className="text-red-600 hover:bg-red-50 hover:text-red-700"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
+                    {t.plans.deletePlan}
                   </Button>
                   <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
                 </>
@@ -265,14 +267,14 @@ const PlanDetailsPage: React.FC = () => {
                   onClick={() => navigate("/plans")}
                   disabled={isSubmitting}
                 >
-                  Cancel
+                  {t.common.cancel}
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => triggerSave()}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Creating..." : "Create Plan & Go to Config"}
+                  {isSubmitting ? t.plans.creating : t.plans.createAndConfig}
                 </Button>
               </>
             ) : (
@@ -285,7 +287,7 @@ const PlanDetailsPage: React.FC = () => {
                       disabled={isSaving}
                     >
                       <EyeOff className="w-4 h-4 mr-2" />
-                      Hide
+                      {t.plans.hide}
                     </Button>
                     <Button
                       variant="outline"
@@ -293,7 +295,7 @@ const PlanDetailsPage: React.FC = () => {
                       disabled={isSaving}
                     >
                       <Archive className="w-4 h-4 mr-2" />
-                      Archive
+                      {t.plans.archive}
                     </Button>
                   </>
                 )}
@@ -303,7 +305,7 @@ const PlanDetailsPage: React.FC = () => {
                   onClick={() => setIsPreviewOpen(true)}
                 >
                   <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  {t.plans.preview}
                 </Button>
 
                 {currentPlan?.packageStatus !== "Published" && (
@@ -315,8 +317,8 @@ const PlanDetailsPage: React.FC = () => {
                   >
                     <Send className="w-4 h-4 mr-2" />
                     {currentPlan?.packageStatus === "Draft"
-                      ? "Publish Plan"
-                      : "Republish Plan"}
+                      ? t.plans.publishPlan
+                      : t.plans.republishPlan}
                   </Button>
                 )}
               </>

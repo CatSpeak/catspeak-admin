@@ -7,28 +7,19 @@ import type { UserSortBy } from "../../users/api/getUsers";
 import { useNavigate } from "react-router-dom";
 import type { Account } from "../types";
 import { formatDateTime } from "../../../lib/utils";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function StaffsPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
         icon={<IdCardLanyard />}
-        title="Staffs"
-        desc="Manage your core team and streamline internal permissions."
-        // rightButtons={[
-        //   <Button variant="primary" size="sm">
-        //     Import
-        //   </Button>,
-        //   <Button variant="primary" size="sm">
-        //     Decentralize
-        //   </Button>,
-        //   <Button variant="primary" size="sm">
-        //     History
-        //   </Button>,
-        // ]}
+        title={t.nav.staffs}
+        desc={t.staffs.desc}
       />
 
       {/* Staff Table */}
@@ -69,30 +60,30 @@ export default function StaffsPage() {
         onClickRow={(r) => navigate(`/staffs/${r.accountId}`)}
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "accountId",
           },
           {
-            name: "Name",
+            name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
           },
           {
-            name: "Email",
+            name: t.users.email,
             accessorKey: "email",
             render: (r) => (
               <span className="text-primary underline">{r.email}</span>
             ),
           },
           {
-            name: "Phone",
+            name: t.users.phone,
             accessorKey: "phoneNumber",
             render: (r) => (
               <span className="whitespace-nowrap">{r.phoneNumber || "—"}</span>
             ),
           },
           {
-            name: "Date joined",
+            name: t.users.dateJoined,
             accessorKey: "createDate",
             render: (p) => (
               <span className="text-sm text-gray-600">
@@ -101,20 +92,19 @@ export default function StaffsPage() {
             ),
           },
           {
-            name: "Country",
+            name: t.users.country,
             accessorKey: "country",
           },
           {
-            name: "Community",
+            name: t.users.role,
             accessorKey: "roleName",
           },
           {
-            name: "Visit duration",
+            name: t.users.lastActive,
             accessorKey: "visitDurationForStaff",
           },
         ]}
       />
-      {/* <StaffTable /> */}
     </div>
   );
 }

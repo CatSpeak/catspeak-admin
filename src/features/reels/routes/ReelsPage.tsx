@@ -32,6 +32,7 @@ import { useToastStore } from "../../../stores/toastStore";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Card from "../../../components/ui/Card";
 import ReelsAnalyticsCards from "../components/ReelsAnalyticsCards";
+import { useLanguage } from "../../../stores/languageStore";
 
 const CHALLENGE_STATUS_FILTERS: ChallengeStatusFilter[] = [
   "All",
@@ -59,6 +60,7 @@ const toReelStatusFilter = (value: string): ReelStatus | "All" =>
     : "All";
 
 function ReelsPageContent() {
+  const { t } = useLanguage();
   // Reels hooks
   const reelsHook = useReels();
   const manageHook = useManageReels(reelsHook);
@@ -146,11 +148,12 @@ function ReelsPageContent() {
   ) => {
     setIsModerating(true);
     try {
-      // Send status and blockReason as query parameters via the updated API
       await updateReelStatus(reelId, { status, blockReason });
-      addToast("success", `Successfully updated reel status to "${status}".`);
+      addToast(
+        "success",
+        t.reels.updateStatusSuccess.replace("{status}", status),
+      );
 
-      // Sync active detail state
       setSelectedReel((prev) => {
         if (!prev || prev.reelId !== reelId) return prev;
         return {
@@ -160,7 +163,6 @@ function ReelsPageContent() {
         };
       });
 
-      // Sync master list state
       reelsHook.setReels((prev) =>
         prev.map((r) =>
           r.reelId === reelId
@@ -174,20 +176,18 @@ function ReelsPageContent() {
       );
     } catch (err) {
       console.error("Status update error:", err);
-      addToast("error", "Failed to update reel status.");
+      addToast("error", t.reels.updateStatusFailed);
     } finally {
       setIsModerating(false);
     }
   };
 
-  // Bulk operation triggers
   const handleBulkActionExecute = async (
     action: "publish" | "unpublish" | "delete",
   ) => {
     await performBulkAction(action, selectedIds);
   };
 
-  // Challenge Save mutation wrapper
   const handleSaveChallenge = async (payload: ChallengeCreateDto) => {
     setIsChallengeSaving(true);
     try {
@@ -209,37 +209,37 @@ function ReelsPageContent() {
       {activeTab === "reels" ? (
         <PageHeader
           icon={<Film />}
-          title="Reels"
-          desc="Review, publish, unpublish, or delete short-form video reels across the platform."
+          title={t.reels.title}
+          desc={t.reels.desc}
           rightButtons={[
             <Button
+              key="upload-reel"
               variant="primary"
               size="sm"
               onClick={() => setShowUploadModal(true)}
-              // className="shadow-md hover:shadow-lg transition-shadow self-start sm:self-auto"
             >
               <ArrowUpFromLine className="size-4 mr-1" />
-              Upload Reel
+              {t.reels.uploadReel}
             </Button>,
           ]}
         />
       ) : (
         <PageHeader
           icon={<Trophy />}
-          title="Challenges"
-          desc="Manage time-bound creative trends and upload challenges for cat lovers."
+          title={t.reels.challengesTitle}
+          desc={t.reels.challengesDesc}
           rightButtons={[
             <Button
+              key="create-challenge"
               variant="primary"
               size="sm"
               onClick={() => {
                 setEditingChallenge(null);
                 setShowChallengeModal(true);
               }}
-              // className="shadow-md hover:shadow-lg transition-shadow self-start sm:self-auto font-semibold flex items-center gap-1.5"
             >
               <Plus className="size-4 mr-1" />
-              Create Challenge
+              {t.reels.createChallenge}
             </Button>,
           ]}
         />
@@ -249,25 +249,25 @@ function ReelsPageContent() {
       <div className="flex gap-6 mt-2">
         <button
           onClick={() => setActiveTab("reels")}
-          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] ${
+          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] cursor-pointer ${
             activeTab === "reels"
               ? "border-primary text-primary"
               : "border-transparent text-gray-400 hover:text-gray-600"
           }`}
         >
           <Film className="w-4.5 h-4.5" />
-          Reels
+          {t.reels.title}
         </button>
         <button
           onClick={() => setActiveTab("challenges")}
-          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] ${
+          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] cursor-pointer ${
             activeTab === "challenges"
               ? "border-primary text-primary"
               : "border-transparent text-gray-400 hover:text-gray-600"
           }`}
         >
           <Trophy className="w-4.5 h-4.5" />
-          Challenges
+          {t.reels.challengesTitle}
         </button>
       </div>
 
@@ -301,7 +301,7 @@ function ReelsPageContent() {
                   />
                   <input
                     type="text"
-                    placeholder="Search reels..."
+                    placeholder={t.reels.searchReels}
                     value={searchState}
                     onChange={(e) => setSearchState(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 shadow-sm"
@@ -315,8 +315,8 @@ function ReelsPageContent() {
                       className="w-full sm:w-auto appearance-none pl-3 pr-8 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                       defaultValue="CAT SPEAK"
                     >
-                      <option value="CAT SPEAK">CatSpeak</option>
-                      <option value="ALL CHANNELS">All Channels</option>
+                      <option value="CAT SPEAK">{t.reels.catSpeakChannel}</option>
+                      <option value="ALL CHANNELS">{t.reels.allChannels}</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
                       <ChevronDown size={16} />
@@ -332,11 +332,11 @@ function ReelsPageContent() {
                       }}
                       className="w-full sm:w-auto appearance-none pl-3 pr-8 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                     >
-                      <option value="All">All Statuses</option>
-                      <option value="Published">Published (Public)</option>
-                      <option value="Draft">Draft (Private)</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Failed">Failed / Blocked</option>
+                      <option value="All">{t.reels.allStatuses}</option>
+                      <option value="Published">{t.reels.publishedPublic}</option>
+                      <option value="Draft">{t.reels.draftPrivate}</option>
+                      <option value="Processing">{t.reels.processing}</option>
+                      <option value="Failed">{t.reels.failedBlocked}</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
                       <ChevronDown size={16} />
@@ -362,17 +362,17 @@ function ReelsPageContent() {
             {/* Pagination Bar */}
             {reels.length > 0 && (
               <nav
-                aria-label="Reels pagination"
+                aria-label={`${t.reels.title} ${t.pagination.pagination}`}
                 className="flex flex-col sm:flex-row items-center justify-between px-2 py-4 gap-4"
               >
                 {/* Left Side: Status / Total */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm text-gray-500 font-normal">
-                    Total{" "}
+                    {t.common.total}{" "}
                     <span className="font-semibold text-gray-900">
                       {reels.length}
                     </span>{" "}
-                    {reels.length === 1 ? "reel" : "reels"}
+                    {t.reels.reelUnit}
                   </span>
                 </div>
 
@@ -383,21 +383,21 @@ function ReelsPageContent() {
                       type="button"
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      aria-label="Go to previous page"
+                      aria-label={t.pagination.previousPage}
                       className="p-2 rounded-lg transition-all text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
 
                     <span className="text-sm text-gray-600 font-medium px-2">
-                      Page {currentPage} of {totalPages}
+                      {t.pagination.page} {currentPage} {t.common.of} {totalPages}
                     </span>
 
                     <button
                       type="button"
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      aria-label="Go to next page"
+                      aria-label={t.pagination.nextPage}
                       className="p-2 rounded-lg transition-all text-gray-700 hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -422,7 +422,7 @@ function ReelsPageContent() {
                 />
                 <input
                   type="text"
-                  placeholder="Search hashtag, name or description..."
+                  placeholder={t.reels.searchChallenges}
                   value={challengeSearch}
                   onChange={(e) => setChallengeSearch(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all duration-200 shadow-sm"
@@ -440,10 +440,10 @@ function ReelsPageContent() {
                   }
                   className="w-full sm:w-auto appearance-none pl-3 pr-8 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all cursor-pointer"
                 >
-                  <option value="All">All Statuses</option>
-                  <option value="Active">Active</option>
-                  <option value="Upcoming">Upcoming</option>
-                  <option value="Completed">Completed</option>
+                  <option value="All">{t.reels.allStatuses}</option>
+                  <option value="Active">{t.common.active}</option>
+                  <option value="Upcoming">{t.reels.upcoming}</option>
+                  <option value="Completed">{t.common.completed}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
                   <ChevronDown size={16} />
@@ -470,7 +470,7 @@ function ReelsPageContent() {
               </svg>
               <div>
                 <p className="font-semibold mb-0.5">
-                  Failed to retrieve challenges from API
+                  {t.reels.failedLoadChallenges}
                 </p>
                 <p className="text-xs opacity-90">{challengesError}</p>
               </div>
@@ -534,11 +534,11 @@ function ReelsPageContent() {
               </svg>
             </div>
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-gray-900">Delete Reel</h3>
+              <h3 className="text-lg font-bold text-gray-900">
+                {t.reels.deleteReel}
+              </h3>
               <p className="text-sm text-gray-500 leading-relaxed">
-                Are you sure you want to permanently delete this video reel?
-                This action cannot be undone and will erase all comments and
-                insights.
+                {t.reels.deleteReelConfirmDesc}
               </p>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2 w-full">
@@ -549,7 +549,7 @@ function ReelsPageContent() {
                 disabled={isDeleting}
                 className="flex-1"
               >
-                Cancel
+                {t.common.cancel}
               </Button>
               <Button
                 variant="danger"
@@ -559,7 +559,7 @@ function ReelsPageContent() {
                 disabled={isDeleting}
                 className="flex-1"
               >
-                Delete
+                {t.common.delete}
               </Button>
             </div>
           </div>
@@ -617,14 +617,13 @@ function ReelsPageContent() {
             </div>
             <div className="space-y-1">
               <h3 className="text-lg font-bold text-gray-900">
-                Delete Challenge
+                {t.reels.deleteChallenge}
               </h3>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Are you sure you want to permanently delete challenge{" "}
-                <span className="font-bold text-gray-800">
-                  "{challengeToDelete.name}"
-                </span>
-                ? This will remove the metadata and unlink all connected reels.
+                {t.reels.deleteChallengeConfirmDesc.replace(
+                  "{name}",
+                  challengeToDelete.name ?? "",
+                )}
               </p>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2 w-full">
@@ -634,7 +633,7 @@ function ReelsPageContent() {
                 onClick={() => setChallengeToDelete(null)}
                 className="flex-1"
               >
-                Cancel
+                {t.common.cancel}
               </Button>
               <Button
                 variant="danger"
@@ -645,7 +644,7 @@ function ReelsPageContent() {
                 }}
                 className="flex-1"
               >
-                Delete
+                {t.common.delete}
               </Button>
             </div>
           </div>

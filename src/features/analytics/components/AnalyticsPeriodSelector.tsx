@@ -1,10 +1,6 @@
+import { useLanguage } from "../../../stores/languageStore";
+
 const periods = ["today", "last7days", "last30days", "thisMonth"] as const;
-const periodLabels: Record<string, string> = {
-  today: "Today",
-  last7days: "Last 7 Days",
-  last30days: "Last 30 Days",
-  thisMonth: "This Month",
-};
 
 interface AnalyticsPeriodSelectorProps {
   selectedPeriod: string;
@@ -15,6 +11,15 @@ export default function AnalyticsPeriodSelector({
   selectedPeriod,
   onPeriodChange,
 }: AnalyticsPeriodSelectorProps) {
+  const { t } = useLanguage();
+
+  const periodLabels: Record<string, string> = {
+    today: t.analytics.today,
+    last7days: t.analytics.last7days,
+    last30days: t.analytics.last30days,
+    thisMonth: t.analytics.thisMonth,
+  };
+
   return (
     <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 overflow-x-auto">
       {periods.map((p) => (

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  // Download,
   Plus,
   Newspaper,
   ImageIcon,
@@ -21,9 +20,11 @@ import Table from "../../../components/ui/table/Table";
 import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts";
 import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function NewsPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Post Analytics States
   const [selectedPeriod, setSelectedPeriod] =
@@ -35,7 +36,6 @@ export default function NewsPage() {
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Only fetch if not custom, or if custom dates are both provided
     if (selectedPeriod === "custom" && (!fromDate || !toDate)) {
       return;
     }
@@ -77,20 +77,17 @@ export default function NewsPage() {
       {/* Page Header */}
       <PageHeader
         icon={<Newspaper />}
-        title="News"
-        desc="Draft, schedule, and publish official announcements and internal news updates."
+        title={t.news.title}
+        desc={t.news.desc}
         rightButtons={[
-          // <Button variant="outline" size="sm">
-          //   <Download className="w-4 h-4 mr-1" />
-          //   Export
-          // </Button>,
           <Button
+            key="create-post"
             variant="primary"
             size="sm"
             onClick={() => navigate("/news/create")}
           >
             <Plus className="w-4 h-4 mr-1" />
-            Create Post
+            {t.news.createPost}
           </Button>,
         ]}
       />
@@ -157,11 +154,11 @@ export default function NewsPage() {
         onClickRow={(p) => navigate(`/news/${p.slug}`)}
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "postId",
           },
           {
-            name: "Author",
+            name: t.news.author,
             accessorKey: "authorName",
             render: (p) => (
               <div className="flex items-center gap-2">
@@ -177,7 +174,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Preview",
+            name: t.news.preview,
             accessorKey: "content",
             render: (p) => {
               return (
@@ -191,7 +188,7 @@ export default function NewsPage() {
             },
           },
           {
-            name: "Media",
+            name: t.news.media,
             accessorKey: "media",
             render: (p) =>
               p.media?.length ? (
@@ -203,7 +200,7 @@ export default function NewsPage() {
               ),
           },
           {
-            name: "Privacy",
+            name: t.news.privacy,
             accessorKey: "privacy",
             render: (p) => {
               switch (p.privacy) {
@@ -217,12 +214,12 @@ export default function NewsPage() {
             },
           },
           {
-            name: "Community",
+            name: t.news.community,
             accessorKey: "languageCommunity",
             render: (p) => <span>{p.languageCommunity || "All"}</span>,
           },
           {
-            name: "views",
+            name: t.news.views,
             accessorKey: "viewCount",
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
@@ -232,7 +229,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Reactions",
+            name: t.news.reactions,
             accessorKey: "totalReactions",
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
@@ -242,7 +239,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Comments",
+            name: t.news.comments,
             accessorKey: "totalComments",
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
@@ -252,7 +249,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Shares",
+            name: t.news.shares,
             accessorKey: "shareCount",
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
@@ -262,7 +259,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Date Created",
+            name: t.common.createdDate,
             accessorKey: "createDate",
             render: (p) => (
               <span className="whitespace-nowrap">
@@ -271,7 +268,7 @@ export default function NewsPage() {
             ),
           },
           {
-            name: "Last Edited",
+            name: t.plans.lastUpdated,
             accessorKey: "lastEdited",
             render: (p) => (
               <span className="whitespace-nowrap">

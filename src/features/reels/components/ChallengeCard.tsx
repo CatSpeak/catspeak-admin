@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Calendar, Pencil, Trash2, Trophy, Hash } from "lucide-react";
 import type { ChallengeDto } from "../types";
 import { formatDateLong } from "../../../lib/utils";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ChallengeCardProps {
   challenge: ChallengeDto;
@@ -31,6 +32,7 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
   onDelete,
   status
 }) => {
+  const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
   const styles = STATUS_BADGE_STYLE[status];
 
@@ -55,7 +57,7 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
         <div className="absolute top-3 right-3 z-10">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${styles.wrapper}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${styles.indicator}`} />
-            {status}
+            {status === "Active" ? t.common.active : status === "Completed" ? t.common.approved : status}
           </span>
         </div>
 
@@ -108,7 +110,7 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
             <button
               onClick={() => onEdit(challenge)}
               aria-label={`Edit challenge ${challenge.name}`}
-              className="p-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all duration-200"
+              className="p-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 hover:bg-primary/5 hover:text-primary hover:border-primary/20 transition-all duration-200 cursor-pointer"
             >
               <Pencil className="w-4 h-4" />
             </button>
@@ -116,7 +118,7 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
             <button
               onClick={() => onDelete(challenge)}
               aria-label={`Delete challenge ${challenge.name}`}
-              className="p-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-200"
+              className="p-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-200 cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
             </button>

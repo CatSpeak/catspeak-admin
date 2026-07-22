@@ -2,6 +2,7 @@ import type { ReelDto } from "../types";
 import { formatDate } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ReelTableProps {
   reels: ReelDto[];
@@ -40,6 +41,7 @@ export default function ReelTable({
   onSelectAll,
   onRowClick,
 }: ReelTableProps) {
+  const { t } = useLanguage();
   const allSelected =
     reels.length > 0 && reels.every((r) => selectedIds.includes(r.reelId));
 
@@ -47,12 +49,10 @@ export default function ReelTable({
     onSelectAll(reels.map((r) => r.reelId));
   };
 
-  // Skeleton Loader elements matching layout
   const renderSkeletons = () => {
     return (
-      <div className="w-full space-y-4 animate-pulse">
-        <div className="h-10 w-full bg-gray-150 rounded-xl" />
-        {Array.from({ length: 6 }).map((_, idx) => (
+      <div className="bg-white rounded-xl shadow-sm p-4 space-y-4 animate-pulse">
+        {Array.from({ length: 5 }).map((_, idx) => (
           <div
             key={idx}
             className="flex items-center space-x-4 py-3 border-b border-gray-100"
@@ -82,11 +82,10 @@ export default function ReelTable({
           <Film className="w-7 h-7" />
         </div>
         <h3 className="text-base font-bold text-gray-900 mb-1">
-          No reels found
+          {t.reels.noReelsFound}
         </h3>
         <p className="text-xs text-gray-500 max-w-sm leading-relaxed">
-          There are no video reels matching your search criteria or status
-          filters.
+          {t.reels.noReelsFoundDesc}
         </p>
       </div>
     );
@@ -104,32 +103,32 @@ export default function ReelTable({
                 checked={allSelected}
                 onChange={handleSelectAllChange}
                 className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer transition-all"
-                aria-label="Select all reels"
+                aria-label={t.reels.selectAllReels}
               />
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              ID
+              {t.reels.id}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              Author
+              {t.reels.author}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap max-w-xs">
-              Description
+              {t.common.description}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              Privacy
+              {t.reels.privacy}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              File Upload
+              {t.reels.fileUpload}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              Date Uploaded
+              {t.reels.dateUploaded}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              Last Edited
+              {t.reels.lastEdited}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
-              Total Reaction
+              {t.reels.totalReaction}
             </th>
           </tr>
         </thead>
@@ -158,17 +157,17 @@ export default function ReelTable({
                     checked={isSelected}
                     onChange={() => onSelect(reel.reelId)}
                     className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary/20 cursor-pointer transition-all"
-                    aria-label={`Select reel ${reel.title || "Untitled"}`}
+                    aria-label={`${t.reels.selectReel} ${reel.title || t.reels.untitledReel}`}
                   />
                 </td>
 
                 {/* ID Column */}
-                <td className="px-4 py-3 text-sm font-bold text-gray-800 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-800 tabular-nums whitespace-nowrap">
                   {String(reel.reelId).padStart(2, "0")}
                 </td>
 
                 {/* Author Column */}
-                <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                <td className="px-4 py-3 text-sm font-semibold text-gray-700 whitespace-nowrap">
                   {reel.username || "admin"}
                 </td>
 
@@ -176,7 +175,7 @@ export default function ReelTable({
                 <td className="px-4 py-3 text-sm text-gray-700 max-w-xs">
                   <div className="flex flex-col gap-0.5">
                     <p className="text-gray-900 font-medium truncate">
-                      {reel.title || "Untitled Reel"}
+                      {reel.title || t.reels.untitledReel}
                     </p>
                     {reel.description ? (
                       <p className="text-gray-400 text-xs truncate leading-relaxed">
@@ -184,26 +183,35 @@ export default function ReelTable({
                       </p>
                     ) : (
                       <p className="text-gray-300 italic text-xs">
-                        No description.
+                        {t.reels.noDescription}
                       </p>
                     )}
                   </div>
                 </td>
 
                 {/* Privacy Badge Column */}
-                <td className="px-4 py-3 text-sm text-gray-700">
+                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                   {(() => {
                     switch (reel.privacy) {
                       case "Public":
-                        return <Badge title="Public" type="Green" />;
+                        return (
+                          <Badge title={t.reels.privacyPublic} type="Green" />
+                        );
                       case "FriendsOnly":
-                        return <Badge title="Friends Only" type="Blue" />;
+                        return (
+                          <Badge
+                            title={t.reels.privacyFriendsOnly}
+                            type="Blue"
+                          />
+                        );
                       case "Private":
-                        return <Badge title="Private" type="Gray" />;
+                        return (
+                          <Badge title={t.reels.privacyPrivate} type="Gray" />
+                        );
                       default:
                         return (
                           <Badge
-                            title={reel.privacy || "Unknown"}
+                            title={reel.privacy || t.reels.privacyUnknown}
                             type="Gray"
                           />
                         );
@@ -212,25 +220,25 @@ export default function ReelTable({
                 </td>
 
                 {/* File Upload link Column */}
-                <td className="px-4 py-3 text-sm font-medium text-blue-600 hover:underline">
-                  <div className="flex items-center gap-1.5">
-                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-70" />
-                    <span>{fileName}</span>
+                <td className="px-4 py-3 text-sm font-medium text-blue-600 hover:underline whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-70 shrink-0" />
+                    <span className="truncate max-w-[200px]">{fileName}</span>
                   </div>
                 </td>
 
                 {/* Date Uploaded Column */}
-                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
                   {formatDate(reel.createdAt)}
                 </td>
 
                 {/* Last Edited Column */}
-                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
                   {formatDate(lastEditedDate)}
                 </td>
 
                 {/* Total Reaction Column */}
-                <td className="px-4 py-3 text-sm font-bold text-gray-700 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-700 tabular-nums whitespace-nowrap">
                   {totalReaction}
                 </td>
               </tr>

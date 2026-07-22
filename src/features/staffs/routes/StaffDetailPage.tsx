@@ -1,10 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useStaffDetail } from "../hooks/useStaffDetail";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { staff, loading, error } = useStaffDetail(id);
+  const { t } = useLanguage();
 
   if (loading) {
     return (
@@ -15,7 +17,7 @@ export default function StaffDetailPage() {
           border: "1px solid var(--color-border)",
         }}
       >
-        <span style={{ color: "var(--color-text-secondary)" }}>Loading...</span>
+        <span style={{ color: "var(--color-text-secondary)" }}>{t.common.loading}</span>
       </div>
     );
   }
@@ -30,7 +32,7 @@ export default function StaffDetailPage() {
         }}
       >
         <span style={{ color: "var(--color-text-secondary)" }}>
-          {error ?? "Staff not found"}
+          {error ?? t.staffs.staffNotFound}
         </span>
       </div>
     );
@@ -49,18 +51,18 @@ export default function StaffDetailPage() {
             onClick={() => navigate("/staffs")}
             style={{ color: "var(--color-text-secondary)" }}
           >
-            Staffs
+            {t.staffs.title}
           </span>
           <span className="mx-2">{">"}</span>
-          <span style={{ color: "var(--color-text)" }}>Detail</span>
+          <span style={{ color: "var(--color-text)" }}>{t.common.details}</span>
         </nav>
 
         <button
           onClick={() => navigate("/staffs")}
-          className="px-6 py-2 text-sm font-semibold rounded-lg text-white transition-colors hover:opacity-90"
+          className="px-6 py-2 text-sm font-semibold rounded-lg text-white transition-colors hover:opacity-90 cursor-pointer"
           style={{ background: "var(--color-primary)" }}
         >
-          Back
+          {t.common.back}
         </button>
       </div>
 
@@ -77,16 +79,16 @@ export default function StaffDetailPage() {
           className="text-lg font-bold mb-4"
           style={{ color: "var(--color-primary)" }}
         >
-          Information
+          {t.common.information}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-          <InfoRow label="ID:" value={staff.accountId.toString()} />
-          <InfoRow label="Name:" value={staff.username} />
-          <InfoRow label="Gmail:" value={staff.email} />
-          <InfoRow label="Phone number:" value={staff.phoneNumber || "..."} />
+          <InfoRow label={`${t.users.id}:`} value={staff.accountId.toString()} />
+          <InfoRow label={`${t.users.username}:`} value={staff.username} />
+          <InfoRow label={`${t.users.email}:`} value={staff.email} />
+          <InfoRow label={`${t.users.phone}:`} value={staff.phoneNumber || "..."} />
           <InfoRow
-            label="Date created:"
+            label={`${t.common.createdDate}:`}
             value={
               staff.createDate
                 ? new Date(staff.createDate).toLocaleDateString()
@@ -94,14 +96,14 @@ export default function StaffDetailPage() {
             }
           />
           <InfoRow
-            label="Language learning:"
+            label={`${t.users.learningLanguage}:`}
             value={staff.languageLearning || "..."}
           />
           <InfoRow
-            label="Natural Language:"
+            label={`${t.users.nativeLanguage}:`}
             value={staff.naturalLanguage || "..."}
           />
-          <InfoRow label="Proficiency:" value={staff.proficiency || "..."} />
+          <InfoRow label={`${t.users.level}:`} value={staff.proficiency || "..."} />
         </div>
       </div>
 
@@ -118,7 +120,7 @@ export default function StaffDetailPage() {
           className="text-lg font-bold mb-4"
           style={{ color: "var(--color-primary)" }}
         >
-          Payment
+          {t.common.payment}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -138,13 +140,13 @@ export default function StaffDetailPage() {
               >
                 <tr>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Time ↓
+                    {t.common.time} ↓
                   </th>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Type
+                    {t.common.type}
                   </th>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Amount
+                    {t.reports.amount}
                   </th>
                 </tr>
               </thead>
@@ -178,7 +180,7 @@ export default function StaffDetailPage() {
                       className="px-4 py-8 text-center text-sm"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
-                      No transactions
+                      {t.common.noTransactions}
                     </td>
                   </tr>
                 )}
@@ -202,16 +204,16 @@ export default function StaffDetailPage() {
               >
                 <tr>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Type
+                    {t.common.type}
                   </th>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Unit price
+                    {t.plans.unitPrice}
                   </th>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Quantity
+                    {t.plans.quantity}
                   </th>
                   <th className="px-4 py-2.5 text-left text-xs font-bold">
-                    Total
+                    {t.common.total}
                   </th>
                 </tr>
               </thead>
@@ -248,7 +250,7 @@ export default function StaffDetailPage() {
                         colSpan={3}
                         className="px-4 py-2.5 text-sm text-right"
                       >
-                        Total
+                        {t.common.total}
                       </td>
                       <td className="px-4 py-2.5 text-sm">
                         {staff.packages
@@ -264,7 +266,7 @@ export default function StaffDetailPage() {
                       className="px-4 py-8 text-center text-sm"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
-                      No packages
+                      {t.plans.noPackages}
                     </td>
                   </tr>
                 )}

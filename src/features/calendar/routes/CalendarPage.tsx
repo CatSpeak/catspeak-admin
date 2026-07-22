@@ -14,8 +14,10 @@ import { useEventDetail } from "../hooks/useEventDetail";
 import { getApiErrorMessage } from "../../../lib/axios";
 import type { DayEvent } from "../types";
 import { PageHeader } from "../../../components/ui/PageHeader";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function CalendarPage() {
+  const { t } = useLanguage();
   const {
     selectedDate,
     monthDays,
@@ -93,27 +95,27 @@ export default function CalendarPage() {
     }
   }, [deleteTarget, deleteEvent]);
 
-  // Format nhãn hiển thị tháng/năm (Ví dụ: THÁNG 7 2026)
+  // Format nhãn hiển thị tháng/năm
   const monthLabel = useMemo(() => {
     const month = selectedDate.getMonth() + 1;
     const year = selectedDate.getFullYear();
-    return `MONTH ${month} / ${year}`;
-  }, [selectedDate]);
+    return `${t.calendar.month} ${month} / ${year}`;
+  }, [selectedDate, t]);
 
   // Format nhãn tiêu đề danh sách sự kiện bên phải
   const eventListLabel = useMemo(() => {
-    if (!selectedDayDate) return "Events";
+    if (!selectedDayDate) return t.nav.calendar;
     const d = selectedDayDate.getDate();
     const m = selectedDayDate.getMonth() + 1;
-    return `Events on ${d}/${m}`;
-  }, [selectedDayDate]);
+    return `${t.calendar.eventsOn} ${d}/${m}`;
+  }, [selectedDayDate, t]);
 
   const handleGoToToday = useCallback(() => {
     const today = new Date();
 
-    goToToday(); // Đưa view lịch về tháng hiện tại
-    goToDate(today); // Cập nhật selectedDayDate về ngày hôm nay để sáng đèn highlight
-    fetchDayEvents(today); // Tải danh sách sự kiện của ngày hôm nay
+    goToToday();
+    goToDate(today);
+    fetchDayEvents(today);
   }, [goToToday, goToDate, fetchDayEvents]);
 
   return (
@@ -122,15 +124,15 @@ export default function CalendarPage() {
       <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
         <PageHeader
           icon={<Calendar />}
-          title="Calendar"
-          desc="Review the timeline and stay on top of all important dates."
+          title={t.calendar.title}
+          desc={t.calendar.desc}
         />
         <div className="flex items-center gap-2">
           <button
             onClick={handleGoToToday}
-            className="px-4 py-1.5 rounded-full border border-[#990011] text-sm font-medium hover:bg-[#990011]/5 transition-colors text-[#990011]"
+            className="px-4 py-1.5 rounded-full border border-[#990011] text-sm font-medium hover:bg-[#990011]/5 transition-colors text-[#990011] cursor-pointer"
           >
-            Today
+            {t.calendar.today}
           </button>
         </div>
       </div>
@@ -260,13 +262,13 @@ export default function CalendarPage() {
                   01
                 </span>
               </div>
-              <span className="text-[12px] text-gray-500">Today</span>
+              <span className="text-[12px] text-gray-500">{t.calendar.today}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#990011] flex items-center justify-center">
                 <span className="text-[10px] text-white font-semibold">01</span>
               </div>
-              <span className="text-[12px] text-gray-500">Selected</span>
+              <span className="text-[12px] text-gray-500">{t.calendar.selected}</span>
             </div>
           </div>
         </div>
@@ -279,7 +281,7 @@ export default function CalendarPage() {
             </h3>
             {dayEvents.length > 0 && (
               <span className="text-xs bg-[#990011]/10 text-[#990011] px-2.5 py-1 rounded-full font-medium">
-                {dayEvents.length} event(s)
+                {dayEvents.length}
               </span>
             )}
           </div>
@@ -292,7 +294,7 @@ export default function CalendarPage() {
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400 py-20 space-y-2">
               <Calendar size={36} className="stroke-[1.5]" />
               <p className="text-sm">
-                There are no events scheduled for this day.
+                {t.calendar.noEvents}
               </p>
             </div>
           ) : (
