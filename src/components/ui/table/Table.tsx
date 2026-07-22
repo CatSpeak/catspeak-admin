@@ -37,6 +37,7 @@ import {
   Check,
 } from "lucide-react";
 import Card from "../Card";
+import { useLanguage } from "../../../stores/languageStore";
 
 /* ────────────────────────────────────────────────────────────────────────
  * Type augmentation — lets us stash our own per-column config (icon,
@@ -390,9 +391,9 @@ export default function Table<T>({
   onClickRow,
   actions,
   loading = false,
-  loadingMessage = "Loading",
-  emptyMessage = "Not found",
-  configErrorMessage = "Table requires a `fetcher` prop to be provided.",
+  loadingMessage,
+  emptyMessage,
+  configErrorMessage,
   pageSizeOptions = [10, 20, 50, 100, 200],
   defaultPageSize = 10,
   stickyHeader = true,
@@ -400,9 +401,15 @@ export default function Table<T>({
   showGlobalSearch = true,
   showPagination = true,
   keyExtractor,
-  entityName = "row",
+  entityName,
   tableOptions,
 }: TableProps<T>) {
+  const { t } = useLanguage();
+  const effectiveLoadingMessage = loadingMessage ?? t.common.loading;
+  const effectiveEmptyMessage = emptyMessage ?? t.common.noData;
+  const effectiveConfigErrorMessage =
+    configErrorMessage ?? t.table.configErrorMessage;
+  const effectiveEntityName = entityName ?? t.table.row;
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -626,8 +633,8 @@ export default function Table<T>({
   if (!configValid) {
     return (
       <Card className="p-6 text-center text-sm text-red-600 border border-red-200 bg-red-50/60 rounded-lg">
-        <strong className="font-semibold">Table configuration error:</strong>{" "}
-        {configErrorMessage}
+        <strong className="font-semibold">{t.table.configError}</strong>{" "}
+        {effectiveConfigErrorMessage}
       </Card>
     );
   }
@@ -647,7 +654,7 @@ export default function Table<T>({
                 />
                 <input
                   type="text"
-                  placeholder={`Search ${entityName}s…`}
+                  placeholder={`${t.common.search} ${effectiveEntityName}…`}
                   value={searchInputValue}
                   onChange={(e) => setSearchInputValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -666,7 +673,7 @@ export default function Table<T>({
                       executeGlobalFilter("");
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
-                    title="Clear search"
+                    title={t.table.clearSearch}
                   >
                     <X size={14} />
                   </button>
@@ -683,7 +690,7 @@ export default function Table<T>({
                   onClick={clearAll}
                   className="text-xs font-semibold text-gray-500 hover:text-red-600 px-2 py-1.5 rounded-md hover:bg-red-50/50 transition-all duration-250 active:scale-95"
                 >
-                  Clear all
+                  {t.table.clearAll}
                 </button>
               )}
 
@@ -705,7 +712,7 @@ export default function Table<T>({
                         : "text-gray-500"
                     }
                   />
-                  <span>Filters</span>
+                  <span>{t.table.filters}</span>
                   {activeFilterCount > 0 && (
                     <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-white text-[11px] font-semibold leading-none">
                       {activeFilterCount}
@@ -805,7 +812,7 @@ export default function Table<T>({
                       key="actions-header"
                       className="px-4 py-3 text-center text-xs font-bold w-12"
                     >
-                      <span className="sr-only">Actions</span>
+                      <span className="sr-only">{t.common.actions}</span>
                     </th>
                   )}
                 </tr>
@@ -814,7 +821,7 @@ export default function Table<T>({
 
             <tbody className="divide-y divide-gray-200">
               <tr className="sr-only">
-                <td role="status">{effectiveLoading ? loadingMessage : ""}</td>
+                <td role="status">{effectiveLoading ? effectiveLoadingMessage : ""}</td>
               </tr>
 
               {fetchError ? (
@@ -860,7 +867,7 @@ export default function Table<T>({
                     colSpan={totalColumns}
                     className="px-4 py-8 text-center text-sm text-gray-500"
                   >
-                    {emptyMessage}
+                    {effectiveEmptyMessage}
                   </td>
                 </tr>
               ) : (
@@ -928,7 +935,7 @@ export default function Table<T>({
           <TablePagination
             table={table}
             pageSizeOptions={resolvedPageSizeOptions}
-            entityName={entityName}
+            entityName={effectiveEntityName}
             totalCount={
               usesServerPagination
                 ? fetchedTotal
@@ -1019,6 +1026,7 @@ function ColumnTextFilterInput<T>({
   label: string;
   onFilterSubmit?: (attribute: string, value: any) => void;
 }) {
+  const { t } = useLanguage();
   const filterValue = column.getFilterValue();
   const [localText, setLocalText] = useState((filterValue as string) ?? "");
 
@@ -1045,7 +1053,7 @@ function ColumnTextFilterInput<T>({
             submitFilter();
           }
         }}
-        placeholder={`Filter ${label.toLowerCase()}…`}
+        placeholder={`${t.common.filter} ${label.toLowerCase()}…`}
         className="w-full px-3 py-1.5 text-sm bg-white border border-gray-200 rounded-lg placeholder-gray-400 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
       />
     </div>
@@ -1069,6 +1077,7 @@ function ActionsMenu<T>({
   onToggle: () => void;
   onClose: () => void;
 }) {
+  const { t } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1088,7 +1097,7 @@ function ActionsMenu<T>({
       <button
         type="button"
         onClick={onToggle}
-        aria-label="Row actions"
+        aria-label={t.table.rowActions}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -1141,6 +1150,7 @@ function TablePagination<T>({
   entityName: string;
   totalCount: number;
 }) {
+  const { t } = useLanguage();
   const { pageIndex, pageSize } = table.getState().pagination;
   const pageCount = Math.max(1, table.getPageCount());
   const currentPage = pageIndex + 1;
@@ -1155,7 +1165,7 @@ function TablePagination<T>({
 
   return (
     <nav
-      aria-label={`${entityName} pagination`}
+      aria-label={`${entityName} ${t.pagination.pagination}`}
       className="flex flex-col sm:flex-row items-center justify-between px-2 py-4 gap-4"
     >
       {/* Left: page size + total */}
@@ -1165,7 +1175,7 @@ function TablePagination<T>({
             htmlFor={`${entityName}-page-size`}
             className="text-sm font-medium text-main/80"
           >
-            Rows per page:
+            {t.pagination.rowsPerPage}
           </label>
           <div className="relative">
             <select
@@ -1189,7 +1199,8 @@ function TablePagination<T>({
         <div className="h-4 w-[1px] bg-gray-200 hidden sm:block"></div>
 
         <span className="text-sm text-main/60 font-normal">
-          Total <span className="font-semibold text-main">{totalCount}</span>{" "}
+          {t.common.total}{" "}
+          <span className="font-semibold text-main">{totalCount}</span>{" "}
           {entityName}
         </span>
       </div>
@@ -1200,7 +1211,7 @@ function TablePagination<T>({
           type="button"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          aria-label="Go to previous page"
+          aria-label={t.pagination.previousPage}
           className="p-2 rounded-lg transition-all text-main hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -1215,7 +1226,7 @@ function TablePagination<T>({
                 key={page}
                 onClick={() => table.setPageIndex(page - 1)}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={`Go to page ${page}`}
+                aria-label={`${t.pagination.goToPage} ${page}`}
                 className={`min-w-[36px] h-9 px-2 text-sm font-medium rounded-full transition-all flex items-center justify-center ${
                   isActive
                     ? "bg-primary text-white"
@@ -1232,7 +1243,7 @@ function TablePagination<T>({
           type="button"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          aria-label="Go to next page"
+          aria-label={t.pagination.nextPage}
           className="p-2 rounded-lg transition-all text-main hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
         >
           <ChevronRight className="w-4 h-4" />

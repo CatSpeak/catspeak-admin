@@ -292,7 +292,7 @@ export default function PlatformOverview() {
             <DonutChartJS
               segments={currentTrafficSegments}
               trendUp
-              trendValue="21% last month"
+              trendValue={`21% ${t.dashboard.lastMonth}`}
               centerSubtext={totalTrafficConnect}
             />
           </Suspense>
@@ -318,7 +318,7 @@ export default function PlatformOverview() {
             label={t.dashboard.totalProfit}
             value="$82,373.21"
             icon={<DollarSign size={20} />}
-            trend={{ value: "2.4% last month", up: true }}
+            trend={{ value: `2.4% ${t.dashboard.lastMonth}`, up: true }}
             className="transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           />
         </div>
@@ -328,7 +328,7 @@ export default function PlatformOverview() {
             value="10,000"
             icon={<Eye size={20} />}
             color="#3B82F6"
-            trend={{ value: "2.4% last month", up: true }}
+            trend={{ value: `2.4% ${t.dashboard.lastMonth}`, up: true }}
             className="transition-all duration-300 hover:-translate-y-1 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
           />
         </div>
@@ -338,7 +338,7 @@ export default function PlatformOverview() {
             value="4,000"
             icon={<Users size={20} />}
             color="#F59E0B"
-            trend={{ value: "-2% last month", up: false }}
+            trend={{ value: `-2% ${t.dashboard.lastMonth}`, up: false }}
             className="transition-all duration-300 hover:-translate-y-1 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
           />
         </div>
@@ -348,7 +348,7 @@ export default function PlatformOverview() {
             value="10,000"
             icon={<Activity size={20} />}
             color="#8B5CF6"
-            trend={{ value: "-2.4% last month", up: false }}
+            trend={{ value: `-2.4% ${t.dashboard.lastMonth}`, up: false }}
             className="transition-all duration-300 hover:-translate-y-1 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
           />
         </div>
