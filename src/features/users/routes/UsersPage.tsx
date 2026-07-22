@@ -10,26 +10,19 @@ import {
 import { useNavigate } from "react-router-dom";
 import { formatDateTime } from "../../../lib/utils";
 import type { Account } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function UsersPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <PageHeader
         icon={<UsersRound />}
-        title="Users"
-        desc="View profiles, track activities, and manage access for platform's users."
-        // rightButtons={[
-        //   <Button variant="primary" size="sm">
-        //     <Download className="w-4 h-4 mr-1" />
-        //     Download
-        //   </Button>,
-        //   <Button variant="primary" size="sm">
-        //     History export
-        //   </Button>,
-        // ]}
+        title={t.users.title}
+        desc={t.users.desc}
       />
 
       <Table<Account>
@@ -78,31 +71,30 @@ export default function UsersPage() {
         onClickRow={(r) => navigate(`/users/${r.accountId}`)}
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "accountId",
           },
           {
-            name: "Username",
+            name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
           },
           {
-            name: "Email",
+            name: t.users.email,
             accessorKey: "email",
             render: (r) => (
               <span className="text-primary underline">{r.email}</span>
             ),
-            // cellClassName: ,
           },
           {
-            name: "Phone",
+            name: t.users.phone,
             accessorKey: "phoneNumber",
             render: (r) => (
               <span className="whitespace-nowrap">{r.phoneNumber || "—"}</span>
             ),
           },
           {
-            name: "Date joined",
+            name: t.users.dateJoined,
             accessorKey: "createDate",
             render: (p) => (
               <span className="text-sm text-gray-600">
@@ -111,19 +103,19 @@ export default function UsersPage() {
             ),
           },
           {
-            name: "Country",
+            name: t.users.country,
             accessorKey: "country",
           },
           {
-            name: "Level",
+            name: t.users.level,
             accessorKey: "level",
           },
           {
-            name: "Role",
+            name: t.users.role,
             accessorKey: "roleName",
           },
           {
-            name: "Last active",
+            name: t.users.lastActive,
             accessorKey: "lastSeen",
             render: (p) => (
               <span className="text-sm text-gray-600">
@@ -133,8 +125,6 @@ export default function UsersPage() {
           },
         ]}
       />
-
-      {/* <UserTable /> */}
     </div>
   );
 }

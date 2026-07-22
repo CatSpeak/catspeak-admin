@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Dropdown } from "../../ui/dropdown/Dropdown";
 // import { DropdownItem } from "../../ui/dropdown/DropdownItem";
 import { useAuthStore } from "../../../stores/authStore";
+import { useLanguage } from "../../../stores/languageStore";
 import { LogOut, ChevronDown } from "lucide-react";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuthStore();
+  const { t } = useLanguage();
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -20,7 +22,7 @@ export default function UserDropdown() {
     <div className="relative">
       <button
         type="button"
-        aria-label="User menu"
+        aria-label={t.header.userMenu}
         aria-expanded={isOpen}
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-full sm:rounded-md p-1 -m-1 max-w-full"
@@ -55,51 +57,16 @@ export default function UserDropdown() {
           </span>
         </div>
 
-        {/* <ul className="flex flex-col gap-1 pt-4 pb-3 border-b border-gray-200">
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              tag="a"
-              to="/profile"
-              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700"
-            >
-              <User className="text-gray-500 group-hover:text-gray-700 w-5 h-5" />
-              Edit profile
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              tag="a"
-              to="/settings"
-              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700"
-            >
-              <Settings className="text-gray-500 group-hover:text-gray-700 w-5 h-5" />
-              Account settings
-            </DropdownItem>
-          </li>
-          <li>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              tag="a"
-              to="/live-chat"
-              className="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700"
-            >
-              <LifeBuoy className="text-gray-500 group-hover:text-gray-700 w-5 h-5" />
-              Support
-            </DropdownItem>
-          </li>
-        </ul> */}
         <button
           type="button"
           onClick={() => {
             logout();
             closeDropdown();
           }}
-          className="flex w-full items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+          className="flex w-full items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-sm hover:bg-gray-50 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 cursor-pointer"
         >
           <LogOut className="text-gray-500 group-hover:text-gray-700 w-5 h-5" />
-          Logout
+          {t.header.logout}
         </button>
       </Dropdown>
     </div>

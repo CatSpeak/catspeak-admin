@@ -32,6 +32,7 @@ import { useToastStore } from "../../../stores/toastStore";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Card from "../../../components/ui/Card";
 import ReelsAnalyticsCards from "../components/ReelsAnalyticsCards";
+import { useLanguage } from "../../../stores/languageStore";
 
 const CHALLENGE_STATUS_FILTERS: ChallengeStatusFilter[] = [
   "All",
@@ -59,6 +60,7 @@ const toReelStatusFilter = (value: string): ReelStatus | "All" =>
     : "All";
 
 function ReelsPageContent() {
+  const { t } = useLanguage();
   // Reels hooks
   const reelsHook = useReels();
   const manageHook = useManageReels(reelsHook);
@@ -146,11 +148,9 @@ function ReelsPageContent() {
   ) => {
     setIsModerating(true);
     try {
-      // Send status and blockReason as query parameters via the updated API
       await updateReelStatus(reelId, { status, blockReason });
       addToast("success", `Successfully updated reel status to "${status}".`);
 
-      // Sync active detail state
       setSelectedReel((prev) => {
         if (!prev || prev.reelId !== reelId) return prev;
         return {
@@ -160,7 +160,6 @@ function ReelsPageContent() {
         };
       });
 
-      // Sync master list state
       reelsHook.setReels((prev) =>
         prev.map((r) =>
           r.reelId === reelId
@@ -180,14 +179,12 @@ function ReelsPageContent() {
     }
   };
 
-  // Bulk operation triggers
   const handleBulkActionExecute = async (
     action: "publish" | "unpublish" | "delete",
   ) => {
     await performBulkAction(action, selectedIds);
   };
 
-  // Challenge Save mutation wrapper
   const handleSaveChallenge = async (payload: ChallengeCreateDto) => {
     setIsChallengeSaving(true);
     try {
@@ -209,37 +206,37 @@ function ReelsPageContent() {
       {activeTab === "reels" ? (
         <PageHeader
           icon={<Film />}
-          title="Reels"
-          desc="Review, publish, unpublish, or delete short-form video reels across the platform."
+          title={t.reels.title}
+          desc={t.reels.desc}
           rightButtons={[
             <Button
+              key="upload-reel"
               variant="primary"
               size="sm"
               onClick={() => setShowUploadModal(true)}
-              // className="shadow-md hover:shadow-lg transition-shadow self-start sm:self-auto"
             >
               <ArrowUpFromLine className="size-4 mr-1" />
-              Upload Reel
+              {t.reels.uploadReel}
             </Button>,
           ]}
         />
       ) : (
         <PageHeader
           icon={<Trophy />}
-          title="Challenges"
-          desc="Manage time-bound creative trends and upload challenges for cat lovers."
+          title={t.reels.challengesTitle}
+          desc={t.reels.challengesDesc}
           rightButtons={[
             <Button
+              key="create-challenge"
               variant="primary"
               size="sm"
               onClick={() => {
                 setEditingChallenge(null);
                 setShowChallengeModal(true);
               }}
-              // className="shadow-md hover:shadow-lg transition-shadow self-start sm:self-auto font-semibold flex items-center gap-1.5"
             >
               <Plus className="size-4 mr-1" />
-              Create Challenge
+              {t.reels.createChallenge}
             </Button>,
           ]}
         />
@@ -249,25 +246,25 @@ function ReelsPageContent() {
       <div className="flex gap-6 mt-2">
         <button
           onClick={() => setActiveTab("reels")}
-          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] ${
+          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] cursor-pointer ${
             activeTab === "reels"
               ? "border-primary text-primary"
               : "border-transparent text-gray-400 hover:text-gray-600"
           }`}
         >
           <Film className="w-4.5 h-4.5" />
-          Reels
+          {t.reels.title}
         </button>
         <button
           onClick={() => setActiveTab("challenges")}
-          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] ${
+          className={`pb-2 font-bold text-sm border-b-2 transition-all flex items-center gap-2 -mb-[2px] cursor-pointer ${
             activeTab === "challenges"
               ? "border-primary text-primary"
               : "border-transparent text-gray-400 hover:text-gray-600"
           }`}
         >
           <Trophy className="w-4.5 h-4.5" />
-          Challenges
+          {t.reels.challengesTitle}
         </button>
       </div>
 

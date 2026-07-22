@@ -13,17 +13,19 @@ import {
 } from "../api/letterReports";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { FileText } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
         icon={<FileText />}
-        title="Letter Reports"
-        desc="Here is the information you need to handle today."
+        title={t.reports.letterReportsTitle}
+        desc={t.reports.letterReportsDesc}
       />
 
       <ReportsSummaryCards />
@@ -78,14 +80,14 @@ export default function HandleReportsPage() {
         onClickRow={(r) => setSelectedId(r.storyId)}
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "storyId",
             render: (r) => (
               <span className="font-semibold text-gray-900">#{r.storyId}</span>
             ),
           },
           {
-            name: "Author",
+            name: t.news.author,
             accessorKey: "username",
             render: (r) => (
               <span className="font-medium text-gray-700">
@@ -94,7 +96,7 @@ export default function HandleReportsPage() {
             ),
           },
           {
-            name: "Content",
+            name: t.news.preview,
             accessorKey: "storyContent",
             render: (r) => (
               <p
@@ -106,7 +108,7 @@ export default function HandleReportsPage() {
             ),
           },
           {
-            name: "Language",
+            name: t.header.language,
             accessorKey: "languageCommunity",
             render: (r) => {
               const lang = r.languageCommunity as LanguageType;
