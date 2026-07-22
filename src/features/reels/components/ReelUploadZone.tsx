@@ -70,12 +70,12 @@ export default function ReelUploadZone({
   // Validate video file type & size
   const validateAndSetVideo = (file: File) => {
     if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
-      setLocalError("Invalid file type. Only MP4, MOV, or WEBM format videos are allowed.");
+      setLocalError(t.reels.invalidVideoType);
       return;
     }
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > MAX_REEL_FILE_SIZE_MB) {
-      setLocalError(`File size exceeds limit (${MAX_REEL_FILE_SIZE_MB}MB).`);
+      setLocalError(t.reels.fileSizeExceeds.replace("{max}", String(MAX_REEL_FILE_SIZE_MB)));
       return;
     }
     setVideoFile(file);
@@ -88,7 +88,7 @@ export default function ReelUploadZone({
   // Validate cover file
   const validateAndSetCover = (file: File) => {
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setLocalError("Invalid cover image type. JPG, PNG, or WEBM allowed.");
+      setLocalError(t.reels.invalidCoverType);
       return;
     }
     setCoverFile(file);
@@ -113,12 +113,12 @@ export default function ReelUploadZone({
     setLocalError(null);
 
     if (!videoFile) {
-      setLocalError("Please select or drop a video file to upload.");
+      setLocalError(t.reels.selectVideoFile);
       return;
     }
 
     if (!title.trim()) {
-      setLocalError("Title is required.");
+      setLocalError(t.reels.titleRequired);
       return;
     }
 
@@ -190,8 +190,8 @@ export default function ReelUploadZone({
                 <Upload className="w-8 h-8 text-primary" />
               </div>
               <div className="text-center space-y-1">
-                <p className="text-sm font-bold text-gray-900">Uploading Reel Video...</p>
-                <p className="text-xs text-gray-500 font-medium">Please do not close this window</p>
+                <p className="text-sm font-bold text-gray-900">{t.reels.uploadingReelVideo}</p>
+                <p className="text-xs text-gray-500 font-medium">{t.reels.doNotCloseWindow}</p>
               </div>
 
               <div className="w-full max-w-md bg-gray-100 h-2.5 rounded-full overflow-hidden">
@@ -249,11 +249,11 @@ export default function ReelUploadZone({
                 ) : (
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-gray-700">
-                      Drag & drop video file here, or{" "}
-                      <span className="text-primary underline">browse</span>
+                      {t.reels.dragDropVideo}{" "}
+                      <span className="text-primary underline">{t.common.browse}</span>
                     </p>
                     <p className="text-xs text-gray-400">
-                      Supports MP4, MOV, WEBM (Max {MAX_REEL_FILE_SIZE_MB}MB)
+                      {t.reels.supportsFormat.replace("{max}", String(MAX_REEL_FILE_SIZE_MB))}
                     </p>
                   </div>
                 )}
@@ -262,14 +262,14 @@ export default function ReelUploadZone({
               {/* Title Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Title <span className="text-red-500">*</span>
+                  {t.reels.titleInput} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter reel title..."
+                  placeholder={t.reels.enterReelTitle}
                   className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 />
               </div>
@@ -277,13 +277,13 @@ export default function ReelUploadZone({
               {/* Description Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Description
+                  {t.reels.descriptionInput}
                 </label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Write a description for your reel..."
+                  placeholder={t.reels.writeDescription}
                   className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none font-medium"
                 />
               </div>
@@ -291,13 +291,13 @@ export default function ReelUploadZone({
               {/* Tags Input */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Tags (comma separated)
+                  {t.reels.tagsInput}
                 </label>
                 <input
                   type="text"
                   value={tagsInput}
                   onChange={(e) => setTagsInput(e.target.value)}
-                  placeholder="e.g. cats, cute, viral"
+                  placeholder={t.reels.tagsPlaceholder}
                   className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                 />
               </div>
@@ -307,23 +307,23 @@ export default function ReelUploadZone({
                 {/* Privacy Mode */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Privacy Visibility
+                    {t.reels.privacyVisibility}
                   </label>
                   <select
                     value={privacy}
                     onChange={(e) => setPrivacy(e.target.value as ReelPrivacy)}
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
                   >
-                    <option value="Public">Public (Publish Immediately)</option>
-                    <option value="Private">Private (Draft)</option>
-                    <option value="FriendsOnly">Friends Only</option>
+                    <option value="Public">{t.reels.privacyPublic}</option>
+                    <option value="Private">{t.reels.privacyPrivate}</option>
+                    <option value="FriendsOnly">{t.reels.privacyFriendsOnly}</option>
                   </select>
                 </div>
 
                 {/* Cover File Upload */}
                 <div className="space-y-1.5">
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Custom Thumbnail Cover
+                    {t.reels.customThumbnailCover}
                   </label>
                   <div className="flex items-center gap-2">
                     <input
@@ -339,7 +339,7 @@ export default function ReelUploadZone({
                       onClick={() => coverInputRef.current?.click()}
                       className="px-3.5 py-2.5 text-xs font-semibold rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 flex-1 transition-all text-left truncate"
                     >
-                      {coverFile ? coverFile.name : "Choose JPG, PNG, WebP..."}
+                      {coverFile ? coverFile.name : t.reels.chooseImage}
                     </button>
                     {coverFile && (
                       <button
@@ -366,7 +366,7 @@ export default function ReelUploadZone({
               size="sm"
               onClick={onClose}
             >
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="primary"
@@ -374,7 +374,7 @@ export default function ReelUploadZone({
               onClick={handleSubmit}
               disabled={!videoFile || !title.trim()}
             >
-              Upload Reel
+              {t.reels.uploadReel}
             </Button>
           </div>
         )}

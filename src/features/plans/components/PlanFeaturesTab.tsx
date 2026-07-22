@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Card from '../../../components/ui/Card';
 import type { Plan, SubscriptionFeature } from '../../../entities/types';
 import { Search, Plus, Trash2 } from 'lucide-react';
+import { useLanguage } from '../../../stores/languageStore';
 
 interface PlanFeaturesTabProps {
   plan: Plan;
@@ -19,6 +20,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
   onRemoveFeature
 }) => {
   const [search, setSearch] = useState('');
+  const { t } = useLanguage();
 
   const safeAvailableFeatures = Array.isArray(availableFeatures) ? availableFeatures : [];
   
@@ -58,15 +60,15 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
       <div className="lg:col-span-1">
         <Card>
           <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Features List</h2>
-            <p className="text-sm text-gray-500">Select features to add to the plan</p>
+            <h2 className="text-lg font-bold text-gray-900">{t.plans.featuresList}</h2>
+            <p className="text-sm text-gray-500">{t.plans.selectFeaturesSub}</p>
           </div>
           
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search features..."
+              placeholder={t.plans.searchFeatures}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
@@ -75,7 +77,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
 
           <div className="space-y-2">
             {filteredAvailable.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No features found.</p>
+              <p className="text-sm text-gray-500 text-center py-4">{t.plans.noFeaturesFound}</p>
             ) : (
               filteredAvailable.map(feature => {
                 const isAdded = configuredFeatures.some(cf => cf.featureCode === feature.featureCode);
@@ -90,7 +92,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                       onClick={() => handleAdd(feature)}
                       className={`p-1.5 rounded-md ${isAdded ? 'text-primary' : 'text-gray-400 hover:text-primary hover:bg-primary/10'} transition-colors`}
                     >
-                      {isAdded ? <span className="text-xs font-medium">Added</span> : <Plus className="w-4 h-4" />}
+                      {isAdded ? <span className="text-xs font-medium">{t.plans.added}</span> : <Plus className="w-4 h-4" />}
                     </button>
                   </div>
                 );
@@ -104,25 +106,25 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
       <div className="lg:col-span-2">
         <Card>
           <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Configured Features ({configuredFeatures.length})</h2>
-            <p className="text-sm text-gray-500">Features and limits currently applied to this plan</p>
+            <h2 className="text-lg font-bold text-gray-900">{t.plans.configuredFeatures} ({configuredFeatures.length})</h2>
+            <p className="text-sm text-gray-500">{t.plans.configuredFeaturesSub}</p>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">Feature</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">Code</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32">Limit</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right">Actions</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.feature}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.code}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32">{t.plans.limit}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right">{t.common.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {configuredFeatures.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                      This plan does not include any features yet. Add them from the available features list on the left.
+                      {t.plans.noConfiguredFeatures}
                     </td>
                   </tr>
                 ) : (
@@ -151,7 +153,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                           <button 
                             onClick={() => onRemoveFeature(feature.id)}
                             className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50"
-                            title="Remove Feature"
+                            title={t.plans.removeFeature}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

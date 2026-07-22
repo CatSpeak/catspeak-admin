@@ -192,18 +192,32 @@ export default function PlatformOverview() {
   // Format header period label dynamically
   const activePeriodLabel = useMemo(() => {
     const year = new Date().getFullYear();
-    if (activePeriod === "Weekly") return `This Month (Weekly view), ${year}`;
-    if (activePeriod === "Monthly") return `This Year (Monthly view), ${year}`;
-    if (activePeriod === "Yearly") return `All-time (Yearly view)`;
-    return `All records`;
-  }, [activePeriod]);
+    if (activePeriod === "Weekly") return `${t.dashboard.weeklyView}, ${year}`;
+    if (activePeriod === "Monthly") return `${t.dashboard.monthlyView}, ${year}`;
+    if (activePeriod === "Yearly") return t.dashboard.yearlyView;
+    return t.dashboard.allRecords;
+  }, [activePeriod, t]);
 
   // Calculate totals for Donut subtext
   const totalTrafficConnect = useMemo(() => {
     const total = currentTrafficSegments.reduce((sum, s) => sum + s.value, 0);
-    if (total >= 1000) return `Total ${(total / 1000).toFixed(1)}k connect`;
-    return `Total ${total} connect`;
-  }, [currentTrafficSegments]);
+    const countStr = total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
+    return t.dashboard.totalConnect.replace("{count}", countStr);
+  }, [currentTrafficSegments, t]);
+
+  // Period label translation helper
+  const getPeriodText = (p: (typeof periods)[number]) => {
+    switch (p) {
+      case "Weekly":
+        return t.common.weekly;
+      case "Monthly":
+        return t.common.monthly;
+      case "Yearly":
+        return t.common.yearly;
+      case "All":
+        return t.common.all;
+    }
+  };
 
   // Calculate totals for active users summary
   const totalActiveUsersCount = useMemo(() => {
@@ -218,7 +232,7 @@ export default function PlatformOverview() {
       <div className="flex min-h-100 flex-col items-center justify-center gap-4 bg-white rounded-3xl border border-gray-200 shadow-xs">
         <div className="h-10 w-10 animate-spin rounded-full border-b-2 border-primary" />
         <p className="text-sm font-medium text-gray-500">
-          Retrieving platform overview statistics...
+          {t.dashboard.loadingOverview}
         </p>
       </div>
     );
@@ -232,7 +246,7 @@ export default function PlatformOverview() {
         </div>
         <div>
           <p className="text-base font-semibold text-gray-800">
-            Failed to Load Overview Stats
+            {t.dashboard.failedOverview}
           </p>
           <p className="text-sm text-gray-500 mt-1">{error}</p>
         </div>
@@ -241,7 +255,7 @@ export default function PlatformOverview() {
           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-primary hover:bg-primary-dark text-white shadow-xs transition-all cursor-pointer"
         >
           <RefreshCw size={14} />
-          Try Again
+          {t.common.retry}
         </button>
       </div>
     );
@@ -262,7 +276,7 @@ export default function PlatformOverview() {
                   : "text-gray-500 hover:text-gray-700 hover:bg-black/5"
               }`}
             >
-              {p}
+              {getPeriodText(p)}
             </button>
           ))}
         </div>
@@ -364,7 +378,7 @@ export default function PlatformOverview() {
         <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
             <h3 className="text-xl font-semibold text-gray-800">
-              Detailed user active chart
+              {t.dashboard.detailedUserActiveChart}
             </h3>
             <span className="text-xs text-gray-500 font-semibold">
               {activePeriodLabel}
@@ -374,13 +388,13 @@ export default function PlatformOverview() {
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-sm bg-red-600"></span>
               <span className="text-xs text-gray-600 font-medium">
-                Account users
+                {t.dashboard.accountUsers}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-sm bg-orange-400"></span>
               <span className="text-xs text-gray-600 font-medium">
-                Active users
+                {t.dashboard.activeUsers}
               </span>
             </div>
           </div>
@@ -391,7 +405,7 @@ export default function PlatformOverview() {
 
         <Card className="lg:col-span-1 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <UserStatsSummary
-            period={`In ${activePeriod}`}
+            period={t.dashboard.inPeriod.replace("{period}", getPeriodText(activePeriod))}
             totalUsers={totalActiveUsersCount}
             newUsers={100}
             lostUsers={4}
@@ -407,7 +421,7 @@ export default function PlatformOverview() {
       <div className="flex items-start justify-between">
         <Card className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
-            Age/Gender
+            {t.dashboard.ageGender}
           </h3>
           <Suspense fallback={<ChartFallback />}>
             <PieChartJS segments={currentAgeGenderData} showLegend={true} />

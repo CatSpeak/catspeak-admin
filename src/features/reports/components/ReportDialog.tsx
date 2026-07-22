@@ -124,10 +124,10 @@ export default function ReportDialog({
   const getStatusBadge = (r: LetterReport) => {
     const statusVal = r.status;
     if (statusVal === 1) {
-      return <Badge title="Innocent" type="Green" />;
+      return <Badge title={t.reports.innocent} type="Green" />;
     }
     if (statusVal === 2) {
-      return <Badge title="Violation" type="Red" />;
+      return <Badge title={t.reports.violation} type="Red" />;
     }
     if (statusVal === 0) {
       return <Badge title={t.common.pending} type="Yellow" />;
@@ -160,7 +160,7 @@ export default function ReportDialog({
               {t.reports.reportDetails}
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Reviewing letter report #{id}
+              {t.reports.reviewingReport.replace("{id}", String(id))}
             </p>
           </div>
           <button
@@ -215,7 +215,7 @@ export default function ReportDialog({
               {/* Status Header */}
               <div className="flex items-center justify-between bg-gray-50/70 border border-gray-100 p-3 rounded-xl">
                 <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
-                  Report Status
+                  {t.reports.reportStatus}
                 </span>
                 {getStatusBadge(report)}
               </div>
@@ -223,7 +223,7 @@ export default function ReportDialog({
               {/* Letter Content Card */}
               <div className="space-y-1.5">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Letter Content
+                  {t.reports.letterContent}
                 </span>
                 <div className="bg-gradient-to-br from-orange-50/30 to-amber-50/10 p-5 rounded-2xl border border-amber-100/60 shadow-sm relative overflow-hidden group">
                   {/* Decorative background quote mark */}
@@ -258,7 +258,7 @@ export default function ReportDialog({
 
                 <div className="space-y-0.5">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                    Language Community
+                    {t.reports.languageCommunity}
                   </span>
                   <span className="text-sm font-semibold text-gray-850 flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-gray-400" />
@@ -281,7 +281,7 @@ export default function ReportDialog({
                 {report.expiresAt && (
                   <div className="space-y-0.5 col-span-2 pt-2 border-t border-gray-100">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                      Expires At
+                      {t.reports.expiresAt}
                     </span>
                     <span className="text-xs text-gray-650 flex items-center gap-1.5 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-red-400" />

@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { X, GraduationCap, Tag, Shield, Lock, Pencil, Eye, EyeOff } from "lucide-react";
+import {
+  X,
+  GraduationCap,
+  Tag,
+  Shield,
+  Lock,
+  Pencil,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { useEditRoom } from "../hooks/useEditRoom";
 import { REQUIRED_LEVELS, ROOM_TOPICS } from "../constants";
 import type { Room, RequiredLevel, RoomPrivacy, RoomTopic } from "../types";
@@ -11,19 +20,41 @@ interface EditRoomModalProps {
   onEdited: () => void;
 }
 
-const PRIVACY_OPTIONS: { value: RoomPrivacy; label: string; desc: string }[] = [
-  { value: "Public", label: "Public", desc: "Anyone can join freely" },
-  { value: "Private", label: "Private", desc: "Password required to join" },
-];
+// const PRIVACY_OPTIONS: { value: RoomPrivacy; label: string; desc: string }[] = [
+//   { value: "Public", label: "Public", desc: "Anyone can join freely" },
+//   { value: "Private", label: "Private", desc: "Password required to join" },
+// ];
 
-const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }) => {
+const EditRoomModal: React.FC<EditRoomModalProps> = ({
+  room,
+  onClose,
+  onEdited,
+}) => {
   const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
-  const { form, errors, isSubmitting, hasChanges, updateField, toggleTopic, handleSubmit, resetForm } =
-    useEditRoom(room, () => {
-      onEdited();
-      onClose();
-    });
+  const {
+    form,
+    errors,
+    isSubmitting,
+    hasChanges,
+    updateField,
+    toggleTopic,
+    handleSubmit,
+    resetForm,
+  } = useEditRoom(room, () => {
+    onEdited();
+    onClose();
+  });
+
+  const privacyOptions: { value: RoomPrivacy; label: string; desc: string }[] =
+    [
+      { value: "Public", label: t.news.publicLabel, desc: t.room.publicDesc },
+      {
+        value: "Private",
+        label: t.news.privateLabel,
+        desc: t.room.privateDesc,
+      },
+    ];
 
   const handleClose = () => {
     resetForm();
@@ -36,7 +67,10 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn" onClick={handleClose} />
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fadeIn"
+        onClick={handleClose}
+      />
 
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden flex flex-col animate-slideUp">
@@ -47,11 +81,16 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
               <Pencil size={16} className="text-primary" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">{t.room.editRoom}</h2>
+              <h2 className="text-lg font-bold text-gray-900">
+                {t.room.editRoom}
+              </h2>
               <p className="text-xs text-gray-400">ID #{room.roomId}</p>
             </div>
           </div>
-          <button onClick={handleClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer">
+          <button
+            onClick={handleClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
+          >
             <X size={18} />
           </button>
         </div>
@@ -61,44 +100,59 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
           {/* Name */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              Room Name <span className="text-red-400">*</span>
+              {t.room.roomName} <span className="text-red-400">*</span>
             </label>
             <input
               type="text"
-              placeholder="e.g. Daily Chinese Corner"
+              placeholder={t.room.roomNamePlaceholder}
               value={form.name}
               onChange={(e) => updateField("name", e.target.value)}
               className={`w-full px-3 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                errors.name ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
+                errors.name
+                  ? "border-red-300 focus:ring-red-200"
+                  : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
               }`}
             />
-            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+            )}
           </div>
 
           {/* Level */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              <GraduationCap size={14} /> Level
+              <GraduationCap size={14} /> {t.room.level}
             </label>
             <select
               value={form.requiredLevel}
-              onChange={(e) => updateField("requiredLevel", e.target.value as RequiredLevel | "")}
+              onChange={(e) =>
+                updateField(
+                  "requiredLevel",
+                  e.target.value as RequiredLevel | "",
+                )
+              }
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none cursor-pointer"
             >
-              <option value="">Select a Level</option>
+              <option value="">{t.room.selectLevel}</option>
               <optgroup label="HSK Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "HSK").map((l) => (
-                  <option key={l.value} value={l.value}>{l.label}</option>
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
                 ))}
               </optgroup>
               <optgroup label="CEFR Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "CEFR").map((l) => (
-                  <option key={l.value} value={l.value}>{l.label}</option>
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
                 ))}
               </optgroup>
               <optgroup label="Other Levels">
                 {REQUIRED_LEVELS.filter((l) => l.group === "Other").map((l) => (
-                  <option key={l.value} value={l.value}>{l.label}</option>
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
                 ))}
               </optgroup>
             </select>
@@ -107,7 +161,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
           {/* Topic */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              <Tag size={14} /> Topic
+              <Tag size={14} /> {t.room.topic}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {ROOM_TOPICS.map((top) => {
@@ -133,10 +187,10 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
           {/* Privacy */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-              <Shield size={14} /> Privacy
+              <Shield size={14} /> {t.room.privacy}
             </label>
             <div className="flex gap-2">
-              {PRIVACY_OPTIONS.map((opt) => (
+              {privacyOptions.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -147,10 +201,14 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
                       : "bg-white border-gray-200 hover:bg-gray-50"
                   }`}
                 >
-                  <span className={`block text-sm font-medium ${form.privacy === opt.value ? "text-primary" : "text-gray-600"}`}>
+                  <span
+                    className={`block text-sm font-medium ${form.privacy === opt.value ? "text-primary" : "text-gray-600"}`}
+                  >
                     {opt.label}
                   </span>
-                  <span className="block text-[11px] text-gray-400 mt-0.5">{opt.desc}</span>
+                  <span className="block text-[11px] text-gray-400 mt-0.5">
+                    {opt.desc}
+                  </span>
                 </button>
               ))}
             </div>
@@ -160,17 +218,21 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
           {form.privacy === "Private" && (
             <div>
               <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
-                <Lock size={14} /> Room Password
-                <span className="text-gray-400 text-xs font-normal">(Leave blank to keep unchanged)</span>
+                <Lock size={14} /> {t.room.roomPassword}
+                <span className="text-gray-400 text-xs font-normal">
+                  {t.room.leaveBlankToKeepUnchanged}
+                </span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter new password"
+                  placeholder={t.room.enterNewPassword}
                   value={form.password}
                   onChange={(e) => updateField("password", e.target.value)}
                   className={`w-full pl-3 pr-10 py-2.5 text-sm bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                    errors.password ? "border-red-300 focus:ring-red-200" : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
+                    errors.password
+                      ? "border-red-300 focus:ring-red-200"
+                      : "border-gray-200 focus:ring-primary/30 focus:border-primary/50"
                   }`}
                 />
                 <button
@@ -181,7 +243,9 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
-              {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password}</p>
+              )}
             </div>
           )}
         </div>
@@ -189,7 +253,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({ room, onClose, onEdited }
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/50">
           <span className="text-xs text-gray-400">
-            {hasChanges ? "Unsaved changes" : "No changes made"}
+            {hasChanges ? t.room.unsavedChanges : t.room.noChangesMade}
           </span>
           <div className="flex items-center gap-3">
             <button
