@@ -22,8 +22,10 @@ import {
 import type { ViewMode, Room } from "../types";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Button from "../../../components/ui/Button";
+import { useLanguage } from "../../../stores/languageStore";
 
 const RoomPage: React.FC = () => {
+  const { t } = useLanguage();
   const {
     rooms,
     pagination,
@@ -86,16 +88,16 @@ const RoomPage: React.FC = () => {
       <div className="mx-auto space-y-6">
         <PageHeader
           icon={<DoorOpen />}
-          title="Rooms"
-          desc="Manage video call rooms — create, monitor, and remove rooms."
+          title={t.room.title}
+          desc={t.room.desc}
           rightButtons={[
             <Button
+              key="create-room"
               size="sm"
               onClick={() => setIsCreateOpen(true)}
-              // className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary-dark shadow-sm hover:shadow-md transition-all duration-200"
             >
               <Plus className="size-4 mr-1" />
-              Create Room
+              {t.room.createRoom}
             </Button>,
           ]}
         />
@@ -121,7 +123,7 @@ const RoomPage: React.FC = () => {
               <span className="font-medium text-gray-700">
                 {pagination.totalItems}
               </span>{" "}
-              rooms found
+              {t.room.roomsFound}
             </p>
             <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
               <button
@@ -157,7 +159,7 @@ const RoomPage: React.FC = () => {
             <p className="text-sm">{error}</p>
             <button
               onClick={refetch}
-              className="ml-auto text-sm font-medium underline hover:no-underline"
+              className="ml-auto text-sm font-medium underline hover:no-underline cursor-pointer"
             >
               Retry
             </button>
@@ -168,7 +170,7 @@ const RoomPage: React.FC = () => {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 size={32} className="text-primary animate-spin mb-3" />
-            <p className="text-sm text-gray-500">Loading rooms…</p>
+            <p className="text-sm text-gray-500">{t.room.loadingRooms}</p>
           </div>
         ) : rooms.length === 0 ? (
           /* ── Empty State ── */
@@ -177,7 +179,7 @@ const RoomPage: React.FC = () => {
               <DoorOpen size={28} className="text-gray-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-700 mb-1">
-              No rooms found
+              {t.room.noRoomsFound}
             </h3>
             <p className="text-sm text-gray-400 max-w-sm">
               {activeFilterCount > 0

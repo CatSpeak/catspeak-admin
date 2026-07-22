@@ -19,9 +19,11 @@ import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
 import { formatAmount, formatDate } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
+import { useLanguage } from "../../../stores/languageStore";
 
 export default function PaymentReportsPage() {
   const { addToast } = useToastStore();
+  const { t } = useLanguage();
 
   // State
   const [selectedReport, setSelectedReport] = useState<PaymentReport | null>(
@@ -74,11 +76,10 @@ export default function PaymentReportsPage() {
         "success",
         `Payment report #${selectedReport.reportId} has been ${action === "Accept" ? "accepted" : "denied"} successfully.`,
       );
-      // Force table and card refresh
       setRefreshTrigger((prev) => prev + 1);
     } catch (err) {
       console.error("Error processing report:", err);
-      throw err; // Propagate error back to the modal's internal state
+      throw err;
     } finally {
       setIsProcessing(false);
     }
@@ -89,8 +90,8 @@ export default function PaymentReportsPage() {
       {/* Breadcrumb Navigation */}
       <PageHeader
         icon={<DollarSign />}
-        title="Payment Reports"
-        desc="Track successful transactions, refunds, and financial summaries."
+        title={t.reports.paymentReportsTitle}
+        desc={t.reports.paymentReportsDesc}
       />
 
       {/* Summary Metrics Cards */}
@@ -102,7 +103,7 @@ export default function PaymentReportsPage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Total Reports
+              {t.reports.totalReports}
             </span>
             <span className="text-2xl font-bold text-gray-900 block mt-0.5">
               {metrics.total}
@@ -117,7 +118,7 @@ export default function PaymentReportsPage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Pending Action
+              {t.reports.pendingAction}
             </span>
             <span className="text-2xl font-bold text-warning-700 block mt-0.5 animate-pulse">
               {metrics.pending}
@@ -132,7 +133,7 @@ export default function PaymentReportsPage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Accepted Claims
+              {t.reports.acceptedClaims}
             </span>
             <span className="text-2xl font-bold text-success-700 block mt-0.5">
               {metrics.accepted}
@@ -147,7 +148,7 @@ export default function PaymentReportsPage() {
           </div>
           <div>
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Denied Claims
+              {t.reports.deniedClaims}
             </span>
             <span className="text-2xl font-bold text-error-700 block mt-0.5">
               {metrics.denied}
@@ -200,7 +201,7 @@ export default function PaymentReportsPage() {
         }}
         headers={[
           {
-            name: "ID",
+            name: t.users.id,
             accessorKey: "reportId",
           },
           {
@@ -208,7 +209,7 @@ export default function PaymentReportsPage() {
             accessorKey: "paymentId",
           },
           {
-            name: "Reporter",
+            name: t.reports.reporter,
             accessorKey: "username",
             render: (r) => (
               <div className="flex flex-col">
@@ -224,7 +225,7 @@ export default function PaymentReportsPage() {
             ),
           },
           {
-            name: "Amount",
+            name: t.reports.amount,
             accessorKey: "amount",
             render: (r) => (
               <span className="font-bold text-gray-950">
@@ -234,7 +235,7 @@ export default function PaymentReportsPage() {
             cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
           },
           {
-            name: "Reason Reported",
+            name: t.reports.reasonReported,
             accessorKey: "userExplanation",
             render: (r) => (
               <p
@@ -247,7 +248,7 @@ export default function PaymentReportsPage() {
             cellClassName: "px-6 py-4 text-sm",
           },
           {
-            name: "Date Reported",
+            name: t.reports.dateReported,
             accessorKey: "createDate",
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium">
@@ -257,18 +258,18 @@ export default function PaymentReportsPage() {
             cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
           },
           {
-            name: "Status",
+            name: t.common.status,
             accessorKey: "status",
             values: [0, 1, 2],
-            valueLabels: ["Pending", "Accepted", "Denied"],
+            valueLabels: [t.common.pending, t.common.approved, t.common.rejected],
             render: (p) => {
               switch (p.status) {
                 case 0:
-                  return <Badge title="Pending" type="Yellow" />;
+                  return <Badge title={t.common.pending} type="Yellow" />;
                 case 1:
-                  return <Badge title="Accepted" type="Green" />;
+                  return <Badge title={t.common.approved} type="Green" />;
                 case 2:
-                  return <Badge title="Denied" type="Red" />;
+                  return <Badge title={t.common.rejected} type="Red" />;
                 default:
                   return <Badge title={p.status || "Unknown"} type="Gray" />;
               }

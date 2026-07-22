@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import UserDropdown from "./header/UserDropdown";
 // import NotificationDropdown from "./header/NotificationDropdown";
 import { SearchBar } from "./header/Searchbar";
+import { LanguageDropdown } from "./header/LanguageDropdown";
 
 const AppHeader: React.FC = () => {
   const { toggleSidebar, toggleMobileSidebar } = useSidebar();
@@ -44,42 +45,12 @@ const AppHeader: React.FC = () => {
           </button>
         </div>
 
-        {/* Search Bar */}
-        {/* <div className="hidden sm:block ml-4">
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="relative">
-              <label htmlFor="search-input" className="sr-only">
-                Search
-              </label>
-              <button
-                type="submit"
-                aria-label="Submit search"
-                className="absolute left-0 top-1/2 -translate-y-1/2 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-md"
-              >
-                <Search
-                  size={20}
-                  className="text-gray-400 hover:text-gray-700 transition-colors"
-                />
-              </button>
-
-              <input
-                id="search-input"
-                type="search"
-                placeholder="Type to search..."
-                className="w-full bg-transparent pl-11 pr-4 py-2 text-sm font-medium focus:outline-none xl:w-125"
-              />
-              
-            </div>
-          </form>
-        </div> */}
-
         <SearchBar />
 
         {/* Header Right Side */}
         <div className="flex items-center gap-3 2xsm:gap-7 ml-auto">
-          {/* <ul className="flex items-center gap-2 2xsm:gap-4">
-            <NotificationDropdown />
-          </ul> */}
+          {/* Language Dropdown */}
+          <LanguageDropdown />
 
           {/* User Dropdown */}
           <UserDropdown />

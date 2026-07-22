@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebar } from "../../context/SidebarContext";
+import { useLanguage } from "../../stores/languageStore";
 import {
   LayoutDashboard,
   Users,
@@ -20,69 +21,13 @@ interface NavItem {
   section?: string;
 }
 
-const navItems: NavItem[] = [
-  {
-    name: "Dashboard",
-    icon: <LayoutDashboard size={20} />,
-    path: "/",
-  },
-  {
-    name: "User Management",
-    icon: <Users size={20} />,
-    subItems: [
-      { name: "Users", path: "/users" },
-      { name: "Staffs", path: "/staffs" },
-    ],
-  },
-  {
-    name: "Plan Management",
-    icon: <Package size={20} />,
-    path: "/plans",
-  },
-  {
-    name: "Cat Speak",
-    icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
-    subItems: [
-      { name: "News", path: "/news" },
-      { name: "Calendar", path: "/calendar" },
-      { name: "Room", path: "/room" },
-      { name: "Reels", path: "/reels" },
-    ],
-  },
-  {
-    section: "Applications",
-    name: "Instructor Applications",
-    icon: <GraduationCap size={20} />,
-    path: "/instructor-applications",
-  },
-  // {
-  //   section: "Feedback",
-  //   name: "Live Chat Support",
-  //   icon: <MessageCircle size={20} />,
-  //   path: "/live-chat",
-  // },
-  {
-    section: "Feedback",
-    name: "Handle Reports",
-    icon: <FileWarning size={20} />,
-    subItems: [
-      { name: "Letter Reports", path: "/reports" },
-      { name: "Payment Reports", path: "/payments" },
-    ],
-  },
-  // {
-  //   name: "Analytics",
-  //   icon: <ChartBar size={20} />,
-  //   path: "/analytics",
-  // },
-];
-
 const isPathActive = (pathname: string, path: string) => {
   if (path === "/") return pathname === "/";
   return pathname === path || pathname.startsWith(`${path}/`);
 };
 
 const AppSidebar: React.FC = () => {
+  const { t } = useLanguage();
   const {
     isExpanded,
     isMobileOpen,
@@ -91,6 +36,55 @@ const AppSidebar: React.FC = () => {
     toggleMobileSidebar,
   } = useSidebar();
   const location = useLocation();
+
+  const navItems: NavItem[] = useMemo(
+    () => [
+      {
+        name: t.nav.dashboard,
+        icon: <LayoutDashboard size={20} />,
+        path: "/",
+      },
+      {
+        name: t.nav.userManagement,
+        icon: <Users size={20} />,
+        subItems: [
+          { name: t.nav.users, path: "/users" },
+          { name: t.nav.staffs, path: "/staffs" },
+        ],
+      },
+      {
+        name: t.nav.planManagement,
+        icon: <Package size={20} />,
+        path: "/plans",
+      },
+      {
+        name: t.nav.catSpeak,
+        icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
+        subItems: [
+          { name: t.nav.news, path: "/news" },
+          { name: t.nav.calendar, path: "/calendar" },
+          { name: t.nav.room, path: "/room" },
+          { name: t.nav.reels, path: "/reels" },
+        ],
+      },
+      {
+        section: t.nav.applications,
+        name: t.nav.instructorApplications,
+        icon: <GraduationCap size={20} />,
+        path: "/instructor-applications",
+      },
+      {
+        section: t.nav.feedback,
+        name: t.nav.handleReports,
+        icon: <FileWarning size={20} />,
+        subItems: [
+          { name: t.nav.letterReports, path: "/reports" },
+          { name: t.nav.paymentReports, path: "/payments" },
+        ],
+      },
+    ],
+    [t],
+  );
 
   const [submenuOverride, setSubmenuOverride] = useState<
     number | null | "auto"
@@ -107,7 +101,7 @@ const AppSidebar: React.FC = () => {
       ),
     );
     return index === -1 ? null : index;
-  }, [location.pathname]);
+  }, [location.pathname, navItems]);
 
   const openSubmenu =
     submenuOverride === "auto" ? activeSubmenuIndex : submenuOverride;
