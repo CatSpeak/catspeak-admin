@@ -17,11 +17,13 @@ import {
   resetPassword,
 } from "../api/forgotPassword";
 import { getApiErrorMessage } from "../../../lib/axios";
+import { useLanguage, type Language } from "../../../stores/languageStore";
 
 type Step = "email" | "otp" | "reset" | "success";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
   const [currentStep, setCurrentStep] = useState<Step>("email");
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +58,7 @@ export default function ForgotPassword() {
     setError(null);
 
     if (!email.trim()) {
-      setError("Please enter your email address.");
+      setError(t.auth.enterEmailError);
       return;
     }
 
@@ -66,7 +68,7 @@ export default function ForgotPassword() {
       setCurrentStep("otp");
     } catch (err) {
       setError(
-        getApiErrorMessage(err, "Failed to send OTP. Please try again."),
+        getApiErrorMessage(err, t.auth.sendOtpFailed),
       );
     } finally {
       setIsSendingOtp(false);
@@ -121,7 +123,7 @@ export default function ForgotPassword() {
 
     const otpValue = otp.join("");
     if (otpValue.length !== 6) {
-      setError("Please enter the complete 6-digit code.");
+      setError(t.auth.enter6DigitError);
       return;
     }
 
@@ -131,7 +133,7 @@ export default function ForgotPassword() {
       setOtpToken(response.resetToken);
       setCurrentStep("reset");
     } catch (err) {
-      setError(getApiErrorMessage(err, "Invalid or expired OTP."));
+      setError(getApiErrorMessage(err, t.auth.invalidOtp));
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -143,17 +145,17 @@ export default function ForgotPassword() {
     setError(null);
 
     if (!newPassword || !confirmPassword) {
-      setError("Please fill in both password fields.");
+      setError(t.auth.fillBothPasswordsError);
       return;
     }
 
     if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(t.auth.passwordMinLengthError);
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t.auth.passwordsDoNotMatchError);
       return;
     }
 
@@ -166,7 +168,7 @@ export default function ForgotPassword() {
       });
       setCurrentStep("success");
     } catch (err) {
-      setError(getApiErrorMessage(err, "Failed to reset password."));
+      setError(getApiErrorMessage(err, t.auth.resetPasswordFailed));
     } finally {
       setIsResetting(false);
     }
@@ -188,9 +190,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
           <Mail className="h-7 w-7 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Forgot password?</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t.auth.forgotPasswordTitle}</h2>
         <p className="mt-1.5 text-sm text-gray-500">
-          Enter your email and we&apos;ll send you a verification code.
+          {t.auth.forgotPasswordSubtitle}
         </p>
       </div>
 
@@ -201,7 +203,7 @@ export default function ForgotPassword() {
           htmlFor="reset-email"
           className="mb-1.5 block text-sm font-medium text-gray-700"
         >
-          Email address
+          {t.auth.emailAddress}
         </label>
         <input
           id="reset-email"
@@ -214,7 +216,7 @@ export default function ForgotPassword() {
             setError(null);
           }}
           className="block w-full rounded-xl border border-gray-300 bg-gray-50/50 px-4 py-3 text-gray-900 placeholder-gray-400 transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-          placeholder="admin@example.com"
+          placeholder={t.auth.emailPlaceholder}
         />
       </div>
 
@@ -226,10 +228,10 @@ export default function ForgotPassword() {
         {isSendingOtp ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Sending code…
+            {t.auth.sendingCode}
           </>
         ) : (
-          "Send verification code"
+          t.auth.sendVerificationCode
         )}
       </button>
     </form>
@@ -242,9 +244,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50">
           <ShieldCheck className="h-7 w-7 text-amber-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t.auth.checkYourEmail}</h2>
         <p className="mt-1.5 text-sm text-gray-500">
-          We sent a 6-digit code to{" "}
+          {t.auth.sentCodeTo}{" "}
           <span className="font-medium text-gray-700">{email}</span>
         </p>
       </div>
@@ -253,7 +255,7 @@ export default function ForgotPassword() {
 
       <div>
         <label className="mb-2 block text-center text-sm font-medium text-gray-700">
-          Verification code
+          {t.auth.verificationCode}
         </label>
         <div
           className="flex justify-center gap-2 sm:gap-3"
@@ -285,10 +287,10 @@ export default function ForgotPassword() {
         {isVerifyingOtp ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Verifying…
+            {t.auth.verifying}
           </>
         ) : (
-          "Verify code"
+          t.auth.verifyCode
         )}
       </button>
 
@@ -302,7 +304,7 @@ export default function ForgotPassword() {
         className="flex w-full items-center justify-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Use a different email
+        {t.auth.useDifferentEmail}
       </button>
     </form>
   );
@@ -314,9 +316,9 @@ export default function ForgotPassword() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-50">
           <Lock className="h-7 w-7 text-violet-600" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Set new password</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t.auth.setNewPasswordTitle}</h2>
         <p className="mt-1.5 text-sm text-gray-500">
-          Create a strong password for your account.
+          {t.auth.setNewPasswordSubtitle}
         </p>
       </div>
 
@@ -328,7 +330,7 @@ export default function ForgotPassword() {
             htmlFor="new-password"
             className="mb-1.5 block text-sm font-medium text-gray-700"
           >
-            New password
+            {t.auth.newPassword}
           </label>
           <div className="relative">
             <input
@@ -342,7 +344,7 @@ export default function ForgotPassword() {
                 setError(null);
               }}
               className="block w-full rounded-xl border border-gray-300 bg-gray-50/50 px-4 py-3 pr-11 text-gray-900 placeholder-gray-400 transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-              placeholder="At least 6 characters"
+              placeholder={t.auth.newPasswordPlaceholder}
             />
             <button
               type="button"
@@ -364,7 +366,7 @@ export default function ForgotPassword() {
             htmlFor="confirm-password"
             className="mb-1.5 block text-sm font-medium text-gray-700"
           >
-            Confirm password
+            {t.auth.confirmPassword}
           </label>
           <div className="relative">
             <input
@@ -378,7 +380,7 @@ export default function ForgotPassword() {
                 setError(null);
               }}
               className="block w-full rounded-xl border border-gray-300 bg-gray-50/50 px-4 py-3 pr-11 text-gray-900 placeholder-gray-400 transition-colors focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-              placeholder="Re-enter your password"
+              placeholder={t.auth.confirmPasswordPlaceholder}
             />
             <button
               type="button"
@@ -404,10 +406,10 @@ export default function ForgotPassword() {
         {isResetting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Updating…
+            {t.auth.updating}
           </>
         ) : (
-          "Reset password"
+          t.auth.resetPassword
         )}
       </button>
     </form>
@@ -420,17 +422,16 @@ export default function ForgotPassword() {
         <CheckCircle2 className="h-8 w-8 text-emerald-500" />
       </div>
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Password updated!</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t.auth.passwordUpdatedTitle}</h2>
         <p className="mt-1.5 text-sm text-gray-500">
-          Your password has been successfully changed. You'll be redirected to
-          the login page shortly.
+          {t.auth.passwordUpdatedSubtitle}
         </p>
       </div>
       <Link
         to="/login"
         className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
       >
-        Back to login
+        {t.auth.backToLogin}
       </Link>
     </div>
   );
@@ -446,8 +447,17 @@ export default function ForgotPassword() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl shadow-gray-200/50 ring-1 ring-gray-900/5">
-        {/* Step Indicator */}
-        {/* <div>{renderStepIndicator()}</div> */}
+        <div className="flex justify-end">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          >
+            <option value="vi">🇻🇳 Tiếng Việt</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="zh">🇨🇳 中文</option>
+          </select>
+        </div>
 
         {/* Step Content */}
         <div>{stepContent[currentStep]()}</div>
@@ -455,12 +465,12 @@ export default function ForgotPassword() {
         {/* Back to login link (not shown on success) */}
         {currentStep !== "success" && (
           <div className="text-center text-sm text-gray-500">
-            Remember your password?{" "}
+            {t.auth.rememberPassword}{" "}
             <Link
               to="/login"
               className="font-semibold text-primary transition-colors hover:text-primary/80"
             >
-              Back to login
+              {t.auth.backToLogin}
             </Link>
           </div>
         )}

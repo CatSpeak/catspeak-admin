@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuthStore } from "../../../stores/authStore";
+import { useLanguage, type Language } from "../../../stores/languageStore";
 import { loginWithEmailAndPassword } from "../api/login";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import type { AuthUser } from "../types";
@@ -10,6 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuthStore();
+  const { language, setLanguage, t } = useLanguage();
 
   const from = location.state?.from?.pathname || "/";
 
@@ -31,9 +33,7 @@ export default function Login() {
         response.user.roleName !== "Admin" &&
         response.user.roleName !== "Staff"
       ) {
-        setError(
-          "Access denied. You do not have permission to access the admin dashboard.",
-        );
+        setError(t.auth.accessDenied);
         setIsLoading(false);
         return;
       }
@@ -53,7 +53,7 @@ export default function Login() {
       setError(
         getApiErrorMessage(
           error,
-          "Login failed. Please check your credentials.",
+          t.auth.loginFailed,
         ),
       );
     } finally {
@@ -64,12 +64,24 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-sm ring-1 ring-gray-900/5">
+        <div className="flex justify-end">
+          <select
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as Language)}
+            className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+          >
+            <option value="vi">🇻🇳 Tiếng Việt</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="zh">🇨🇳 中文</option>
+          </select>
+        </div>
+
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            CatSpeak Admin
+          <h2 className="mt-2 text-3xl font-extrabold text-gray-900">
+            {t.auth.title}
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Login to enter the admin page
+            {t.auth.loginSubtitle}
           </p>
         </div>
 
@@ -87,7 +99,7 @@ export default function Login() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Email
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -98,7 +110,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
-                placeholder="admin@example.com"
+                placeholder={t.auth.emailPlaceholder}
               />
             </div>
             <div>
@@ -106,7 +118,7 @@ export default function Login() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700"
               >
-                Password
+                {t.auth.password}
               </label>
               <div className="relative mt-1">
                 <input
@@ -118,7 +130,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md border border-gray-300 pl-3 pr-10 py-2 text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:text-sm"
-                  placeholder="••••••••"
+                  placeholder={t.auth.passwordPlaceholder}
                 />
                 <button
                   type="button"
@@ -141,7 +153,7 @@ export default function Login() {
               to="/forgot-password"
               className="text-sm font-medium text-primary hover:text-primary-dark"
             >
-              Forgot password?
+              {t.auth.forgotPassword}
             </Link>
           </div>
 
@@ -154,10 +166,10 @@ export default function Login() {
               {isLoading ? (
                 <span className="flex items-center justify-center">
                   <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                  Loading...
+                  {t.auth.loggingIn}
                 </span>
               ) : (
-                "Login"
+                t.auth.login
               )}
             </button>
           </div>
