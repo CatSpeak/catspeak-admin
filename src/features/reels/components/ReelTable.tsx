@@ -162,12 +162,12 @@ export default function ReelTable({
                 </td>
 
                 {/* ID Column */}
-                <td className="px-4 py-3 text-sm font-bold text-gray-800 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-800 tabular-nums whitespace-nowrap">
                   {String(reel.reelId).padStart(2, "0")}
                 </td>
 
                 {/* Author Column */}
-                <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                <td className="px-4 py-3 text-sm font-semibold text-gray-700 whitespace-nowrap">
                   {reel.username || "admin"}
                 </td>
 
@@ -190,7 +190,7 @@ export default function ReelTable({
                 </td>
 
                 {/* Privacy Badge Column */}
-                <td className="px-4 py-3 text-sm text-gray-700">
+                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
                   {(() => {
                     switch (reel.privacy) {
                       case "Public":
@@ -220,25 +220,25 @@ export default function ReelTable({
                 </td>
 
                 {/* File Upload link Column */}
-                <td className="px-4 py-3 text-sm font-medium text-blue-600 hover:underline">
-                  <div className="flex items-center gap-1.5">
-                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-70" />
-                    <span>{fileName}</span>
+                <td className="px-4 py-3 text-sm font-medium text-blue-600 hover:underline whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 whitespace-nowrap">
+                    <Link2 className="w-3.5 h-3.5 text-blue-500 opacity-70 shrink-0" />
+                    <span className="truncate max-w-[200px]">{fileName}</span>
                   </div>
                 </td>
 
                 {/* Date Uploaded Column */}
-                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
                   {formatDate(reel.createdAt)}
                 </td>
 
                 {/* Last Edited Column */}
-                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums">
+                <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
                   {formatDate(lastEditedDate)}
                 </td>
 
                 {/* Total Reaction Column */}
-                <td className="px-4 py-3 text-sm font-bold text-gray-700 tabular-nums">
+                <td className="px-4 py-3 text-sm font-bold text-gray-700 tabular-nums whitespace-nowrap">
                   {totalReaction}
                 </td>
               </tr>

@@ -1,20 +1,29 @@
-export type BadgeType = "Red" | "Orange" | "Yellow" | "Green" | "Blue" | "Gray";
+import React from "react";
 
-// Định nghĩa props cho component
+export type BadgeType =
+  | "Red"
+  | "Orange"
+  | "Yellow"
+  | "Green"
+  | "Blue"
+  | "Purple"
+  | "Gray";
+
 interface BadgeProps {
-  title: string;
+  title?: string;
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
   type?: BadgeType;
   showDot?: boolean;
+  className?: string;
 }
 
-// Định nghĩa cấu trúc config cho từng loại màu
 interface ColorConfig {
   colorClass: string;
   dotClass: string;
 }
 
-// Mapping object chứa các class Tailwind tương ứng với từng type
-const colorMap: Record<NonNullable<BadgeProps["type"]>, ColorConfig> = {
+const colorMap: Record<BadgeType, ColorConfig> = {
   Green: {
     colorClass: "bg-green-50 text-green-600 border-green-200",
     dotClass: "bg-green-500",
@@ -24,7 +33,7 @@ const colorMap: Record<NonNullable<BadgeProps["type"]>, ColorConfig> = {
     dotClass: "bg-orange-500",
   },
   Yellow: {
-    colorClass: "bg-yellow-50 text-yellow-700 border-yellow-200", // Dùng text-yellow-700 để dễ đọc hơn trên nền sáng
+    colorClass: "bg-yellow-50 text-yellow-700 border-yellow-200",
     dotClass: "bg-yellow-500",
   },
   Red: {
@@ -35,6 +44,10 @@ const colorMap: Record<NonNullable<BadgeProps["type"]>, ColorConfig> = {
     colorClass: "bg-blue-50 text-blue-600 border-blue-200",
     dotClass: "bg-blue-500",
   },
+  Purple: {
+    colorClass: "bg-violet-50 text-violet-700 border-violet-200",
+    dotClass: "bg-violet-500",
+  },
   Gray: {
     colorClass: "bg-gray-50 text-gray-600 border-gray-200",
     dotClass: "bg-gray-500",
@@ -43,21 +56,23 @@ const colorMap: Record<NonNullable<BadgeProps["type"]>, ColorConfig> = {
 
 export default function Badge({
   title,
-  type = "Gray", // Giá trị mặc định nếu không truyền type
-  showDot = false, // Giá trị mặc định nếu không truyền showDot
+  children,
+  icon,
+  type = "Gray",
+  showDot = false,
+  className = "",
 }: BadgeProps) {
-  // Lấy config màu dựa trên type, fallback về Gray nếu có lỗi
   const { colorClass, dotClass } = colorMap[type] || colorMap.Gray;
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${colorClass}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border whitespace-nowrap ${colorClass} ${className}`}
     >
-      {/* Chỉ hiển thị dấu chấm nếu showDot là true */}
       {showDot && (
-        <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></span>
+        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
       )}
-      {title}
+      {icon && <span className="shrink-0 flex items-center">{icon}</span>}
+      {title ?? children}
     </span>
   );
 }
