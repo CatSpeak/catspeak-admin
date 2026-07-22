@@ -3,12 +3,36 @@ import { translations, languageNames, type Language } from "../i18n";
 
 export type { Language };
 
+export const getLangFromStorage = (): Language => {
+  if (typeof window === "undefined") return "vi";
+  try {
+    const saved = localStorage.getItem("lang") as Language | null;
+    if (saved && (saved === "vi" || saved === "en" || saved === "zh")) {
+      return saved;
+    }
+  } catch (error) {
+    console.error("Error reading lang from localStorage", error);
+  }
+  return "vi";
+};
+
+export const setLangToStorage = (lang: Language): void => {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem("lang", lang);
+  } catch (error) {
+    console.error("Error setting lang to localStorage", error);
+  }
+};
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   t: typeof translations.vi;
   languageName: string;
+  getLangFromStorage: () => Language;
+  setLangToStorage: (lang: Language) => void;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -16,23 +40,35 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [language, setLanguage] = useState<Language>("vi");
+  const [language, setLanguageState] = useState<Language>(() => getLangFromStorage());
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    setLangToStorage(lang);
+  };
+
+  const toggleLanguage = () => {
+    setLanguageState((prev) => {
+      const nextLang: Record<Language, Language> = {
+        vi: "en",
+        en: "zh",
+        zh: "vi",
+      };
+      const next = nextLang[prev] || "vi";
+      setLangToStorage(next);
+      return next;
+    });
+  };
 
   const value = useMemo(
     () => ({
       language,
       setLanguage,
-      toggleLanguage: () =>
-        setLanguage((prev) => {
-          const nextLang: Record<Language, Language> = {
-            vi: "en",
-            en: "zh",
-            zh: "vi",
-          };
-          return nextLang[prev] || "vi";
-        }),
+      toggleLanguage,
       t: translations[language],
       languageName: languageNames[language],
+      getLangFromStorage,
+      setLangToStorage,
     }),
     [language],
   );
