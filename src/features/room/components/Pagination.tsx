@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { PaginationMeta } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface PaginationProps {
   pagination: PaginationMeta;
@@ -8,6 +9,7 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ pagination, onPageChange }) => {
+  const { t } = useLanguage();
   const { page, totalPages, totalItems, pageSize } = pagination;
   const startItem = (page - 1) * pageSize + 1;
   const endItem = Math.min(page * pageSize, totalItems);
@@ -28,14 +30,15 @@ const Pagination: React.FC<PaginationProps> = ({ pagination, onPageChange }) => 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
       <p className="text-xs text-gray-500">
-        Showing <span className="font-medium text-gray-700">{startItem}–{endItem}</span> of{" "}
-        <span className="font-medium text-gray-700">{totalItems}</span> rooms
+        {t.common.showing} <span className="font-medium text-gray-700">{startItem}–{endItem}</span> {t.common.of}{" "}
+        <span className="font-medium text-gray-700">{totalItems}</span> {t.room.showingRooms}
       </p>
 
       <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(page - 1)}
           disabled={page === 1}
+          aria-label={t.pagination.previousPage}
           className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronLeft size={16} />
@@ -47,6 +50,7 @@ const Pagination: React.FC<PaginationProps> = ({ pagination, onPageChange }) => 
             <button
               key={p}
               onClick={() => onPageChange(p)}
+              aria-label={`${t.pagination.goToPage} ${p}`}
               className={`min-w-[32px] h-8 rounded-lg text-xs font-medium transition-all duration-200 ${p === page
                 ? "bg-primary text-white shadow-sm"
                 : "text-gray-600 hover:bg-gray-100"
@@ -59,6 +63,7 @@ const Pagination: React.FC<PaginationProps> = ({ pagination, onPageChange }) => 
         <button
           onClick={() => onPageChange(page + 1)}
           disabled={page === totalPages}
+          aria-label={t.pagination.nextPage}
           className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           <ChevronRight size={16} />

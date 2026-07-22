@@ -10,9 +10,10 @@ import {
   Globe,
 } from "lucide-react";
 import type { Room } from "../types";
-import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
+import { LANGUAGE_FLAGS } from "../constants";
 import { formatDate } from "../../../lib/utils";
 import { useLanguage } from "../../../stores/languageStore";
+import Badge from "../../../components/ui/Badge";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -38,7 +39,6 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
   const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
   const createdDate = formatDate(room.createDate);
@@ -74,18 +74,17 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       </td>
 
       {/* Type Column */}
-      <td className="px-4 py-3 text-sm text-gray-700">
-        <span
-          className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium ${typeStyle.bg} ${typeStyle.text}`}
-        >
-          <Users size={12} />
-          {room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
-        </span>
+      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+        <Badge
+          title={room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
+          type={room.roomType === "OneToOne" ? "Blue" : "Orange"}
+          icon={<Users size={12} />}
+        />
       </td>
 
       {/* Language Column */}
-      <td className="px-4 py-3 text-sm text-gray-700 font-medium">
-        <span className="inline-flex items-center gap-1.5">
+      <td className="px-4 py-3 text-sm text-gray-700 font-medium whitespace-nowrap">
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
           <img
             src={flag}
             alt={room.languageType}
@@ -96,38 +95,40 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       </td>
 
       {/* Level Column */}
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         {room.requiredLevel ? (
-          <span className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium bg-violet-50 text-violet-700 border border-violet-100">
-            <GraduationCap size={12} />
-            {room.requiredLevel}
-          </span>
+          <Badge
+            title={room.requiredLevel}
+            type="Purple"
+            icon={<GraduationCap size={12} />}
+          />
         ) : (
           <span className="text-gray-400">—</span>
         )}
       </td>
 
       {/* Topic Column */}
-      <td className="px-4 py-3 text-sm text-gray-700">
+      <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         {room.topic ? (
-          <span className="rounded-full px-2 py-0.5 text-[12px] font-medium bg-gray-100 text-gray-600 border border-gray-200">
-            {room.topic}
-          </span>
+          <Badge
+            title={room.topic}
+            type="Gray"
+          />
         ) : (
           <span className="text-gray-400">—</span>
         )}
       </td>
 
       {/* Participants Column */}
-      <td className="px-4 py-3 text-center text-sm font-medium text-gray-700 tabular-nums">
+      <td className="px-4 py-3 text-center text-sm font-medium text-gray-700 tabular-nums whitespace-nowrap">
         {room.currentParticipantCount}
         {room.maxParticipants != null ? `/${room.maxParticipants}` : ""}
       </td>
 
       {/* Duration Column */}
-      <td className="px-4 py-3 text-center text-sm text-gray-700">
+      <td className="px-4 py-3 text-center text-sm text-gray-700 whitespace-nowrap">
         {room.duration != null ? (
-          <span className="inline-flex items-center gap-1 text-xs text-gray-500 justify-center">
+          <span className="inline-flex items-center gap-1 text-xs text-gray-500 justify-center whitespace-nowrap">
             <Timer size={12} />
             <span className="tabular-nums">{room.duration}m</span>
           </span>
@@ -137,37 +138,21 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       </td>
 
       {/* Status Column */}
-      <td className="px-4 py-3 text-center text-sm text-gray-700">
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[12px] font-semibold border ${
-            isActive
-              ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-              : "bg-gray-150 text-gray-500 border-gray-200"
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-gray-400"}`}
-          />
-          {isActive ? t.common.active : t.common.inactive}
-        </span>
+      <td className="px-4 py-3 text-center text-sm text-gray-700 whitespace-nowrap">
+        <Badge
+          title={isActive ? t.common.active : t.common.inactive}
+          type={isActive ? "Green" : "Gray"}
+          showDot
+        />
       </td>
 
       {/* Privacy Column */}
-      <td className="px-4 py-3 text-center text-sm text-gray-700">
-        <span
-          className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium border ${
-            room.privacy === "Private"
-              ? "bg-amber-50 text-amber-700 border-amber-100"
-              : "bg-sky-50 text-sky-700 border-sky-100"
-          }`}
-        >
-          {room.privacy === "Private" ? (
-            <Lock size={12} />
-          ) : (
-            <Globe size={12} />
-          )}
-          {room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
-        </span>
+      <td className="px-4 py-3 text-center text-sm text-gray-700 whitespace-nowrap">
+        <Badge
+          title={room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
+          type={room.privacy === "Private" ? "Orange" : "Blue"}
+          icon={room.privacy === "Private" ? <Lock size={12} /> : <Globe size={12} />}
+        />
       </td>
 
       {/* Created At */}

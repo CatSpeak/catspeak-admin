@@ -79,7 +79,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
             <div className="min-w-0">
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${typeStyle.bg} ${typeStyle.text} mb-1.5`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${typeStyle.dot}`} />
-                {room.roomType}
+                {room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
               </span>
               <h2 className="text-lg font-bold text-white truncate drop-shadow-sm">{room.name}</h2>
             </div>
@@ -99,45 +99,48 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
         <div className="flex-1 overflow-y-auto p-5 space-y-1">
           <div className="grid grid-cols-2 gap-x-4 divide-y divide-gray-100 sm:divide-y-0">
 
-            <DetailRow icon={<Hash size={15} />} label="Room Code">
+            <DetailRow icon={<Hash size={15} />} label={t.reels.id}>
               <span className="font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                {room.roomId}
+                #{room.roomId}
               </span>
             </DetailRow>
 
-            <DetailRow icon={<Globe size={15} />} label="Language">
+            <DetailRow icon={<Globe size={15} />} label={t.room.language}>
               <span className="flex items-center gap-1.5 font-medium">
                 {flag && <img src={flag} alt={room.languageType} className="w-4 h-4 rounded-sm" />}
                 {room.languageType}
               </span>
             </DetailRow>
 
-            <DetailRow icon={<GraduationCap size={15} />} label="Required Level">
-              <span className="font-medium">{room.requiredLevel}</span>
+            <DetailRow icon={<GraduationCap size={15} />} label={t.room.level}>
+              <span className="font-medium">{room.requiredLevel || "—"}</span>
             </DetailRow>
 
-            <DetailRow icon={<Tag size={15} />} label="Topic">
+            <DetailRow icon={<Tag size={15} />} label={t.room.topic}>
               <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
                 {room.topic || "General"}
               </span>
             </DetailRow>
 
-            <DetailRow icon={<Users size={15} />} label="Participants">
-              <span className="font-medium">{room.currentParticipantCount} members</span>
-            </DetailRow>
-
-            <DetailRow icon={<Shield size={15} />} label="Privacy">
-              <span className="font-medium flex items-center gap-1">
-                {room.privacy === "Private" && <Lock size={13} className="text-amber-500" />}
-                {room.privacy}
+            <DetailRow icon={<Users size={15} />} label={t.room.participants}>
+              <span className="font-medium">
+                {room.currentParticipantCount}
+                {room.maxParticipants != null ? `/${room.maxParticipants}` : ""}
               </span>
             </DetailRow>
 
-            <DetailRow icon={<Timer size={15} />} label="Duration">
-              <span className="font-medium">{room.duration} minutes</span>
+            <DetailRow icon={<Shield size={15} />} label={t.room.privacy}>
+              <span className="font-medium flex items-center gap-1">
+                {room.privacy === "Private" && <Lock size={13} className="text-amber-500" />}
+                {room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
+              </span>
             </DetailRow>
 
-            <DetailRow icon={<Calendar size={15} />} label="Created">
+            <DetailRow icon={<Timer size={15} />} label={t.room.duration}>
+              <span className="font-medium">{room.duration != null ? `${room.duration}m` : "—"}</span>
+            </DetailRow>
+
+            <DetailRow icon={<Calendar size={15} />} label={t.common.createdDate}>
               {createdDate}
               <span className="text-gray-400 ml-1">at {createdTime}</span>
             </DetailRow>
