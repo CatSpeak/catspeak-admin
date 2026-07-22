@@ -14,7 +14,7 @@ const languages: LanguageOption[] = [
 ];
 
 export const LanguageDropdown: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, setLangToStorage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -73,6 +73,7 @@ export const LanguageDropdown: React.FC = () => {
                       aria-selected={isSelected}
                       onClick={() => {
                         setLanguage(item.code);
+                        setLangToStorage(item.code);
                         setIsOpen(false);
                       }}
                       className={`relative flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left transition-colors cursor-pointer ${
