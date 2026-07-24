@@ -21,6 +21,7 @@ import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts"
 import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
+import Avatar from "../../../components/ui/Avatar";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -162,11 +163,7 @@ export default function NewsPage() {
             accessorKey: "authorName",
             render: (p) => (
               <div className="flex items-center gap-2">
-                <img
-                  src={p.avatarUrl}
-                  alt=""
-                  className="w-6 h-6 rounded-full object-cover"
-                />
+                <Avatar name={p.authorName} url={p.avatarUrl} size="xs" />
                 <span className="text-gray-700 whitespace-nowrap font-bold">
                   {p.authorName}
                 </span>

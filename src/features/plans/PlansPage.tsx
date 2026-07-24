@@ -11,6 +11,7 @@ import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans";
 import { formatDateTime } from "../../lib/utils";
 import Badge from "../../components/ui/Badge";
 import { useLanguage } from "../../stores/languageStore";
+import Avatar from "../../components/ui/Avatar";
 
 const PlansPage: React.FC = () => {
   const navigate = useNavigate();
@@ -77,21 +78,11 @@ const PlansPage: React.FC = () => {
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
         headers={[
           {
-            name: t.users.username,
+            name: t.plans.planName,
             accessorKey: "planName",
             render: (p) => (
               <div className="flex items-center gap-3">
-                {p.iconUrl ? (
-                  <img
-                    src={p.iconUrl}
-                    alt=""
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                    <span className="text-gray-400 text-xs">No Icon</span>
-                  </div>
-                )}
+                <Avatar name={p.planName} url={p.iconUrl} size="md" />
                 <div>
                   <p className="font-semibold text-gray-900">{p.planName}</p>
                   <p className="text-xs text-gray-500 max-w-50 truncate">
@@ -150,7 +141,9 @@ const PlansPage: React.FC = () => {
                   <span className="text-sm font-medium text-gray-900">
                     {count}
                   </span>
-                  <span className="text-xs text-gray-500">{t.plans.features.toLowerCase()}</span>
+                  <span className="text-xs text-gray-500">
+                    {t.plans.features.toLowerCase()}
+                  </span>
                 </div>
               );
             },

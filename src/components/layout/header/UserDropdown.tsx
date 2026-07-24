@@ -4,6 +4,7 @@ import { Dropdown } from "../../ui/dropdown/Dropdown";
 import { useAuthStore } from "../../../stores/authStore";
 import { useLanguage } from "../../../stores/languageStore";
 import { LogOut, ChevronDown } from "lucide-react";
+import Avatar from "../../ui/Avatar";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,11 +28,7 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 rounded-full sm:rounded-md p-1 -m-1 max-w-full"
       >
-        <span className="mr-3 overflow-hidden rounded-full size-10 bg-gray-200 flex items-center justify-center shrink-0">
-          <span className="text-sm font-bold text-gray-600">
-            {user?.username?.charAt(0).toUpperCase() || "A"}
-          </span>
-        </span>
+        <Avatar name={user?.username} size="sm" className="mr-3" />
         <span className="hidden sm:block mr-1 font-medium text-sm truncate max-w-30">
           {user?.username || "User"}
         </span>
