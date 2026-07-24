@@ -87,10 +87,10 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
         <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
           <img
             src={flag}
-            alt={room.languageType}
+            alt={t.room.languages?.[room.languageType] || room.languageType}
             className="w-4 h-3.5 rounded-sm shadow-sm object-cover"
           />
-          <span>{room.languageType}</span>
+          <span>{t.room.languages?.[room.languageType] || room.languageType}</span>
         </span>
       </td>
 
@@ -98,7 +98,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         {room.requiredLevel ? (
           <Badge
-            title={room.requiredLevel}
+            title={t.room.levels?.[room.requiredLevel] || room.requiredLevel}
             type="Purple"
             icon={<GraduationCap size={12} />}
           />
@@ -111,7 +111,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         {room.topic ? (
           <Badge
-            title={room.topic}
+            title={t.room.topics?.[room.topic] || room.topic}
             type="Gray"
           />
         ) : (

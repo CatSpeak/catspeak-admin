@@ -101,8 +101,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
           {/* Language */}
           <div className="flex items-center gap-1.5">
-            <img src={flag} alt={room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
-            <span className="truncate">{room.languageType}</span>
+            <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
+            <span className="truncate">{t.room.languages?.[room.languageType] || room.languageType}</span>
           </div>
           {/* Type — styled tag */}
           <div className="flex items-center">
@@ -114,12 +114,12 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           {/* Level */}
           <div className="flex items-center gap-1.5">
             <GraduationCap size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.requiredLevel || "N/A"}</span>
+            <span className="truncate">{room.requiredLevel ? (t.room.levels?.[room.requiredLevel] || room.requiredLevel) : "N/A"}</span>
           </div>
           {/* Topic */}
           <div className="flex items-center gap-1.5">
             <Tag size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.topic || "N/A"}</span>
+            <span className="truncate">{room.topic ? (t.room.topics?.[room.topic] || room.topic) : "N/A"}</span>
           </div>
         </div>
 
