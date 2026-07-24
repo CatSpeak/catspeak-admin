@@ -44,7 +44,7 @@ export const LanguageDropdown: React.FC = () => {
           aria-label={currentLang.name}
           title={currentLang.name}
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-0 bg-transparent p-0 transition-colors hover:ring-4 hover:ring-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cath-red-800/40 cursor-pointer"
+          className="inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border-0 bg-transparent p-0 transition-colors hover:ring-4 hover:ring-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cath-red-800/40 cursor-pointer"
           tabIndex={0}
         >
           <img
