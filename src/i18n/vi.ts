@@ -2,8 +2,10 @@ const vi = {
   auth: {
     title: "CatSpeak Admin",
     loginSubtitle: "Đăng nhập để vào trang quản trị",
-    accessDenied: "Truy cập bị từ chối. Bạn không có quyền truy cập bảng điều khiển quản trị.",
-    loginFailed: "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
+    accessDenied:
+      "Truy cập bị từ chối. Bạn không có quyền truy cập bảng điều khiển quản trị.",
+    loginFailed:
+      "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
     email: "Email",
     emailPlaceholder: "admin@example.com",
     password: "Mật khẩu",
@@ -12,7 +14,8 @@ const vi = {
     login: "Đăng nhập",
     loggingIn: "Đang đăng nhập...",
     forgotPasswordTitle: "Quên mật khẩu?",
-    forgotPasswordSubtitle: "Nhập email của bạn và chúng tôi sẽ gửi mã xác minh.",
+    forgotPasswordSubtitle:
+      "Nhập email của bạn và chúng tôi sẽ gửi mã xác minh.",
     enterEmailError: "Vui lòng nhập địa chỉ email của bạn.",
     sendOtpFailed: "Gửi mã OTP thất bại. Vui lòng thử lại.",
     emailAddress: "Địa chỉ email",
@@ -41,7 +44,8 @@ const vi = {
     updating: "Đang cập nhật...",
     resetPassword: "Đặt lại mật khẩu",
     passwordUpdatedTitle: "Đã cập nhật mật khẩu!",
-    passwordUpdatedSubtitle: "Mật khẩu của bạn đã được thay đổi thành công. Bạn sẽ sớm được chuyển hướng đến trang đăng nhập.",
+    passwordUpdatedSubtitle:
+      "Mật khẩu của bạn đã được thay đổi thành công. Bạn sẽ sớm được chuyển hướng đến trang đăng nhập.",
   },
   // Navigation & Layout
   nav: {
@@ -573,6 +577,40 @@ const vi = {
       Finance: "Tài chính",
       Startups: "Khởi nghiệp",
       Productivity: "Năng suất",
+    },
+    languages: {
+      Chinese: "Tiếng Trung",
+      English: "Tiếng Anh",
+      Vietnamese: "Tiếng Việt",
+    },
+    levels: {
+      HSK1: "HSK 1",
+      HSK2: "HSK 2",
+      HSK3: "HSK 3",
+      HSK4: "HSK 4",
+      HSK5: "HSK 5",
+      HSK6: "HSK 6",
+      A1: "A1",
+      A2: "A2",
+      B1: "B1",
+      B2: "B2",
+      C1: "C1",
+      C2: "C2",
+      Beginner: "Sơ cấp",
+      Intermediate: "Trung cấp",
+      Advanced: "Cao cấp",
+    },
+    levelGroups: {
+      HSK: "Cấp độ HSK",
+      CEFR: "Cấp độ CEFR",
+      Other: "Cấp độ khác",
+    },
+    categories: {
+      Knowledge: "Kiến thức",
+      Culture: "Văn hóa",
+      Lifestyle: "Lối sống",
+      Growth: "Phát triển",
+      Other: "Khác",
     },
   },
   common: {

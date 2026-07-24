@@ -134,24 +134,24 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({
               className="w-full px-3 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all appearance-none cursor-pointer"
             >
               <option value="">{t.room.selectLevel}</option>
-              <optgroup label="HSK Levels">
+              <optgroup label={t.room.levelGroups?.HSK || "HSK Levels"}>
                 {REQUIRED_LEVELS.filter((l) => l.group === "HSK").map((l) => (
                   <option key={l.value} value={l.value}>
-                    {l.label}
+                    {t.room.levels?.[l.value as RequiredLevel] || l.label}
                   </option>
                 ))}
               </optgroup>
-              <optgroup label="CEFR Levels">
+              <optgroup label={t.room.levelGroups?.CEFR || "CEFR Levels"}>
                 {REQUIRED_LEVELS.filter((l) => l.group === "CEFR").map((l) => (
                   <option key={l.value} value={l.value}>
-                    {l.label}
+                    {t.room.levels?.[l.value as RequiredLevel] || l.label}
                   </option>
                 ))}
               </optgroup>
-              <optgroup label="Other Levels">
+              <optgroup label={t.room.levelGroups?.Other || "Other Levels"}>
                 {REQUIRED_LEVELS.filter((l) => l.group === "Other").map((l) => (
                   <option key={l.value} value={l.value}>
-                    {l.label}
+                    {t.room.levels?.[l.value as RequiredLevel] || l.label}
                   </option>
                 ))}
               </optgroup>

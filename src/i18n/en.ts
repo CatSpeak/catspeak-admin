@@ -2,7 +2,8 @@ const en = {
   auth: {
     title: "CatSpeak Admin",
     loginSubtitle: "Login to enter the admin page",
-    accessDenied: "Access denied. You do not have permission to access the admin dashboard.",
+    accessDenied:
+      "Access denied. You do not have permission to access the admin dashboard.",
     loginFailed: "Login failed. Please check your credentials.",
     email: "Email",
     emailPlaceholder: "admin@example.com",
@@ -12,7 +13,8 @@ const en = {
     login: "Login",
     loggingIn: "Logging in...",
     forgotPasswordTitle: "Forgot password?",
-    forgotPasswordSubtitle: "Enter your email and we'll send you a verification code.",
+    forgotPasswordSubtitle:
+      "Enter your email and we'll send you a verification code.",
     enterEmailError: "Please enter your email address.",
     sendOtpFailed: "Failed to send OTP. Please try again.",
     emailAddress: "Email address",
@@ -41,7 +43,8 @@ const en = {
     updating: "Updating…",
     resetPassword: "Reset password",
     passwordUpdatedTitle: "Password updated!",
-    passwordUpdatedSubtitle: "Your password has been successfully changed. You'll be redirected to the login page shortly.",
+    passwordUpdatedSubtitle:
+      "Your password has been successfully changed. You'll be redirected to the login page shortly.",
   },
   // Navigation & Layout
   nav: {
@@ -572,6 +575,40 @@ const en = {
       Finance: "Finance",
       Startups: "Startups",
       Productivity: "Productivity",
+    },
+    languages: {
+      Chinese: "Chinese",
+      English: "English",
+      Vietnamese: "Vietnamese",
+    },
+    levels: {
+      HSK1: "HSK 1",
+      HSK2: "HSK 2",
+      HSK3: "HSK 3",
+      HSK4: "HSK 4",
+      HSK5: "HSK 5",
+      HSK6: "HSK 6",
+      A1: "A1",
+      A2: "A2",
+      B1: "B1",
+      B2: "B2",
+      C1: "C1",
+      C2: "C2",
+      Beginner: "Beginner",
+      Intermediate: "Intermediate",
+      Advanced: "Advanced",
+    },
+    levelGroups: {
+      HSK: "HSK Levels",
+      CEFR: "CEFR Levels",
+      Other: "Other Levels",
+    },
+    categories: {
+      Knowledge: "Knowledge",
+      Culture: "Culture",
+      Lifestyle: "Lifestyle",
+      Growth: "Growth",
+      Other: "Other",
     },
   },
   common: {

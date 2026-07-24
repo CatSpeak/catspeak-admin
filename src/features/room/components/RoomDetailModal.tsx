@@ -107,13 +107,13 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
 
             <DetailRow icon={<Globe size={15} />} label={t.room.language}>
               <span className="flex items-center gap-1.5 font-medium">
-                {flag && <img src={flag} alt={room.languageType} className="w-4 h-4 rounded-sm" />}
-                {room.languageType}
+                {flag && <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-4 h-4 rounded-sm" />}
+                {t.room.languages?.[room.languageType] || room.languageType}
               </span>
             </DetailRow>
 
             <DetailRow icon={<GraduationCap size={15} />} label={t.room.level}>
-              <span className="font-medium">{room.requiredLevel || "—"}</span>
+              <span className="font-medium">{room.requiredLevel ? (t.room.levels?.[room.requiredLevel] || room.requiredLevel) : "—"}</span>
             </DetailRow>
 
             <DetailRow icon={<Tag size={15} />} label={t.room.topic}>
