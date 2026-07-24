@@ -103,6 +103,9 @@
 }
 
 @layer base {
+  html {
+    zoom: 0.9;
+  }
   body {
     @apply relative font-outfit text-gray-800 bg-bg antialiased;
   }
