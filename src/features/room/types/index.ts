@@ -15,6 +15,8 @@ export type RoomTopic =
   | "Nature" | "Relationships" | "Sports" | "Finance"
   | "Startups" | "Productivity";
 
+export type RoomTopicsTranslation = Record<RoomTopic, string>;
+
 /** Matches GET /api/rooms response item */
 export interface Room {
   roomId: number;

@@ -240,7 +240,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
                         : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
                     }`}
                   >
-                    {tItem.label}
+                    {t.room.topics?.[tItem.value as RoomTopic] || tItem.label}
                   </button>
                 );
               })}

@@ -177,7 +177,7 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({
                         : "bg-white border-gray-200 text-gray-500 hover:border-gray-300"
                     }`}
                   >
-                    {top.label}
+                    {t.room.topics?.[top.value as RoomTopic] || top.label}
                   </button>
                 );
               })}

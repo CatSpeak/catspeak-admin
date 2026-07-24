@@ -119,7 +119,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           {/* Topic */}
           <div className="flex items-center gap-1.5">
             <Tag size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.topic || "N/A"}</span>
+            <span className="truncate">{room.topic ? (t.room.topics?.[room.topic] || room.topic) : "N/A"}</span>
           </div>
         </div>
 
