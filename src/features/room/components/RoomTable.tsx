@@ -111,7 +111,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         {room.topic ? (
           <Badge
-            title={room.topic}
+            title={t.room.topics?.[room.topic] || room.topic}
             type="Gray"
           />
         ) : (

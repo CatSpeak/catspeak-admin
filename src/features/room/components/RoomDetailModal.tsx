@@ -118,7 +118,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
 
             <DetailRow icon={<Tag size={15} />} label={t.room.topic}>
               <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
-                {room.topic || "General"}
+                {room.topic ? (t.room.topics?.[room.topic] || room.topic) : "General"}
               </span>
             </DetailRow>
 
