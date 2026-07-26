@@ -45,7 +45,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
 }) => {
   const { t } = useLanguage();
   const [showPassword, setShowPassword] = useState(false);
-  const { form, errors, isSubmitting, updateField, handleSubmit, resetForm } =
+  const { form, errors, isSubmitting, updateField, toggleTopic, handleSubmit, resetForm } =
     useCreateRoom(() => {
       onCreated();
       onClose();
@@ -217,23 +217,19 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
             </select>
           </div>
 
-          {/* Topic (single select) */}
+          {/* Topic */}
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1.5">
               <Tag size={14} /> {t.room.topic}
             </label>
             <div className="flex flex-wrap gap-1.5">
               {ROOM_TOPICS.map((tItem) => {
-                const active = form.topic === tItem.value;
+                const active = form.topics.includes(tItem.value as RoomTopic);
                 return (
                   <button
                     key={tItem.value}
-                    onClick={() =>
-                      updateField(
-                        "topic",
-                        active ? "" : (tItem.value as RoomTopic),
-                      )
-                    }
+                    type="button"
+                    onClick={() => toggleTopic(tItem.value as RoomTopic)}
                     className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 cursor-pointer ${
                       active
                         ? "bg-primary/10 border-primary/30 text-primary"

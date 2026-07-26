@@ -3,7 +3,7 @@ import {
   X, Users, Globe, GraduationCap, Tag, Timer,
   Shield, Calendar, Hash, Lock,
 } from "lucide-react";
-import type { Room } from "../types";
+import type { Room, RoomTopic } from "../types";
 import { LANGUAGE_FLAGS, ROOM_TYPE_STYLES } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -117,9 +117,32 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
             </DetailRow>
 
             <DetailRow icon={<Tag size={15} />} label={t.room.topic}>
-              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
-                {room.topic ? (t.room.topics?.[room.topic] || room.topic) : "General"}
-              </span>
+              {(() => {
+                const topics = Array.isArray(room.topic)
+                  ? room.topic
+                  : typeof room.topic === "string"
+                  ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
+                  : [];
+                if (topics.length === 0) {
+                  return (
+                    <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                      General
+                    </span>
+                  );
+                }
+                return (
+                  <div className="flex flex-wrap gap-1.5">
+                    {topics.map((top) => (
+                      <span
+                        key={top}
+                        className="inline-block bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-full font-medium"
+                      >
+                        {t.room.topics?.[top] || top}
+                      </span>
+                    ))}
+                  </div>
+                );
+              })()}
             </DetailRow>
 
             <DetailRow icon={<Users size={15} />} label={t.room.participants}>

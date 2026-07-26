@@ -2,7 +2,8 @@ const en = {
   auth: {
     title: "CatSpeak Admin",
     loginSubtitle: "Login to enter the admin page",
-    accessDenied: "Access denied. You do not have permission to access the admin dashboard.",
+    accessDenied:
+      "Access denied. You do not have permission to access the admin dashboard.",
     loginFailed: "Login failed. Please check your credentials.",
     email: "Email",
     emailPlaceholder: "admin@example.com",
@@ -12,7 +13,8 @@ const en = {
     login: "Login",
     loggingIn: "Logging in...",
     forgotPasswordTitle: "Forgot password?",
-    forgotPasswordSubtitle: "Enter your email and we'll send you a verification code.",
+    forgotPasswordSubtitle:
+      "Enter your email and we'll send you a verification code.",
     enterEmailError: "Please enter your email address.",
     sendOtpFailed: "Failed to send OTP. Please try again.",
     emailAddress: "Email address",
@@ -41,7 +43,8 @@ const en = {
     updating: "Updating…",
     resetPassword: "Reset password",
     passwordUpdatedTitle: "Password updated!",
-    passwordUpdatedSubtitle: "Your password has been successfully changed. You'll be redirected to the login page shortly.",
+    passwordUpdatedSubtitle:
+      "Your password has been successfully changed. You'll be redirected to the login page shortly.",
   },
   // Navigation & Layout
   nav: {
@@ -441,12 +444,14 @@ const en = {
     views: "Views",
     resetFilters: "Reset Filters",
     upcoming: "Upcoming",
-    updateStatusSuccess: "Successfully updated reel status to \"{status}\".",
+    updateStatusSuccess: 'Successfully updated reel status to "{status}".',
     updateStatusFailed: "Failed to update reel status.",
     deleteReel: "Delete Reel",
-    deleteReelConfirmDesc: "Are you sure you want to permanently delete this video reel? This action cannot be undone and will erase all comments and insights.",
+    deleteReelConfirmDesc:
+      "Are you sure you want to permanently delete this video reel? This action cannot be undone and will erase all comments and insights.",
     deleteChallenge: "Delete Challenge",
-    deleteChallengeConfirmDesc: "Are you sure you want to permanently delete challenge \"{name}\"? This will remove the metadata and unlink all connected reels.",
+    deleteChallengeConfirmDesc:
+      'Are you sure you want to permanently delete challenge "{name}"? This will remove the metadata and unlink all connected reels.',
     failedLoadChallenges: "Failed to retrieve challenges from API",
     catSpeakChannel: "CatSpeak",
     allChannels: "All Channels",
@@ -664,6 +669,8 @@ const en = {
     monthly: "Monthly",
     yearly: "Yearly",
     all: "All",
+    other: "Other",
+    others: "Others",
     noTransactions: "No transactions",
     noDailyData: "No daily data available",
     notRegistered: "Not registered",

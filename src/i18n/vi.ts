@@ -2,8 +2,10 @@ const vi = {
   auth: {
     title: "CatSpeak Admin",
     loginSubtitle: "Đăng nhập để vào trang quản trị",
-    accessDenied: "Truy cập bị từ chối. Bạn không có quyền truy cập bảng điều khiển quản trị.",
-    loginFailed: "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
+    accessDenied:
+      "Truy cập bị từ chối. Bạn không có quyền truy cập bảng điều khiển quản trị.",
+    loginFailed:
+      "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập của bạn.",
     email: "Email",
     emailPlaceholder: "admin@example.com",
     password: "Mật khẩu",
@@ -12,7 +14,8 @@ const vi = {
     login: "Đăng nhập",
     loggingIn: "Đang đăng nhập...",
     forgotPasswordTitle: "Quên mật khẩu?",
-    forgotPasswordSubtitle: "Nhập email của bạn và chúng tôi sẽ gửi mã xác minh.",
+    forgotPasswordSubtitle:
+      "Nhập email của bạn và chúng tôi sẽ gửi mã xác minh.",
     enterEmailError: "Vui lòng nhập địa chỉ email của bạn.",
     sendOtpFailed: "Gửi mã OTP thất bại. Vui lòng thử lại.",
     emailAddress: "Địa chỉ email",
@@ -41,7 +44,8 @@ const vi = {
     updating: "Đang cập nhật...",
     resetPassword: "Đặt lại mật khẩu",
     passwordUpdatedTitle: "Đã cập nhật mật khẩu!",
-    passwordUpdatedSubtitle: "Mật khẩu của bạn đã được thay đổi thành công. Bạn sẽ sớm được chuyển hướng đến trang đăng nhập.",
+    passwordUpdatedSubtitle:
+      "Mật khẩu của bạn đã được thay đổi thành công. Bạn sẽ sớm được chuyển hướng đến trang đăng nhập.",
   },
   // Navigation & Layout
   nav: {
@@ -442,12 +446,14 @@ const vi = {
     views: "Lượt xem",
     resetFilters: "Đặt lại bộ lọc",
     upcoming: "Sắp diễn ra",
-    updateStatusSuccess: "Đã cập nhật trạng thái reel thành \"{status}\".",
+    updateStatusSuccess: 'Đã cập nhật trạng thái reel thành "{status}".',
     updateStatusFailed: "Không thể cập nhật trạng thái reel.",
     deleteReel: "Xóa Reel",
-    deleteReelConfirmDesc: "Bạn có chắc chắn muốn xóa vĩnh viễn video reel này không? Thao tác này không thể hoàn tác và sẽ xóa tất cả bình luận.",
+    deleteReelConfirmDesc:
+      "Bạn có chắc chắn muốn xóa vĩnh viễn video reel này không? Thao tác này không thể hoàn tác và sẽ xóa tất cả bình luận.",
     deleteChallenge: "Xóa thử thách",
-    deleteChallengeConfirmDesc: "Bạn có chắc chắn muốn xóa vĩnh viễn thử thách \"{name}\" không? Thao tác này sẽ gỡ bỏ dữ liệu và hủy liên kết tất cả các reel.",
+    deleteChallengeConfirmDesc:
+      'Bạn có chắc chắn muốn xóa vĩnh viễn thử thách "{name}" không? Thao tác này sẽ gỡ bỏ dữ liệu và hủy liên kết tất cả các reel.',
     failedLoadChallenges: "Không thể tải danh sách thử thách từ hệ thống",
     catSpeakChannel: "CatSpeak",
     allChannels: "Tất cả kênh",
@@ -665,6 +671,8 @@ const vi = {
     monthly: "Hàng tháng",
     yearly: "Hàng năm",
     all: "Tất cả",
+    other: "Khác",
+    others: "Khác",
     noTransactions: "Không có giao dịch",
     noDailyData: "Không có dữ liệu hàng ngày",
     notRegistered: "Chưa đăng ký",

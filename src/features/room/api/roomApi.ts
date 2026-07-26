@@ -1,5 +1,7 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
 import type {
+  CreateRoomPayload,
+  EditRoomPayload,
   GetRoomsResponse,
   RoomFilters,
   RoomStatisticsDto,
@@ -36,7 +38,29 @@ export const deleteRoom = async (id: number): Promise<void> => {
   await axiosClient.delete(`/admin/rooms/${id}`);
 };
 
-export const createRoom = async (formData: FormData): Promise<void> => {
+export const createRoom = async (data: FormData | CreateRoomPayload): Promise<void> => {
+  let formData: FormData;
+  if (data instanceof FormData) {
+    formData = data;
+  } else {
+    formData = new FormData();
+    formData.append("Name", data.name);
+    formData.append("RoomType", data.roomType);
+    formData.append("LanguageType", data.languageType);
+    if (data.requiredLevel) formData.append("RequiredLevel", data.requiredLevel);
+    if (data.topics && data.topics.length > 0) {
+      data.topics.forEach((t) => formData.append("Topics", t));
+    }
+    if (data.description) formData.append("Description", data.description);
+    formData.append("Privacy", data.privacy);
+    if (data.privacy === "Private" && data.password) {
+      formData.append("Password", data.password);
+    }
+    if (data.thumbnail) {
+      formData.append("Thumbnail", data.thumbnail);
+    }
+  }
+
   await axiosClient.post("/admin/rooms/persistent", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -44,8 +68,23 @@ export const createRoom = async (formData: FormData): Promise<void> => {
 
 export const editRoom = async (
   id: number,
-  formData: FormData,
+  data: FormData | EditRoomPayload,
 ): Promise<void> => {
+  let formData: FormData;
+  if (data instanceof FormData) {
+    formData = data;
+  } else {
+    formData = new FormData();
+    formData.append("Name", data.name);
+    formData.append("Privacy", data.privacy);
+    if (data.requiredLevel) formData.append("RequiredLevel", data.requiredLevel);
+    if (data.description) formData.append("Description", data.description);
+    if (data.topics && data.topics.length > 0) {
+      data.topics.forEach((t) => formData.append("Topics", t));
+    }
+    if (data.password) formData.append("Password", data.password);
+  }
+
   await axiosClient.put(`/admin/rooms/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });

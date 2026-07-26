@@ -9,11 +9,11 @@ import {
   Lock,
   Globe,
 } from "lucide-react";
-import type { Room } from "../types";
-import { LANGUAGE_FLAGS } from "../constants";
+import type { Room, RoomTopic } from "../types";
 import { formatDate } from "../../../lib/utils";
 import { useLanguage } from "../../../stores/languageStore";
 import Badge from "../../../components/ui/Badge";
+import FlagBadge from "../../../components/ui/FlagBadge";
 
 interface RoomTableProps {
   rooms: Room[];
@@ -39,7 +39,6 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const flag = LANGUAGE_FLAGS[room.languageType];
   const isActive = room.status === 1;
   const createdDate = formatDate(room.createDate);
 
@@ -84,14 +83,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
 
       {/* Language Column */}
       <td className="px-4 py-3 text-sm text-gray-700 font-medium whitespace-nowrap">
-        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-          <img
-            src={flag}
-            alt={t.room.languages?.[room.languageType] || room.languageType}
-            className="w-4 h-3.5 rounded-sm shadow-sm object-cover"
-          />
-          <span>{t.room.languages?.[room.languageType] || room.languageType}</span>
-        </span>
+        <FlagBadge languageType={room.languageType} />
       </td>
 
       {/* Level Column */}
@@ -109,14 +101,25 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
 
       {/* Topic Column */}
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-        {room.topic ? (
-          <Badge
-            title={t.room.topics?.[room.topic] || room.topic}
-            type="Gray"
-          />
-        ) : (
-          <span className="text-gray-400">—</span>
-        )}
+        {(() => {
+          const topics = Array.isArray(room.topic)
+            ? room.topic
+            : typeof room.topic === "string"
+            ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
+            : [];
+          if (topics.length === 0) return <span className="text-gray-400">—</span>;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {topics.map((top) => (
+                <Badge
+                  key={top}
+                  title={t.room.topics?.[top] || top}
+                  type="Gray"
+                />
+              ))}
+            </div>
+          );
+        })()}
       </td>
 
       {/* Participants Column */}

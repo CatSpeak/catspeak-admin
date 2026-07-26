@@ -17,11 +17,18 @@ import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts";
+import {
+  getPosts,
+  type PostSortBy,
+  type GetPostsParams,
+} from "../api/getPosts";
 import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
 import Avatar from "../../../components/ui/Avatar";
+import FlagBadge, {
+  type FlagBadgeLanguage,
+} from "../../../components/ui/FlagBadge";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -213,7 +220,13 @@ export default function NewsPage() {
           {
             name: t.news.community,
             accessorKey: "languageCommunity",
-            render: (p) => <span>{p.languageCommunity || "All"}</span>,
+            render: (p) => (
+              <FlagBadge
+                languageType={
+                  p.languageCommunity || ("all" as FlagBadgeLanguage)
+                }
+              />
+            ),
           },
           {
             name: t.news.views,
