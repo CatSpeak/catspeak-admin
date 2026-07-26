@@ -15,6 +15,7 @@ import { getApiErrorMessage } from "../../../lib/axios";
 import type { DayEvent } from "../types";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { useLanguage } from "../../../stores/languageStore";
+import Avatar from "../../../components/ui/Avatar";
 
 export default function CalendarPage() {
   const { t } = useLanguage();
@@ -262,13 +263,17 @@ export default function CalendarPage() {
                   01
                 </span>
               </div>
-              <span className="text-[12px] text-gray-500">{t.calendar.today}</span>
+              <span className="text-[12px] text-gray-500">
+                {t.calendar.today}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#990011] flex items-center justify-center">
                 <span className="text-[10px] text-white font-semibold">01</span>
               </div>
-              <span className="text-[12px] text-gray-500">{t.calendar.selected}</span>
+              <span className="text-[12px] text-gray-500">
+                {t.calendar.selected}
+              </span>
             </div>
           </div>
         </div>
@@ -293,9 +298,7 @@ export default function CalendarPage() {
           ) : dayEvents.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-gray-400 py-20 space-y-2">
               <Calendar size={36} className="stroke-[1.5]" />
-              <p className="text-sm">
-                {t.calendar.noEvents}
-              </p>
+              <p className="text-sm">{t.calendar.noEvents}</p>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto space-y-3 max-h-[500px] pr-1">
@@ -321,12 +324,10 @@ export default function CalendarPage() {
                     >
                       <div className="flex items-center gap-4 px-4 py-3.5 w-full">
                         {/* Biểu tượng màu của Event */}
-                        <div
-                          className="w-12 h-12 md:w-14 md:h-14 rounded-full shrink-0 flex items-center justify-center text-white font-bold"
-                          style={{ backgroundColor: event.color || "#990011" }}
-                        >
-                          {event.title.charAt(0).toUpperCase()}
-                        </div>
+                        <Avatar
+                          name={event.title}
+                          className="w-12 h-12 md:w-14 md:h-14"
+                        />
 
                         {/* Chi tiết Event */}
                         <div className="flex flex-col flex-1 min-w-0 gap-1.5">

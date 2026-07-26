@@ -82,14 +82,22 @@ export default function UserStatsSummary({
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="pb-3 border-b border-gray-200">
-        <h3 className="text-lg font-bold text-gray-800">{period}</h3>
-        <div className="flex items-center gap-2 mt-1">
+      <div className="pb-3 border-b border-gray-200 min-w-0">
+        <h3
+          className="text-base sm:text-lg font-bold text-gray-800 truncate"
+          title={period}
+        >
+          {period}
+        </h3>
+        <div className="flex items-center gap-2 mt-1 min-w-0">
           <span
-            className="w-3 h-3 rounded-full"
+            className="w-3 h-3 rounded-full shrink-0"
             style={{ backgroundColor: "#C8102E" }}
           />
-          <span className="text-sm font-medium text-gray-700">
+          <span
+            className="text-xs sm:text-sm font-medium text-gray-700 truncate"
+            title={t.dashboard.accountUsers}
+          >
             {t.dashboard.accountUsers}
           </span>
         </div>
@@ -98,14 +106,20 @@ export default function UserStatsSummary({
       {/* Stats List */}
       <div className="space-y-3">
         {stats.map((stat, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <div className="mt-0.5">{stat.icon}</div>
-            <div className="flex-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-xs text-gray-600">{stat.label}:</span>
+          <div key={index} className="flex items-center gap-2 min-w-0">
+            <div className="shrink-0">{stat.icon}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 whitespace-nowrap min-w-0 overflow-hidden">
                 <span
-                  className="text-sm font-semibold"
+                  className="text-[11px] sm:text-xs text-gray-600 truncate shrink-0 max-w-[65%]"
+                  title={stat.label}
+                >
+                  {stat.label}:
+                </span>
+                <span
+                  className="text-xs sm:text-sm font-semibold truncate min-w-0"
                   style={{ color: stat.color || "#374151" }}
+                  title={String(stat.value)}
                 >
                   {stat.value}
                 </span>

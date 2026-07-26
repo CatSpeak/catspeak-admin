@@ -11,6 +11,7 @@ interface ReelUploadZoneProps {
     Title: string;
     Description: string;
     Privacy: ReelPrivacy;
+    LanguageCommunity: "All" | "English" | "Chinese";
     VideoFile: File;
     CoverFile?: File | null;
     Tags: string[];
@@ -35,6 +36,7 @@ export default function ReelUploadZone({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState<ReelPrivacy>("Public");
+  const [languageCommunity, setLanguageCommunity] = useState<"All" | "English" | "Chinese">("All");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [tagsInput, setTagsInput] = useState("");
@@ -132,6 +134,7 @@ export default function ReelUploadZone({
         Title: title.trim(),
         Description: description.trim(),
         Privacy: privacy,
+        LanguageCommunity: languageCommunity,
         VideoFile: videoFile,
         CoverFile: coverFile,
         Tags: parsedTags,
@@ -302,7 +305,7 @@ export default function ReelUploadZone({
                 />
               </div>
 
-              {/* Privacy & Cover controls */}
+              {/* Privacy, Language Community & Cover controls */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Privacy Mode */}
                 <div className="space-y-1.5">
@@ -320,8 +323,26 @@ export default function ReelUploadZone({
                   </select>
                 </div>
 
-                {/* Cover File Upload */}
+                {/* Language Community */}
                 <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    {t.news.languageCommunity}
+                  </label>
+                  <select
+                    value={languageCommunity}
+                    onChange={(e) =>
+                      setLanguageCommunity(e.target.value as "All" | "English" | "Chinese")
+                    }
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
+                  >
+                    <option value="All">All</option>
+                    <option value="English">English</option>
+                    <option value="Chinese">Chinese</option>
+                  </select>
+                </div>
+
+                {/* Cover File Upload */}
+                <div className="space-y-1.5 sm:col-span-2">
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider">
                     {t.reels.customThumbnailCover}
                   </label>

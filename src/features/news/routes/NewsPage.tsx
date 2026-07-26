@@ -17,10 +17,18 @@ import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts";
+import {
+  getPosts,
+  type PostSortBy,
+  type GetPostsParams,
+} from "../api/getPosts";
 import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
+import Avatar from "../../../components/ui/Avatar";
+import FlagBadge, {
+  type FlagBadgeLanguage,
+} from "../../../components/ui/FlagBadge";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -162,11 +170,7 @@ export default function NewsPage() {
             accessorKey: "authorName",
             render: (p) => (
               <div className="flex items-center gap-2">
-                <img
-                  src={p.avatarUrl}
-                  alt=""
-                  className="w-6 h-6 rounded-full object-cover"
-                />
+                <Avatar name={p.authorName} url={p.avatarUrl} size="xs" />
                 <span className="text-gray-700 whitespace-nowrap font-bold">
                   {p.authorName}
                 </span>
@@ -216,7 +220,13 @@ export default function NewsPage() {
           {
             name: t.news.community,
             accessorKey: "languageCommunity",
-            render: (p) => <span>{p.languageCommunity || "All"}</span>,
+            render: (p) => (
+              <FlagBadge
+                languageType={
+                  p.languageCommunity || ("all" as FlagBadgeLanguage)
+                }
+              />
+            ),
           },
           {
             name: t.news.views,

@@ -3,17 +3,55 @@
 export type RoomType = "OneToOne" | "Group";
 export type LanguageType = "Chinese" | "English" | "Vietnamese";
 export type RequiredLevel =
-  | "HSK1" | "HSK2" | "HSK3" | "HSK4" | "HSK5" | "HSK6"
-  | "A1" | "A2" | "B1" | "B2" | "C1" | "C2"
-  | "Beginner" | "Intermediate" | "Advanced";
-export type RoomCategory = "Other" | "Knowledge" | "Culture" | "Lifestyle" | "Growth";
+  | "HSK1"
+  | "HSK2"
+  | "HSK3"
+  | "HSK4"
+  | "HSK5"
+  | "HSK6"
+  | "A1"
+  | "A2"
+  | "B1"
+  | "B2"
+  | "C1"
+  | "C2"
+  | "Beginner"
+  | "Intermediate"
+  | "Advanced";
+export type RoomCategory =
+  | "Other"
+  | "Knowledge"
+  | "Culture"
+  | "Lifestyle"
+  | "Growth";
 export type RoomPrivacy = "Public" | "Private";
 export type RoomTopic =
-  | "Other" | "History" | "Science" | "Philosophy" | "Psychology"
-  | "Politics" | "Space" | "Movies" | "Music" | "Art"
-  | "Fashion" | "Culture" | "Books" | "Travel" | "Food"
-  | "Nature" | "Relationships" | "Sports" | "Finance"
-  | "Startups" | "Productivity";
+  | "Other"
+  | "History"
+  | "Science"
+  | "Philosophy"
+  | "Psychology"
+  | "Politics"
+  | "Space"
+  | "Movies"
+  | "Music"
+  | "Art"
+  | "Fashion"
+  | "Culture"
+  | "Books"
+  | "Travel"
+  | "Food"
+  | "Nature"
+  | "Relationships"
+  | "Sports"
+  | "Finance"
+  | "Startups"
+  | "Productivity";
+
+export type RoomTopicsTranslation = Record<RoomTopic, string>;
+export type LanguageTypesTranslation = Record<LanguageType, string>;
+export type RequiredLevelsTranslation = Record<RequiredLevel, string>;
+export type RoomCategoriesTranslation = Record<RoomCategory, string>;
 
 /** Matches GET /api/rooms response item */
 export interface Room {
@@ -26,7 +64,7 @@ export interface Room {
   maxParticipants: number | null;
   languageType: LanguageType;
   requiredLevel: RequiredLevel;
-  topic: RoomTopic;
+  topic: RoomTopic[];
   description: string | null;
   categories: string; // JSON string e.g. "[\"Culture\"]"
   duration: number | null;
@@ -87,7 +125,7 @@ export interface CreateRoomPayload {
   roomType: RoomType;
   languageType: LanguageType;
   requiredLevel: RequiredLevel | "";
-  topic: RoomTopic | "";
+  topics: RoomTopic[];
   description: string;
   privacy: RoomPrivacy;
   password: string;

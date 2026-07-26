@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe } from "lucide-react";
-import type { Room } from "../types";
+import type { Room, RoomTopic } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -101,8 +101,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
           {/* Language */}
           <div className="flex items-center gap-1.5">
-            <img src={flag} alt={room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
-            <span className="truncate">{room.languageType}</span>
+            <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
+            <span className="truncate">{t.room.languages?.[room.languageType] || room.languageType}</span>
           </div>
           {/* Type — styled tag */}
           <div className="flex items-center">
@@ -114,12 +114,22 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           {/* Level */}
           <div className="flex items-center gap-1.5">
             <GraduationCap size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.requiredLevel || "N/A"}</span>
+            <span className="truncate">{room.requiredLevel ? (t.room.levels?.[room.requiredLevel] || room.requiredLevel) : "N/A"}</span>
           </div>
           {/* Topic */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 min-w-0">
             <Tag size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.topic || "N/A"}</span>
+            <span className="truncate">
+              {(() => {
+                const topics = Array.isArray(room.topic)
+                  ? room.topic
+                  : typeof room.topic === "string"
+                  ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
+                  : [];
+                if (topics.length === 0) return "N/A";
+                return topics.map((top) => t.room.topics?.[top] || top).join(", ");
+              })()}
+            </span>
           </div>
         </div>
 

@@ -10,9 +10,14 @@ interface LineDataItem {
 interface LineChartProps {
   data: LineDataItem[];
   height?: number;
+  title?: string;
 }
 
-export default function LineChartJS({ data, height = 220 }: LineChartProps) {
+export default function LineChartJS({
+  data,
+  height = 220,
+  title = "Activity Trend",
+}: LineChartProps) {
   const series = useMemo(() => [
     {
       name: "Value",
@@ -87,7 +92,7 @@ export default function LineChartJS({ data, height = 220 }: LineChartProps) {
         className="text-xl font-semibold mb-3"
         style={{ color: "var(--color-text)" }}
       >
-        Activity Trend
+        {title}
       </h3>
       <div style={{ height: `${height}px` }} className="w-full">
         <Chart

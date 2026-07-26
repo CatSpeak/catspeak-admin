@@ -9,7 +9,7 @@ interface FormState {
   roomType: RoomType;
   languageType: LanguageType;
   requiredLevel: RequiredLevel | "";
-  topic: RoomTopic | "";
+  topics: RoomTopic[];
   description: string;
   privacy: RoomPrivacy;
   password: string;
@@ -26,7 +26,7 @@ const INITIAL: FormState = {
   roomType: "Group",
   languageType: "Chinese",
   requiredLevel: "",
-  topic: "",
+  topics: [],
   description: "",
   privacy: "Public",
   password: "",
@@ -48,6 +48,15 @@ export function useCreateRoom(onCreated: () => void) {
       return;
     }
     setForm((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const toggleTopic = useCallback((topic: RoomTopic) => {
+    setForm((prev) => ({
+      ...prev,
+      topics: prev.topics.includes(topic)
+        ? prev.topics.filter((t) => t !== topic)
+        : [...prev.topics, topic],
+    }));
   }, []);
 
   const handleSubmit = useCallback(async () => {
@@ -73,7 +82,9 @@ export function useCreateRoom(onCreated: () => void) {
       formData.append("RoomType", form.roomType);
       formData.append("LanguageType", form.languageType);
       if (form.requiredLevel) formData.append("RequiredLevel", form.requiredLevel);
-      if (form.topic) formData.append("Topic", form.topic);
+      if (form.topics.length > 0) {
+        form.topics.forEach((t) => formData.append("Topics", t));
+      }
       if (form.description) formData.append("Description", form.description);
       formData.append("Privacy", form.privacy);
       if (form.privacy === "Private") {
@@ -99,5 +110,5 @@ export function useCreateRoom(onCreated: () => void) {
     setErrors({});
   }, []);
 
-  return { form, errors, isSubmitting, updateField, handleSubmit, resetForm };
+  return { form, errors, isSubmitting, updateField, toggleTopic, handleSubmit, resetForm };
 }

@@ -11,7 +11,7 @@ import Card from "../../../components/ui/Card";
 import SummaryCard from "../../../components/ui/SummaryCard";
 import UserStatsSummary from "../components/UserStatsSummary";
 // import VietNamDetailCard from "../components/VietNamDetailCard";
-// import MonthlyTarget from "../components/MonthlyTarget";
+import MonthlyTarget from "../components/MonthlyTarget";
 import { useOverviewStats } from "../hooks/useOverviewStats";
 import { mockupColors } from "../api/getOverviewStats";
 
@@ -19,7 +19,7 @@ import { mockupColors } from "../api/getOverviewStats";
 // const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
 const DonutChartJS = lazy(() => import("../components/DonutChartJS"));
 const BarChartJS = lazy(() => import("../components/BarChartJS"));
-// const LineChartJS = lazy(() => import("../components/LineChartJS"));
+const LineChartJS = lazy(() => import("../components/LineChartJS"));
 const AreaChartJS = lazy(() => import("../components/AreaChartJS"));
 const PieChartJS = lazy(() => import("../components/PieChartJS"));
 
@@ -105,9 +105,11 @@ const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 // ];
 
 import { useLanguage } from "../../../stores/languageStore";
+import WorldMapCard from "../components/WorldMapCard";
+import VietNamDetailCard from "../components/VietNamDetailCard";
 
 export default function PlatformOverview() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activePeriod, setActivePeriod] =
     useState<(typeof periods)[number]>("Monthly");
 
@@ -132,10 +134,13 @@ export default function PlatformOverview() {
     trafficSegments,
     ageGenderData,
     activeUsersData,
+    activeUsersLineData,
+    monthlyTargetProgress,
+    usersByRegionData,
     loading,
     error,
     refetch,
-  } = useOverviewStats(apiParams);
+  } = useOverviewStats(apiParams, language);
 
   // Mapped data with fallback handling
   const currentTrafficSegments = useMemo(() => {
@@ -179,21 +184,25 @@ export default function PlatformOverview() {
     }));
   }, [activeUsersData]);
 
-  // const lineData = useMemo(() => {
-  //   if (!activeUsersData || activeUsersData.length === 0) {
-  //     return [];
-  //   }
-  //   return activeUsersData.map((item) => ({
-  //     label: item.label,
-  //     value: item.activeUsers,
-  //   }));
-  // }, [activeUsersData]);
+  const lineData = useMemo(() => {
+    if (activeUsersLineData && activeUsersLineData.length > 0) {
+      return activeUsersLineData;
+    }
+    if (!activeUsersData || activeUsersData.length === 0) {
+      return [];
+    }
+    return activeUsersData.map((item) => ({
+      label: item.label,
+      value: item.activeUsers ?? item.value ?? 0,
+    }));
+  }, [activeUsersLineData, activeUsersData]);
 
   // Format header period label dynamically
   const activePeriodLabel = useMemo(() => {
     const year = new Date().getFullYear();
     if (activePeriod === "Weekly") return `${t.dashboard.weeklyView}, ${year}`;
-    if (activePeriod === "Monthly") return `${t.dashboard.monthlyView}, ${year}`;
+    if (activePeriod === "Monthly")
+      return `${t.dashboard.monthlyView}, ${year}`;
     if (activePeriod === "Yearly") return t.dashboard.yearlyView;
     return t.dashboard.allRecords;
   }, [activePeriod, t]);
@@ -201,7 +210,8 @@ export default function PlatformOverview() {
   // Calculate totals for Donut subtext
   const totalTrafficConnect = useMemo(() => {
     const total = currentTrafficSegments.reduce((sum, s) => sum + s.value, 0);
-    const countStr = total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
+    const countStr =
+      total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
     return t.dashboard.totalConnect.replace("{count}", countStr);
   }, [currentTrafficSegments, t]);
 
@@ -355,8 +365,8 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 3: World Map + Vietnam Detail Card ── */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
-        <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <Card className="lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense
             fallback={
               <div className="flex min-h-65 items-center justify-center">
@@ -364,18 +374,18 @@ export default function PlatformOverview() {
               </div>
             }
           >
-            <WorldMapCard />
+            <WorldMapCard data={usersByRegionData || undefined} />
           </Suspense>
         </Card>
 
-        <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
+        <div className="transition-all duration-300 hover:shadow-md">
           <VietNamDetailCard />
         </div>
-      </div> */}
+      </div>
 
       {/* ── Row 4: Detailed Chart + Sidebar ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-        <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
             <h3 className="text-xl font-semibold text-gray-800">
               {t.dashboard.detailedUserActiveChart}
@@ -403,9 +413,12 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        <Card className="lg:col-span-1 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <UserStatsSummary
-            period={t.dashboard.inPeriod.replace("{period}", getPeriodText(activePeriod))}
+            period={t.dashboard.inPeriod.replace(
+              "{period}",
+              getPeriodText(activePeriod),
+            )}
             totalUsers={totalActiveUsersCount}
             newUsers={100}
             lostUsers={4}
@@ -417,9 +430,20 @@ export default function PlatformOverview() {
         </Card>
       </div>
 
-      {/* ── Row 5: Age/Gender + Monthly Target + Line Chart ── */}
-      <div className="flex items-start justify-between">
-        <Card className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      {/* ── Active Users Line Trend ── */}
+      <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+        <Suspense fallback={<ChartFallback height={240} />}>
+          <LineChartJS
+            data={lineData}
+            height={240}
+            title={t.dashboard.activeUsersTrend}
+          />
+        </Suspense>
+      </Card>
+
+      {/* ── Row 5: Age/Gender + Monthly Target ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             {t.dashboard.ageGender}
           </h3>
@@ -428,18 +452,12 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        {/* <Card
+        <Card
           noPadding
-          className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md"
+          className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
         >
-          <MonthlyTarget />
-        </Card> */}
-
-        {/* <Card className="md:col-span-3 lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
-          <Suspense fallback={<ChartFallback height={400} />}>
-            <LineChartJS data={lineData} height={400} />
-          </Suspense>
-        </Card> */}
+          <MonthlyTarget percentage={monthlyTargetProgress?.percentage} />
+        </Card>
       </div>
     </div>
   );
