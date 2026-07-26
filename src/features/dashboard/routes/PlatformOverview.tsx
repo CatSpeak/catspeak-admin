@@ -365,19 +365,7 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 3: World Map + Vietnam Detail Card ── */}
-      <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
-        <Suspense
-          fallback={
-            <div className="flex min-h-65 items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary" />
-            </div>
-          }
-        >
-          <WorldMapCard data={usersByRegionData || undefined} />
-        </Suspense>
-      </Card>
-
-      {/* <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
         <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense
             fallback={
@@ -393,7 +381,7 @@ export default function PlatformOverview() {
         <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
           <VietNamDetailCard />
         </div>
-      </div> */}
+      </div>
 
       {/* ── Row 4: Detailed Chart + Sidebar ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
