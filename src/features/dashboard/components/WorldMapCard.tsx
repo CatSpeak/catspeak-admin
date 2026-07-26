@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { ResponsiveChoropleth } from "@nivo/geo";
 import { ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 import worldCountriesUrl from "./world_countries.json?url";
+import {
+  getUsersByRegionStats,
+  type UsersByRegionItem,
+} from "../api/getOverviewStats";
 
-interface CountryData {
-  id: string;
-  value: number;
-}
+export type CountryData = UsersByRegionItem;
 
 interface WorldFeature {
   id?: string;
@@ -20,20 +21,45 @@ interface WorldMapCardProps {
   data?: CountryData[];
 }
 
-const DEFAULT_COUNTRY_DATA: CountryData[] = [
-  { id: "VNM", value: 3451 },
-  { id: "USA", value: 1500 },
-  { id: "BRA", value: 800 },
-  { id: "CHN", value: 5000 },
-  { id: "THA", value: 500 },
-];
-
-export default function WorldMapCard({
-  data = DEFAULT_COUNTRY_DATA,
-}: WorldMapCardProps) {
+export default function WorldMapCard({ data: externalData }: WorldMapCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [features, setFeatures] = useState<WorldFeature[]>([]);
+  const [internalData, setInternalData] = useState<CountryData[]>([]);
+  const [loadingRegionData, setLoadingRegionData] = useState<boolean>(false);
+
+  // Fetch users-by-region data if external prop data is omitted or empty
+  const fetchRegionData = useCallback(async () => {
+    if (externalData && externalData.length > 0) return;
+    try {
+      setLoadingRegionData(true);
+      const result = await getUsersByRegionStats();
+      setInternalData(result);
+    } catch (err) {
+      console.error("Failed to load region data in WorldMapCard:", err);
+    } finally {
+      setLoadingRegionData(false);
+    }
+  }, [externalData]);
+
+  useEffect(() => {
+    fetchRegionData();
+  }, [fetchRegionData]);
+
+  // Memoize map data choice (prefer props if available)
+  const mapData = useMemo(() => {
+    if (externalData && externalData.length > 0) {
+      return externalData;
+    }
+    return internalData;
+  }, [externalData, internalData]);
+
+  // Compute maximum domain value dynamically for the Choropleth map
+  const maxDataValue = useMemo(() => {
+    if (!mapData || mapData.length === 0) return 5000;
+    const max = Math.max(...mapData.map((d) => d.value));
+    return max > 0 ? Math.ceil(max * 1.1) : 5000;
+  }, [mapData]);
 
   useEffect(() => {
     const updateSize = () => {
@@ -109,13 +135,13 @@ export default function WorldMapCard({
                 className="w-full mx-auto"
                 style={{ height: `${mapHeight}px` }}
               >
-                {features.length > 0 ? (
+                {features.length > 0 && !loadingRegionData ? (
                   <ResponsiveChoropleth
-                    data={data}
+                    data={mapData}
                     features={features}
                     margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
                     colors="oranges"
-                    domain={[0, 5000]}
+                    domain={[0, maxDataValue]}
                     unknownColor="#E5E7EB"
                     label="properties.name"
                     valueFormat=".2s"
@@ -131,7 +157,7 @@ export default function WorldMapCard({
                     tooltip={({ feature }) => {
                       const countryId = (feature as unknown as WorldFeature).id;
                       const countryData = countryId
-                        ? data.find((d) => d.id === countryId)
+                        ? mapData.find((d) => d.id === countryId)
                         : undefined;
                       return (
                         <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
@@ -207,3 +233,4 @@ export default function WorldMapCard({
     </div>
   );
 }
+

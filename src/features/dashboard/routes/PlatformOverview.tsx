@@ -105,6 +105,7 @@ const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 // ];
 
 import { useLanguage } from "../../../stores/languageStore";
+import WorldMapCard from "../components/WorldMapCard";
 
 export default function PlatformOverview() {
   const { t, language } = useLanguage();
@@ -134,6 +135,7 @@ export default function PlatformOverview() {
     activeUsersData,
     activeUsersLineData,
     monthlyTargetProgress,
+    usersByRegionData,
     loading,
     error,
     refetch,
@@ -198,7 +200,8 @@ export default function PlatformOverview() {
   const activePeriodLabel = useMemo(() => {
     const year = new Date().getFullYear();
     if (activePeriod === "Weekly") return `${t.dashboard.weeklyView}, ${year}`;
-    if (activePeriod === "Monthly") return `${t.dashboard.monthlyView}, ${year}`;
+    if (activePeriod === "Monthly")
+      return `${t.dashboard.monthlyView}, ${year}`;
     if (activePeriod === "Yearly") return t.dashboard.yearlyView;
     return t.dashboard.allRecords;
   }, [activePeriod, t]);
@@ -206,7 +209,8 @@ export default function PlatformOverview() {
   // Calculate totals for Donut subtext
   const totalTrafficConnect = useMemo(() => {
     const total = currentTrafficSegments.reduce((sum, s) => sum + s.value, 0);
-    const countStr = total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
+    const countStr =
+      total >= 1000 ? `${(total / 1000).toFixed(1)}k` : `${total}`;
     return t.dashboard.totalConnect.replace("{count}", countStr);
   }, [currentTrafficSegments, t]);
 
@@ -360,7 +364,7 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 3: World Map + Vietnam Detail Card ── */}
-      {/* <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
         <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense
             fallback={
@@ -369,14 +373,14 @@ export default function PlatformOverview() {
               </div>
             }
           >
-            <WorldMapCard />
+            <WorldMapCard data={usersByRegionData || undefined} />
           </Suspense>
         </Card>
 
-        <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
+        {/* <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
           <VietNamDetailCard />
-        </div>
-      </div> */}
+        </div> */}
+      </div>
 
       {/* ── Row 4: Detailed Chart + Sidebar ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
@@ -410,7 +414,10 @@ export default function PlatformOverview() {
 
         <Card className="lg:col-span-1 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <UserStatsSummary
-            period={t.dashboard.inPeriod.replace("{period}", getPeriodText(activePeriod))}
+            period={t.dashboard.inPeriod.replace(
+              "{period}",
+              getPeriodText(activePeriod),
+            )}
             totalUsers={totalActiveUsersCount}
             newUsers={100}
             lostUsers={4}

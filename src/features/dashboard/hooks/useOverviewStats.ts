@@ -5,12 +5,14 @@ import {
   getActiveUsersStats,
   getActiveUsersLineData,
   getMonthlyTargetProgress,
+  getUsersByRegionStats,
   type ActiveUsersParams,
   type TrafficSegment,
   type AgeGenderSegment,
   type ActiveUsersItem,
   type ActiveUserLineData,
   type MonthlyTargetProgress,
+  type UsersByRegionItem,
 } from "../api/getOverviewStats";
 import { getApiErrorMessage } from "../../../lib/axios";
 
@@ -20,6 +22,7 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
   const [activeUsersData, setActiveUsersData] = useState<ActiveUsersItem[] | null>(null);
   const [activeUsersLineData, setActiveUsersLineData] = useState<ActiveUserLineData[] | null>(null);
   const [monthlyTargetProgress, setMonthlyTargetProgress] = useState<MonthlyTargetProgress | null>(null);
+  const [usersByRegionData, setUsersByRegionData] = useState<UsersByRegionItem[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +37,7 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
     }
     setError(null);
     try {
-      const [traffic, ageGender, activeUsers, activeUsersLine, monthlyTarget] = await Promise.all([
+      const [traffic, ageGender, activeUsers, activeUsersLine, monthlyTarget, usersByRegion] = await Promise.all([
         getTrafficChannelStats(),
         getAgeGenderStats(),
         getActiveUsersStats({ period, interval, fromDate, toDate }),
@@ -43,12 +46,17 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
           console.error("Failed to fetch monthly target progress:", err);
           return null;
         }),
+        getUsersByRegionStats().catch((err) => {
+          console.error("Failed to fetch users by region stats:", err);
+          return null;
+        }),
       ]);
       setTrafficSegments(traffic);
       setAgeGenderData(ageGender);
       setActiveUsersData(activeUsers);
       setActiveUsersLineData(activeUsersLine);
       setMonthlyTargetProgress(monthlyTarget);
+      setUsersByRegionData(usersByRegion);
     } catch (err) {
       setError(getApiErrorMessage(err, "Failed to load overview stats."));
     } finally {
@@ -63,13 +71,17 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
       setLoading(true);
       setError(null);
       try {
-        const [traffic, ageGender, activeUsers, activeUsersLine, monthlyTarget] = await Promise.all([
+        const [traffic, ageGender, activeUsers, activeUsersLine, monthlyTarget, usersByRegion] = await Promise.all([
           getTrafficChannelStats(),
           getAgeGenderStats(),
           getActiveUsersStats({ period, interval, fromDate, toDate }),
           getActiveUsersLineData({ period, interval, fromDate, toDate }, lang),
           getMonthlyTargetProgress().catch((err) => {
             console.error("Failed to fetch monthly target progress:", err);
+            return null;
+          }),
+          getUsersByRegionStats().catch((err) => {
+            console.error("Failed to fetch users by region stats:", err);
             return null;
           }),
         ]);
@@ -79,6 +91,7 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
         setActiveUsersData(activeUsers);
         setActiveUsersLineData(activeUsersLine);
         setMonthlyTargetProgress(monthlyTarget);
+        setUsersByRegionData(usersByRegion);
       } catch (err) {
         if (cancelled) return;
         setTrafficSegments(null);
@@ -86,6 +99,7 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
         setActiveUsersData(null);
         setActiveUsersLineData(null);
         setMonthlyTargetProgress(null);
+        setUsersByRegionData(null);
         setError(getApiErrorMessage(err, "Failed to load overview stats."));
       } finally {
         if (!cancelled) {
@@ -111,8 +125,10 @@ export function useOverviewStats(params?: ActiveUsersParams, lang?: string) {
     activeUsersData,
     activeUsersLineData,
     monthlyTargetProgress,
+    usersByRegionData,
     loading,
     error,
     refetch,
   };
 }
+
