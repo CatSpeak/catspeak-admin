@@ -94,6 +94,7 @@ const en = {
     adRemovedFromOld: "AD removed from old",
     accountUsers: "Account users",
     activeUsers: "Active users",
+    activeUsersTrend: "Active Users Trend",
     loadingOverview: "Retrieving platform overview statistics...",
     failedOverview: "Failed to Load Overview Stats",
     weeklyView: "This Month (Weekly view)",

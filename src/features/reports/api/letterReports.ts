@@ -73,6 +73,15 @@ export const getLetterReportById = async (
 };
 
 /**
+ * Delete a user story (letter report) for Admin.
+ */
+export const deleteLetterReport = async (
+  id: number | string,
+): Promise<void> => {
+  return getResponseData(axiosClient.delete(`/user-stories/${id}`));
+};
+
+/**
  * Statistics response structure for reports dashboard.
  */
 export interface LetterReportsStats {

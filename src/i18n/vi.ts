@@ -94,6 +94,7 @@ const vi = {
     adRemovedFromOld: "QC đã gỡ từ người dùng cũ",
     accountUsers: "Tài khoản người dùng",
     activeUsers: "Người dùng hoạt động",
+    activeUsersTrend: "Xu hướng người dùng hoạt động",
     loadingOverview: "Đang tải thống kê tổng quan nền tảng...",
     failedOverview: "Không thể tải thống kê tổng quan",
     weeklyView: "Tháng này (Xem theo tuần)",

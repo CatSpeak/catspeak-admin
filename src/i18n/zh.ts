@@ -94,6 +94,7 @@ const zh = {
     adRemovedFromOld: "旧用户已移除广告",
     accountUsers: "账户用户",
     activeUsers: "活跃用户",
+    activeUsersTrend: "活跃用户趋势",
     loadingOverview: "正在获取平台总览统计数据...",
     failedOverview: "无法加载总览统计数据",
     weeklyView: "本月 (按周查看)",

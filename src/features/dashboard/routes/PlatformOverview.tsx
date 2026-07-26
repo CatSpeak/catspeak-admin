@@ -19,7 +19,7 @@ import { mockupColors } from "../api/getOverviewStats";
 // const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
 const DonutChartJS = lazy(() => import("../components/DonutChartJS"));
 const BarChartJS = lazy(() => import("../components/BarChartJS"));
-// const LineChartJS = lazy(() => import("../components/LineChartJS"));
+const LineChartJS = lazy(() => import("../components/LineChartJS"));
 const AreaChartJS = lazy(() => import("../components/AreaChartJS"));
 const PieChartJS = lazy(() => import("../components/PieChartJS"));
 
@@ -107,7 +107,7 @@ const periods = ["Weekly", "Monthly", "Yearly", "All"] as const;
 import { useLanguage } from "../../../stores/languageStore";
 
 export default function PlatformOverview() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [activePeriod, setActivePeriod] =
     useState<(typeof periods)[number]>("Monthly");
 
@@ -132,11 +132,12 @@ export default function PlatformOverview() {
     trafficSegments,
     ageGenderData,
     activeUsersData,
+    activeUsersLineData,
     monthlyTargetProgress,
     loading,
     error,
     refetch,
-  } = useOverviewStats(apiParams);
+  } = useOverviewStats(apiParams, language);
 
   // Mapped data with fallback handling
   const currentTrafficSegments = useMemo(() => {
@@ -180,15 +181,18 @@ export default function PlatformOverview() {
     }));
   }, [activeUsersData]);
 
-  // const lineData = useMemo(() => {
-  //   if (!activeUsersData || activeUsersData.length === 0) {
-  //     return [];
-  //   }
-  //   return activeUsersData.map((item) => ({
-  //     label: item.label,
-  //     value: item.activeUsers,
-  //   }));
-  // }, [activeUsersData]);
+  const lineData = useMemo(() => {
+    if (activeUsersLineData && activeUsersLineData.length > 0) {
+      return activeUsersLineData;
+    }
+    if (!activeUsersData || activeUsersData.length === 0) {
+      return [];
+    }
+    return activeUsersData.map((item) => ({
+      label: item.label,
+      value: item.activeUsers ?? item.value ?? 0,
+    }));
+  }, [activeUsersLineData, activeUsersData]);
 
   // Format header period label dynamically
   const activePeriodLabel = useMemo(() => {
@@ -417,6 +421,17 @@ export default function PlatformOverview() {
           />
         </Card>
       </div>
+
+      {/* ── Active Users Line Trend ── */}
+      <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+        <Suspense fallback={<ChartFallback height={240} />}>
+          <LineChartJS
+            data={lineData}
+            height={240}
+            title={t.dashboard.activeUsersTrend}
+          />
+        </Suspense>
+      </Card>
 
       {/* ── Row 5: Age/Gender + Monthly Target ── */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
