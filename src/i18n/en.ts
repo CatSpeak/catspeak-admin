@@ -125,6 +125,11 @@ const en = {
     targetSetForMonth: "Target you’ve set for each month",
     viewMore: "View More",
     progress: "Progress",
+    target: "Target",
+    revenue: "Revenue",
+    today: "Today",
+    earnSummary: "You earn {amount} today, higher than last month. Keep up your good work!",
+    earnSummaryStandard: "You earn {amount} today. Keep up your good work!",
   },
   users: {
     title: "Users",

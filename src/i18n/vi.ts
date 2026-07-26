@@ -127,6 +127,11 @@ const vi = {
     targetSetForMonth: "Mục tiêu bạn đã đặt cho mỗi tháng",
     viewMore: "Xem thêm",
     progress: "Tiến độ",
+    target: "Mục tiêu",
+    revenue: "Doanh thu",
+    today: "Hôm nay",
+    earnSummary: "Bạn kiếm được {amount} hôm nay, cao hơn tháng trước. Hãy tiếp tục cố gắng!",
+    earnSummaryStandard: "Bạn kiếm được {amount} hôm nay. Hãy tiếp tục cố gắng!",
   },
   users: {
     title: "Người dùng",

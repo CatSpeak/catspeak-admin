@@ -122,6 +122,11 @@ const zh = {
     targetSetForMonth: "您为每个月设定的目标",
     viewMore: "查看更多",
     progress: "进度",
+    target: "目标",
+    revenue: "收入",
+    today: "今日",
+    earnSummary: "您今天赚取了 {amount}，高于上个月。继续保持！",
+    earnSummaryStandard: "您今天赚取了 {amount}。继续努力！",
   },
   users: {
     title: "用户",
