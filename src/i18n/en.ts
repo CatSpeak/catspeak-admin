@@ -475,6 +475,14 @@ const en = {
   reports: {
     letterReportsTitle: "Letter Reports",
     letterReportsDesc: "Here is the information you need to handle today.",
+    reportedUserTitle: "Reported Users",
+    meetingIncidentReportsTitle: "Meeting Incident Reports",
+    totalUserWarningTitle: "Total User Warnings",
+    reportingAndReported: "{reporting} reporting, {reported} reported",
+    reportingUsersCount: "{count} reporting users",
+    totalReportsCount: "{count} total reports",
+    totalWarningsCount: "{count} total warnings",
+    failedToLoadStats: "Failed to load report statistics",
     paymentReportsTitle: "Payment Reports",
     paymentReportsDesc:
       "Track successful transactions, refunds, and financial summaries.",

@@ -73,10 +73,36 @@ export const getLetterReportById = async (
 };
 
 /**
- * Delete a user story (letter report).
+ * Statistics response structure for reports dashboard.
  */
-export const deleteLetterReport = async (
-  id: number | string,
-): Promise<void> => {
-  return getResponseData(axiosClient.delete<void>(`/user-stories/${id}`));
+export interface LetterReportsStats {
+  totalReports: number;
+  reportingUsers: number;
+  reportedUsers: number;
+}
+
+export interface ReportedUserStats {
+  totalReportedUsers: number;
+  reportingUsers: number;
+}
+
+export interface MeetingIncidentReportsStats {
+  totalReports: number;
+}
+
+export interface ReportStatisticsResponse {
+  letterReports: LetterReportsStats;
+  reportedUser: ReportedUserStats;
+  meetingIncidentReports: MeetingIncidentReportsStats;
+  totalUserWarning: number;
+}
+
+/**
+ * Get statistics for the reports dashboard.
+ */
+export const getStats = async (): Promise<ReportStatisticsResponse> => {
+  return getResponseData(
+    axiosClient.get<ReportStatisticsResponse>("/Admin/reports/statistics"),
+  );
 };
+

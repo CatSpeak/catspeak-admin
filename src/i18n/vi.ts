@@ -476,6 +476,14 @@ const vi = {
   reports: {
     letterReportsTitle: "Báo cáo thư",
     letterReportsDesc: "Thông tin bạn cần xử lý hôm nay.",
+    reportedUserTitle: "Người dùng bị báo cáo",
+    meetingIncidentReportsTitle: "Báo cáo sự cố cuộc họp",
+    totalUserWarningTitle: "Tổng cảnh báo người dùng",
+    reportingAndReported: "{reporting} người báo cáo, {reported} bị báo cáo",
+    reportingUsersCount: "{count} người dùng báo cáo",
+    totalReportsCount: "Tổng cộng {count} báo cáo",
+    totalWarningsCount: "Tổng cộng {count} cảnh báo",
+    failedToLoadStats: "Tải thống kê báo cáo thất bại",
     paymentReportsTitle: "Báo cáo thanh toán",
     paymentReportsDesc:
       "Theo dõi các giao dịch thành công, hoàn tiền và tóm tắt tài chính.",
