@@ -6,6 +6,7 @@ export interface UploadReelApiPayload {
   Title: string;
   Description: string;
   Privacy: ReelPrivacy;
+  LanguageCommunity: "All" | "English" | "Chinese";
   VideoFile: File;
   CoverFile?: File | null;
   Tags?: string[];
@@ -23,6 +24,7 @@ export const uploadReel = async (
   formData.append("Title", payload.Title);
   formData.append("Description", payload.Description);
   formData.append("Privacy", payload.Privacy);
+  formData.append("LanguageCommunity", payload.LanguageCommunity);
   formData.append("VideoFile", payload.VideoFile);
 
   if (payload.CoverFile) {

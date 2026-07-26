@@ -169,6 +169,7 @@ export function useManageReels(reelsHook: ReturnType<typeof useReels>) {
       Title: payload.Title,
       Description: payload.Description,
       Privacy: payload.Privacy,
+      LanguageCommunity: payload.LanguageCommunity,
       VideoFile: payload.VideoFile,
       CoverFile: payload.CoverFile,
       Tags: payload.Tags,

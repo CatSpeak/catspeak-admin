@@ -41,6 +41,7 @@ export interface ReelDto {
   videoUrl?: string | null;
   coverUrl?: string | null;
   privacy: ReelPrivacy;
+  languageCommunity?: string | null;
   source?: string | null;
   status?: string | null; // e.g. "Public", "Private", "Blocked", "Warned"
   blockReason?: string | null;
@@ -66,6 +67,7 @@ export interface UploadReelPayload {
   Title: string;
   Description: string;
   Privacy: ReelPrivacy;
+  LanguageCommunity: "All" | "English" | "Chinese";
   VideoFile: File;
   CoverFile?: File | null;
   Tags?: string[];
