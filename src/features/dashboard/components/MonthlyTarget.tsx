@@ -177,16 +177,22 @@ export default function MonthlyTarget({
   return (
     <div className="rounded-2xl bg-gray-100 border border-gray-200/80 shadow-xs overflow-hidden">
       <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-6 sm:px-6 sm:pt-6">
-        <div className="flex justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">
+        <div className="flex justify-between items-start gap-2 min-w-0">
+          <div className="min-w-0 flex-1">
+            <h3
+              className="text-base sm:text-lg font-semibold text-gray-800 truncate"
+              title={t.dashboard.monthlyTarget}
+            >
               {t.dashboard.monthlyTarget}
             </h3>
-            <p className="mt-1 text-gray-500 text-theme-sm">
+            <p
+              className="mt-1 text-gray-500 text-xs sm:text-theme-sm truncate"
+              title={t.dashboard.targetSetForMonth}
+            >
               {t.dashboard.targetSetForMonth}
             </p>
           </div>
-          <div className="relative inline-block">
+          <div className="relative inline-block shrink-0">
             <Dropdown
               isOpen={isOpen}
               onClose={closeDropdown}
@@ -218,26 +224,35 @@ export default function MonthlyTarget({
             />
           </div>
 
-          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600">
+          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-medium text-success-600 whitespace-nowrap">
             {hasPercentage
               ? `${percentage >= 0 ? "+" : ""}${percentage}%`
               : "?"}
           </span>
         </div>
 
-        <p className="mx-auto mt-6 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base leading-relaxed">
+        <p
+          className="mx-auto mt-6 w-full max-w-[380px] text-center text-xs sm:text-sm text-gray-500 leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis px-2"
+          title={earnText}
+        >
           {earnText}
         </p>
       </div>
 
-      <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5 bg-gray-50/60 border-t border-gray-200/60">
-        <div title={formatAmount(calcTargetRevenue)}>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs sm:text-sm">
+      <div className="flex items-center justify-around gap-2 px-3 py-3.5 sm:gap-6 sm:px-6 sm:py-5 bg-gray-50/60 border-t border-gray-200/60 min-w-0">
+        <div
+          title={formatAmount(calcTargetRevenue)}
+          className="min-w-0 flex-1 text-center"
+        >
+          <p className="mb-1 text-center text-gray-500 text-[11px] sm:text-sm whitespace-nowrap truncate">
             {t.dashboard.target || "Target"}
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg">
-            {formatCompactCurrency(calcTargetRevenue)}
+          <p className="flex items-center justify-center gap-0.5 sm:gap-1 text-xs sm:text-base font-semibold text-gray-800 md:text-lg whitespace-nowrap">
+            <span className="truncate">
+              {formatCompactCurrency(calcTargetRevenue)}
+            </span>
             <svg
+              className="shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -254,15 +269,21 @@ export default function MonthlyTarget({
           </p>
         </div>
 
-        <div className="w-px bg-gray-200 h-7"></div>
+        <div className="w-px bg-gray-200 h-7 shrink-0"></div>
 
-        <div title={formatAmount(totalRevenue)}>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs sm:text-sm">
+        <div
+          title={formatAmount(totalRevenue)}
+          className="min-w-0 flex-1 text-center"
+        >
+          <p className="mb-1 text-center text-gray-500 text-[11px] sm:text-sm whitespace-nowrap truncate">
             {t.dashboard.revenue || "Revenue"}
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg">
-            {formatCompactCurrency(totalRevenue)}
+          <p className="flex items-center justify-center gap-0.5 sm:gap-1 text-xs sm:text-base font-semibold text-gray-800 md:text-lg whitespace-nowrap">
+            <span className="truncate">
+              {formatCompactCurrency(totalRevenue)}
+            </span>
             <svg
+              className="shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -279,15 +300,21 @@ export default function MonthlyTarget({
           </p>
         </div>
 
-        <div className="w-px bg-gray-200 h-7"></div>
+        <div className="w-px bg-gray-200 h-7 shrink-0"></div>
 
-        <div title={formatAmount(todayRevenue)}>
-          <p className="mb-1 text-center text-gray-500 text-theme-xs sm:text-sm">
+        <div
+          title={formatAmount(todayRevenue)}
+          className="min-w-0 flex-1 text-center"
+        >
+          <p className="mb-1 text-center text-gray-500 text-[11px] sm:text-sm whitespace-nowrap truncate">
             {t.dashboard.today || "Today"}
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 sm:text-lg">
-            {formatCompactCurrency(todayRevenue)}
+          <p className="flex items-center justify-center gap-0.5 sm:gap-1 text-xs sm:text-base font-semibold text-gray-800 md:text-lg whitespace-nowrap">
+            <span className="truncate">
+              {formatCompactCurrency(todayRevenue)}
+            </span>
             <svg
+              className="shrink-0 w-3.5 h-3.5 sm:w-4 sm:h-4"
               width="16"
               height="16"
               viewBox="0 0 16 16"
@@ -307,4 +334,3 @@ export default function MonthlyTarget({
     </div>
   );
 }
-

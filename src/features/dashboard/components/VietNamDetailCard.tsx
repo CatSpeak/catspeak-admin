@@ -5,6 +5,7 @@ import { getAccounts } from "../../users/api/getUsers";
 import { getStaffs } from "../../staffs/api/getStaffs";
 import type { GetAccountsResponse } from "../../users/types";
 import type { GetStaffsResponse } from "../../staffs/types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface StatItemProps {
   label: string;
@@ -38,10 +39,29 @@ export default function VietNamDetailCard({
   languageLearning: propsLanguageLearning,
   topCombinations: propsTopCombinations,
 }: VietNamDetailCardProps) {
+  const { t } = useLanguage();
   const [usersData, setUsersData] = useState<GetAccountsResponse | null>(null);
   const [staffsData, setStaffsData] = useState<GetStaffsResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [_error, setError] = useState<string | null>(null);
+
+  const translateLang = useCallback(
+    (langName: string): string => {
+      const key = langName.trim() as keyof typeof t.room.languages;
+      return t.room?.languages?.[key] || langName;
+    },
+    [t],
+  );
+
+  const translateCombination = useCallback(
+    (comboStr: string): string => {
+      return comboStr
+        .split(" - ")
+        .map((l) => translateLang(l))
+        .join(" - ");
+    },
+    [translateLang],
+  );
 
   // useCallback to memoize fetching logic for getUsers and getStaffs APIs
   const fetchHumanLanguageStats = useCallback(async () => {
@@ -62,11 +82,11 @@ export default function VietNamDetailCard({
       setStaffsData(staffsRes);
     } catch (err) {
       console.error("Error loading human and language stats:", err);
-      setError("Failed to load metrics");
+      setError(t.dashboard.failedOverview);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     fetchHumanLanguageStats();
@@ -229,12 +249,14 @@ export default function VietNamDetailCard({
         <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <Globe className="w-5 h-5 text-primary shrink-0" />
-            <h3 className="text-lg font-bold text-gray-900">Viet Nam Detail</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              {t.dashboard.vietNamDetail}
+            </h3>
           </div>
           <button
             onClick={fetchHumanLanguageStats}
             disabled={loading}
-            title="Refresh statistics"
+            title={t.dashboard.refreshStats}
             className="p-1.5 text-gray-400 hover:text-primary hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
           >
             <RefreshCw
@@ -247,7 +269,7 @@ export default function VietNamDetailCard({
           <div className="py-12 flex flex-col items-center justify-center gap-2">
             <div className="h-6 w-6 animate-spin rounded-full border-b-2 border-primary" />
             <span className="text-xs font-medium text-gray-400">
-              Loading language stats...
+              {t.dashboard.loadingLanguageStats}
             </span>
           </div>
         ) : (
@@ -257,14 +279,14 @@ export default function VietNamDetailCard({
               <div className="flex items-center gap-1.5 mb-2">
                 <Languages className="w-4 h-4 text-gray-500" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Language native
+                  {t.dashboard.languageNative}
                 </h4>
               </div>
               <div className="space-y-0.5">
                 {nativeItems.map((item) => (
                   <StatItem
                     key={item.label}
-                    label={item.label}
+                    label={translateLang(item.label)}
                     count={item.count}
                     color={item.color}
                   />
@@ -277,14 +299,14 @@ export default function VietNamDetailCard({
               <div className="flex items-center gap-1.5 mb-2">
                 <Globe className="w-4 h-4 text-gray-500" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Language learning
+                  {t.dashboard.languageLearning}
                 </h4>
               </div>
               <div className="space-y-0.5">
                 {learningItems.map((item) => (
                   <StatItem
                     key={item.label}
-                    label={item.label}
+                    label={translateLang(item.label)}
                     count={item.count}
                     color={item.color}
                   />
@@ -297,14 +319,14 @@ export default function VietNamDetailCard({
               <div className="flex items-center gap-1.5 mb-2">
                 <Users className="w-4 h-4 text-gray-500" />
                 <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Top 3 combinations
+                  {t.dashboard.top3Combinations}
                 </h4>
               </div>
               <div className="space-y-0.5">
                 {combinationItems.map((combo, idx) => (
                   <StatItem
                     key={idx}
-                    label={combo.languages}
+                    label={translateCombination(combo.languages)}
                     count={combo.count}
                     color="#C8102E"
                   />
@@ -320,11 +342,18 @@ export default function VietNamDetailCard({
         <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 bg-gray-50/50 p-2.5 rounded-xl">
           <span className="flex items-center gap-1 font-medium">
             <Users className="w-3.5 h-3.5 text-primary" />
-            Human records:
+            {t.dashboard.humanRecords}
           </span>
           <span className="font-semibold text-gray-700">
-            {processedStats.totalUsers.toLocaleString()} users &bull;{" "}
-            {processedStats.totalStaffs} staffs
+            {t.dashboard.usersCount.replace(
+              "{count}",
+              processedStats.totalUsers.toLocaleString(),
+            )}{" "}
+            &bull;{" "}
+            {t.dashboard.staffsCount.replace(
+              "{count}",
+              processedStats.totalStaffs.toLocaleString(),
+            )}
           </span>
         </div>
       )}

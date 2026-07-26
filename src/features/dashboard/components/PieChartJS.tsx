@@ -1,6 +1,7 @@
 import Chart from "react-apexcharts";
 import type { ApexOptions } from "apexcharts";
 import { useMemo } from "react";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface PieSegment {
   label: string;
@@ -19,9 +20,14 @@ export default function PieChartJS({
   segments,
   showLegend = true,
 }: PieChartProps) {
+  const { t } = useLanguage();
   const series = useMemo(() => segments.map((s) => s.value), [segments]);
   const labels = useMemo(() => segments.map((s) => s.label), [segments]);
   const colors = useMemo(() => segments.map((s) => s.color), [segments]);
+
+  const totalText = t.common.total;
+  const maleText = t.common.male;
+  const femaleText = t.common.female;
 
   const options: ApexOptions = useMemo(() => ({
     chart: {
@@ -40,9 +46,9 @@ export default function PieChartJS({
         return `
           <div style="padding: 12px; border-radius: 8px; font-family: inherit;">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${seg.label}</div>
-            <div style="font-size: 12px;">Total: ${seg.value.toLocaleString()}</div>
-            <div style="font-size: 12px;">Male: ${seg.male.toLocaleString()}</div>
-            <div style="font-size: 12px;">Female: ${seg.female.toLocaleString()}</div>
+            <div style="font-size: 12px;">${totalText}: ${seg.value.toLocaleString()}</div>
+            <div style="font-size: 12px;">${maleText}: ${seg.male.toLocaleString()}</div>
+            <div style="font-size: 12px;">${femaleText}: ${seg.female.toLocaleString()}</div>
           </div>
         `;
       },
@@ -52,7 +58,7 @@ export default function PieChartJS({
         expandOnClick: false,
       },
     },
-  }), [colors, labels, segments]);
+  }), [colors, labels, segments, totalText, maleText, femaleText]);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -84,13 +90,13 @@ export default function PieChartJS({
                     className="text-[10px]"
                     style={{ color: "var(--color-text-muted)" }}
                   >
-                    Male: {seg.male.toLocaleString()}
+                    {maleText}: {seg.male.toLocaleString()}
                   </span>
                   <span
                     className="text-[10px]"
                     style={{ color: "var(--color-text-muted)" }}
                   >
-                    Female: {seg.female.toLocaleString()}
+                    {femaleText}: {seg.female.toLocaleString()}
                   </span>
                 </div>
               </div>

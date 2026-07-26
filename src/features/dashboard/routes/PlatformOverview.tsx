@@ -365,8 +365,8 @@ export default function PlatformOverview() {
       </div>
 
       {/* ── Row 3: World Map + Vietnam Detail Card ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6">
-        <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <Card className="lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <Suspense
             fallback={
               <div className="flex min-h-65 items-center justify-center">
@@ -378,14 +378,14 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        <div className="lg:col-span-2 transition-all duration-300 hover:shadow-md">
+        <div className="transition-all duration-300 hover:shadow-md">
           <VietNamDetailCard />
         </div>
       </div>
 
       {/* ── Row 4: Detailed Chart + Sidebar ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-        <Card className="lg:col-span-4 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
             <h3 className="text-xl font-semibold text-gray-800">
               {t.dashboard.detailedUserActiveChart}
@@ -413,7 +413,7 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        <Card className="lg:col-span-1 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <UserStatsSummary
             period={t.dashboard.inPeriod.replace(
               "{period}",
@@ -442,8 +442,8 @@ export default function PlatformOverview() {
       </Card>
 
       {/* ── Row 5: Age/Gender + Monthly Target ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
-        <Card className="lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        <Card className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             {t.dashboard.ageGender}
           </h3>
@@ -454,7 +454,7 @@ export default function PlatformOverview() {
 
         <Card
           noPadding
-          className="lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
+          className="transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
         >
           <MonthlyTarget percentage={monthlyTargetProgress?.percentage} />
         </Card>
