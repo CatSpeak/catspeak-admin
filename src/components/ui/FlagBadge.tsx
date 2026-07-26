@@ -85,7 +85,7 @@ export const FlagBadge: React.FC<FlagBadgeProps> = ({
         <img
           src={flag}
           alt={label}
-          className={`w-4 h-3.5 rounded-sm shadow-sm object-cover scale-140 ${imgClassName}`.trim()}
+          className={`w-4 h-3.5 rounded-sm shadow-sm object-cover ${imgClassName}`.trim()}
         />
       )}
       {showLabel && <span>{label}</span>}
