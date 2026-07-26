@@ -20,7 +20,7 @@ import {
   Package,
 } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
-import { getPlans } from "../../plans/api/getPlans";
+import { getActivePlans } from "../../plans/api/getActivePlans";
 import { upgradeSubscription } from "../api/upgradeSubscription";
 import { getApiErrorMessage } from "../../../lib/axios";
 import type { Plan } from "../../../entities/types";
@@ -47,9 +47,9 @@ export default function UserDetailPage() {
       try {
         setPlansLoading(true);
         setPlansError(null);
-        const res = await getPlans();
+        const res = await getActivePlans();
         if (cancelled) return;
-        const list = Array.isArray(res) ? res : res?.data || [];
+        const list = Array.isArray(res) ? res : (res as { data?: Plan[] })?.data || [];
         setPlans(list);
       } catch (err: unknown) {
         if (cancelled) return;
