@@ -117,6 +117,10 @@ const zh = {
     revenueVnd: "收入 (VND)",
     transactionsCount: "交易数量",
     refreshStats: "刷新统计",
+    monthlyTarget: "每月目标",
+    targetSetForMonth: "您为每个月设定的目标",
+    viewMore: "查看更多",
+    progress: "进度",
   },
   users: {
     title: "用户",

@@ -3,56 +3,69 @@ import type { ApexOptions } from "apexcharts";
 import { useMemo, useState } from "react";
 import { Dropdown } from "../../../components/ui/dropdown/Dropdown";
 import { DropdownItem } from "../../../components/ui/dropdown/DropdownItem";
+import { useLanguage } from "../../../stores/languageStore";
 
-export default function MonthlyTarget() {
-  const series = useMemo(() => [75.55], []);
-  const options: ApexOptions = useMemo(() => ({
-    colors: ["#465FFF"],
-    chart: {
-      fontFamily: "Noto Sans, sans-serif",
-      type: "radialBar",
-      height: 330,
-      sparkline: {
-        enabled: true,
+interface MonthlyTargetProps {
+  percentage?: number | null;
+}
+
+export default function MonthlyTarget({ percentage }: MonthlyTargetProps) {
+  const { t } = useLanguage();
+  const hasPercentage = typeof percentage === "number" && !isNaN(percentage);
+  const displayValue = hasPercentage ? `${percentage}%` : "?";
+  const seriesValue = hasPercentage ? percentage : 0;
+  const series = useMemo(() => [seriesValue], [seriesValue]);
+
+  const options: ApexOptions = useMemo(
+    () => ({
+      colors: ["#465FFF"],
+      chart: {
+        fontFamily: "Noto Sans, sans-serif",
+        type: "radialBar",
+        height: 330,
+        sparkline: {
+          enabled: true,
+        },
       },
-    },
-    plotOptions: {
-      radialBar: {
-        startAngle: -85,
-        endAngle: 85,
-        hollow: {
-          size: "80%",
-        },
-        track: {
-          background: "#E4E7EC",
-          strokeWidth: "100%",
-          margin: 5,
-        },
-        dataLabels: {
-          name: {
-            show: false,
+      plotOptions: {
+        radialBar: {
+          startAngle: -85,
+          endAngle: 85,
+          hollow: {
+            size: "80%",
           },
-          value: {
-            fontSize: "36px",
-            fontWeight: "600",
-            offsetY: -40,
-            color: "#1D2939",
-            formatter: function (val) {
-              return val + "%";
+          track: {
+            background: "#E4E7EC",
+            strokeWidth: "100%",
+            margin: 5,
+          },
+          dataLabels: {
+            name: {
+              show: false,
+            },
+            value: {
+              fontSize: "36px",
+              fontWeight: "600",
+              offsetY: -40,
+              color: "#1D2939",
+              formatter: function () {
+                return displayValue;
+              },
             },
           },
         },
       },
-    },
-    fill: {
-      type: "solid",
-      colors: ["#465FFF"],
-    },
-    stroke: {
-      lineCap: "round",
-    },
-    labels: ["Progress"],
-  }), []);
+      fill: {
+        type: "solid",
+        colors: ["#465FFF"],
+      },
+      stroke: {
+        lineCap: "round",
+      },
+      labels: [t.dashboard.progress],
+    }),
+    [displayValue, t.dashboard.progress],
+  );
   const [isOpen, setIsOpen] = useState(false);
 
   function closeDropdown() {
@@ -64,10 +77,10 @@ export default function MonthlyTarget() {
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
-              Monthly Target
+              {t.dashboard.monthlyTarget}
             </h3>
             <p className="mt-1 text-gray-500 text-theme-sm">
-              Target you’ve set for each month
+              {t.dashboard.targetSetForMonth}
             </p>
           </div>
           <div className="relative inline-block">
@@ -80,13 +93,13 @@ export default function MonthlyTarget() {
                 onItemClick={closeDropdown}
                 className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 "
               >
-                View More
+                {t.dashboard.viewMore}
               </DropdownItem>
               <DropdownItem
                 onItemClick={closeDropdown}
                 className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 "
               >
-                Delete
+                {t.common.delete}
               </DropdownItem>
             </Dropdown>
           </div>
@@ -102,16 +115,18 @@ export default function MonthlyTarget() {
           </div>
 
           <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600">
-            +10%
+            {hasPercentage
+              ? `${percentage >= 0 ? "+" : ""}${percentage}%`
+              : "?"}
           </span>
         </div>
-        <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
+        {/* <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
           You earn $3287 today, it's higher than last month. Keep up your good
           work!
-        </p>
+        </p> */}
       </div>
 
-      <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">
+      {/* <div className="flex items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">
         <div>
           <p className="mb-1 text-center text-gray-500 text-theme-xs sm:text-sm">
             Target
@@ -184,7 +199,7 @@ export default function MonthlyTarget() {
             </svg>
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

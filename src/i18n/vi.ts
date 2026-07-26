@@ -118,6 +118,10 @@ const vi = {
     revenueVnd: "Doanh thu (VND)",
     transactionsCount: "Số lượng giao dịch",
     refreshStats: "Làm mới thống kê",
+    monthlyTarget: "Mục tiêu hàng tháng",
+    targetSetForMonth: "Mục tiêu bạn đã đặt cho mỗi tháng",
+    viewMore: "Xem thêm",
+    progress: "Tiến độ",
   },
   users: {
     title: "Người dùng",

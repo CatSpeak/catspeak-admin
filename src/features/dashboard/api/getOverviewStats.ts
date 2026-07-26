@@ -222,3 +222,45 @@ export const getActiveUsersStats = async (
     throw error;
   }
 };
+
+export interface MonthlyTargetProgress {
+  percentage: number;
+}
+
+/**
+ * Fetch monthly target progress (percentage profit increase this month vs same period last month).
+ * Uses defensive parsing to handle various backend response structures.
+ */
+export const getMonthlyTargetProgress = async (): Promise<MonthlyTargetProgress> => {
+  try {
+    const response = await getResponseData(
+      axiosClient.get<unknown>("/v1/Payments/admin/monthly-target-progress"),
+    );
+
+    if (response && typeof response === "object") {
+      const data = response as Record<string, unknown>;
+      const target =
+        "data" in data && data.data && typeof data.data === "object"
+          ? (data.data as Record<string, unknown>)
+          : data;
+
+      if (
+        "percentage" in target &&
+        target.percentage !== null &&
+        target.percentage !== undefined
+      ) {
+        return { percentage: Number(target.percentage) };
+      }
+    }
+
+    if (typeof response === "number") {
+      return { percentage: response };
+    }
+
+    throw new Error("Invalid response format for monthly target progress");
+  } catch (error) {
+    console.error("Error fetching monthly target progress:", error);
+    throw error;
+  }
+};
+

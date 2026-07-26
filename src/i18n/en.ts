@@ -117,6 +117,10 @@ const en = {
     revenueVnd: "Revenue (VND)",
     transactionsCount: "Transactions Count",
     refreshStats: "Refresh Stats",
+    monthlyTarget: "Monthly Target",
+    targetSetForMonth: "Target you’ve set for each month",
+    viewMore: "View More",
+    progress: "Progress",
   },
   users: {
     title: "Users",

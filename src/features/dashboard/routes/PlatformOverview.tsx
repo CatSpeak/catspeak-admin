@@ -11,7 +11,7 @@ import Card from "../../../components/ui/Card";
 import SummaryCard from "../../../components/ui/SummaryCard";
 import UserStatsSummary from "../components/UserStatsSummary";
 // import VietNamDetailCard from "../components/VietNamDetailCard";
-// import MonthlyTarget from "../components/MonthlyTarget";
+import MonthlyTarget from "../components/MonthlyTarget";
 import { useOverviewStats } from "../hooks/useOverviewStats";
 import { mockupColors } from "../api/getOverviewStats";
 
@@ -132,6 +132,7 @@ export default function PlatformOverview() {
     trafficSegments,
     ageGenderData,
     activeUsersData,
+    monthlyTargetProgress,
     loading,
     error,
     refetch,
@@ -417,9 +418,9 @@ export default function PlatformOverview() {
         </Card>
       </div>
 
-      {/* ── Row 5: Age/Gender + Monthly Target + Line Chart ── */}
-      <div className="flex items-start justify-between">
-        <Card className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
+      {/* ── Row 5: Age/Gender + Monthly Target ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+        <Card className="lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
           <h3 className="text-xl font-semibold mb-4 text-gray-800">
             {t.dashboard.ageGender}
           </h3>
@@ -428,18 +429,12 @@ export default function PlatformOverview() {
           </Suspense>
         </Card>
 
-        {/* <Card
+        <Card
           noPadding
-          className="md:col-span-3 lg:col-span-2 transition-all duration-300 hover:shadow-md"
+          className="lg:col-span-2 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80"
         >
-          <MonthlyTarget />
-        </Card> */}
-
-        {/* <Card className="md:col-span-3 lg:col-span-3 transition-all duration-300 hover:shadow-md border border-gray-100 hover:border-gray-200/80">
-          <Suspense fallback={<ChartFallback height={400} />}>
-            <LineChartJS data={lineData} height={400} />
-          </Suspense>
-        </Card> */}
+          <MonthlyTarget percentage={monthlyTargetProgress?.percentage} />
+        </Card>
       </div>
     </div>
   );
