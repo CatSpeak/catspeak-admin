@@ -1,8 +1,6 @@
 import { useState } from "react";
 import ReportsSummaryCards from "../components/ReportsSummaryCards";
 import ReportDialog from "../components/ReportDialog";
-import { LANGUAGE_FLAGS } from "../../room/constants";
-import type { LanguageType } from "../../room/types";
 import Table from "../../../components/ui/table/Table";
 import {
   getLetterReports,
@@ -13,9 +11,7 @@ import {
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { FileText } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
-import FlagBadge, {
-  type FlagBadgeLanguage,
-} from "../../../components/ui/FlagBadge";
+import FlagBadge from "../../../components/ui/FlagBadge";
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
