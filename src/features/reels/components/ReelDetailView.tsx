@@ -348,6 +348,12 @@ export default function ReelDetailView({
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
+                <span className="text-gray-400 font-semibold">{t.news.languageCommunity}</span>
+                <span className="font-semibold text-gray-800">
+                  {reel.languageCommunity || "All"}
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-0.5">
                 <span className="text-gray-400 font-semibold">{t.reels.dateUploaded}</span>
                 <span className="font-semibold text-gray-700 tabular-nums">
                   {formatDate(reel.createdAt)}

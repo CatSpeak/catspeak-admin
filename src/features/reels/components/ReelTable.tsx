@@ -119,6 +119,9 @@ export default function ReelTable({
               {t.reels.privacy}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
+              {t.news.community}
+            </th>
+            <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
               {t.reels.fileUpload}
             </th>
             <th className="px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap">
@@ -217,6 +220,11 @@ export default function ReelTable({
                         );
                     }
                   })()}
+                </td>
+
+                {/* Language Community Column */}
+                <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
+                  <span>{reel.languageCommunity || "All"}</span>
                 </td>
 
                 {/* File Upload link Column */}
