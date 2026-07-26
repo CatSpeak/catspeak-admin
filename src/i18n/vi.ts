@@ -671,6 +671,8 @@ const vi = {
     monthly: "Hàng tháng",
     yearly: "Hàng năm",
     all: "Tất cả",
+    other: "Khác",
+    others: "Khác",
     noTransactions: "Không có giao dịch",
     noDailyData: "Không có dữ liệu hàng ngày",
     notRegistered: "Chưa đăng ký",

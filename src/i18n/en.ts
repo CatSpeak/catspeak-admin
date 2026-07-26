@@ -669,6 +669,8 @@ const en = {
     monthly: "Monthly",
     yearly: "Yearly",
     all: "All",
+    other: "Other",
+    others: "Others",
     noTransactions: "No transactions",
     noDailyData: "No daily data available",
     notRegistered: "Not registered",

@@ -658,6 +658,8 @@ const zh = {
     monthly: "每月",
     yearly: "每年",
     all: "全部",
+    other: "其他",
+    others: "其他",
     noTransactions: "暂无交易",
     noDailyData: "暂无每日数据",
     notRegistered: "未注册",

@@ -13,6 +13,9 @@ import {
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { FileText } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
+import FlagBadge, {
+  type FlagBadgeLanguage,
+} from "../../../components/ui/FlagBadge";
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -58,7 +61,10 @@ export default function HandleReportsPage() {
               : sortOrder === "desc"
                 ? "Desc"
                 : undefined;
-          const res = await getLetterReports({ SortBy: sortBy, SortOrder: order });
+          const res = await getLetterReports({
+            SortBy: sortBy,
+            SortOrder: order,
+          });
           return res.data || [];
         }}
         filter={async (attribute, value) => {
@@ -108,31 +114,7 @@ export default function HandleReportsPage() {
           {
             name: t.header.language,
             accessorKey: "languageCommunity",
-            render: (r) => {
-              const lang = r.languageCommunity as LanguageType;
-
-              if (!lang)
-                return (
-                  <span className="inline-block px-2 py-0.5 text-xs rounded bg-primary/10 text-primary font-medium">
-                    —
-                  </span>
-                );
-
-              const flag = LANGUAGE_FLAGS[lang];
-
-              if (!flag) return <>{lang}</>;
-              else
-                return (
-                  <span className="inline-flex items-center gap-1.5">
-                    <img
-                      src={flag}
-                      alt={lang}
-                      className="w-4 h-3.5 rounded-sm shadow-sm object-cover"
-                    />
-                    <span>{lang}</span>
-                  </span>
-                );
-            },
+            render: (p) => <FlagBadge languageType={p.languageCommunity} />,
           },
         ]}
       />

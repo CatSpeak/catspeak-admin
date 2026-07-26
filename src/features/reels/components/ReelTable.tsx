@@ -3,6 +3,7 @@ import { formatDate } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
+import FlagBadge from "../../../components/ui/FlagBadge";
 
 interface ReelTableProps {
   reels: ReelDto[];
@@ -224,7 +225,7 @@ export default function ReelTable({
 
                 {/* Language Community Column */}
                 <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-                  <span>{reel.languageCommunity || "All"}</span>
+                  <FlagBadge languageType={reel.languageCommunity || "All"} />
                 </td>
 
                 {/* File Upload link Column */}
