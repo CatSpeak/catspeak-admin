@@ -19,12 +19,15 @@ interface EditFormErrors {
 }
 
 function parseTopics(room: Room): RoomTopic[] {
-  // topic can be a comma-separated string like "Culture,Productivity"
   if (!room.topic) return [];
-  return room.topic
-    .split(",")
-    .map((t) => t.trim())
-    .filter(Boolean) as RoomTopic[];
+  if (Array.isArray(room.topic)) return room.topic;
+  if (typeof room.topic === "string") {
+    return (room.topic as string)
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean) as RoomTopic[];
+  }
+  return [];
 }
 
 function buildInitialState(room: Room): EditFormState {

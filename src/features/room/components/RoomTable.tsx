@@ -9,7 +9,7 @@ import {
   Lock,
   Globe,
 } from "lucide-react";
-import type { Room } from "../types";
+import type { Room, RoomTopic } from "../types";
 import { LANGUAGE_FLAGS } from "../constants";
 import { formatDate } from "../../../lib/utils";
 import { useLanguage } from "../../../stores/languageStore";
@@ -109,14 +109,25 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
 
       {/* Topic Column */}
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
-        {room.topic ? (
-          <Badge
-            title={t.room.topics?.[room.topic] || room.topic}
-            type="Gray"
-          />
-        ) : (
-          <span className="text-gray-400">—</span>
-        )}
+        {(() => {
+          const topics = Array.isArray(room.topic)
+            ? room.topic
+            : typeof room.topic === "string"
+            ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
+            : [];
+          if (topics.length === 0) return <span className="text-gray-400">—</span>;
+          return (
+            <div className="flex flex-wrap gap-1">
+              {topics.map((top) => (
+                <Badge
+                  key={top}
+                  title={t.room.topics?.[top] || top}
+                  type="Gray"
+                />
+              ))}
+            </div>
+          );
+        })()}
       </td>
 
       {/* Participants Column */}

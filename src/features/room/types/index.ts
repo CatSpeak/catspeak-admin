@@ -64,7 +64,7 @@ export interface Room {
   maxParticipants: number | null;
   languageType: LanguageType;
   requiredLevel: RequiredLevel;
-  topic: RoomTopic;
+  topic: RoomTopic[];
   description: string | null;
   categories: string; // JSON string e.g. "[\"Culture\"]"
   duration: number | null;
@@ -125,7 +125,7 @@ export interface CreateRoomPayload {
   roomType: RoomType;
   languageType: LanguageType;
   requiredLevel: RequiredLevel | "";
-  topic: RoomTopic | "";
+  topics: RoomTopic[];
   description: string;
   privacy: RoomPrivacy;
   password: string;
