@@ -222,3 +222,116 @@ export const getActiveUsersStats = async (
     throw error;
   }
 };
+
+export interface ActiveUserLineData {
+  label: string;
+  value: number;
+}
+
+/**
+ * Fetch active users statistics and transform data into line chart format:
+ * [{ label: "01 Jun", value: 210 }, ...]
+ */
+export const getActiveUsersLineData = async (
+  params?: ActiveUsersParams,
+  lang?: string,
+): Promise<ActiveUserLineData[]> => {
+  try {
+    const defaultParams: ActiveUsersParams = {
+      period: "ThisMonth",
+      interval: "Monthly",
+      ...params,
+    };
+    const response = await getResponseData(
+      axiosClient.get<unknown>("/Analytics/active-users", { params: defaultParams }),
+    );
+
+    let items: unknown[] = [];
+    if (Array.isArray(response)) {
+      items = response;
+    } else if (response && typeof response === "object") {
+      const data = response as Record<string, unknown>;
+      const target =
+        "data" in data && Array.isArray(data.data)
+          ? data.data
+          : "items" in data && Array.isArray(data.items)
+            ? data.items
+            : [];
+      items = target;
+    }
+
+    const localeMap: Record<string, string> = {
+      vi: "vi-VN",
+      zh: "zh-CN",
+      en: "en-GB",
+    };
+    const locale = localeMap[lang || "en"] || "en-GB";
+
+    return items
+      .filter(
+        (item): item is Record<string, unknown> =>
+          typeof item === "object" && item !== null,
+      )
+      .map((item) => {
+        const value = Number(item.activeUsers ?? item.value ?? item.newAccounts ?? 0);
+        let label = String(item.label ?? item.date ?? "");
+
+        const periodStart = String(item.periodStart ?? "");
+        if (periodStart) {
+          const d = new Date(periodStart);
+          if (!isNaN(d.getTime())) {
+            const day = String(d.getUTCDate()).padStart(2, "0");
+            const month = d.toLocaleDateString(locale, { month: "short", timeZone: "UTC" });
+            label = `${day} ${month}`;
+          }
+        }
+
+        return { label, value };
+      });
+  } catch (error) {
+    console.error("Error fetching active users line data:", error);
+    throw error;
+  }
+};
+
+export interface MonthlyTargetProgress {
+  percentage: number;
+}
+
+/**
+ * Fetch monthly target progress (percentage profit increase this month vs same period last month).
+ * Uses defensive parsing to handle various backend response structures.
+ */
+export const getMonthlyTargetProgress = async (): Promise<MonthlyTargetProgress> => {
+  try {
+    const response = await getResponseData(
+      axiosClient.get<unknown>("/v1/Payments/admin/monthly-target-progress"),
+    );
+
+    if (response && typeof response === "object") {
+      const data = response as Record<string, unknown>;
+      const target =
+        "data" in data && data.data && typeof data.data === "object"
+          ? (data.data as Record<string, unknown>)
+          : data;
+
+      if (
+        "percentage" in target &&
+        target.percentage !== null &&
+        target.percentage !== undefined
+      ) {
+        return { percentage: Number(target.percentage) };
+      }
+    }
+
+    if (typeof response === "number") {
+      return { percentage: response };
+    }
+
+    throw new Error("Invalid response format for monthly target progress");
+  } catch (error) {
+    console.error("Error fetching monthly target progress:", error);
+    throw error;
+  }
+};
+
