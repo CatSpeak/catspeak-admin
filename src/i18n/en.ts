@@ -363,6 +363,12 @@ const en = {
     unitPrice: "Unit price",
     quantity: "Quantity",
     noPackages: "No packages",
+    upgrade: "Upgrade",
+    upgrading: "Upgrading...",
+    upgradeSuccess: "Subscription upgraded successfully!",
+    upgradeFailed: "Failed to upgrade subscription.",
+    loadingPlans: "Loading plans...",
+    noPlansFound: "No plans found.",
   },
   reels: {
     title: "Reels",

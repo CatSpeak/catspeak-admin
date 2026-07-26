@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useUserDetail } from "../hooks/useUserDetail";
 import { useUserPayments } from "../hooks/useUserPayments";
 import {
@@ -16,9 +16,14 @@ import {
   XCircle,
   Clock,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Package,
 } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
+import { getPlans } from "../../plans/api/getPlans";
+import { upgradeSubscription } from "../api/upgradeSubscription";
+import { getApiErrorMessage } from "../../../lib/axios";
+import type { Plan } from "../../../entities/types";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,6 +31,64 @@ export default function UserDetailPage() {
   const { user, loading, error } = useUserDetail(id);
   const { payments, loading: paymentsLoading, error: paymentsError } = useUserPayments(id);
   const { t } = useLanguage();
+
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+  const [plansError, setPlansError] = useState<string | null>(null);
+  const [upgradingPlanId, setUpgradingPlanId] = useState<number | null>(null);
+  const [upgradeMessage, setUpgradeMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchPlansList = async () => {
+      try {
+        setPlansLoading(true);
+        setPlansError(null);
+        const res = await getPlans();
+        if (cancelled) return;
+        const list = Array.isArray(res) ? res : res?.data || [];
+        setPlans(list);
+      } catch (err: unknown) {
+        if (cancelled) return;
+        setPlansError(getApiErrorMessage(err, "Failed to load plans."));
+      } finally {
+        if (!cancelled) {
+          setPlansLoading(false);
+        }
+      }
+    };
+
+    fetchPlansList();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleUpgrade = async (planId: number) => {
+    const userIdNum = Number(id);
+    if (!userIdNum || Number.isNaN(userIdNum)) return;
+
+    setUpgradingPlanId(planId);
+    setUpgradeMessage(null);
+
+    try {
+      await upgradeSubscription(userIdNum, { subscriptionId: planId });
+      setUpgradeMessage({
+        type: "success",
+        text: t.plans.upgradeSuccess,
+      });
+    } catch (err: unknown) {
+      setUpgradeMessage({
+        type: "error",
+        text: getApiErrorMessage(err, t.plans.upgradeFailed),
+      });
+    } finally {
+      setUpgradingPlanId(null);
+    }
+  };
 
   // Calculate transaction stats
   const stats = useMemo(() => {
@@ -108,6 +171,22 @@ export default function UserDetailPage() {
                   <div className="h-3 bg-gray-200 rounded animate-pulse w-20" />
                   <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Plans Section Skeleton */}
+        <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="h-5 bg-gray-200 rounded animate-pulse w-36 mb-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-6 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded animate-pulse w-28" />
+                </div>
+                <div className="h-8 bg-gray-200 rounded-xl animate-pulse w-20" />
               </div>
             ))}
           </div>
@@ -263,6 +342,116 @@ export default function UserDetailPage() {
             <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.country} value={user.country || "Vietnam"} />
           </div>
         </div>
+      </div>
+
+      {/* Plans Section */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+        <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
+          <Package className="w-5 h-5 text-primary" />
+          {t.plans.title}
+        </h3>
+
+        {upgradeMessage && (
+          <div
+            className={`mb-4 p-4 rounded-2xl border text-sm font-semibold flex items-center gap-2 ${
+              upgradeMessage.type === "success"
+                ? "bg-success-50 text-success-700 border-success-100"
+                : "bg-error-50 text-error-700 border-error-100"
+            }`}
+          >
+            {upgradeMessage.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+            )}
+            <span>{upgradeMessage.text}</span>
+          </div>
+        )}
+
+        {plansLoading ? (
+          <div className="flex items-center justify-center py-8 gap-2 text-sm text-gray-500 font-semibold">
+            <svg
+              className="animate-spin h-5 w-5 text-primary"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <span>{t.plans.loadingPlans}</span>
+          </div>
+        ) : plansError ? (
+          <div className="py-6 text-center text-sm font-semibold text-error-600">
+            {plansError}
+          </div>
+        ) : plans.length === 0 ? (
+          <div className="py-6 text-center text-sm font-medium text-gray-500">
+            {t.plans.noPlansFound}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {plans.map((plan) => (
+              <div
+                key={plan.planId}
+                className="flex items-center justify-between p-4 rounded-2xl border border-gray-150 bg-gray-50/30 hover:bg-gray-50 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold font-mono text-gray-400 bg-gray-200/60 px-2.5 py-1 rounded-lg">
+                    #{plan.planId}
+                  </span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {plan.planName}
+                  </span>
+                </div>
+                <button
+                  onClick={() => handleUpgrade(plan.planId)}
+                  disabled={upgradingPlanId === plan.planId}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow cursor-pointer shrink-0"
+                >
+                  {upgradingPlanId === plan.planId ? (
+                    <>
+                      <svg
+                        className="animate-spin h-3.5 w-3.5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      <span>{t.plans.upgrading}</span>
+                    </>
+                  ) : (
+                    <span>{t.plans.upgrade}</span>
+                  )}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Payment History */}

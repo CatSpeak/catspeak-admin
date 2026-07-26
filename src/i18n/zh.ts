@@ -358,6 +358,12 @@ const zh = {
     unitPrice: "单价",
     quantity: "数量",
     noPackages: "无套餐",
+    upgrade: "升级",
+    upgrading: "正在升级...",
+    upgradeSuccess: "套餐升级成功！",
+    upgradeFailed: "套餐升级失败。",
+    loadingPlans: "正在加载套餐列表...",
+    noPlansFound: "未找到套餐。",
   },
   reels: {
     title: "Reels",

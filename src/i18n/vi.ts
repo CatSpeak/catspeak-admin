@@ -364,6 +364,12 @@ const vi = {
     unitPrice: "Đơn giá",
     quantity: "Số lượng",
     noPackages: "Không có gói dịch vụ",
+    upgrade: "Nâng cấp",
+    upgrading: "Đang nâng cấp...",
+    upgradeSuccess: "Nâng cấp gói thành công!",
+    upgradeFailed: "Nâng cấp gói thất bại.",
+    loadingPlans: "Đang tải danh sách gói...",
+    noPlansFound: "Không tìm thấy gói dịch vụ nào.",
   },
   reels: {
     title: "Reels",
