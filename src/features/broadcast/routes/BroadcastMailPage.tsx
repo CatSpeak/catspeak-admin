@@ -19,7 +19,6 @@ import {
   FileText,
 } from "lucide-react";
 import { PageHeader } from "../../../components/ui/PageHeader";
-import Button from "../../../components/ui/Button";
 
 interface BroadcastItem {
   id: number;
@@ -399,28 +398,26 @@ const BroadcastMailPage: React.FC = () => {
           desc={t.broadcast.desc}
           rightButtons={[
             <div className="flex items-center bg-gray-100 p-1 rounded-xl">
-              <Button
-                size="sm"
+              <button
                 onClick={() => setActiveTab("compose")}
-                className={`font-semibold rounded-lg transition-all ${
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeTab === "compose"
                     ? "bg-white text-[#8f0d15] shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {t.broadcast.composeNewMail}
-              </Button>
-              <Button
-                size="sm"
+              </button>
+              <button
                 onClick={() => setActiveTab("history")}
-                className={`font-semibold rounded-lg transition-all ${
+                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all ${
                   activeTab === "history"
                     ? "bg-white text-[#8f0d15] shadow-sm"
                     : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {t.broadcast.broadcastHistory}
-              </Button>
+              </button>
             </div>,
           ]}
         />
