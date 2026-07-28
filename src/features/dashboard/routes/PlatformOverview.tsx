@@ -275,12 +275,12 @@ export default function PlatformOverview() {
     <div className="space-y-6">
       {/* ── Period Selector row ── */}
       <div className="flex justify-end">
-        <div className="flex items-center gap-1 p-1 rounded-lg bg-gray-100 overflow-x-auto max-w-full no-scrollbar shadow-inner border border-gray-200/50">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 overflow-x-auto max-w-full no-scrollbar shadow-inner border border-gray-200/50">
           {periods.map((p) => (
             <button
               key={p}
               onClick={() => setActivePeriod(p)}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap cursor-pointer ${
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 whitespace-nowrap cursor-pointer ${
                 activePeriod === p
                   ? "bg-white text-gray-900 shadow-xs font-bold"
                   : "text-gray-500 hover:text-gray-700 hover:bg-black/5"

@@ -162,10 +162,10 @@ export default function PaymentsDashboard({
       {/* ── Payments Summary Metrics ── */}
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">{t.dashboard.paymentsAndRevenue}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
           
           {/* Revenue Card (Double width in desktop) */}
-          <div className="lg:col-span-2 bg-gradient-to-br from-[#910b09] to-[#c8102e] p-6 rounded-2xl shadow-md text-white flex flex-col justify-between min-h-[140px] hover:shadow-lg transition-all">
+          <div className="lg:col-span-2 bg-gradient-to-br from-[#910b09] to-[#c8102e] p-5 sm:p-6 rounded-2xl shadow-md text-white flex flex-col justify-between min-h-[140px] hover:shadow-lg transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-white/85 uppercase tracking-wider block">
@@ -186,7 +186,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Success Card */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
@@ -208,7 +208,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Pending Card */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
@@ -228,7 +228,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Failed / Cancelled Card */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
@@ -253,10 +253,10 @@ export default function PaymentsDashboard({
       {/* ── Reports & Claims Summary Metrics ── */}
       <div>
         <h2 className="text-lg font-bold text-gray-900 mb-4 tracking-tight">{t.reports.paymentClaimsAndReports}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           
           {/* Total Reports */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
               <FileText className="w-6 h-6" />
             </div>
@@ -271,7 +271,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Pending Reports */}
-          <div className={`border p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all ${data.pendingReports > 0 ? "bg-warning-25 border-warning-200 text-warning-800" : "bg-white border-gray-200"}`}>
+          <div className={`border p-5 sm:p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all ${data.pendingReports > 0 ? "bg-warning-25 border-warning-200 text-warning-800" : "bg-white border-gray-200"}`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${data.pendingReports > 0 ? "bg-warning-100 text-warning-700 animate-pulse" : "bg-gray-100 text-gray-500"}`}>
               <AlertTriangle className="w-6 h-6" />
             </div>
@@ -286,7 +286,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Accepted Reports */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="w-12 h-12 rounded-xl bg-success-50 text-success-600 flex items-center justify-center shrink-0">
               <CheckCircle className="w-6 h-6" />
             </div>
@@ -301,7 +301,7 @@ export default function PaymentsDashboard({
           </div>
 
           {/* Denied Reports */}
-          <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+          <div className="bg-white border border-gray-200 p-5 sm:p-6 rounded-2xl shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="w-12 h-12 rounded-xl bg-error-50 text-error-600 flex items-center justify-center shrink-0">
               <Ban className="w-6 h-6" />
             </div>
@@ -351,9 +351,9 @@ export default function PaymentsDashboard({
           <div className="flex bg-gray-100 p-1 rounded-xl gap-1 self-start sm:self-auto">
             <button
               onClick={() => setChartMode("revenue")}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 chartMode === "revenue"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -361,9 +361,9 @@ export default function PaymentsDashboard({
             </button>
             <button
               onClick={() => setChartMode("transactions")}
-              className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 chartMode === "transactions"
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? "bg-white text-gray-900 shadow-xs font-bold"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
