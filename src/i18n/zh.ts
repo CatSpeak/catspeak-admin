@@ -55,6 +55,7 @@ const zh = {
     calendar: "日历",
     room: "房间",
     reels: "Reels",
+    broadcastMail: "群发邮件",
     applications: "申请",
     instructorApplications: "教师申请",
     feedback: "反馈",

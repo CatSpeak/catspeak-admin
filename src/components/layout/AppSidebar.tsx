@@ -65,6 +65,7 @@ const AppSidebar: React.FC = () => {
           { name: t.nav.calendar, path: "/calendar" },
           { name: t.nav.room, path: "/room" },
           { name: t.nav.reels, path: "/reels" },
+          { name: t.nav.broadcastMail || "Gửi Mail Hàng Loạt", path: "/broadcast-mail" },
         ],
       },
       {

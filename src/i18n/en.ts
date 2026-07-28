@@ -58,6 +58,7 @@ const en = {
     calendar: "Calendar",
     room: "Rooms",
     reels: "Reels",
+    broadcastMail: "Mass Broadcast Email",
     applications: "Applications",
     instructorApplications: "Instructor Applications",
     feedback: "Feedback",

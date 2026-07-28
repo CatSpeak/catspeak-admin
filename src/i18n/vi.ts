@@ -59,6 +59,7 @@ const vi = {
     calendar: "Lịch",
     room: "Room",
     reels: "Reels",
+    broadcastMail: "Gửi Mail Hàng Loạt",
     applications: "Đơn đăng ký",
     instructorApplications: "Đơn đăng ký giảng viên",
     feedback: "Phản hồi",
