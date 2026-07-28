@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe } from "lucide-react";
+import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe, Eye, Ban } from "lucide-react";
 import type { Room, RoomTopic } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
@@ -10,11 +10,13 @@ const DEFAULT_THUMBNAIL =
 interface RoomCardProps {
   room: Room;
   onDelete: (id: number) => void;
+  onDisable?: (id: number) => void;
+  onDetail?: (room: Room) => void;
   onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail, onEdit, onClick }) => {
   const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -74,11 +76,31 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           {menuOpen && (
             <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden">
               <button
-                onClick={() => { setMenuOpen(false); onEdit?.(room); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (onDetail) onDetail(room);
+                  else onClick?.(room);
+                }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <Pencil size={14} />
-                {t.common.edit}
+                <Eye size={14} className="text-gray-500" />
+                {t.common.detail || t.common.details}
+              </button>
+              {onEdit && (
+                <button
+                  onClick={() => { setMenuOpen(false); onEdit(room); }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Pencil size={14} />
+                  {t.common.edit}
+                </button>
+              )}
+              <button
+                onClick={() => { setMenuOpen(false); onDisable?.(room.roomId); }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors"
+              >
+                <Ban size={14} />
+                {t.common.disable}
               </button>
               <button
                 onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}

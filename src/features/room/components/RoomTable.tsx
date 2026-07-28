@@ -8,6 +8,8 @@ import {
   MoreVertical,
   Lock,
   Globe,
+  Eye,
+  Ban,
 } from "lucide-react";
 import type { Room, RoomTopic } from "../types";
 import { formatDate } from "../../../lib/utils";
@@ -18,6 +20,8 @@ import FlagBadge from "../../../components/ui/FlagBadge";
 interface RoomTableProps {
   rooms: Room[];
   onDelete: (id: number) => void;
+  onDisable?: (id: number) => void;
+  onDetail?: (room: Room) => void;
   onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
@@ -25,6 +29,8 @@ interface RoomTableProps {
 interface RoomTableRowProps {
   room: Room;
   onDelete: (id: number) => void;
+  onDisable?: (id: number) => void;
+  onDetail?: (room: Room) => void;
   onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
@@ -32,6 +38,8 @@ interface RoomTableRowProps {
 const RoomTableRow: React.FC<RoomTableRowProps> = ({
   room,
   onDelete,
+  onDisable,
+  onDetail,
   onEdit,
   onClick,
 }) => {
@@ -187,12 +195,39 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
                 role="menuitem"
                 onClick={() => {
                   setMenuOpen(false);
-                  onEdit?.(room);
+                  if (onDetail) onDetail(room);
+                  else onClick?.(room);
                 }}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
               >
-                <Pencil size={14} className="text-gray-450" />
-                {t.common.edit}
+                <Eye size={14} className="text-gray-500" />
+                {t.common.detail || t.common.details}
+              </button>
+              {onEdit && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit(room);
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <Pencil size={14} className="text-gray-450" />
+                  {t.common.edit}
+                </button>
+              )}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onDisable?.(room.roomId);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-left text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
+              >
+                <Ban size={14} />
+                {t.common.disable}
               </button>
               <button
                 type="button"
@@ -218,6 +253,8 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
 const RoomTable: React.FC<RoomTableProps> = ({
   rooms,
   onDelete,
+  onDisable,
+  onDetail,
   onEdit,
   onClick,
 }) => {
@@ -270,6 +307,8 @@ const RoomTable: React.FC<RoomTableProps> = ({
                 key={room.roomId}
                 room={room}
                 onDelete={onDelete}
+                onDisable={onDisable}
+                onDetail={onDetail}
                 onEdit={onEdit}
                 onClick={onClick}
               />

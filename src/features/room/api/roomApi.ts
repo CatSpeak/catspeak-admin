@@ -35,7 +35,15 @@ export const getRooms = async (
 };
 
 export const deleteRoom = async (id: number): Promise<void> => {
-  await axiosClient.delete(`/admin/rooms/${id}`);
+  await axiosClient.delete(`/admin/rooms/${id}`, {
+    params: { mode: "Delete" },
+  });
+};
+
+export const disableRoom = async (id: number): Promise<void> => {
+  await axiosClient.delete(`/admin/rooms/${id}`, {
+    params: { mode: "Disable" },
+  });
 };
 
 export const createRoom = async (data: FormData | CreateRoomPayload): Promise<void> => {
