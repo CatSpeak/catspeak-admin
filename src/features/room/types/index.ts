@@ -1,7 +1,7 @@
 // ── Room Types — matching real API response ──
 
 export type RoomType = "OneToOne" | "Group";
-export type LanguageType = "Chinese" | "English" | "Vietnamese";
+export type LanguageType = "Chinese" | "English" | null;
 export type RequiredLevel =
   | "HSK1"
   | "HSK2"
@@ -49,7 +49,7 @@ export type RoomTopic =
   | "Productivity";
 
 export type RoomTopicsTranslation = Record<RoomTopic, string>;
-export type LanguageTypesTranslation = Record<LanguageType, string>;
+export type LanguageTypesTranslation = Record<NonNullable<LanguageType>, string>;
 export type RequiredLevelsTranslation = Record<RequiredLevel, string>;
 export type RoomCategoriesTranslation = Record<RoomCategory, string>;
 

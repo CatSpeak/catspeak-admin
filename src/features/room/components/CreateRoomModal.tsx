@@ -19,7 +19,6 @@ import {
   ROOM_TOPICS,
 } from "../constants";
 import type {
-  LanguageType,
   RequiredLevel,
   RoomPrivacy,
   RoomTopic,
@@ -156,9 +155,7 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
               {LANGUAGE_TYPES.map((l) => (
                 <button
                   key={l.value}
-                  onClick={() =>
-                    updateField("languageType", l.value as LanguageType)
-                  }
+                  onClick={() => updateField("languageType", l.value)}
                   className={`flex-1 px-3 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 cursor-pointer ${
                     form.languageType === l.value
                       ? "bg-primary/10 border-primary/30 text-primary shadow-sm"
@@ -167,10 +164,10 @@ const CreateRoomModal: React.FC<CreateRoomModalProps> = ({
                 >
                   <img
                     src={l.flag}
-                    alt={t.room.languages?.[l.value as LanguageType] || l.label}
+                    alt={t.room.languages?.[l.value] || l.label}
                     className="w-4 h-4 rounded-sm inline-block align-text-bottom"
                   />{" "}
-                  {t.room.languages?.[l.value as LanguageType] || l.label}
+                  {t.room.languages?.[l.value] || l.label}
                 </button>
               ))}
             </div>
