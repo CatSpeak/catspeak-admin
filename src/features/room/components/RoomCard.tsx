@@ -42,19 +42,19 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
 
   return (
     <div
-      className="bg-white rounded-xl border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer flex flex-col"
+      className={`bg-white rounded-xl border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col relative ${menuOpen ? "z-30" : "z-0"}`}
       onClick={() => onClick?.(room)}
     >
       {/* Thumbnail — compact */}
-      <div className="relative h-32 overflow-hidden bg-gray-100">
+      <div className="relative h-32 bg-gray-100 rounded-t-xl">
         <img
           src={thumbnailSrc}
           alt={room.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-t-xl"
           onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
         />
         {/* Status + Privacy */}
-        <div className="absolute top-2 left-2 flex gap-1.5">
+        <div className="absolute top-2 left-2 flex gap-1.5 z-10">
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
             {isActive ? t.common.active : t.common.inactive}
@@ -65,7 +65,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
           </span>
         </div>
         {/* Menu — always visible on card */}
-        <div className="absolute top-2 right-2" ref={menuRef} onClick={(e) => e.stopPropagation()}>
+        <div className="absolute top-2 right-2 z-30" ref={menuRef} onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-1 rounded-md bg-black/20 text-white/80 hover:bg-black/40 hover:text-white transition-colors"
@@ -74,7 +74,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden">
+            <div className="absolute right-0 top-full mt-1 z-40 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden animate-fadeIn">
               <button
                 onClick={() => {
                   setMenuOpen(false);
