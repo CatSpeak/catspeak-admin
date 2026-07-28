@@ -31,7 +31,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
   }, [menuOpen]);
 
   const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
-  const flag = LANGUAGE_FLAGS[room.languageType];
+  const flag = room.languageType ? LANGUAGE_FLAGS[room.languageType] : undefined;
   const isActive = room.status === 1;
   const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
   const createdDate = new Date(room.createDate).toLocaleDateString("en-US", {
@@ -101,8 +101,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
           {/* Language */}
           <div className="flex items-center gap-1.5">
-            <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
-            <span className="truncate">{t.room.languages?.[room.languageType] || room.languageType}</span>
+            {flag && <img src={flag} alt={room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : ""} className="w-3.5 h-3.5 rounded-sm shrink-0" />}
+            <span className="truncate">{room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : "—"}</span>
           </div>
           {/* Type — styled tag */}
           <div className="flex items-center">

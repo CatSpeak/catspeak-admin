@@ -46,7 +46,7 @@ export const createRoom = async (data: FormData | CreateRoomPayload): Promise<vo
     formData = new FormData();
     formData.append("Name", data.name);
     formData.append("RoomType", data.roomType);
-    formData.append("LanguageType", data.languageType);
+    if (data.languageType) formData.append("LanguageType", data.languageType);
     if (data.requiredLevel) formData.append("RequiredLevel", data.requiredLevel);
     if (data.topics && data.topics.length > 0) {
       data.topics.forEach((t) => formData.append("Topics", t));
