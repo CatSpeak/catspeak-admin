@@ -15,6 +15,7 @@ import {
   CreateRoomModal,
   EditRoomModal,
   DeleteRoomDialog,
+  DisableRoomDialog,
   RoomDetailModal,
   RoomStats,
   Pagination,
@@ -39,6 +40,7 @@ const RoomPage: React.FC = () => {
     toggleFilterValue,
     clearFilters,
     deleteRoom,
+    disableRoom,
     refetch,
   } = useRooms();
 
@@ -46,6 +48,8 @@ const RoomPage: React.FC = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Room | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [disableTarget, setDisableTarget] = useState<Room | null>(null);
+  const [isDisabling, setIsDisabling] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [editTarget, setEditTarget] = useState<Room | null>(null);
 
@@ -67,6 +71,25 @@ const RoomPage: React.FC = () => {
       setIsDeleting(false);
     }
   }, [deleteTarget, deleteRoom]);
+
+  const handleDisableRequest = useCallback(
+    (id: number) => {
+      const room = rooms.find((r) => r.roomId === id);
+      if (room) setDisableTarget(room);
+    },
+    [rooms],
+  );
+
+  const handleDisableConfirm = useCallback(async () => {
+    if (!disableTarget) return;
+    setIsDisabling(true);
+    try {
+      await disableRoom(disableTarget.roomId);
+      setDisableTarget(null);
+    } finally {
+      setIsDisabling(false);
+    }
+  }, [disableTarget, disableRoom]);
 
   const handleRoomCreated = useCallback(() => {
     setIsCreateOpen(false);
@@ -202,6 +225,8 @@ const RoomPage: React.FC = () => {
                 key={room.roomId}
                 room={room}
                 onDelete={handleDeleteRequest}
+                onDisable={handleDisableRequest}
+                onDetail={(r) => setSelectedRoom(r)}
                 onEdit={handleEditRequest}
                 onClick={setSelectedRoom}
               />
@@ -211,6 +236,8 @@ const RoomPage: React.FC = () => {
           <RoomTable
             rooms={rooms}
             onDelete={handleDeleteRequest}
+            onDisable={handleDisableRequest}
+            onDetail={(r) => setSelectedRoom(r)}
             onEdit={handleEditRequest}
             onClick={setSelectedRoom}
           />
@@ -234,6 +261,13 @@ const RoomPage: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeleteTarget(null)}
         isDeleting={isDeleting}
+      />
+      <DisableRoomDialog
+        isOpen={!!disableTarget}
+        roomName={disableTarget?.name ?? ""}
+        onConfirm={handleDisableConfirm}
+        onCancel={() => setDisableTarget(null)}
+        isDisabling={isDisabling}
       />
       <RoomDetailModal
         room={selectedRoom}

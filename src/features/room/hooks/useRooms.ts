@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { getRooms, deleteRoom as deleteRoomApi, getRoomStats } from "../api/roomApi";
+import { getRooms, deleteRoom as deleteRoomApi, disableRoom as disableRoomApi, getRoomStats } from "../api/roomApi";
 import type { Room, RoomFilters, AdditionalData, RoomStatisticsDto } from "../types";
 
 const EMPTY_FILTERS: RoomFilters = {
@@ -127,6 +127,18 @@ export function useRooms() {
     }
   }, [fetchRooms]);
 
+  // ── Disable room ──
+
+  const disableRoom = useCallback(async (id: number) => {
+    try {
+      await disableRoomApi(id);
+      // Refetch after disable
+      await fetchRooms();
+    } catch (err: unknown) {
+      setError(getApiErrorMessage(err, "Failed to disable room."));
+    }
+  }, [fetchRooms]);
+
   // ── Stats (fetched from Room statistics API) ──
 
   const stats = useMemo(() => ({
@@ -154,6 +166,7 @@ export function useRooms() {
     toggleFilterValue,
     clearFilters,
     deleteRoom,
+    disableRoom,
     refetch: fetchRooms,
   };
 }
