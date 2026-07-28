@@ -33,6 +33,9 @@ export interface SubscriptionFeature {
   isUnlimited?: boolean;
 }
 
+export type PackageStatus = "Public" | "Published" | "Draft" | "Archived" | "Hidden";
+export type PlanStatus = PackageStatus;
+
 export interface Plan {
   planId: number;
   planName: string;
@@ -52,7 +55,7 @@ export interface Plan {
   billingCycle: string;
   allowRenewal: boolean;
   autoRenew: boolean;
-  packageStatus: string;
+  packageStatus: PackageStatus;
   subscriptionFeatures: SubscriptionFeature[];
 }
 

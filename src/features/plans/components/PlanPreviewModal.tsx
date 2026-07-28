@@ -1,6 +1,8 @@
 import React from "react";
 import { Check, X } from "lucide-react";
 import type { Plan } from "../../../entities/types";
+import { useLanguage } from "../../../stores/languageStore";
+import PlanStatusBadge from "./PlanStatusBadge";
 
 interface PlanPreviewModalProps {
   plan: Plan;
@@ -8,6 +10,8 @@ interface PlanPreviewModalProps {
 }
 
 const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) => {
+  const { t } = useLanguage();
+
   // Prevent clicks inside the modal from closing it
   const handleContentClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -30,6 +34,21 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
     currencySymbol = "¥";
   }
 
+  const formatBillingCycle = (cycle: string) => {
+    switch (cycle) {
+      case "Monthly":
+        return t.plans.monthlyCycle;
+      case "Quarterly":
+        return t.plans.quarterlyCycle;
+      case "Yearly":
+        return t.plans.yearlyCycle;
+      case "Lifetime":
+        return t.plans.lifetimeCycle;
+      default:
+        return cycle;
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-fade-in"
@@ -49,11 +68,16 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
         <div className="p-6 md:p-8 flex flex-col h-full">
           {/* Header */}
           <div className="mb-6">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {plan.planName || "Plan Name"}
-            </h3>
+            <div className="flex items-center justify-between gap-2 mb-2 pr-6">
+              <h3 className="text-2xl font-bold text-gray-900 truncate">
+                {plan.planName || t.plans.planName}
+              </h3>
+              {plan.packageStatus && (
+                <PlanStatusBadge status={plan.packageStatus} />
+              )}
+            </div>
             <p className="text-sm text-gray-500">
-              {plan.description || "Plan description goes here."}
+              {plan.description || t.plans.editBasicInfo}
             </p>
           </div>
 
@@ -66,7 +90,7 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
             </span>
             {!isFree && (
               <span className="ml-1 text-sm font-medium text-gray-500">
-                /{plan.billingCycle === "Monthly" ? "Monthly" : plan.billingCycle}
+                /{formatBillingCycle(plan.billingCycle)}
               </span>
             )}
           </div>
@@ -88,7 +112,7 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
                   </div>
                 ))
             ) : (
-              <div className="text-sm text-gray-400 italic">No features added yet.</div>
+              <div className="text-sm text-gray-400 italic">{t.plans.noFeaturesAdded}</div>
             )}
           </div>
 
@@ -97,7 +121,9 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
             className="w-full py-3.5 px-4 rounded-full font-bold text-sm transition-opacity hover:opacity-90 text-white shadow-sm"
             style={{ backgroundColor: plan.brandColor || "#7C3AED" }}
           >
-            {isFree ? "Get Started for Free" : `Upgrade to ${plan.planName || "Pro"}`}
+            {isFree
+              ? t.plans.getStartedFree
+              : t.plans.upgradeTo.replace("{name}", plan.planName || "Pro")}
           </button>
         </div>
       </div>

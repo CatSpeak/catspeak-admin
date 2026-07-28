@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, AlertTriangle, CheckCircle2, Edit3 } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import type { BanDuration } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 export type ReviewAction = "approve" | "reject" | "requestEdit";
 
@@ -20,40 +21,6 @@ export interface ReviewModalResult {
   editNote?: string;
 }
 
-const BAN_DURATION_OPTIONS: { label: string; value: BanDuration }[] = [
-  { label: "30 Days", value: "ThirtyDays" },
-  { label: "6 Months", value: "SixMonths" },
-  { label: "1 Year", value: "OneYear" },
-  { label: "2 Years", value: "TwoYears" },
-];
-
-const ACTION_CONFIG = {
-  approve: {
-    title: "Approve Application",
-    icon: <CheckCircle2 className="w-6 h-6 text-emerald-500" />,
-    description: "This will approve the instructor profile and grant the user instructor access.",
-    confirmLabel: "Approve",
-    confirmVariant: "primary" as const,
-    confirmClass: "!bg-emerald-600 hover:!bg-emerald-700",
-  },
-  reject: {
-    title: "Reject Application",
-    icon: <AlertTriangle className="w-6 h-6 text-red-500" />,
-    description: "Please provide a reason for rejection and select a reapplication ban duration.",
-    confirmLabel: "Reject",
-    confirmVariant: "danger" as const,
-    confirmClass: "",
-  },
-  requestEdit: {
-    title: "Request Edit",
-    icon: <Edit3 className="w-6 h-6 text-blue-500" />,
-    description: "Write a note explaining what the applicant needs to update before resubmitting.",
-    confirmLabel: "Send Request",
-    confirmVariant: "primary" as const,
-    confirmClass: "!bg-blue-600 hover:!bg-blue-700",
-  },
-};
-
 export default function ReviewModal({
   action,
   applicantName,
@@ -61,11 +28,46 @@ export default function ReviewModal({
   onConfirm,
   onClose,
 }: ReviewModalProps) {
+  const { t } = useLanguage();
   const [reason, setReason] = useState("");
   const [banDuration, setBanDuration] = useState<BanDuration>("ThirtyDays");
   const [editNote, setEditNote] = useState("");
 
-  const config = ACTION_CONFIG[action];
+  const banDurationOptions: { label: string; value: BanDuration }[] = [
+    { label: t.instructorApplications.thirtyDays, value: "ThirtyDays" },
+    { label: t.instructorApplications.sixMonths, value: "SixMonths" },
+    { label: t.instructorApplications.oneYear, value: "OneYear" },
+    { label: t.instructorApplications.twoYears, value: "TwoYears" },
+  ];
+
+  const actionConfig = {
+    approve: {
+      title: t.instructorApplications.approveTitle,
+      icon: <CheckCircle2 className="w-6 h-6 text-emerald-500" />,
+      description: t.instructorApplications.approveDesc,
+      confirmLabel: t.instructorApplications.approve,
+      confirmVariant: "primary" as const,
+      confirmClass: "!bg-emerald-600 hover:!bg-emerald-700",
+    },
+    reject: {
+      title: t.instructorApplications.rejectTitle,
+      icon: <AlertTriangle className="w-6 h-6 text-red-500" />,
+      description: t.instructorApplications.rejectDesc,
+      confirmLabel: t.instructorApplications.reject,
+      confirmVariant: "danger" as const,
+      confirmClass: "",
+    },
+    requestEdit: {
+      title: t.instructorApplications.requestEditTitle,
+      icon: <Edit3 className="w-6 h-6 text-blue-500" />,
+      description: t.instructorApplications.requestEditDesc,
+      confirmLabel: t.instructorApplications.sendRequest,
+      confirmVariant: "primary" as const,
+      confirmClass: "!bg-blue-600 hover:!bg-blue-700",
+    },
+  };
+
+  const config = actionConfig[action];
 
   const handleSubmit = () => {
     onConfirm({
@@ -97,7 +99,8 @@ export default function ReviewModal({
           <div className="flex-1 min-w-0">
             <h2 className="text-base font-bold text-gray-900">{config.title}</h2>
             <p className="text-xs text-gray-500 truncate">
-              Applicant: <span className="font-medium text-gray-700">{applicantName}</span>
+              {t.instructorApplications.applicant}{" "}
+              <span className="font-medium text-gray-700">{applicantName}</span>
             </p>
           </div>
           <button
@@ -116,11 +119,11 @@ export default function ReviewModal({
             <>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">
-                  Rejection Reason <span className="text-red-500">*</span>
+                  {t.instructorApplications.rejectionReason} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Explain why this application is being rejected..."
+                  placeholder={t.instructorApplications.rejectionReasonPlaceholder}
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none"
@@ -128,21 +131,21 @@ export default function ReviewModal({
               </div>
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium text-gray-700">
-                  Ban Duration
+                  {t.instructorApplications.banDuration}
                 </label>
                 <select
                   value={banDuration}
                   onChange={(e) => setBanDuration(e.target.value as BanDuration)}
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
                 >
-                  {BAN_DURATION_OPTIONS.map((opt) => (
+                  {banDurationOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
                 </select>
                 <p className="text-xs text-gray-400">
-                  The user cannot reapply until this ban expires.
+                  {t.instructorApplications.banHelpText}
                 </p>
               </div>
             </>
@@ -151,11 +154,11 @@ export default function ReviewModal({
           {action === "requestEdit" && (
             <div className="space-y-1.5">
               <label className="block text-sm font-medium text-gray-700">
-                Edit Note <span className="text-red-500">*</span>
+                {t.instructorApplications.editRequestNote} <span className="text-red-500">*</span>
               </label>
               <textarea
                 rows={4}
-                placeholder="Describe what changes the applicant needs to make..."
+                placeholder={t.instructorApplications.editNotePlaceholder}
                 value={editNote}
                 onChange={(e) => setEditNote(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
@@ -167,7 +170,7 @@ export default function ReviewModal({
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-6 pb-6">
           <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
-            Cancel
+            {t.common.cancel}
           </Button>
           <Button
             variant={config.confirmVariant}
