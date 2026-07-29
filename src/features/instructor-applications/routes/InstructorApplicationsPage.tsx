@@ -82,9 +82,9 @@ export default function InstructorApplicationsPage() {
                 case "Rejected":
                   return <Badge title={t.common.rejected} type="Red" />;
                 case "RequestEdit":
-                  return <Badge title="Request Edit" type="Orange" />;
+                  return <Badge title={t.instructorApplications.requestEdit} type="Orange" />;
                 default:
-                  return <Badge title={p.status || "Unknown"} type="Gray" />;
+                  return <Badge title={p.status || "?"} type="Gray" />;
               }
             },
           },

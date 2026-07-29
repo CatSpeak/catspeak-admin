@@ -33,8 +33,9 @@ const DeleteRoomDialog: React.FC<DeleteRoomDialogProps> = ({ isOpen, roomName, o
 
         <div className="px-6 py-4">
           <p className="text-sm text-gray-600">
-            Are you sure you want to delete <span className="font-semibold text-gray-900">"{roomName}"</span>?
-            This action cannot be undone.
+            {t.room.deleteRoomConfirmDescPrefix}
+            <span className="font-semibold text-gray-900">"{roomName}"</span>
+            {t.room.deleteRoomConfirmDescSuffix}
           </p>
         </div>
 
