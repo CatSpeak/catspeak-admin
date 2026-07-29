@@ -23,7 +23,7 @@ interface PostFormViewProps {
   initialPost?: Post | null;
   onSubmitCreate?: (payload: CreatePostPayload) => Promise<void>;
   onSubmitEdit?: (
-    payload: Omit<UpdatePostPayload, "id"> & { Files?: File[] },
+    payload: Omit<UpdatePostPayload, "id">,
   ) => Promise<void>;
   onSlugError?: (message: string | null) => void;
   slugError?: string | null;
@@ -76,6 +76,7 @@ export default function PostFormView({
   const [activeTagId, setActiveTagId] = useState<number | null>(null);
 
   const [thumbnails, setThumbnails] = useState<ThumbnailImage[]>([]);
+  const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -139,6 +140,7 @@ export default function PostFormView({
           alt: "Existing media",
         })),
       );
+      setRemovedMediaIds([]);
     }
   }, [mode, initialPost]);
 
@@ -157,6 +159,9 @@ export default function PostFormView({
   };
 
   const deleteThumbnail = (id: string | number) => {
+    if (typeof id === "number") {
+      setRemovedMediaIds((prev) => [...prev, id]);
+    }
     setThumbnails((prev) => {
       const target = prev.find((img) => img.id === id);
       if (target) {
@@ -209,8 +214,10 @@ export default function PostFormView({
           Privacy: privacy,
           Slug: slug || undefined,
           LanguageCommunity: community,
-          Files: newFiles.length > 0 ? newFiles : undefined,
-        } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
+          NewFiles: newFiles.length > 0 ? newFiles : undefined,
+          RemovedMediaIds:
+            removedMediaIds.length > 0 ? removedMediaIds : undefined,
+        });
       }
     } catch (err) {
       const message = getApiErrorMessage(err, t.news.failedToPublish);
@@ -336,6 +343,7 @@ export default function PostFormView({
       {/* Right Column — Settings */}
       <div className="flex flex-col gap-4 w-full xl:w-[320px] 2xl:w-[360px] shrink-0">
         <SettingsSidebar
+          mode={mode}
           privacy={privacy}
           onPrivacyChange={setPrivacy}
           publishDate={publishDate}

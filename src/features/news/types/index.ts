@@ -49,7 +49,9 @@ export interface UpdatePostPayload {
   Privacy: "Public" | "FriendsOnly" | "Private";
   Slug?: string;
   LanguageCommunity?: "All" | "English" | "Chinese";
+  NewFiles?: File[];
   Files?: File[];
+  RemovedMediaIds?: number[];
   DeletedMediaIds?: number[];
 }
 
