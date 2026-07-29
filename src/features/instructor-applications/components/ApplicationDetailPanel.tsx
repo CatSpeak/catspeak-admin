@@ -63,9 +63,14 @@ function formatLanguageLabel(value: JsonArrayValue): string {
   return level ? `${language} (${level})` : language;
 }
 
-function formatDate(value?: string | null) {
+function formatDate(value?: string | null, language: string = "en") {
   if (!value) return "—";
-  return new Date(value).toLocaleString("en-GB", {
+  const localeMap: Record<string, string> = {
+    vi: "vi-VN",
+    zh: "zh-CN",
+    en: "en-GB",
+  };
+  return new Date(value).toLocaleString(localeMap[language] || "en-GB", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -159,7 +164,7 @@ export default function ApplicationDetailPanel({
   application,
   onReviewed,
 }: ApplicationDetailPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
   const [modalAction, setModalAction] = useState<ReviewAction | null>(null);
@@ -176,22 +181,22 @@ export default function ApplicationDetailPanel({
     try {
       if (result.action === "approve") {
         await approveApplication(application.profileId);
-        addToast("success", "Application approved successfully.");
+        addToast("success", t.instructorApplications.approveSuccess);
       } else if (result.action === "reject") {
         await rejectApplication(
           application.profileId,
           result.reason!,
           result.banDuration!,
         );
-        addToast("success", "Application rejected.");
+        addToast("success", t.instructorApplications.rejectSuccess);
       } else if (result.action === "requestEdit") {
         await requestEditApplication(application.profileId, result.editNote!);
-        addToast("info", "Edit request sent to applicant.");
+        addToast("info", t.instructorApplications.requestEditSuccess);
       }
       setModalAction(null);
       onReviewed();
     } catch {
-      addToast("error", "Action failed. Please try again.");
+      addToast("error", t.instructorApplications.actionFailed);
     } finally {
       setIsSubmitting(false);
     }
@@ -237,7 +242,11 @@ export default function ApplicationDetailPanel({
             <ApplicationStatusBadge status={application.status} />
           </div>
           <p className="text-sm text-gray-500 mt-0.5">
-            @{application.username} · Account #{application.accountId}
+            @{application.username} ·{" "}
+            {t.instructorApplications.accountNumber.replace(
+              "{id}",
+              String(application.accountId),
+            )}
           </p>
         </div>
 
@@ -424,13 +433,13 @@ export default function ApplicationDetailPanel({
               <InfoRow
                 icon={<Clock className="w-4 h-4" />}
                 label={t.instructorApplications.submitted}
-                value={formatDate(application.submittedAt)}
+                value={formatDate(application.submittedAt, language)}
               />
               {application.reviewedAt && (
                 <InfoRow
                   icon={<Clock className="w-4 h-4" />}
                   label={t.instructorApplications.lastReviewed}
-                  value={formatDate(application.reviewedAt)}
+                  value={formatDate(application.reviewedAt, language)}
                 />
               )}
               {application.reviewedByAdminUsername && (
@@ -466,7 +475,7 @@ export default function ApplicationDetailPanel({
                   label={t.instructorApplications.bannedUntil}
                   value={
                     <span className="text-red-600 font-medium">
-                      {formatDate(application.banUntil)}
+                      {formatDate(application.banUntil, language)}
                     </span>
                   }
                 />

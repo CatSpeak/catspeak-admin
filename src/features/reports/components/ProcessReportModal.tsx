@@ -76,12 +76,12 @@ export default function ProcessReportModal({
 
     const trimmedReason = reason.trim();
     if (!trimmedReason) {
-      setError("Please provide a reason for this decision.");
+      setError(t.reports.provideReasonError);
       return;
     }
 
     if (trimmedReason.length < 5) {
-      setError("Reason must be at least 5 characters long.");
+      setError(t.reports.reasonTooShortError);
       return;
     }
 
@@ -89,7 +89,7 @@ export default function ProcessReportModal({
       await onProcess(action, trimmedReason);
       onClose();
     } catch (err: unknown) {
-      setError(getApiErrorMessage(err, "Failed to process the payment report."));
+      setError(getApiErrorMessage(err, t.reports.processFailedError));
     }
   };
 
@@ -158,7 +158,7 @@ export default function ProcessReportModal({
             <div className="flex justify-between items-start gap-4">
               <div>
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
-                  Report ID
+                  {t.reports.reportIdLabel}
                 </span>
                 <span className="text-sm font-semibold text-gray-900">
                   #{report.reportId}
@@ -228,7 +228,7 @@ export default function ProcessReportModal({
               <div className="mt-1 flex items-start gap-1.5 bg-white p-3 rounded-xl border border-gray-150">
                 <MessageSquare className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-gray-750 leading-normal">
-                  {report.userExplanation || "No explanation provided"}
+                  {report.userExplanation || t.reports.noExplanationProvided}
                 </p>
               </div>
             </div>
@@ -300,7 +300,7 @@ export default function ProcessReportModal({
                   required
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder={`Provide details on why this report was ${action === "Accept" ? "accepted" : "denied"}. Mention verification steps or communication with user...`}
+                  placeholder={t.reports.provideDetailsPlaceholder}
                   className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none placeholder:text-gray-300 font-medium"
                 />
               </div>
@@ -361,7 +361,7 @@ export default function ProcessReportModal({
               disabled={isProcessing}
               className="shadow-sm font-semibold cursor-pointer"
             >
-              {t.common.confirm} {action}
+              {action === "Accept" ? t.reports.confirmAccept : t.reports.confirmDeny}
             </Button>
           )}
         </div>

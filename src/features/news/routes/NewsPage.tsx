@@ -209,11 +209,15 @@ export default function NewsPage() {
             render: (p) => {
               switch (p.privacy) {
                 case "Public":
-                  return <Badge title="Public" type="Green" />;
+                  return <Badge title={t.news.publicLabel} type="Green" />;
                 case "Private":
-                  return <Badge title="Private" type="Blue" />;
+                  return <Badge title={t.news.privateLabel} type="Blue" />;
+                case "FriendsOnly":
+                  return (
+                    <Badge title={t.news.friendsOnlyLabel} type="Orange" />
+                  );
                 default:
-                  return <Badge title={p.privacy || "Unknown"} type="Gray" />;
+                  return <Badge title={p.privacy || "?"} type="Gray" />;
               }
             },
           },
