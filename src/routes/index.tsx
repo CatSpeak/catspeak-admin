@@ -27,8 +27,8 @@ const InstructorApplicationDetailPage = lazy(() => import("../features/instructo
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
 const PlansPage = lazy(() => import("../features/plans/PlansPage"));
-
 const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsPage"));
+const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -79,6 +79,7 @@ export const router = createBrowserRouter([
           { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
           { path: "instructor-applications/:id", element: wrap(InstructorApplicationDetailPage) },
           { path: "reels", element: wrap(ReelsPage) },
+          { path: "broadcast-mail", element: wrap(BroadcastMailPage) },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
             element: <ComingSoonPage title={route.title} />,

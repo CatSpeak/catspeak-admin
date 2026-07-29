@@ -9,7 +9,7 @@ import type { Plan } from "../../entities/types";
 import Table from "../../components/ui/table/Table";
 import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans";
 import { formatDateTime } from "../../lib/utils";
-import Badge from "../../components/ui/Badge";
+import PlanStatusBadge from "./components/PlanStatusBadge";
 import { useLanguage } from "../../stores/languageStore";
 import Avatar from "../../components/ui/Avatar";
 
@@ -114,22 +114,7 @@ const PlansPage: React.FC = () => {
             name: t.common.status,
             accessorKey: "packageStatus",
             values: ["Public", "Published", "Draft", "Archived"],
-            render: (p) => {
-              switch (p.packageStatus) {
-                case "Public":
-                  return <Badge title="Public" type="Green" />;
-                case "Published":
-                  return <Badge title="Published" type="Blue" />;
-                case "Draft":
-                  return <Badge title="Draft" type="Orange" />;
-                case "Archived":
-                  return <Badge title="Archived" type="Gray" />;
-                default:
-                  return (
-                    <Badge title={p.packageStatus || "Unknown"} type="Gray" />
-                  );
-              }
-            },
+            render: (p) => <PlanStatusBadge status={p.packageStatus} />,
           },
           {
             name: t.plans.features,

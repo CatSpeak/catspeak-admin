@@ -8,6 +8,29 @@ export function useUserDetail(userId?: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchUserDetail = async () => {
+    const id = Number(userId);
+    if (!userId || Number.isNaN(id) || id <= 0) {
+      setUser(null);
+      setError("Invalid user id.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await getUserDetail(id);
+      setUser(response);
+    } catch (fetchError: unknown) {
+      setUser(null);
+      setError(getApiErrorMessage(fetchError, "Failed to fetch user."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     const id = Number(userId);
@@ -18,7 +41,7 @@ export function useUserDetail(userId?: string) {
       return;
     }
 
-    const fetchUserDetail = async () => {
+    const load = async () => {
       setLoading(true);
       setError(null);
 
@@ -37,7 +60,7 @@ export function useUserDetail(userId?: string) {
       }
     };
 
-    fetchUserDetail();
+    load();
     return () => {
       cancelled = true;
     };
@@ -47,5 +70,6 @@ export function useUserDetail(userId?: string) {
     user,
     loading,
     error,
+    refetch: fetchUserDetail,
   };
 }

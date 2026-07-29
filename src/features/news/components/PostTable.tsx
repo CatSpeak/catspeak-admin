@@ -1,4 +1,14 @@
-import { Pencil, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight, Eye, Heart, MessageSquare, Share2 } from "lucide-react";
+import {
+  Pencil,
+  Trash2,
+  Image as ImageIcon,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Heart,
+  MessageSquare,
+  Share2,
+} from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import type { Post } from "../types";
@@ -31,13 +41,19 @@ function getColumns(
   return [
     {
       header: "ID",
-      render: (p) => <span className="font-medium text-gray-900">{p.postId}</span>,
+      render: (p) => (
+        <span className="font-medium text-gray-900">{p.postId}</span>
+      ),
     },
     {
       header: "Author",
       render: (p) => (
         <div className="flex items-center gap-2">
-          <img src={p.avatarUrl} alt="" className="w-6 h-6 rounded-full object-cover" />
+          <img
+            src={p.avatarUrl}
+            alt=""
+            className="w-6 h-6 rounded-full object-cover"
+          />
           <span className="text-gray-700">{p.authorName}</span>
         </div>
       ),
@@ -71,16 +87,17 @@ function getColumns(
       header: "Privacy",
       render: (p) => (
         <span
-          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize whitespace-nowrap ${p.privacy === "Public"
-            ? "bg-green-50 text-green-600 border border-green-200"
-            : p.privacy === "Private"
-              ? "bg-red-50 text-red-500 border border-red-200"
-              : "bg-amber-50 text-amber-600 border border-amber-200"
-            }`}
+          className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full capitalize whitespace-nowrap ${
+            p.privacy === "Public"
+              ? "bg-green-50 text-green-600 border border-green-200"
+              : p.privacy === "Private"
+                ? "bg-red-50 text-red-500 border border-red-200"
+                : "bg-amber-50 text-amber-600 border border-amber-200"
+          }`}
         >
           {typeof p.privacy === "string"
             ? p.privacy.replace(/([A-Z])/g, " $1").trim()
-            : String(p.privacy || "Unknown")}
+            : String(p.privacy || "?")}
         </span>
       ),
     },
@@ -130,11 +147,15 @@ function getColumns(
     },
     {
       header: "Date Created",
-      render: (p) => <span className="whitespace-nowrap">{formatDate(p.createDate)}</span>,
+      render: (p) => (
+        <span className="whitespace-nowrap">{formatDate(p.createDate)}</span>
+      ),
     },
     {
       header: "Last Edited",
-      render: (p) => <span className="whitespace-nowrap">{formatDate(p.lastEdited)}</span>,
+      render: (p) => (
+        <span className="whitespace-nowrap">{formatDate(p.lastEdited)}</span>
+      ),
     },
     {
       header: "Actions",
@@ -222,7 +243,9 @@ export default function PostTable({
               <ChevronLeft className="w-5 h-5" />
             </button>
 
-            <span className="text-sm font-medium text-primary">{currentPage}</span>
+            <span className="text-sm font-medium text-primary">
+              {currentPage}
+            </span>
 
             <button
               onClick={() => goToPage(currentPage + 1)}

@@ -4,6 +4,7 @@ export { default as RoomFilters } from "./RoomFilters";
 export { default as CreateRoomModal } from "./CreateRoomModal";
 export { default as EditRoomModal } from "./EditRoomModal";
 export { default as DeleteRoomDialog } from "./DeleteRoomDialog";
+export { default as DisableRoomDialog } from "./DisableRoomDialog";
 export { default as RoomDetailModal } from "./RoomDetailModal";
 export { default as RoomStats } from "./RoomStats";
 export { default as Pagination } from "./Pagination";

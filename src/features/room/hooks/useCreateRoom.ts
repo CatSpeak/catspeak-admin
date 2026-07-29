@@ -80,7 +80,7 @@ export function useCreateRoom(onCreated: () => void) {
       const formData = new FormData();
       formData.append("Name", form.name);
       formData.append("RoomType", form.roomType);
-      formData.append("LanguageType", form.languageType);
+      if (form.languageType) formData.append("LanguageType", form.languageType);
       if (form.requiredLevel) formData.append("RequiredLevel", form.requiredLevel);
       if (form.topics.length > 0) {
         form.topics.forEach((t) => formData.append("Topics", t));

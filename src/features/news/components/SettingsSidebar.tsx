@@ -1,16 +1,12 @@
-import {
-  Globe,
-  Users,
-  Lock,
-  History,
-} from "lucide-react";
-import { MOCK_EDIT_HISTORY, COMMUNITIES } from "../constants";
+import { Globe, Users, Lock } from "lucide-react";
+import { COMMUNITIES } from "../constants";
 import type { TagItem } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
 
 const PRIVACY_OPTIONS = ["Public", "FriendsOnly", "Private"] as const;
 
 interface SettingsSidebarProps {
+  mode?: "create" | "edit";
   privacy: "Public" | "FriendsOnly" | "Private";
   onPrivacyChange: (val: "Public" | "FriendsOnly" | "Private") => void;
   publishDate: string;
@@ -27,6 +23,7 @@ interface SettingsSidebarProps {
 }
 
 const SettingsSidebar = ({
+  mode = "create",
   privacy,
   onPrivacyChange,
   community,
@@ -38,8 +35,16 @@ const SettingsSidebar = ({
 
   const privacyDetails = {
     Public: { label: t.news.publicLabel, icon: Globe, desc: t.news.publicDesc },
-    FriendsOnly: { label: t.news.friendsOnlyLabel, icon: Users, desc: t.news.friendsOnlyDesc },
-    Private: { label: t.news.privateLabel, icon: Lock, desc: t.news.privateDesc },
+    FriendsOnly: {
+      label: t.news.friendsOnlyLabel,
+      icon: Users,
+      desc: t.news.friendsOnlyDesc,
+    },
+    Private: {
+      label: t.news.privateLabel,
+      icon: Lock,
+      desc: t.news.privateDesc,
+    },
   };
 
   return (
@@ -59,23 +64,26 @@ const SettingsSidebar = ({
                 key={option}
                 type="button"
                 onClick={() => onPrivacyChange(option)}
-                className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${isSelected
-                  ? "border-primary bg-brand-50/10 shadow-sm ring-1 ring-primary/20"
-                  : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/30"
-                  }`}
+                className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                  isSelected
+                    ? "border-primary bg-brand-50/10 shadow-sm ring-1 ring-primary/20"
+                    : "border-gray-100 bg-white hover:border-gray-200 hover:bg-gray-50/30"
+                }`}
               >
                 <span
-                  className={`p-1.5 rounded-lg border transition-colors ${isSelected
-                    ? "bg-primary text-white border-primary"
-                    : "bg-gray-50 text-gray-500 border-gray-100"
-                    }`}
+                  className={`p-1.5 rounded-lg border transition-colors ${
+                    isSelected
+                      ? "bg-primary text-white border-primary"
+                      : "bg-gray-50 text-gray-500 border-gray-100"
+                  }`}
                 >
                   <Icon size={14} />
                 </span>
                 <div>
                   <span
-                    className={`text-xs font-semibold block transition-colors ${isSelected ? "text-primary" : "text-gray-900"
-                      }`}
+                    className={`text-xs font-semibold block transition-colors ${
+                      isSelected ? "text-primary" : "text-gray-900"
+                    }`}
                   >
                     {details.label}
                   </span>
@@ -104,10 +112,11 @@ const SettingsSidebar = ({
                 key={c}
                 type="button"
                 onClick={() => onCommunityChange(c)}
-                className={`flex-1 text-center py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${isSelected
-                  ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
-                  : "text-gray-500 hover:text-gray-800 border border-transparent"
-                  }`}
+                className={`flex-1 text-center py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                  isSelected
+                    ? "bg-white text-gray-900 shadow-sm border border-gray-200/50"
+                    : "text-gray-500 hover:text-gray-800 border border-transparent"
+                }`}
               >
                 {c === "All" ? t.common.all : c}
               </button>
@@ -117,45 +126,6 @@ const SettingsSidebar = ({
       </div>
 
       <div className="h-px bg-gray-100" />
-
-      {/* Revision History Section */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-1.5">
-          <History size={13} className="text-gray-400" />
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
-            {t.news.revisionHistory}
-          </span>
-        </div>
-        <div className="relative pl-4 border-l border-gray-100 ml-1.5 space-y-4">
-          {MOCK_EDIT_HISTORY.map(({ id, label, isCurrent }) => (
-            <div key={id} className="relative">
-              <span
-                className={`absolute -left-[20.5px] top-1.5 rounded-full size-2 border transition-all ${isCurrent
-                  ? "bg-primary border-primary ring-4 ring-primary/10"
-                  : "bg-gray-200 border-white shadow-sm"
-                  }`}
-              />
-              <div className="flex flex-col">
-                <span
-                  className={`text-xs font-semibold ${isCurrent ? "text-primary" : "text-gray-700"
-                    }`}
-                >
-                  {label}
-                </span>
-                <span className="text-[10px] text-gray-400 font-medium">
-                  {isCurrent ? t.news.activeRevision : t.news.savedDraft}
-                </span>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            className="text-[11px] text-blue-500 font-semibold hover:text-blue-600 transition-colors pt-1 block cursor-pointer hover:underline"
-          >
-            {t.news.viewAllHistory}
-          </button>
-        </div>
-      </div>
 
       {/* Save / Publish Action Section */}
       <div className="space-y-2.5 pt-4 border-t border-gray-100 flex flex-col">
@@ -168,12 +138,10 @@ const SettingsSidebar = ({
           {isSubmitting ? (
             <>
               <span className="w-3.5 h-3.5 border-2 border-white/30 rounded-full animate-spin" />
-              {t.news.publishing}
+              {mode === "edit" ? t.news.updatingPost : t.news.publishing}
             </>
           ) : (
-            <>
-              {t.news.publishPost}
-            </>
+            <>{mode === "edit" ? t.news.updatePost : t.news.publishPost}</>
           )}
         </button>
         <button

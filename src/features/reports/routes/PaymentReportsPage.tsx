@@ -58,7 +58,6 @@ export default function PaymentReportsPage() {
     };
   }, [statusFilter]);
 
-
   const handleReviewReport = (report: PaymentReport) => {
     setSelectedReport(report);
     setIsModalOpen(true);
@@ -214,7 +213,7 @@ export default function PaymentReportsPage() {
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-800 text-xs">
-                  {r.username || "Unknown"}
+                  {r.username || "?"}
                 </span>
                 {r.email && (
                   <span className="text-[10px] text-gray-400 truncate max-w-[150px]">
@@ -261,7 +260,11 @@ export default function PaymentReportsPage() {
             name: t.common.status,
             accessorKey: "status",
             values: [0, 1, 2],
-            valueLabels: [t.common.pending, t.common.approved, t.common.rejected],
+            valueLabels: [
+              t.common.pending,
+              t.common.approved,
+              t.common.rejected,
+            ],
             render: (p) => {
               switch (p.status) {
                 case 0:
@@ -271,7 +274,7 @@ export default function PaymentReportsPage() {
                 case 2:
                   return <Badge title={t.common.rejected} type="Red" />;
                 default:
-                  return <Badge title={p.status || "Unknown"} type="Gray" />;
+                  return <Badge title={p.status || "?"} type="Gray" />;
               }
             },
           },

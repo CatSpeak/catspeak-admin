@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { AlertCircle, X } from "lucide-react";
 import { generateSlug } from "../../../lib/slug";
+import { getApiErrorMessage } from "../../../lib/axios";
 import type {
   Post,
   TagItem,
@@ -20,9 +22,7 @@ interface PostFormViewProps {
   mode: FormMode;
   initialPost?: Post | null;
   onSubmitCreate?: (payload: CreatePostPayload) => Promise<void>;
-  onSubmitEdit?: (
-    payload: Omit<UpdatePostPayload, "id"> & { Files?: File[] },
-  ) => Promise<void>;
+  onSubmitEdit?: (payload: Omit<UpdatePostPayload, "id">) => Promise<void>;
   onSlugError?: (message: string | null) => void;
   slugError?: string | null;
 }
@@ -39,8 +39,8 @@ export default function PostFormView({
   // Map post data or init empty strings
   const [title, setTitle] = useState(
     initialPost?.Title ||
-    initialPost?.title ||
-    (mode === "edit" ? "Untitled Post" : ""),
+      initialPost?.title ||
+      (mode === "edit" ? "Untitled Post" : ""),
   );
 
   useEffect(() => {
@@ -54,7 +54,9 @@ export default function PostFormView({
         setSlugEdited(false);
       }
       if (initialPost.languageCommunity) {
-        setCommunity(initialPost.languageCommunity as "All" | "English" | "Chinese");
+        setCommunity(
+          initialPost.languageCommunity as "All" | "English" | "Chinese",
+        );
       }
     }
   }, [mode, initialPost]);
@@ -67,18 +69,20 @@ export default function PostFormView({
   const [publishDate, setPublishDate] = useState("");
   const [publishTime, setPublishTime] = useState("");
   const [community, setCommunity] = useState<"All" | "English" | "Chinese">(
-    (initialPost?.languageCommunity as "All" | "English" | "Chinese") || "All"
+    (initialPost?.languageCommunity as "All" | "English" | "Chinese") || "All",
   );
 
   const [tags] = useState<TagItem[]>(MOCK_TAGS);
   const [activeTagId, setActiveTagId] = useState<number | null>(null);
 
   const [thumbnails, setThumbnails] = useState<ThumbnailImage[]>([]);
+  const [removedMediaIds, setRemovedMediaIds] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Slug state
   const [slug, setSlug] = useState(
-    mode === "edit" ? (initialPost?.slug || "") : ""
+    mode === "edit" ? initialPost?.slug || "" : "",
   );
   const [slugEdited, setSlugEdited] = useState(false);
 
@@ -103,6 +107,7 @@ export default function PostFormView({
       setSlugEdited(true);
     }
     setSlug(value);
+    setSubmitError(null);
     if (onSlugError) onSlugError(null);
   };
 
@@ -135,6 +140,7 @@ export default function PostFormView({
           alt: "Existing media",
         })),
       );
+      setRemovedMediaIds([]);
     }
   }, [mode, initialPost]);
 
@@ -153,6 +159,9 @@ export default function PostFormView({
   };
 
   const deleteThumbnail = (id: string | number) => {
+    if (typeof id === "number") {
+      setRemovedMediaIds((prev) => [...prev, id]);
+    }
     setThumbnails((prev) => {
       const target = prev.find((img) => img.id === id);
       if (target) {
@@ -174,6 +183,8 @@ export default function PostFormView({
       return;
     }
 
+    setSubmitError(null);
+    if (onSlugError) onSlugError(null);
     setIsSubmitting(true);
 
     try {
@@ -203,22 +214,52 @@ export default function PostFormView({
           Privacy: privacy,
           Slug: slug || undefined,
           LanguageCommunity: community,
-          Files: newFiles.length > 0 ? newFiles : undefined,
-        } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
+          NewFiles: newFiles.length > 0 ? newFiles : undefined,
+          RemovedMediaIds:
+            removedMediaIds.length > 0 ? removedMediaIds : undefined,
+        });
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t.news.failedToPublish;
+      const message = getApiErrorMessage(err, t.news.failedToPublish);
+      setSubmitError(message);
       if (onSlugError) onSlugError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const activeError = submitError || slugError;
+
   return (
     <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start animate-slideUp">
       {/* Left Column — Editor */}
       <div className="w-full xl:flex-1 space-y-4 p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        {/* Submit / API Error Banner */}
+        {activeError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-sm text-red-700 animate-fadeIn">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-1">
+              <h4 className="font-semibold text-red-800">
+                {t.common.error || "Error"}
+              </h4>
+              <div className="whitespace-pre-line text-red-600 font-medium text-xs sm:text-sm">
+                {activeError}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitError(null);
+                if (onSlugError) onSlugError(null);
+              }}
+              className="text-red-400 hover:text-red-600 transition-colors"
+              aria-label="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Title Editor */}
         <div className="pt-2">
           <CharCountInput
@@ -232,7 +273,9 @@ export default function PostFormView({
 
         {/* Slug field */}
         <div className="space-y-1">
-          <h2 className="text-base font-semibold text-gray-900">{t.news.postSlug}</h2>
+          <h2 className="text-base font-semibold text-gray-900">
+            {t.news.postSlug}
+          </h2>
           <input
             type="text"
             value={slug}
@@ -244,9 +287,7 @@ export default function PostFormView({
           <p className="text-xs text-gray-400">
             {slugEdited ? t.news.customSlug : t.news.suggestedSlug}
           </p>
-          {slugError && (
-            <p className="text-xs text-red-500">{slugError}</p>
-          )}
+          {slugError && <p className="text-xs text-red-500">{slugError}</p>}
         </div>
 
         {/* Hidden File Input */}
@@ -302,6 +343,7 @@ export default function PostFormView({
       {/* Right Column — Settings */}
       <div className="flex flex-col gap-4 w-full xl:w-[320px] 2xl:w-[360px] shrink-0">
         <SettingsSidebar
+          mode={mode}
           privacy={privacy}
           onPrivacyChange={setPrivacy}
           publishDate={publishDate}
