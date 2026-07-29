@@ -137,7 +137,8 @@ const en = {
     target: "Target",
     revenue: "Revenue",
     today: "Today",
-    earnSummary: "You earn {amount} today, higher than last month. Keep up your good work!",
+    earnSummary:
+      "You earn {amount} today, higher than last month. Keep up your good work!",
     earnSummaryStandard: "You earn {amount} today. Keep up your good work!",
   },
   users: {
@@ -247,14 +248,18 @@ const en = {
     editRequestNote: "Edit Request Note",
     bannedUntil: "Banned Until",
     approveTitle: "Approve Application",
-    approveDesc: "This will approve the instructor profile and grant the user instructor access.",
+    approveDesc:
+      "This will approve the instructor profile and grant the user instructor access.",
     rejectTitle: "Reject Application",
-    rejectDesc: "Please provide a reason for rejection and select a reapplication ban duration.",
+    rejectDesc:
+      "Please provide a reason for rejection and select a reapplication ban duration.",
     requestEditTitle: "Request Edit",
-    requestEditDesc: "Write a note explaining what the applicant needs to update before resubmitting.",
+    requestEditDesc:
+      "Write a note explaining what the applicant needs to update before resubmitting.",
     sendRequest: "Send Request",
     applicant: "Applicant:",
-    rejectionReasonPlaceholder: "Explain why this application is being rejected...",
+    rejectionReasonPlaceholder:
+      "Explain why this application is being rejected...",
     banDuration: "Ban Duration",
     banHelpText: "The user cannot reapply until this ban expires.",
     editNotePlaceholder: "Describe what changes the applicant needs to make...",
@@ -417,6 +422,8 @@ const en = {
     upgradeFailed: "Failed to upgrade subscription.",
     loadingPlans: "Loading plans...",
     noPlansFound: "No plans found.",
+    failedToLoadPlans: "Failed to load plans list.",
+    subscribed: "Subscribed",
   },
   reels: {
     title: "Reels",
@@ -535,9 +542,11 @@ const en = {
     composeNewMail: "Compose New Mail",
     broadcastHistory: "Broadcast History",
     campaignTitle: "Broadcast Campaign Title",
-    campaignTitlePlaceholder: "Example: CatSpeak V2.5 Update & New Features Announcement",
+    campaignTitlePlaceholder:
+      "Example: CatSpeak V2.5 Update & New Features Announcement",
     multiLangVariants: "Smart Multi-Lingual Variants",
-    multiLangDesc: "Automatically distribute Vietnamese, English, or Chinese templates based on user country & language preference.",
+    multiLangDesc:
+      "Automatically distribute Vietnamese, English, or Chinese templates based on user country & language preference.",
     singleLangTemplate: "Single Language Template",
     vietnamese: "🇻🇳 Vietnamese",
     english: "🇬🇧 English",
@@ -548,15 +557,20 @@ const en = {
     subjectVi: "Subject Line (VI)",
     subjectViPlaceholder: "[CatSpeak] Important system update announcement...",
     contentVi: "Email Content (HTML Code - VI)",
-    contentViPlaceholder: "<h2>Hello {{name}},</h2><p>Announcement content to users...</p>",
+    contentViPlaceholder:
+      "<h2>Hello {{name}},</h2><p>Announcement content to users...</p>",
     subjectEn: "Subject Line (EN)",
-    subjectEnPlaceholder: "[CatSpeak] System Update & New Features Announcement...",
+    subjectEnPlaceholder:
+      "[CatSpeak] System Update & New Features Announcement...",
     contentEn: "Email Content (HTML Code - EN)",
-    contentEnPlaceholder: "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
+    contentEnPlaceholder:
+      "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
     subjectZh: "Subject Line (ZH)",
-    subjectZhPlaceholder: "[CatSpeak] System Update & New Features Announcement...",
+    subjectZhPlaceholder:
+      "[CatSpeak] System Update & New Features Announcement...",
     contentZh: "Email Content (HTML Code - ZH)",
-    contentZhPlaceholder: "<h2>Hello {{name}},</h2><p>We are proud to announce...</p>",
+    contentZhPlaceholder:
+      "<h2>Hello {{name}},</h2><p>We are proud to announce...</p>",
     noPreviewContent: "No content to preview",
     targetAudience: "Target Recipients",
     allUsers: "All Active Users",
@@ -576,22 +590,27 @@ const en = {
     confirmScheduleSend: "Confirm Scheduled Broadcast",
     startBroadcastNow: "Start Broadcast Now",
     enterCampaignTitleError: "Please enter the broadcast campaign title.",
-    enterViContentError: "Please enter Vietnamese Subject & Content (required).",
+    enterViContentError:
+      "Please enter Vietnamese Subject & Content (required).",
     campaignCreatedSuccess: "Broadcast campaign created successfully!",
     campaignCreatedError: "Failed to create broadcast campaign.",
-    csvExtractSuccess: "Successfully extracted {count} emails from CSV/Excel file!",
+    csvExtractSuccess:
+      "Successfully extracted {count} emails from CSV/Excel file!",
     csvNoValidEmail: "No valid emails found in file.",
     csvReadError: "Error reading CSV file: ",
-    confirmCancel: "Are you sure you want to CANCEL Broadcast campaign #{id}? Background worker will stop sending immediately.",
+    confirmCancel:
+      "Are you sure you want to CANCEL Broadcast campaign #{id}? Background worker will stop sending immediately.",
     cancelSuccess: "Successfully cancelled campaign #{id}.",
     cancelError: "Error cancelling campaign: ",
-    confirmDelete: "Are you sure you want to DELETE Broadcast campaign #{id} and all related logs?",
+    confirmDelete:
+      "Are you sure you want to DELETE Broadcast campaign #{id} and all related logs?",
     deleteError: "Error deleting campaign: ",
     invalidEmailError: "Please enter a valid email address.",
     testEmailSentSuccess: "Successfully sent test email to {email}!",
     testEmailSentError: "Error sending test email: ",
     historyTitle: "Broadcast Campaign History & Progress",
-    historyDesc: "Monitor email delivery status via real-time background worker",
+    historyDesc:
+      "Monitor email delivery status via real-time background worker",
     refresh: "Refresh",
     tableId: "# ID",
     tableCampaign: "Campaign",
@@ -608,7 +627,8 @@ const en = {
     cancelCampaignTooltip: "Cancel campaign",
     deleteCampaignTooltip: "Delete campaign",
     logModalTitle: "Detailed Log for Campaign #{id}: {title}",
-    logModalStats: "Total {total} recipients | Success: {sent} | Failed: {failed}",
+    logModalStats:
+      "Total {total} recipients | Success: {sent} | Failed: {failed}",
     statusLabel: "Status:",
     allStatus: "All",
     sentStatus: "Sent",
@@ -627,7 +647,8 @@ const en = {
     prevPage: "Prev",
     nextPage: "Next",
     testModalTitle: "Send Test Email (Preview)",
-    testModalDesc: "Enter your personal email to preview the actual email before launching a mass broadcast.",
+    testModalDesc:
+      "Enter your personal email to preview the actual email before launching a mass broadcast.",
     testEmailLabel: "Test Email Recipient",
     sendTestNow: "Send Test Now",
   },
@@ -845,6 +866,10 @@ const en = {
     createdTo: "Created To",
     sortBy: "Sort By",
     sortOrder: "Sort Order",
+    cancelled: "Cancelled",
+    user: "User",
+    vietnam: "Vietnam",
+    copyValue: "Copy value",
   },
   table: {
     rowsPerPage: "Rows per page:",

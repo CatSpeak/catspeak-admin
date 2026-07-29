@@ -139,8 +139,10 @@ const vi = {
     target: "Mục tiêu",
     revenue: "Doanh thu",
     today: "Hôm nay",
-    earnSummary: "Bạn kiếm được {amount} hôm nay, cao hơn tháng trước. Hãy tiếp tục cố gắng!",
-    earnSummaryStandard: "Bạn kiếm được {amount} hôm nay. Hãy tiếp tục cố gắng!",
+    earnSummary:
+      "Bạn kiếm được {amount} hôm nay, cao hơn tháng trước. Hãy tiếp tục cố gắng!",
+    earnSummaryStandard:
+      "Bạn kiếm được {amount} hôm nay. Hãy tiếp tục cố gắng!",
   },
   users: {
     title: "Người dùng",
@@ -249,16 +251,21 @@ const vi = {
     editRequestNote: "Ghi chú yêu cầu chỉnh sửa",
     bannedUntil: "Bị cấm đến",
     approveTitle: "Duyệt đơn đăng ký",
-    approveDesc: "Hành động này sẽ duyệt hồ sơ giảng viên và cấp quyền truy cập giảng viên cho người dùng.",
+    approveDesc:
+      "Hành động này sẽ duyệt hồ sơ giảng viên và cấp quyền truy cập giảng viên cho người dùng.",
     rejectTitle: "Từ chối đơn đăng ký",
-    rejectDesc: "Vui lòng cung cấp lý do từ chối và chọn thời gian cấm nộp lại đơn.",
+    rejectDesc:
+      "Vui lòng cung cấp lý do từ chối và chọn thời gian cấm nộp lại đơn.",
     requestEditTitle: "Yêu cầu chỉnh sửa",
-    requestEditDesc: "Viết ghi chú giải thích những gì ứng viên cần cập nhật trước khi nộp lại.",
+    requestEditDesc:
+      "Viết ghi chú giải thích những gì ứng viên cần cập nhật trước khi nộp lại.",
     sendRequest: "Gửi yêu cầu",
     applicant: "Ứng viên:",
-    rejectionReasonPlaceholder: "Giải thích lý do tại sao đơn đăng ký này bị từ chối...",
+    rejectionReasonPlaceholder:
+      "Giải thích lý do tại sao đơn đăng ký này bị từ chối...",
     banDuration: "Thời gian cấm",
-    banHelpText: "Người dùng không thể nộp lại đơn cho đến khi thời hạn cấm này hết hạn.",
+    banHelpText:
+      "Người dùng không thể nộp lại đơn cho đến khi thời hạn cấm này hết hạn.",
     editNotePlaceholder: "Mô tả những thay đổi ứng viên cần thực hiện...",
     thirtyDays: "30 ngày",
     sixMonths: "6 tháng",
@@ -419,6 +426,8 @@ const vi = {
     upgradeFailed: "Nâng cấp gói thất bại.",
     loadingPlans: "Đang tải danh sách gói...",
     noPlansFound: "Không tìm thấy gói dịch vụ nào.",
+    failedToLoadPlans: "Không thể tải danh sách gói.",
+    subscribed: "Đang đăng ký",
   },
   reels: {
     title: "Reels",
@@ -537,9 +546,11 @@ const vi = {
     composeNewMail: "Soạn Mail Mới",
     broadcastHistory: "Lịch Sử Broadcast",
     campaignTitle: "Tên Chiến Dịch Broadcast",
-    campaignTitlePlaceholder: "Ví dụ: Thông Báo Cập Nhật CatSpeak V2.5 & Tính Năng Mới",
+    campaignTitlePlaceholder:
+      "Ví dụ: Thông Báo Cập Nhật CatSpeak V2.5 & Tính Năng Mới",
     multiLangVariants: "Smart Multi-Lingual Variants",
-    multiLangDesc: "Tự động phân phát mẫu Tiếng Việt, Tiếng Anh, hoặc Tiếng Trung dựa vào Quốc gia & Ngôn ngữ của User.",
+    multiLangDesc:
+      "Tự động phân phát mẫu Tiếng Việt, Tiếng Anh, hoặc Tiếng Trung dựa vào Quốc gia & Ngôn ngữ của User.",
     singleLangTemplate: "Mẫu Email Duy Nhất",
     vietnamese: "🇻🇳 Tiếng Việt",
     english: "🇬🇧 Tiếng Anh",
@@ -548,17 +559,22 @@ const vi = {
     visualPreview: "Trực Quan",
     insertVariable: "Chèn Biến Thể:",
     subjectVi: "Tiêu Đề Email (Subject - VI)",
-    subjectViPlaceholder: "[CatSpeak] Thông báo cập nhật hệ thống quan trọng...",
+    subjectViPlaceholder:
+      "[CatSpeak] Thông báo cập nhật hệ thống quan trọng...",
     contentVi: "Nội Dung Email (HTML Code - VI)",
-    contentViPlaceholder: "<h2>Xin chào {{name}},</h2><p>Nội dung thông báo gửi tới người dùng...</p>",
+    contentViPlaceholder:
+      "<h2>Xin chào {{name}},</h2><p>Nội dung thông báo gửi tới người dùng...</p>",
     subjectEn: "Subject Line (EN)",
-    subjectEnPlaceholder: "[CatSpeak] System Update & New Features Announcement...",
+    subjectEnPlaceholder:
+      "[CatSpeak] System Update & New Features Announcement...",
     contentEn: "Email Body (HTML Code - EN)",
-    contentEnPlaceholder: "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
+    contentEnPlaceholder:
+      "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
     subjectZh: "邮件主题 (ZH)",
     subjectZhPlaceholder: "[CatSpeak] 系统更新与新功能通知...",
     contentZh: "邮件内容 (HTML Code - ZH)",
-    contentZhPlaceholder: "<h2>尊敬的用户 您好：</h2><p>我们很荣幸向您宣布...</p>",
+    contentZhPlaceholder:
+      "<h2>尊敬的用户 您好：</h2><p>我们很荣幸向您宣布...</p>",
     noPreviewContent: "Chưa có nội dung để xem trước",
     targetAudience: "Đối Tượng Nhận Mail",
     allUsers: "Tất cả người dùng (All Active Users)",
@@ -578,22 +594,28 @@ const vi = {
     confirmScheduleSend: "Xác Nhận Lập Lịch Gửi",
     startBroadcastNow: "Bắt Đầu Gửi Hàng Loạt Right Now",
     enterCampaignTitleError: "Vui lòng nhập tên chiến dịch broadcast.",
-    enterViContentError: "Vui lòng nhập Tiêu đề & Nội dung Tiếng Việt (bắt buộc).",
-    campaignCreatedSuccess: "Chiến dịch email broadcast đã được khởi tạo thành công!",
+    enterViContentError:
+      "Vui lòng nhập Tiêu đề & Nội dung Tiếng Việt (bắt buộc).",
+    campaignCreatedSuccess:
+      "Chiến dịch email broadcast đã được khởi tạo thành công!",
     campaignCreatedError: "Không thể tạo chiến dịch broadcast.",
-    csvExtractSuccess: "Đã trích xuất thành công {count} email từ tệp CSV/Excel!",
+    csvExtractSuccess:
+      "Đã trích xuất thành công {count} email từ tệp CSV/Excel!",
     csvNoValidEmail: "Không tìm thấy email hợp lệ trong tệp.",
     csvReadError: "Lỗi khi đọc file CSV: ",
-    confirmCancel: "Bạn có chắc chắn muốn HỦY chiến dịch Broadcast #{id}? Worker ngầm sẽ dừng gửi ngay lập tức.",
+    confirmCancel:
+      "Bạn có chắc chắn muốn HỦY chiến dịch Broadcast #{id}? Worker ngầm sẽ dừng gửi ngay lập tức.",
     cancelSuccess: "Đã hủy thành công chiến dịch #{id}.",
     cancelError: "Lỗi khi hủy chiến dịch: ",
-    confirmDelete: "Bạn có chắc chắn muốn XÓA chiến dịch Broadcast #{id} và toàn bộ nhật ký liên quan?",
+    confirmDelete:
+      "Bạn có chắc chắn muốn XÓA chiến dịch Broadcast #{id} và toàn bộ nhật ký liên quan?",
     deleteError: "Lỗi khi xóa chiến dịch: ",
     invalidEmailError: "Vui lòng nhập email hợp lệ.",
     testEmailSentSuccess: "Đã gửi email thử nghiệm tới {email} thành công!",
     testEmailSentError: "Lỗi khi gửi email thử nghiệm: ",
     historyTitle: "Lịch Sử & Tiến Độ Chiến Dịch Email Broadcast",
-    historyDesc: "Theo dõi trạng thái gửi mail theo real-time background worker",
+    historyDesc:
+      "Theo dõi trạng thái gửi mail theo real-time background worker",
     refresh: "Làm mới",
     tableId: "# ID",
     tableCampaign: "Chiến Dịch",
@@ -610,7 +632,8 @@ const vi = {
     cancelCampaignTooltip: "Hủy chiến dịch",
     deleteCampaignTooltip: "Xóa chiến dịch",
     logModalTitle: "Nhật Ký Chi Tiết Campaign #{id}: {title}",
-    logModalStats: "Tổng {total} người nhận | Thành công: {sent} | Thất bại: {failed}",
+    logModalStats:
+      "Tổng {total} người nhận | Thành công: {sent} | Thất bại: {failed}",
     statusLabel: "Trạng thái:",
     allStatus: "Tất cả (All)",
     sentStatus: "Thành công (Sent)",
@@ -629,7 +652,8 @@ const vi = {
     prevPage: "Trước",
     nextPage: "Sau",
     testModalTitle: "Gửi Email Thử Nghiệm (Test Preview)",
-    testModalDesc: "Nhập email cá nhân của bạn để kiểm tra hiển thị mail thật trong hộp thư trước khi thực hiện phát sóng hàng loạt.",
+    testModalDesc:
+      "Nhập email cá nhân của bạn để kiểm tra hiển thị mail thật trong hộp thư trước khi thực hiện phát sóng hàng loạt.",
     testEmailLabel: "Email Nhận Thử Nghiệm",
     sendTestNow: "Gửi Thử Ngay",
   },
@@ -697,7 +721,8 @@ const vi = {
     roomDetails: "Chi tiết phòng",
     editRoom: "Chỉnh sửa phòng",
     disableRoom: "Vô hiệu hóa phòng",
-    disableRoomConfirmDesc: "Bạn có chắc chắn muốn vô hiệu hóa phòng này không?",
+    disableRoomConfirmDesc:
+      "Bạn có chắc chắn muốn vô hiệu hóa phòng này không?",
     deleteRoom: "Xóa phòng",
     roomName: "Tên phòng",
     roomNamePlaceholder: "VD: Góc tiếng Trung hàng ngày",
@@ -847,6 +872,10 @@ const vi = {
     createdTo: "Tạo đến ngày",
     sortBy: "Sắp xếp theo",
     sortOrder: "Thứ tự sắp xếp",
+    cancelled: "Đã hủy",
+    user: "Người dùng",
+    vietnam: "Việt Nam",
+    copyValue: "Sao chép giá trị",
   },
   table: {
     rowsPerPage: "Số dòng mỗi trang:",

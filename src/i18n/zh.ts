@@ -410,6 +410,8 @@ const zh = {
     upgradeFailed: "套餐升级失败。",
     loadingPlans: "正在加载套餐列表...",
     noPlansFound: "未找到套餐。",
+    failedToLoadPlans: "无法加载套餐列表。",
+    subscribed: "已订阅",
   },
   reels: {
     title: "Reels",
@@ -538,15 +540,18 @@ const zh = {
     subjectVi: "邮件主题 (VI)",
     subjectViPlaceholder: "[CatSpeak] 重要系统更新通知...",
     contentVi: "邮件内容 (HTML 代码 - VI)",
-    contentViPlaceholder: "<h2>您好 {{name}}：</h2><p>向用户发送通知内容...</p>",
+    contentViPlaceholder:
+      "<h2>您好 {{name}}：</h2><p>向用户发送通知内容...</p>",
     subjectEn: "邮件主题 (EN)",
     subjectEnPlaceholder: "[CatSpeak] 系统更新与新功能通知...",
     contentEn: "邮件内容 (HTML 代码 - EN)",
-    contentEnPlaceholder: "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
+    contentEnPlaceholder:
+      "<h2>Hello {{name}},</h2><p>We are excited to announce...</p>",
     subjectZh: "邮件主题 (ZH)",
     subjectZhPlaceholder: "[CatSpeak] 系统更新与新功能通知...",
     contentZh: "邮件内容 (HTML Code - ZH)",
-    contentZhPlaceholder: "<h2>尊敬的用户 您好：</h2><p>我们很荣幸向您宣布...</p>",
+    contentZhPlaceholder:
+      "<h2>尊敬的用户 您好：</h2><p>我们很荣幸向您宣布...</p>",
     noPreviewContent: "暂无预览内容",
     targetAudience: "目标接收者",
     allUsers: "所有活跃用户",
@@ -572,7 +577,8 @@ const zh = {
     csvExtractSuccess: "已成功从 CSV/Excel 文件中提取 {count} 个邮箱！",
     csvNoValidEmail: "文件中未找到有效邮箱。",
     csvReadError: "读取 CSV 文件错误：",
-    confirmCancel: "您确定要取消群发活动 #{id} 吗？后台 Worker 将立即停止发送。",
+    confirmCancel:
+      "您确定要取消群发活动 #{id} 吗？后台 Worker 将立即停止发送。",
     cancelSuccess: "已成功取消活动 #{id}。",
     cancelError: "取消活动错误：",
     confirmDelete: "您确定要删除群发活动 #{id} 及所有相关日志吗？",
@@ -833,6 +839,10 @@ const zh = {
     createdTo: "创建至",
     sortBy: "排序依",
     sortOrder: "排序顺序",
+    cancelled: "已取消",
+    user: "用户",
+    vietnam: "越南",
+    copyValue: "复制值",
   },
   table: {
     rowsPerPage: "每页行数:",
