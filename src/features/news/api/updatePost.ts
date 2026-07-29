@@ -23,15 +23,17 @@ export const updatePost = async (
     formData.append("LanguageCommunity", body.LanguageCommunity);
   }
 
-  // Append newly added files
-  if (body.Files && body.Files.length > 0) {
-    body.Files.forEach((file) => formData.append("Files", file));
+  // Append newly added files (NewFiles)
+  const newFiles = body.NewFiles || body.Files;
+  if (newFiles && newFiles.length > 0) {
+    newFiles.forEach((file) => formData.append("NewFiles", file));
   }
 
-  // Append IDs of server media to delete
-  if (body.DeletedMediaIds && body.DeletedMediaIds.length > 0) {
-    body.DeletedMediaIds.forEach((mediaId) =>
-      formData.append("DeletedMediaIds", String(mediaId)),
+  // Append IDs of server media to remove (RemovedMediaIds)
+  const removedMediaIds = body.RemovedMediaIds || body.DeletedMediaIds;
+  if (removedMediaIds && removedMediaIds.length > 0) {
+    removedMediaIds.forEach((mediaId) =>
+      formData.append("RemovedMediaIds", String(mediaId)),
     );
   }
 

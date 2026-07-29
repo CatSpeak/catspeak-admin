@@ -6,6 +6,7 @@ import { useLanguage } from "../../../stores/languageStore";
 const PRIVACY_OPTIONS = ["Public", "FriendsOnly", "Private"] as const;
 
 interface SettingsSidebarProps {
+  mode?: "create" | "edit";
   privacy: "Public" | "FriendsOnly" | "Private";
   onPrivacyChange: (val: "Public" | "FriendsOnly" | "Private") => void;
   publishDate: string;
@@ -22,6 +23,7 @@ interface SettingsSidebarProps {
 }
 
 const SettingsSidebar = ({
+  mode = "create",
   privacy,
   onPrivacyChange,
   community,
@@ -136,10 +138,10 @@ const SettingsSidebar = ({
           {isSubmitting ? (
             <>
               <span className="w-3.5 h-3.5 border-2 border-white/30 rounded-full animate-spin" />
-              {t.news.publishing}
+              {mode === "edit" ? t.news.updatingPost : t.news.publishing}
             </>
           ) : (
-            <>{t.news.publishPost}</>
+            <>{mode === "edit" ? t.news.updatePost : t.news.publishPost}</>
           )}
         </button>
         <button
