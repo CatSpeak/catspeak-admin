@@ -319,6 +319,10 @@ const en = {
     postContentRequired: "Post content is required!",
     failedToPublish: "Failed to publish post.",
     enterTitlePlaceholder: "Enter a post title...",
+    thumbnailAssets: "Thumbnail Assets ({count})",
+    uploadImagesDesc: "Upload images for thumbnail",
+    addMedia: "Add Media",
+    video: "Video",
   },
   plans: {
     title: "Plans",
@@ -771,6 +775,7 @@ const en = {
     },
   },
   common: {
+    error: "Error",
     search: "Search",
     filter: "Filter",
     actions: "Actions",

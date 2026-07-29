@@ -315,6 +315,10 @@ const zh = {
     postContentRequired: "文章内容为必填项！",
     failedToPublish: "发布文章失败。",
     enterTitlePlaceholder: "输入文章标题...",
+    thumbnailAssets: "缩略图资源 ({count})",
+    uploadImagesDesc: "上传缩略图图片",
+    addMedia: "添加媒体",
+    video: "视频",
   },
   plans: {
     title: "套餐",
@@ -760,6 +764,7 @@ const zh = {
     },
   },
   common: {
+    error: "错误",
     search: "搜索",
     filter: "筛选",
     actions: "操作",

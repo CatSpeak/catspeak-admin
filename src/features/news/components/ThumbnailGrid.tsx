@@ -1,5 +1,6 @@
 import { Trash2, Image as ImageIcon, Film, Play } from "lucide-react";
 import type { ThumbnailImage } from "../types";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface ThumbnailGridProps {
   images: ThumbnailImage[];
@@ -8,6 +9,8 @@ interface ThumbnailGridProps {
 }
 
 const ThumbnailGrid = ({ images, onDelete, onUpload }: ThumbnailGridProps) => {
+  const { t } = useLanguage();
+
   const checkIsVideo = (img: ThumbnailImage) => {
     if (img.file?.type.startsWith("video/")) return true;
     const lowerSrc = img.src.toLowerCase();
@@ -25,10 +28,10 @@ const ThumbnailGrid = ({ images, onDelete, onUpload }: ThumbnailGridProps) => {
     <div className="space-y-3">
       <div className="flex flex-col gap-1 mb-4">
         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-          Thumbnail Assets ({images.length})
+          {t.news.thumbnailAssets.replace("{count}", String(images.length))}
         </label>
         <span className="text-xs text-gray-400">
-          Upload images for thumbnail
+          {t.news.uploadImagesDesc}
         </span>
       </div>
 
@@ -54,7 +57,7 @@ const ThumbnailGrid = ({ images, onDelete, onUpload }: ThumbnailGridProps) => {
                     </span>
                   </div>
                   <span className="absolute bottom-2 left-2 flex items-center gap-1 text-[10px] font-semibold text-white bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-md">
-                    <Film size={10} /> Video
+                    <Film size={10} /> {t.news.video}
                   </span>
                 </div>
               ) : (
@@ -70,7 +73,7 @@ const ThumbnailGrid = ({ images, onDelete, onUpload }: ThumbnailGridProps) => {
               <button
                 type="button"
                 onClick={() => onDelete(img.id)}
-                aria-label={`Delete ${img.alt}`}
+                aria-label={`${t.common.delete} ${img.alt}`}
                 className="absolute top-2 right-2 p-1.5 rounded-full bg-white/85 backdrop-blur-md text-red-600 border border-gray-100/50 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-sm cursor-pointer z-10"
               >
                 <Trash2 size={13} />
@@ -89,7 +92,7 @@ const ThumbnailGrid = ({ images, onDelete, onUpload }: ThumbnailGridProps) => {
             <ImageIcon size={20} />
           </div>
           <span className="text-[11px] font-semibold tracking-wide uppercase">
-            Add Media
+            {t.news.addMedia}
           </span>
         </button>
       </div>
