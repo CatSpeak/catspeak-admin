@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { AlertCircle, X } from "lucide-react";
 import { generateSlug } from "../../../lib/slug";
+import { getApiErrorMessage } from "../../../lib/axios";
 import type {
   Post,
   TagItem,
@@ -75,6 +77,7 @@ export default function PostFormView({
 
   const [thumbnails, setThumbnails] = useState<ThumbnailImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Slug state
   const [slug, setSlug] = useState(
@@ -103,6 +106,7 @@ export default function PostFormView({
       setSlugEdited(true);
     }
     setSlug(value);
+    setSubmitError(null);
     if (onSlugError) onSlugError(null);
   };
 
@@ -174,6 +178,8 @@ export default function PostFormView({
       return;
     }
 
+    setSubmitError(null);
+    if (onSlugError) onSlugError(null);
     setIsSubmitting(true);
 
     try {
@@ -207,18 +213,46 @@ export default function PostFormView({
         } as Omit<UpdatePostPayload, "id"> & { Files?: File[] });
       }
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t.news.failedToPublish;
+      const message = getApiErrorMessage(err, t.news.failedToPublish);
+      setSubmitError(message);
       if (onSlugError) onSlugError(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const activeError = submitError || slugError;
+
   return (
     <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start animate-slideUp">
       {/* Left Column — Editor */}
       <div className="w-full xl:flex-1 space-y-4 p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        {/* Submit / API Error Banner */}
+        {activeError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-sm text-red-700 animate-fadeIn">
+            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-1">
+              <h4 className="font-semibold text-red-800">
+                {t.common.error || "Error"}
+              </h4>
+              <div className="whitespace-pre-line text-red-600 font-medium text-xs sm:text-sm">
+                {activeError}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSubmitError(null);
+                if (onSlugError) onSlugError(null);
+              }}
+              className="text-red-400 hover:text-red-600 transition-colors"
+              aria-label="Dismiss error"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {/* Title Editor */}
         <div className="pt-2">
           <CharCountInput

@@ -321,6 +321,10 @@ const vi = {
     postContentRequired: "Nội dung bài viết là bắt buộc!",
     failedToPublish: "Đăng bài viết thất bại.",
     enterTitlePlaceholder: "Nhập tiêu đề bài viết...",
+    thumbnailAssets: "Hình ảnh thu nhỏ ({count})",
+    uploadImagesDesc: "Tải ảnh lên cho hình thu nhỏ",
+    addMedia: "Thêm phương tiện",
+    video: "Video",
   },
   plans: {
     title: "Gói",
@@ -773,6 +777,7 @@ const vi = {
     },
   },
   common: {
+    error: "Lỗi",
     search: "Tìm kiếm",
     filter: "Lọc",
     actions: "Thao tác",
