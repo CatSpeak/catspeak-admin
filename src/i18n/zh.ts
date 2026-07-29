@@ -319,6 +319,9 @@ const zh = {
     uploadImagesDesc: "上传缩略图图片",
     addMedia: "添加媒体",
     video: "视频",
+    deletePost: "删除文章",
+    deleteConfirmMessage: "您确定要删除此文章吗？此操作无法撤销。",
+    deleting: "删除中...",
   },
   plans: {
     title: "套餐",

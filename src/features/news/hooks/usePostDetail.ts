@@ -58,8 +58,11 @@ export function usePostDetail(slug: string | undefined) {
       setUpdateError(null);
       try {
         const response = await updatePost({ id: post.postId, ...payload });
+        if (response?.data) {
+          setPost(response.data);
+        }
         // Only fetch post if the slug didn't change, otherwise route navigation handles it
-        if (response.data && response.data.slug === post.slug) {
+        if (response?.data && response.data.slug === post.slug) {
           await fetchPost();
         }
         return response;

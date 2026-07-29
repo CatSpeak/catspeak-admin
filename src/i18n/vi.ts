@@ -325,6 +325,10 @@ const vi = {
     uploadImagesDesc: "Tải ảnh lên cho hình thu nhỏ",
     addMedia: "Thêm phương tiện",
     video: "Video",
+    deletePost: "Xóa bài viết",
+    deleteConfirmMessage:
+      "Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.",
+    deleting: "Đang xóa...",
   },
   plans: {
     title: "Gói",
