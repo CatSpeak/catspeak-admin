@@ -323,6 +323,10 @@ const en = {
     uploadImagesDesc: "Upload images for thumbnail",
     addMedia: "Add Media",
     video: "Video",
+    deletePost: "Delete Post",
+    deleteConfirmMessage:
+      "Are you sure you want to delete this post? This action cannot be undone.",
+    deleting: "Deleting...",
   },
   plans: {
     title: "Plans",
