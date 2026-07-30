@@ -24,5 +24,4 @@ export const DEBOUNCE_DELAY_MS = 300;
 export const VISIBILITY_OPTIONS = [
   { value: "Public", label: "Public" },
   { value: "Private", label: "Private" },
-  { value: "FriendsOnly", label: "Friends Only" },
 ];

@@ -62,8 +62,8 @@ export default function PostFormView({
   }, [mode, initialPost]);
 
   const [content, setContent] = useState(initialPost?.content || "");
-  const [privacy, setPrivacy] = useState<"Public" | "FriendsOnly" | "Private">(
-    (initialPost?.privacy as "Public" | "FriendsOnly" | "Private") || "Public",
+  const [privacy, setPrivacy] = useState<"Public" | "Private">(
+    (initialPost?.privacy as "Public" | "Private") || "Public",
   );
 
   const [publishDate, setPublishDate] = useState("");

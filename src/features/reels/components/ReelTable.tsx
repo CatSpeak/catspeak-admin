@@ -201,13 +201,6 @@ export default function ReelTable({
                         return (
                           <Badge title={t.reels.privacyPublic} type="Green" />
                         );
-                      case "FriendsOnly":
-                        return (
-                          <Badge
-                            title={t.reels.privacyFriendsOnly}
-                            type="Blue"
-                          />
-                        );
                       case "Private":
                         return (
                           <Badge title={t.reels.privacyPrivate} type="Gray" />
