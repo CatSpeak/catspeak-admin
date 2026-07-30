@@ -212,10 +212,6 @@ export default function NewsPage() {
                   return <Badge title={t.news.publicLabel} type="Green" />;
                 case "Private":
                   return <Badge title={t.news.privateLabel} type="Blue" />;
-                case "FriendsOnly":
-                  return (
-                    <Badge title={t.news.friendsOnlyLabel} type="Orange" />
-                  );
                 default:
                   return <Badge title={p.privacy || "?"} type="Gray" />;
               }

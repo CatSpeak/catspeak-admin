@@ -1,4 +1,4 @@
-export type ReelPrivacy = "Public" | "FriendsOnly" | "Private";
+export type ReelPrivacy = "Public" | "Private";
 
 // Mapped statuses for the frontend UI display
 export type ReelStatus = "Published" | "Draft" | "Processing" | "Failed";
@@ -107,4 +107,3 @@ export interface ReelStatisticsDto {
   displaying: number;
   hidden: number;
 }
-

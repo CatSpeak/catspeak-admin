@@ -1,14 +1,14 @@
-import { Globe, Users, Lock } from "lucide-react";
+import { Globe, Lock } from "lucide-react";
 import { COMMUNITIES } from "../constants";
 import type { TagItem } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
 
-const PRIVACY_OPTIONS = ["Public", "FriendsOnly", "Private"] as const;
+const PRIVACY_OPTIONS = ["Public", "Private"] as const;
 
 interface SettingsSidebarProps {
   mode?: "create" | "edit";
-  privacy: "Public" | "FriendsOnly" | "Private";
-  onPrivacyChange: (val: "Public" | "FriendsOnly" | "Private") => void;
+  privacy: "Public" | "Private";
+  onPrivacyChange: (val: "Public" | "Private") => void;
   publishDate: string;
   publishTime: string;
   onPublishDateChange: (val: string) => void;
@@ -35,11 +35,6 @@ const SettingsSidebar = ({
 
   const privacyDetails = {
     Public: { label: t.news.publicLabel, icon: Globe, desc: t.news.publicDesc },
-    FriendsOnly: {
-      label: t.news.friendsOnlyLabel,
-      icon: Users,
-      desc: t.news.friendsOnlyDesc,
-    },
     Private: {
       label: t.news.privateLabel,
       icon: Lock,

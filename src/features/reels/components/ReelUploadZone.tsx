@@ -1,6 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Upload, X, FileVideo, Film, AlertCircle } from "lucide-react";
-import { MAX_REEL_FILE_SIZE_MB, ALLOWED_VIDEO_TYPES, ALLOWED_IMAGE_TYPES } from "../constants";
+import {
+  MAX_REEL_FILE_SIZE_MB,
+  ALLOWED_VIDEO_TYPES,
+  ALLOWED_IMAGE_TYPES,
+} from "../constants";
 import Button from "../../../components/ui/Button";
 import type { ReelPrivacy } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
@@ -36,7 +40,9 @@ export default function ReelUploadZone({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState<ReelPrivacy>("Public");
-  const [languageCommunity, setLanguageCommunity] = useState<"All" | "English" | "Chinese">("All");
+  const [languageCommunity, setLanguageCommunity] = useState<
+    "All" | "English" | "Chinese"
+  >("All");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [tagsInput, setTagsInput] = useState("");
@@ -77,12 +83,15 @@ export default function ReelUploadZone({
     }
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > MAX_REEL_FILE_SIZE_MB) {
-      setLocalError(t.reels.fileSizeExceeds.replace("{max}", String(MAX_REEL_FILE_SIZE_MB)));
+      setLocalError(
+        t.reels.fileSizeExceeds.replace("{max}", String(MAX_REEL_FILE_SIZE_MB)),
+      );
       return;
     }
     setVideoFile(file);
     if (!title) {
-      const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
+      const nameWithoutExt =
+        file.name.substring(0, file.name.lastIndexOf(".")) || file.name;
       setTitle(nameWithoutExt);
     }
   };
@@ -177,7 +186,10 @@ export default function ReelUploadZone({
         </div>
 
         {/* Content Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-y-auto p-6 space-y-5"
+        >
           {/* Global Error Banner */}
           {activeError && (
             <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs border border-red-100 font-medium">
@@ -193,8 +205,12 @@ export default function ReelUploadZone({
                 <Upload className="w-8 h-8 text-primary" />
               </div>
               <div className="text-center space-y-1">
-                <p className="text-sm font-bold text-gray-900">{t.reels.uploadingReelVideo}</p>
-                <p className="text-xs text-gray-500 font-medium">{t.reels.doNotCloseWindow}</p>
+                <p className="text-sm font-bold text-gray-900">
+                  {t.reels.uploadingReelVideo}
+                </p>
+                <p className="text-xs text-gray-500 font-medium">
+                  {t.reels.doNotCloseWindow}
+                </p>
               </div>
 
               <div className="w-full max-w-md bg-gray-100 h-2.5 rounded-full overflow-hidden">
@@ -203,7 +219,9 @@ export default function ReelUploadZone({
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <span className="text-xs font-bold text-primary">{uploadProgress}%</span>
+              <span className="text-xs font-bold text-primary">
+                {uploadProgress}%
+              </span>
             </div>
           ) : (
             <div className="space-y-5">
@@ -228,8 +246,8 @@ export default function ReelUploadZone({
                   isDragActive
                     ? "border-primary bg-primary/5 scale-[0.99]"
                     : videoFile
-                    ? "border-emerald-300 bg-emerald-50/30"
-                    : "border-gray-200 hover:border-primary/50 hover:bg-gray-50/50"
+                      ? "border-emerald-300 bg-emerald-50/30"
+                      : "border-gray-200 hover:border-primary/50 hover:bg-gray-50/50"
                 }`}
               >
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
@@ -253,10 +271,15 @@ export default function ReelUploadZone({
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-gray-700">
                       {t.reels.dragDropVideo}{" "}
-                      <span className="text-primary underline">{t.common.browse}</span>
+                      <span className="text-primary underline">
+                        {t.common.browse}
+                      </span>
                     </p>
                     <p className="text-xs text-gray-400">
-                      {t.reels.supportsFormat.replace("{max}", String(MAX_REEL_FILE_SIZE_MB))}
+                      {t.reels.supportsFormat.replace(
+                        "{max}",
+                        String(MAX_REEL_FILE_SIZE_MB),
+                      )}
                     </p>
                   </div>
                 )}
@@ -319,7 +342,6 @@ export default function ReelUploadZone({
                   >
                     <option value="Public">{t.reels.privacyPublic}</option>
                     <option value="Private">{t.reels.privacyPrivate}</option>
-                    <option value="FriendsOnly">{t.reels.privacyFriendsOnly}</option>
                   </select>
                 </div>
 
@@ -331,7 +353,9 @@ export default function ReelUploadZone({
                   <select
                     value={languageCommunity}
                     onChange={(e) =>
-                      setLanguageCommunity(e.target.value as "All" | "English" | "Chinese")
+                      setLanguageCommunity(
+                        e.target.value as "All" | "English" | "Chinese",
+                      )
                     }
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
                   >
@@ -382,11 +406,7 @@ export default function ReelUploadZone({
         {/* Footer controls */}
         {!isUploading && (
           <div className="flex items-center justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-100">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onClose}
-            >
+            <Button variant="outline" size="sm" onClick={onClose}>
               {t.common.cancel}
             </Button>
             <Button
