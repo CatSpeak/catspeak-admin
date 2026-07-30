@@ -35,7 +35,7 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
   const { t } = useLanguage();
   if (!room) return null;
 
-  const flag = LANGUAGE_FLAGS[room.languageType];
+  const flag = room.languageType ? LANGUAGE_FLAGS[room.languageType] : undefined;
   const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
   const isActive = room.status === 1;
   const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
@@ -107,8 +107,8 @@ const RoomDetailModal: React.FC<RoomDetailModalProps> = ({ room, onClose }) => {
 
             <DetailRow icon={<Globe size={15} />} label={t.room.language}>
               <span className="flex items-center gap-1.5 font-medium">
-                {flag && <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-4 h-4 rounded-sm" />}
-                {t.room.languages?.[room.languageType] || room.languageType}
+                {flag && <img src={flag} alt={room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : ""} className="w-4 h-4 rounded-sm" />}
+                {room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : "—"}
               </span>
             </DetailRow>
 

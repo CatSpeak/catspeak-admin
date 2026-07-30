@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { AlertTriangle } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export default function DeleteConfirmModal({
   onConfirm,
   onClose,
 }: DeleteConfirmModalProps) {
+  const { t } = useLanguage();
   const cancelRef = useRef<HTMLButtonElement>(null);
 
   // Focus the cancel button on mount and handle ESC
@@ -49,27 +51,14 @@ export default function DeleteConfirmModal({
           <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
             <AlertTriangle className="w-6 h-6 text-red-600" />
           </div>
-          
+
           <h3 className="text-lg font-bold text-gray-900 mb-2">
-            Delete Post
+            {t.news.deletePost}
           </h3>
           <p className="text-sm text-gray-500 leading-relaxed">
-            Are you sure you want to delete this post by{" "}
-            <span className="font-medium text-gray-700">
-              {/* {post.authorName} */} {/* Assuming post.authorName is available from props or context */}
-              [Author Name] {/* Placeholder for missing post.authorName */}
-            </span>
-            ? This action cannot be undone.
+            {t.news.deleteConfirmMessage}
           </p>
         </div>
-
-        {/* Error
-        {error && (
-          <p className="text-sm text-red-500 text-center bg-red-50 rounded-lg p-2">
-            {error}
-          </p>
-        )}
-        */}
 
         {/* Actions */}
         <div className="flex items-center justify-center gap-3 pt-1">
@@ -79,7 +68,7 @@ export default function DeleteConfirmModal({
             disabled={isDeleting}
             className="px-5 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           <button
             onClick={onConfirm}
@@ -107,7 +96,7 @@ export default function DeleteConfirmModal({
                 />
               </svg>
             )}
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? t.news.deleting : t.common.delete}
           </button>
         </div>
       </div>

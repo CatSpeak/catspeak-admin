@@ -62,13 +62,13 @@ export const FlagBadge: React.FC<FlagBadgeProps> = ({
       t.common?.other ||
       "Others";
   } else if (target in LANGUAGE_FLAGS) {
-    const key = target as LanguageType;
+    const key = target as NonNullable<LanguageType>;
     flag = LANGUAGE_FLAGS[key];
     label = t.room?.languages?.[key] || key;
   } else {
-    const matchedKey = (Object.keys(LANGUAGE_FLAGS) as LanguageType[]).find(
-      (k) => k.toLowerCase() === normalized,
-    );
+    const matchedKey = (
+      Object.keys(LANGUAGE_FLAGS) as NonNullable<LanguageType>[]
+    ).find((k) => k.toLowerCase() === normalized);
     if (matchedKey) {
       flag = LANGUAGE_FLAGS[matchedKey];
       label = t.room?.languages?.[matchedKey] || matchedKey;

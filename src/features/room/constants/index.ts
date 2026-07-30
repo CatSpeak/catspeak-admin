@@ -10,10 +10,9 @@ export const ROOM_TYPES: { value: RoomType; label: string }[] = [
   { value: "Group", label: "Group" },
 ];
 
-export const LANGUAGE_TYPES: { value: LanguageType; label: string; flag: string }[] = [
+export const LANGUAGE_TYPES: { value: NonNullable<LanguageType>; label: string; flag: string }[] = [
   { value: "Chinese", label: "Chinese", flag: "/flags/cn.svg" },
   { value: "English", label: "English", flag: "/flags/en.svg" },
-  { value: "Vietnamese", label: "Vietnamese", flag: "/flags/vn.svg" },
 ];
 
 export const REQUIRED_LEVELS: { value: RequiredLevel; label: string; group: string }[] = [
@@ -73,8 +72,7 @@ export const ROOM_TYPE_STYLES: Record<RoomType, { bg: string; text: string; dot:
   Group: { bg: "bg-emerald-50", text: "text-emerald-700", dot: "bg-emerald-500" },
 };
 
-export const LANGUAGE_FLAGS: Record<LanguageType, string> = {
+export const LANGUAGE_FLAGS: Record<NonNullable<LanguageType>, string> = {
   Chinese: "/flags/cn.svg",
   English: "/flags/en.svg",
-  Vietnamese: "/flags/vn.svg",
 };

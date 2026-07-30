@@ -1,24 +1,30 @@
 export interface Account {
   accountId: number;
-  username: string;
-  email: string;
+  amountSpentVnd: number;
   avatarImageUrl: string | null;
-  level: string | null;
   country: string | null;
   createDate: string;
-  status: number;
-  roleId: number;
+  createdById: number | null;
+  createdByUsername: string | null;
+  currentSubscriptionId: number | null;
+  currentSubscriptionName: string | null;
+  department: string | null;
+  email: string;
   isEmailVerified: boolean;
   isOnline: boolean;
+  lastActiveDate: string | null;
   lastSeen: string | null;
-  roleName?: string;
+  level: string | null;
+  responsibleLanguageCommunities: string[];
+  roleId: number;
+  roleName: string | null;
+  status: number;
+  username: string;
+  visitDurationForStaff: number;
+  visitDurationSeconds: number;
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;
-  createdById: number | null;
-  createdByUsername: string | null;
-  responsibleLanguageCommunities: string[];
-  visitDurationForStaff?: number;
 }
 
 export interface SubscriptionFeature {
@@ -32,6 +38,9 @@ export interface SubscriptionFeature {
   description?: string;
   isUnlimited?: boolean;
 }
+
+export type PackageStatus = "Public" | "Published" | "Draft" | "Archived" | "Hidden";
+export type PlanStatus = PackageStatus;
 
 export interface Plan {
   planId: number;
@@ -52,7 +61,7 @@ export interface Plan {
   billingCycle: string;
   allowRenewal: boolean;
   autoRenew: boolean;
-  packageStatus: string;
+  packageStatus: PackageStatus;
   subscriptionFeatures: SubscriptionFeature[];
 }
 

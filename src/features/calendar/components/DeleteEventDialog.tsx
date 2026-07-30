@@ -1,5 +1,6 @@
 import React from "react";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 interface DeleteEventDialogProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ const DeleteEventDialog: React.FC<DeleteEventDialogProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useLanguage();
+
   if (!isOpen) return null;
 
   return (
@@ -32,11 +35,11 @@ const DeleteEventDialog: React.FC<DeleteEventDialogProps> = ({
             <AlertTriangle size={20} className="text-red-600" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-gray-900">Delete Event</h3>
+            <h3 className="text-base font-bold text-gray-900">{t.calendar.deleteEvent}</h3>
             <p className="text-sm text-gray-500 mt-0.5">
-              Are you sure you want to delete{" "}
-              <span className="font-medium text-gray-700">"{eventTitle}"</span>?
-              This action cannot be undone.
+              {t.calendar.deleteConfirmDescPrefix}
+              <span className="font-medium text-gray-700">"{eventTitle}"</span>
+              {t.calendar.deleteConfirmDescSuffix}
             </p>
           </div>
         </div>
@@ -48,7 +51,7 @@ const DeleteEventDialog: React.FC<DeleteEventDialogProps> = ({
             className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg
               hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           <button
             onClick={onConfirm}
@@ -60,10 +63,10 @@ const DeleteEventDialog: React.FC<DeleteEventDialogProps> = ({
             {isDeleting ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Deleting…
+                {t.calendar.deleting}
               </>
             ) : (
-              "Delete"
+              t.common.delete
             )}
           </button>
         </div>

@@ -35,7 +35,15 @@ export const getRooms = async (
 };
 
 export const deleteRoom = async (id: number): Promise<void> => {
-  await axiosClient.delete(`/admin/rooms/${id}`);
+  await axiosClient.delete(`/admin/rooms/${id}`, {
+    params: { mode: "Delete" },
+  });
+};
+
+export const disableRoom = async (id: number): Promise<void> => {
+  await axiosClient.delete(`/admin/rooms/${id}`, {
+    params: { mode: "Disable" },
+  });
 };
 
 export const createRoom = async (data: FormData | CreateRoomPayload): Promise<void> => {
@@ -46,7 +54,7 @@ export const createRoom = async (data: FormData | CreateRoomPayload): Promise<vo
     formData = new FormData();
     formData.append("Name", data.name);
     formData.append("RoomType", data.roomType);
-    formData.append("LanguageType", data.languageType);
+    if (data.languageType) formData.append("LanguageType", data.languageType);
     if (data.requiredLevel) formData.append("RequiredLevel", data.requiredLevel);
     if (data.topics && data.topics.length > 0) {
       data.topics.forEach((t) => formData.append("Topics", t));

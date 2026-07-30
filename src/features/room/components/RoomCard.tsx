@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe } from "lucide-react";
+import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe, Eye, Ban } from "lucide-react";
 import type { Room, RoomTopic } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
@@ -10,11 +10,13 @@ const DEFAULT_THUMBNAIL =
 interface RoomCardProps {
   room: Room;
   onDelete: (id: number) => void;
+  onDisable?: (id: number) => void;
+  onDetail?: (room: Room) => void;
   onEdit?: (room: Room) => void;
   onClick?: (room: Room) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) => {
+const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail, onEdit, onClick }) => {
   const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
   }, [menuOpen]);
 
   const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
-  const flag = LANGUAGE_FLAGS[room.languageType];
+  const flag = room.languageType ? LANGUAGE_FLAGS[room.languageType] : undefined;
   const isActive = room.status === 1;
   const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
   const createdDate = new Date(room.createDate).toLocaleDateString("en-US", {
@@ -40,19 +42,19 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
 
   return (
     <div
-      className="bg-white rounded-xl border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden cursor-pointer flex flex-col"
+      className={`bg-white rounded-xl border border-gray-200/60 hover:border-gray-300 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col relative ${menuOpen ? "z-30" : "z-0"}`}
       onClick={() => onClick?.(room)}
     >
       {/* Thumbnail — compact */}
-      <div className="relative h-32 overflow-hidden bg-gray-100">
+      <div className="relative h-32 bg-gray-100 rounded-t-xl">
         <img
           src={thumbnailSrc}
           alt={room.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-t-xl"
           onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
         />
         {/* Status + Privacy */}
-        <div className="absolute top-2 left-2 flex gap-1.5">
+        <div className="absolute top-2 left-2 flex gap-1.5 z-10">
           <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
             {isActive ? t.common.active : t.common.inactive}
@@ -63,7 +65,7 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
           </span>
         </div>
         {/* Menu — always visible on card */}
-        <div className="absolute top-2 right-2" ref={menuRef} onClick={(e) => e.stopPropagation()}>
+        <div className="absolute top-2 right-2 z-30" ref={menuRef} onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-1 rounded-md bg-black/20 text-white/80 hover:bg-black/40 hover:text-white transition-colors"
@@ -72,13 +74,33 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
             <MoreVertical size={14} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden">
+            <div className="absolute right-0 top-full mt-1 z-40 w-36 bg-white rounded-lg border border-gray-200 shadow-lg py-1 overflow-hidden animate-fadeIn">
               <button
-                onClick={() => { setMenuOpen(false); onEdit?.(room); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (onDetail) onDetail(room);
+                  else onClick?.(room);
+                }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <Pencil size={14} />
-                {t.common.edit}
+                <Eye size={14} className="text-gray-500" />
+                {t.common.detail || t.common.details}
+              </button>
+              {onEdit && (
+                <button
+                  onClick={() => { setMenuOpen(false); onEdit(room); }}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Pencil size={14} />
+                  {t.common.edit}
+                </button>
+              )}
+              <button
+                onClick={() => { setMenuOpen(false); onDisable?.(room.roomId); }}
+                className="flex items-center gap-2 w-full px-3 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors"
+              >
+                <Ban size={14} />
+                {t.common.disable}
               </button>
               <button
                 onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}
@@ -101,8 +123,8 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onEdit, onClick }) 
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
           {/* Language */}
           <div className="flex items-center gap-1.5">
-            <img src={flag} alt={t.room.languages?.[room.languageType] || room.languageType} className="w-3.5 h-3.5 rounded-sm shrink-0" />
-            <span className="truncate">{t.room.languages?.[room.languageType] || room.languageType}</span>
+            {flag && <img src={flag} alt={room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : ""} className="w-3.5 h-3.5 rounded-sm shrink-0" />}
+            <span className="truncate">{room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : "—"}</span>
           </div>
           {/* Type — styled tag */}
           <div className="flex items-center">

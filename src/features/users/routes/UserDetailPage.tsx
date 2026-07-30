@@ -28,8 +28,12 @@ import type { Plan } from "../../../entities/types";
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, loading, error } = useUserDetail(id);
-  const { payments, loading: paymentsLoading, error: paymentsError } = useUserPayments(id);
+  const { user, loading, error, refetch } = useUserDetail(id);
+  const {
+    payments,
+    loading: paymentsLoading,
+    error: paymentsError,
+  } = useUserPayments(id);
   const { t } = useLanguage();
 
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -49,7 +53,9 @@ export default function UserDetailPage() {
         setPlansError(null);
         const res = await getActivePlans();
         if (cancelled) return;
-        const list = Array.isArray(res) ? res : (res as { data?: Plan[] })?.data || [];
+        const list = Array.isArray(res)
+          ? res
+          : (res as { data?: Plan[] })?.data || [];
         setPlans(list);
       } catch (err: unknown) {
         if (cancelled) return;
@@ -80,6 +86,9 @@ export default function UserDetailPage() {
         type: "success",
         text: t.plans.upgradeSuccess,
       });
+      if (refetch) {
+        await refetch();
+      }
     } catch (err: unknown) {
       setUpgradeMessage({
         type: "error",
@@ -152,7 +161,10 @@ export default function UserDetailPage() {
           <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-4">
             <div className="h-5 bg-gray-200 rounded animate-pulse w-36 mb-6" />
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
+              <div
+                key={i}
+                className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0"
+              >
                 <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse shrink-0" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3 bg-gray-200 rounded animate-pulse w-20" />
@@ -165,7 +177,10 @@ export default function UserDetailPage() {
           <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm space-y-4">
             <div className="h-5 bg-gray-200 rounded animate-pulse w-36 mb-6" />
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
+              <div
+                key={i}
+                className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0"
+              >
                 <div className="w-8 h-8 rounded-xl bg-gray-200 animate-pulse shrink-0" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3 bg-gray-200 rounded animate-pulse w-20" />
@@ -181,7 +196,10 @@ export default function UserDetailPage() {
           <div className="h-5 bg-gray-200 rounded animate-pulse w-36 mb-4" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 bg-gray-50/50">
+              <div
+                key={i}
+                className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 bg-gray-50/50"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-6 bg-gray-200 rounded-lg animate-pulse" />
                   <div className="h-4 bg-gray-200 rounded animate-pulse w-28" />
@@ -199,7 +217,10 @@ export default function UserDetailPage() {
           {/* Stats Boxes Skeleton */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
+              <div
+                key={i}
+                className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3"
+              >
                 <div className="w-10 h-10 rounded-xl bg-gray-200 animate-pulse shrink-0" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3 bg-gray-200 rounded animate-pulse w-16" />
@@ -287,10 +308,13 @@ export default function UserDetailPage() {
             <span className="inline-flex px-2.5 py-0.5 rounded-full border border-primary/20 text-[10px] font-bold text-primary bg-primary/5 capitalize">
               {user.roleName || "User"}
             </span>
-            <span className={`inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${user.status !== 0
-              ? "bg-success-50 text-success-700 border-success-100"
-              : "bg-error-50 text-error-700 border-error-100"
-              }`}>
+            <span
+              className={`inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${
+                user.status !== 0
+                  ? "bg-success-50 text-success-700 border-success-100"
+                  : "bg-error-50 text-error-700 border-error-100"
+              }`}
+            >
               {user.status !== 0 ? t.common.active : t.users.banned}
             </span>
           </div>
@@ -303,11 +327,17 @@ export default function UserDetailPage() {
           <div className="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-2 text-xs text-gray-400 font-medium">
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5" />
-              {t.users.lastActive}: {user.lastSeen ? new Date(user.lastSeen).toLocaleString("en-GB") : t.users.never}
+              {t.users.lastActive}:{" "}
+              {user.lastSeen
+                ? new Date(user.lastSeen).toLocaleString("en-GB")
+                : t.users.never}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              {t.users.joined}: {user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB") : t.users.unknown}
+              {t.users.joined}:{" "}
+              {user.createDate
+                ? new Date(user.createDate).toLocaleDateString("en-GB")
+                : t.users.unknown}
             </span>
           </div>
         </div>
@@ -322,10 +352,35 @@ export default function UserDetailPage() {
             {t.common.personalInformation}
           </h3>
           <div className="space-y-4">
-            <DetailItem icon={<Clock className="w-4 h-4" />} label={t.users.accountId} value={`#${user.accountId}`} />
-            <DetailItem icon={<Mail className="w-4 h-4" />} label={t.users.email} value={user.email} copyable />
-            <DetailItem icon={<Phone className="w-4 h-4" />} label={t.users.phone} value={user.phoneNumber || t.common.notRegistered} />
-            <DetailItem icon={<Calendar className="w-4 h-4" />} label={t.common.createdDate} value={user.createDate ? new Date(user.createDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' }) : t.users.unknown} />
+            <DetailItem
+              icon={<Clock className="w-4 h-4" />}
+              label={t.users.accountId}
+              value={`#${user.accountId}`}
+            />
+            <DetailItem
+              icon={<Mail className="w-4 h-4" />}
+              label={t.users.email}
+              value={user.email}
+              copyable
+            />
+            <DetailItem
+              icon={<Phone className="w-4 h-4" />}
+              label={t.users.phone}
+              value={user.phoneNumber || t.common.notRegistered}
+            />
+            <DetailItem
+              icon={<Calendar className="w-4 h-4" />}
+              label={t.common.createdDate}
+              value={
+                user.createDate
+                  ? new Date(user.createDate).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : t.users.unknown
+              }
+            />
           </div>
         </div>
 
@@ -336,10 +391,26 @@ export default function UserDetailPage() {
             {t.common.learningSettings}
           </h3>
           <div className="space-y-4">
-            <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.nativeLanguage} value={user.naturalLanguage || t.common.notSpecified} />
-            <DetailItem icon={<BookOpen className="w-4 h-4" />} label={t.users.learningLanguage} value={user.languageLearning || t.common.notSpecified} />
-            <DetailItem icon={<Award className="w-4 h-4" />} label={t.users.level} value={user.proficiency || t.common.notSpecified} />
-            <DetailItem icon={<Globe className="w-4 h-4" />} label={t.users.country} value={user.country || "Vietnam"} />
+            <DetailItem
+              icon={<Globe className="w-4 h-4" />}
+              label={t.users.nativeLanguage}
+              value={user.naturalLanguage || t.common.notSpecified}
+            />
+            <DetailItem
+              icon={<BookOpen className="w-4 h-4" />}
+              label={t.users.learningLanguage}
+              value={user.languageLearning || t.common.notSpecified}
+            />
+            <DetailItem
+              icon={<Award className="w-4 h-4" />}
+              label={t.users.level}
+              value={user.proficiency || t.common.notSpecified}
+            />
+            <DetailItem
+              icon={<Globe className="w-4 h-4" />}
+              label={t.users.country}
+              value={user.country || "Vietnam"}
+            />
           </div>
         </div>
       </div>
@@ -402,54 +473,87 @@ export default function UserDetailPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {plans.map((plan) => (
-              <div
-                key={plan.planId}
-                className="flex items-center justify-between p-4 rounded-2xl border border-gray-150 bg-gray-50/30 hover:bg-gray-50 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold font-mono text-gray-400 bg-gray-200/60 px-2.5 py-1 rounded-lg">
-                    #{plan.planId}
-                  </span>
-                  <span className="text-sm font-bold text-gray-900">
-                    {plan.planName}
-                  </span>
-                </div>
-                <button
-                  onClick={() => handleUpgrade(plan.planId)}
-                  disabled={upgradingPlanId === plan.planId}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow cursor-pointer shrink-0"
+            {plans.map((plan) => {
+              const isSubscribed = Boolean(
+                user &&
+                ((user.currentSubscriptionId != null &&
+                  user.currentSubscriptionId === plan.planId) ||
+                  (user.currentSubscriptionName &&
+                    plan.planName &&
+                    user.currentSubscriptionName.trim().toLowerCase() ===
+                      plan.planName.trim().toLowerCase())),
+              );
+
+              return (
+                <div
+                  key={plan.planId}
+                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    isSubscribed
+                      ? "border-success-300 bg-success-50/60 text-success-900"
+                      : "border-gray-150 bg-gray-50/30 hover:bg-gray-50"
+                  }`}
                 >
-                  {upgradingPlanId === plan.planId ? (
-                    <>
-                      <svg
-                        className="animate-spin h-3.5 w-3.5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      <span>{t.plans.upgrading}</span>
-                    </>
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`text-xs font-bold font-mono px-2.5 py-1 rounded-lg ${
+                        isSubscribed
+                          ? "bg-success-100 text-success-800 border border-success-200"
+                          : "text-gray-400 bg-gray-200/60"
+                      }`}
+                    >
+                      #{plan.planId}
+                    </span>
+                    <span
+                      className={`text-sm font-bold ${
+                        isSubscribed ? "text-success-900" : "text-gray-900"
+                      }`}
+                    >
+                      {plan.planName}
+                    </span>
+                  </div>
+                  {isSubscribed ? (
+                    <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl text-success-700 bg-success-100 border border-success-200 shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      {t.plans.subscribed}
+                    </span>
                   ) : (
-                    <span>{t.plans.upgrade}</span>
+                    <button
+                      onClick={() => handleUpgrade(plan.planId)}
+                      disabled={upgradingPlanId === plan.planId}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl text-white bg-primary hover:bg-primary-dark transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow cursor-pointer shrink-0"
+                    >
+                      {upgradingPlanId === plan.planId ? (
+                        <>
+                          <svg
+                            className="animate-spin h-3.5 w-3.5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          <span>{t.plans.upgrading}</span>
+                        </>
+                      ) : (
+                        <span>{t.plans.upgrade}</span>
+                      )}
+                    </button>
                   )}
-                </button>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -462,45 +566,58 @@ export default function UserDetailPage() {
         </h3>
 
         {/* Dynamic Aggregated Metrics */}
-        {!paymentsLoading && !paymentsError && payments && payments.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-success-50 text-success-600 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5" />
+        {!paymentsLoading &&
+          !paymentsError &&
+          payments &&
+          payments.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-success-50 text-success-600 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                    {t.users.totalSpent}
+                  </span>
+                  <span className="text-base font-bold text-success-700 block mt-0.5">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(stats.totalSpent)}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.totalSpent}</span>
-                <span className="text-base font-bold text-success-700 block mt-0.5">
-                  {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(stats.totalSpent)}
-                </span>
-              </div>
-            </div>
 
-            <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0">
-                <CreditCard className="w-5 h-5" />
+              <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/5 text-primary flex items-center justify-center shrink-0">
+                  <CreditCard className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                    {t.users.totalOrders}
+                  </span>
+                  <span className="text-base font-bold text-gray-900 block mt-0.5">
+                    {stats.totalCount} ({stats.successfulCount}{" "}
+                    {t.common.approved})
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.totalOrders}</span>
-                <span className="text-base font-bold text-gray-900 block mt-0.5">
-                  {stats.totalCount} ({stats.successfulCount} {t.common.approved})
-                </span>
-              </div>
-            </div>
 
-            <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-error-50 text-error-600 flex items-center justify-center shrink-0">
-                <XCircle className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">{t.users.cancelledOrders}</span>
-                <span className="text-base font-bold text-error-700 block mt-0.5">
-                  {stats.cancelledCount}
-                </span>
+              <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-error-50 text-error-600 flex items-center justify-center shrink-0">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">
+                    {t.users.cancelledOrders}
+                  </span>
+                  <span className="text-base font-bold text-error-700 block mt-0.5">
+                    {stats.cancelledCount}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Transaction History Table */}
         <div className="overflow-hidden rounded-2xl border border-gray-200">
@@ -527,17 +644,38 @@ export default function UserDetailPage() {
                   <tr>
                     <td colSpan={4} className="px-5 py-8 text-center text-sm">
                       <div className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin h-5 w-5 text-primary"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
-                        <span className="text-gray-500 font-semibold">{t.users.loadingPaymentHistory}</span>
+                        <span className="text-gray-500 font-semibold">
+                          {t.users.loadingPaymentHistory}
+                        </span>
                       </div>
                     </td>
                   </tr>
                 ) : paymentsError ? (
                   <tr>
-                    <td colSpan={4} className="px-5 py-8 text-center text-sm text-error-600 font-semibold">
+                    <td
+                      colSpan={4}
+                      className="px-5 py-8 text-center text-sm text-error-600 font-semibold"
+                    >
                       {paymentsError}
                     </td>
                   </tr>
@@ -547,32 +685,39 @@ export default function UserDetailPage() {
                     let statusText = "";
                     switch (payment.status) {
                       case 1:
-                        statusStyles = "bg-success-50 text-success-700 border-success-100";
+                        statusStyles =
+                          "bg-success-50 text-success-700 border-success-100";
                         statusText = t.common.approved;
                         break;
                       case 2:
-                        statusStyles = "bg-error-50 text-error-700 border-error-100";
+                        statusStyles =
+                          "bg-error-50 text-error-700 border-error-100";
                         statusText = t.common.cancel;
                         break;
                       default:
-                        statusStyles = "bg-warning-50 text-warning-700 border-warning-100";
+                        statusStyles =
+                          "bg-warning-50 text-warning-700 border-warning-100";
                         statusText = t.common.pending;
                     }
 
                     return (
                       <tr
                         key={payment.paymentId}
-                        className={`hover:bg-gray-50/50 transition-colors ${idx % 2 === 0 ? "bg-gray-50/20" : "bg-white"
-                          }`}
+                        className={`hover:bg-gray-50/50 transition-colors ${
+                          idx % 2 === 0 ? "bg-gray-50/20" : "bg-white"
+                        }`}
                       >
                         <td className="px-5 py-4 text-xs text-gray-500 whitespace-nowrap font-medium">
-                          {new Date(payment.createDate).toLocaleString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {new Date(payment.createDate).toLocaleString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </td>
                         <td className="px-5 py-4 text-xs">
                           <div className="font-bold text-gray-900 text-xs">
@@ -594,7 +739,9 @@ export default function UserDetailPage() {
                           }).format(payment.amount)}
                         </td>
                         <td className="px-5 py-4 text-xs">
-                          <span className={`inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${statusStyles}`}>
+                          <span
+                            className={`inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold ${statusStyles}`}
+                          >
                             {statusText}
                           </span>
                         </td>
@@ -656,8 +803,18 @@ function DetailItem({
           title="Copy value"
           className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+            />
           </svg>
         </button>
       )}

@@ -1,5 +1,18 @@
 import React, { useMemo, useState, useRef } from "react";
-import { ArrowLeft, Trash2, ShieldAlert, FileVideo, Globe, Calendar, Trophy, Eye, Heart, MessageSquare, Video, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Trash2,
+  ShieldAlert,
+  FileVideo,
+  Globe,
+  Calendar,
+  Trophy,
+  Eye,
+  Heart,
+  MessageSquare,
+  Video,
+  X,
+} from "lucide-react";
 import type { ReelDto, ReelPrivacy, ChallengeDto } from "../types";
 import { formatDate, formatDateLong } from "../../../lib/utils";
 import Button from "../../../components/ui/Button";
@@ -10,7 +23,11 @@ interface ReelDetailViewProps {
   challenges: ChallengeDto[]; // Pass list of all challenges to do dynamic matching
   onBack: () => void;
   onDelete: (reel: ReelDto) => void;
-  onStatusUpdate: (reelId: number, status: "Warned" | "Blocked" | "Public" | "Private", blockReason: string) => Promise<void>;
+  onStatusUpdate: (
+    reelId: number,
+    status: "Warned" | "Blocked" | "Public" | "Private",
+    blockReason: string,
+  ) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -25,7 +42,9 @@ function extractFilename(videoUrl?: string | null, reelId?: number): string {
   } catch {
     const lastSlash = videoUrl.lastIndexOf("/");
     if (lastSlash !== -1) {
-      return videoUrl.substring(lastSlash + 1) || `video_${reelId || "temp"}.mp4`;
+      return (
+        videoUrl.substring(lastSlash + 1) || `video_${reelId || "temp"}.mp4`
+      );
     }
     return `video_${reelId || "temp"}.mp4`;
   }
@@ -38,14 +57,20 @@ function highlightText(text: string) {
   return parts.map((part, index) => {
     if (part.startsWith("#")) {
       return (
-        <span key={index} className="text-primary font-semibold hover:underline cursor-pointer">
+        <span
+          key={index}
+          className="text-primary font-semibold hover:underline cursor-pointer"
+        >
           {part}
         </span>
       );
     }
     if (part.startsWith("@")) {
       return (
-        <span key={index} className="text-blue-500 font-semibold hover:underline cursor-pointer">
+        <span
+          key={index}
+          className="text-blue-500 font-semibold hover:underline cursor-pointer"
+        >
           {part}
         </span>
       );
@@ -57,7 +82,6 @@ function highlightText(text: string) {
 const PRIVACY_COLORS: Record<ReelPrivacy, string> = {
   Public: "text-emerald-700 bg-emerald-50 border-emerald-100",
   Private: "text-red-700 bg-red-50 border-red-100",
-  FriendsOnly: "text-amber-700 bg-amber-50 border-amber-100",
 };
 
 export default function ReelDetailView({
@@ -72,8 +96,14 @@ export default function ReelDetailView({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const [showModerationModal, setShowModerationModal] = useState(false);
-  const [modStatus, setModStatus] = useState<"Warned" | "Blocked" | "Public" | "Private">(
-    reel.status === "Warned" ? "Warned" : reel.status === "Blocked" ? "Blocked" : "Warned",
+  const [modStatus, setModStatus] = useState<
+    "Warned" | "Blocked" | "Public" | "Private"
+  >(
+    reel.status === "Warned"
+      ? "Warned"
+      : reel.status === "Blocked"
+        ? "Blocked"
+        : "Warned",
   );
   const [blockReason, setBlockReason] = useState(reel.blockReason || "");
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -85,13 +115,15 @@ export default function ReelDetailView({
 
     return challenges.filter((ch) => {
       const tag = (ch.hashtag || "").replace(/^#/, "").toLowerCase();
-      return tag && (lowerTitle.includes(`#${tag}`) || lowerDesc.includes(`#${tag}`));
+      return (
+        tag && (lowerTitle.includes(`#${tag}`) || lowerDesc.includes(`#${tag}`))
+      );
     });
   }, [reel, challenges]);
 
   const fileName = extractFilename(reel.videoUrl, reel.reelId);
   const simulatedSize = useMemo(
-    () => ((reel.reelId * 17) % 35 + 3.5).toFixed(1),
+    () => (((reel.reelId * 17) % 35) + 3.5).toFixed(1),
     [reel.reelId],
   );
 
@@ -159,7 +191,13 @@ export default function ReelDetailView({
             variant="primary"
             size="sm"
             onClick={() => {
-              setModStatus(reel.status === "Warned" ? "Warned" : reel.status === "Blocked" ? "Blocked" : "Warned");
+              setModStatus(
+                reel.status === "Warned"
+                  ? "Warned"
+                  : reel.status === "Blocked"
+                    ? "Blocked"
+                    : "Warned",
+              );
               setBlockReason(reel.blockReason || "");
               setValidationError(null);
               setShowModerationModal(true);
@@ -173,21 +211,30 @@ export default function ReelDetailView({
       </div>
 
       {/* ── Dynamic Moderation Callout Box ── */}
-      {(reel.status === "Warned" || reel.status === "Blocked" || reel.status === "Failed") && (
+      {(reel.status === "Warned" ||
+        reel.status === "Blocked" ||
+        reel.status === "Failed") && (
         <div
-          className={`p-4 rounded-3xl border shadow-sm flex items-start gap-3 animate-fadeIn ${reel.status === "Warned"
-            ? "bg-amber-50/70 border-amber-100 text-amber-800"
-            : "bg-red-50/70 border-red-100 text-red-800"
-            }`}
+          className={`p-4 rounded-3xl border shadow-sm flex items-start gap-3 animate-fadeIn ${
+            reel.status === "Warned"
+              ? "bg-amber-50/70 border-amber-100 text-amber-800"
+              : "bg-red-50/70 border-red-100 text-red-800"
+          }`}
         >
           <ShieldAlert
-            className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${reel.status === "Warned" ? "text-amber-500" : "text-red-500"
-              }`}
+            className={`w-5.5 h-5.5 shrink-0 mt-0.5 ${
+              reel.status === "Warned" ? "text-amber-500" : "text-red-500"
+            }`}
           />
           <div className="space-y-1">
-            <h4 className={`text-xs font-bold leading-tight uppercase ${reel.status === "Warned" ? "text-amber-900" : "text-red-900"
-              }`}>
-              {reel.status === "Warned" ? t.reels.reelFlaggedWarning : t.reels.reelBlockedPublicView}
+            <h4
+              className={`text-xs font-bold leading-tight uppercase ${
+                reel.status === "Warned" ? "text-amber-900" : "text-red-900"
+              }`}
+            >
+              {reel.status === "Warned"
+                ? t.reels.reelFlaggedWarning
+                : t.reels.reelBlockedPublicView}
             </h4>
             <p className="text-xs leading-relaxed opacity-95">
               <span className="font-bold text-gray-700">{t.reels.reason}:</span>{" "}
@@ -225,7 +272,13 @@ export default function ReelDetailView({
               {t.common.description}
             </h4>
             <div className="text-sm text-gray-700 leading-relaxed bg-gray-50 border border-gray-100/80 rounded-2xl p-4 whitespace-pre-line font-medium">
-              {reel.description ? highlightText(reel.description) : <span className="text-gray-400 italic">{t.reels.noDescriptionAdded}</span>}
+              {reel.description ? (
+                highlightText(reel.description)
+              ) : (
+                <span className="text-gray-400 italic">
+                  {t.reels.noDescriptionAdded}
+                </span>
+              )}
               {reel.description && (
                 <span className="block text-[9px] text-gray-400 text-right mt-3 select-none">
                   {reel.description.length} {t.reels.characters}
@@ -240,13 +293,20 @@ export default function ReelDetailView({
               {t.reels.privacySettings}
             </h4>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 font-semibold">{t.reels.visibility}:</span>
+              <span className="text-xs text-gray-500 font-semibold">
+                {t.reels.visibility}:
+              </span>
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${PRIVACY_COLORS[reel.privacy] || PRIVACY_COLORS.Public
-                  }`}
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${
+                  PRIVACY_COLORS[reel.privacy] || PRIVACY_COLORS.Public
+                }`}
               >
                 <Globe className="w-3.5 h-3.5 mr-1" />
-                {reel.privacy === "Public" ? t.reels.privacyPublic : reel.privacy === "Private" ? t.reels.privacyPrivate : t.reels.privacyFriendsOnly}
+                {reel.privacy === "Public"
+                  ? t.reels.privacyPublic
+                  : reel.privacy === "Private"
+                    ? t.reels.privacyPrivate
+                    : "?"}
               </span>
             </div>
           </div>
@@ -282,9 +342,15 @@ export default function ReelDetailView({
             {matchedChallenges.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {matchedChallenges.map((challenge: ChallengeDto) => {
-                  const isActive = new Date(challenge.startDate) <= new Date() && new Date() <= new Date(challenge.endDate);
+                  const isActive =
+                    new Date(challenge.startDate) <= new Date() &&
+                    new Date() <= new Date(challenge.endDate);
                   const isCompleted = new Date() > new Date(challenge.endDate);
-                  const challengeStatus = isActive ? t.common.active : isCompleted ? t.common.completed : "Upcoming";
+                  const challengeStatus = isActive
+                    ? t.common.active
+                    : isCompleted
+                      ? t.common.completed
+                      : "Upcoming";
 
                   return (
                     <div
@@ -293,12 +359,14 @@ export default function ReelDetailView({
                     >
                       <div className="space-y-1">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider mb-2 ${challengeStatus === t.common.active || challengeStatus === "Active"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : isCompleted
-                              ? "bg-gray-100 text-gray-600 border-gray-200"
-                              : "bg-blue-50 text-blue-700 border-blue-200"
-                            }`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border uppercase tracking-wider mb-2 ${
+                            challengeStatus === t.common.active ||
+                            challengeStatus === "Active"
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : isCompleted
+                                ? "bg-gray-100 text-gray-600 border-gray-200"
+                                : "bg-blue-50 text-blue-700 border-blue-200"
+                          }`}
                         >
                           {challengeStatus}
                         </span>
@@ -312,7 +380,8 @@ export default function ReelDetailView({
                       <div className="mt-4 pt-2 border-t border-gray-100/80 flex items-center gap-1 text-[9px] text-gray-400 font-semibold">
                         <Calendar className="w-3.5 h-3.5 shrink-0" />
                         <span>
-                          {formatDateLong(challenge.startDate)} - {formatDateLong(challenge.endDate)}
+                          {formatDateLong(challenge.startDate)} -{" "}
+                          {formatDateLong(challenge.endDate)}
                         </span>
                       </div>
                     </div>
@@ -321,7 +390,9 @@ export default function ReelDetailView({
               </div>
             ) : (
               <div className="p-6 text-center bg-gray-50 border border-gray-100/80 rounded-2xl">
-                <p className="text-xs text-gray-400 italic">{t.reels.noConnectedChallenges}</p>
+                <p className="text-xs text-gray-400 italic">
+                  {t.reels.noConnectedChallenges}
+                </p>
               </div>
             )}
           </div>
@@ -342,45 +413,59 @@ export default function ReelDetailView({
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.reels.uploadedBy}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.reels.uploadedBy}
+                </span>
                 <span className="font-semibold text-gray-800">
                   @{reel.username || "admin"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.news.languageCommunity}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.news.languageCommunity}
+                </span>
                 <span className="font-semibold text-gray-800">
                   {reel.languageCommunity || "All"}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.reels.dateUploaded}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.reels.dateUploaded}
+                </span>
                 <span className="font-semibold text-gray-700 tabular-nums">
                   {formatDate(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.reels.lastEdited}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.reels.lastEdited}
+                </span>
                 <span className="font-semibold text-gray-700 tabular-nums">
                   {formatDate(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5 border-t border-gray-50 pt-3">
-                <span className="text-gray-400 font-semibold">{t.news.totalViews}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.news.totalViews}
+                </span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <Eye className="w-3.5 h-3.5 text-gray-400" />
                   {reel.viewCount || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.reels.totalReaction}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.reels.totalReaction}
+                </span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <Heart className="w-3.5 h-3.5 text-red-500 fill-current" />
                   {reel.likesCount || 0}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
-                <span className="text-gray-400 font-semibold">{t.reels.commentsCount}</span>
+                <span className="text-gray-400 font-semibold">
+                  {t.reels.commentsCount}
+                </span>
                 <span className="font-bold text-gray-800 flex items-center gap-1 tabular-nums">
                   <MessageSquare className="w-3.5 h-3.5 text-blue-500" />
                   {reel.commentsCount || 0}
@@ -409,7 +494,9 @@ export default function ReelDetailView({
               ) : (
                 <div className="flex flex-col items-center justify-center text-center p-6 text-gray-500">
                   <Video className="w-8 h-8 text-gray-600 mb-2 animate-pulse" />
-                  <span className="text-xs font-semibold">Video currently processing. No player source.</span>
+                  <span className="text-xs font-semibold">
+                    Video currently processing. No player source.
+                  </span>
                 </div>
               )}
             </div>
@@ -434,7 +521,9 @@ export default function ReelDetailView({
             <div className="flex justify-between items-center pb-2">
               <div className="flex items-center gap-2 text-amber-600">
                 <ShieldAlert className="w-5.5 h-5.5" />
-                <h3 className="text-base font-bold text-gray-900">{t.reels.moderateVideoReel}</h3>
+                <h3 className="text-base font-bold text-gray-900">
+                  {t.reels.moderateVideoReel}
+                </h3>
               </div>
               <button
                 type="button"
@@ -461,7 +550,12 @@ export default function ReelDetailView({
                 value={modStatus}
                 onChange={(e) => {
                   const nextStatus = e.target.value;
-                  if (nextStatus === "Warned" || nextStatus === "Blocked" || nextStatus === "Public" || nextStatus === "Private") {
+                  if (
+                    nextStatus === "Warned" ||
+                    nextStatus === "Blocked" ||
+                    nextStatus === "Public" ||
+                    nextStatus === "Private"
+                  ) {
                     setModStatus(nextStatus);
                   }
                   setValidationError(null);
@@ -478,7 +572,10 @@ export default function ReelDetailView({
             {/* Block Reason Text Area */}
             <div className="space-y-1.5">
               <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                {t.reels.reason} {(modStatus === "Warned" || modStatus === "Blocked") && <span className="text-red-500">*</span>}
+                {t.reels.reason}{" "}
+                {(modStatus === "Warned" || modStatus === "Blocked") && (
+                  <span className="text-red-500">*</span>
+                )}
               </label>
               <textarea
                 rows={4}
@@ -512,7 +609,11 @@ export default function ReelDetailView({
                 size="sm"
                 type="submit"
                 isLoading={isUpdating}
-                disabled={isUpdating || ((modStatus === "Warned" || modStatus === "Blocked") && !blockReason.trim())}
+                disabled={
+                  isUpdating ||
+                  ((modStatus === "Warned" || modStatus === "Blocked") &&
+                    !blockReason.trim())
+                }
                 className="bg-amber-500 border-transparent hover:bg-amber-600 text-white flex items-center gap-1.5 font-semibold"
               >
                 {t.common.submit}
