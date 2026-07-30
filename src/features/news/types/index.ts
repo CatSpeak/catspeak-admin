@@ -36,7 +36,7 @@ export interface NewsPost {
 export interface CreatePostPayload {
   Title: string;
   Content: string;
-  Privacy: "Public" | "FriendsOnly" | "Private";
+  Privacy: "Public" | "Private";
   Slug?: string;
   LanguageCommunity: "All" | "English" | "Chinese";
   Files?: File[];
@@ -46,7 +46,7 @@ export interface UpdatePostPayload {
   id: number;
   Title?: string;
   Content: string;
-  Privacy: "Public" | "FriendsOnly" | "Private";
+  Privacy: "Public" | "Private";
   Slug?: string;
   LanguageCommunity?: "All" | "English" | "Chinese";
   NewFiles?: File[];
