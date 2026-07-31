@@ -1,0 +1,149 @@
+name: "Production Rollback"
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_tag:
+        description: "Tag muốn rollback về (vd: v1.2.2)"
+        required: true
+        type: string
+      confirm:
+        description: "Gõ chính xác chữ ROLLBACK để xác nhận thực hiện"
+        required: true
+        type: string
+
+jobs:
+  # ============================================================
+  # JOB 1: Xác nhận thao tác + tìm deployment Vercel ứng với tag
+  # ============================================================
+  validate:
+    runs-on: ubuntu-latest
+    environment: production
+    outputs:
+      deployment_url: ${{ steps.find-deployment.outputs.deployment_url }}
+    steps:
+      - name: Check confirmation phrase
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "ROLLBACK" ]; then
+            echo "❌ Xác nhận không đúng. Bạn phải gõ chính xác 'ROLLBACK' để tiếp tục."
+            exit 1
+          fi
+          echo "✅ Xác nhận hợp lệ."
+
+      - name: Find Vercel deployment for tag
+        id: find-deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          ROLLBACK_TAG: ${{ github.event.inputs.rollback_tag }}
+        run: |
+          echo "Đang tìm deployment tương ứng với tag: $ROLLBACK_TAG"
+
+          RESPONSE=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&target=production&limit=100")
+
+          DEPLOYMENT_URL=$(echo "$RESPONSE" | jq -r --arg TAG "$ROLLBACK_TAG" \
+            '.deployments[] | select(.meta.githubCommitRef == $TAG) | .url' | head -n 1)
+
+          if [ -z "$DEPLOYMENT_URL" ] || [ "$DEPLOYMENT_URL" == "null" ]; then
+            echo "❌ LỖI: Không tìm thấy deployment production nào ứng với tag '$ROLLBACK_TAG'."
+            echo "Có thể tag bị gõ sai, hoặc deployment đó đã bị xoá khỏi lịch sử Vercel."
+            exit 1
+          fi
+
+          echo "✅ Tìm thấy deployment: https://$DEPLOYMENT_URL"
+          echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Notify - Rollback starting
+        if: success()
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"⏪ Rollback bắt đầu\",
+                \"color\": 15105570,
+                \"fields\": [
+                  {\"name\": \"Rollback về tag\", \"value\": \"${{ github.event.inputs.rollback_tag }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem run trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+  # ============================================================
+  # JOB 2: Rollback bằng Vercel CLI (không build lại)
+  # ============================================================
+  rollback-deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Install Vercel CLI
+        run: npm install --global vercel
+
+      - name: Rollback to deployment
+        run: |
+          vercel rollback "${{ needs.validate.outputs.deployment_url }}" \
+            --token=${{ secrets.VERCEL_TOKEN }} --yes
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Notify - Rollback done
+        if: success()
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"✅ Rollback hoàn tất\",
+                \"color\": 3066993,
+                \"fields\": [
+                  {\"name\": \"Đã rollback về tag\", \"value\": \"${{ github.event.inputs.rollback_tag }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Lưu ý\", \"value\": \"Tag deployed-production KHÔNG bị thay đổi bởi thao tác này.\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem run trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+  # ============================================================
+  # JOB 3: Thông báo thất bại
+  # ============================================================
+  notify-failure:
+    needs: [validate, rollback-deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Determine failed job
+        id: fail-info
+        run: |
+          if [ "${{ needs.validate.result }}" == "failure" ]; then
+            echo "job=validate (xác nhận / tìm deployment theo tag)" >> "$GITHUB_OUTPUT"
+          elif [ "${{ needs.rollback-deploy.result }}" == "failure" ]; then
+            echo "job=rollback-deploy (Vercel rollback)" >> "$GITHUB_OUTPUT"
+          else
+            echo "job=không xác định" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Notify - Rollback failed
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"❌ Rollback thất bại\",
+                \"color\": 15158332,
+                \"fields\": [
+                  {\"name\": \"Tag định rollback\", \"value\": \"${{ github.event.inputs.rollback_tag }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Bước lỗi\", \"value\": \"${{ steps.fail-info.outputs.job }}\", \"inline\": false},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem log lỗi trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
