@@ -23,6 +23,7 @@ import DonutChartJS from "../../dashboard/components/DonutChartJS";
 import AreaChartJS from "../../dashboard/components/AreaChartJS";
 import AnalyticsPeriodSelector from "../components/AnalyticsPeriodSelector";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDate } from "../../../lib/utils";
 
 interface AnalyticsData {
   newUsers: NewUserResponse;
@@ -93,7 +94,7 @@ export default function AnalyticsPage() {
   }> =
     data.newUsers.dailyBreakdown.length > 0
       ? data.newUsers.dailyBreakdown.map((d) => ({
-          label: d,
+          label: formatDate(d),
           accountUsers: 0,
           activeUsers: 0,
         }))
@@ -186,7 +187,9 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <div className="bg-yellow-50 rounded-lg p-4 text-center">
-              <div className="text-sm text-gray-600">{t.analytics.churnRate}</div>
+              <div className="text-sm text-gray-600">
+                {t.analytics.churnRate}
+              </div>
               <div className="text-2xl font-bold text-yellow-600">
                 {data.churn.currentChurnRate.toFixed(1)}%
               </div>
