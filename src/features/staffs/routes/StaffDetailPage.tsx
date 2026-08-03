@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useStaffDetail } from "../hooks/useStaffDetail";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDateTime } from "../../../lib/utils";
 
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,9 @@ export default function StaffDetailPage() {
           border: "1px solid var(--color-border)",
         }}
       >
-        <span style={{ color: "var(--color-text-secondary)" }}>{t.common.loading}</span>
+        <span style={{ color: "var(--color-text-secondary)" }}>
+          {t.common.loading}
+        </span>
       </div>
     );
   }
@@ -83,17 +86,19 @@ export default function StaffDetailPage() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-          <InfoRow label={`${t.users.id}:`} value={staff.accountId.toString()} />
+          <InfoRow
+            label={`${t.users.id}:`}
+            value={staff.accountId.toString()}
+          />
           <InfoRow label={`${t.users.username}:`} value={staff.username} />
           <InfoRow label={`${t.users.email}:`} value={staff.email} />
-          <InfoRow label={`${t.users.phone}:`} value={staff.phoneNumber || "..."} />
+          <InfoRow
+            label={`${t.users.phone}:`}
+            value={staff.phoneNumber || "..."}
+          />
           <InfoRow
             label={`${t.common.createdDate}:`}
-            value={
-              staff.createDate
-                ? new Date(staff.createDate).toLocaleDateString()
-                : "..."
-            }
+            value={formatDateTime(staff.createDate)}
           />
           <InfoRow
             label={`${t.users.learningLanguage}:`}
@@ -103,7 +108,10 @@ export default function StaffDetailPage() {
             label={`${t.users.nativeLanguage}:`}
             value={staff.naturalLanguage || "..."}
           />
-          <InfoRow label={`${t.users.level}:`} value={staff.proficiency || "..."} />
+          <InfoRow
+            label={`${t.users.level}:`}
+            value={staff.proficiency || "..."}
+          />
         </div>
       </div>
 

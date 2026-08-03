@@ -3,13 +3,81 @@ name: "Production Go-Live"
 on:
   workflow_dispatch:
 
+env:
+  DEPLOYED_TAG_MARKER: deployed-production
+
 jobs:
-  deploy-production:
+  # ============================================================
+  # JOB 1: Kiểm tra tag hiện tại có "chứa" (là hậu duệ của) tag
+  # đã golive gần nhất hay không. Nếu dev quên merge ngược tag
+  # vào main ở đợt trước, bước này sẽ chặn lại ngay tại đây.
+  # ============================================================
+  check-tag:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout code (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Verify tag contains last deployed tag
+        run: |
+          CURRENT_TAG="${{ github.ref_name }}"
+          MARKER_TAG="${{ env.DEPLOYED_TAG_MARKER }}"
+
+          echo "Tag đang golive: $CURRENT_TAG"
+
+          if git rev-parse "$MARKER_TAG" >/dev/null 2>&1; then
+            echo "Tìm thấy tag đánh dấu lần golive trước: $MARKER_TAG"
+
+            if git merge-base --is-ancestor "$MARKER_TAG" "$CURRENT_TAG"; then
+              echo "✅ OK: $CURRENT_TAG chứa đầy đủ code của $MARKER_TAG."
+            else
+              echo "❌ LỖI: $CURRENT_TAG KHÔNG chứa code của lần golive trước ($MARKER_TAG)."
+              echo "Rất có thể bước 'merge ngược tag vào main' của đợt golive trước đã bị quên."
+              exit 1
+            fi
+          else
+            echo "⚠️ Chưa có tag $MARKER_TAG nào trước đó (có thể đây là lần golive đầu tiên). Bỏ qua kiểm tra."
+          fi
+
+      - name: Notify - Go-live starting
+        if: success()
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"🚀 Go-Live bắt đầu\",
+                \"color\": 3447003,
+                \"fields\": [
+                  {\"name\": \"Tag\", \"value\": \"${{ github.ref_name }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem run trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+  # ============================================================
+  # JOB 2: Build & Deploy lên Vercel + cập nhật tag đánh dấu
+  # ============================================================
+  deploy-production:
+    needs: check-tag
+    runs-on: ubuntu-latest
+    environment: production
+
+    permissions:
+      contents: write
+
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Install Vercel CLI
         run: npm install --global vercel
@@ -31,3 +99,68 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      # Di chuyển tag đánh dấu "đã golive" tới tag vừa deploy thành công.
+      - name: Move deployed-production marker tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -f "${{ env.DEPLOYED_TAG_MARKER }}" "${{ github.ref_name }}"
+          git push origin "${{ env.DEPLOYED_TAG_MARKER }}" --force
+
+      - name: Notify - Go-live done
+        if: success()
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"✅ Go-Live hoàn tất\",
+                \"color\": 3066993,
+                \"fields\": [
+                  {\"name\": \"Tag\", \"value\": \"${{ github.ref_name }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem run trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+  # ============================================================
+  # JOB 3: Thông báo thất bại - chạy nếu bất kỳ job nào ở trên fail
+  # ============================================================
+  notify-failure:
+    needs: [check-tag, deploy-production]
+    if: failure()
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Determine failed job
+        id: fail-info
+        run: |
+          if [ "${{ needs.check-tag.result }}" == "failure" ]; then
+            echo "job=check-tag (kiểm tra tag ancestor)" >> "$GITHUB_OUTPUT"
+          elif [ "${{ needs.deploy-production.result }}" == "failure" ]; then
+            echo "job=deploy-production (build/deploy Vercel)" >> "$GITHUB_OUTPUT"
+          else
+            echo "job=không xác định" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Notify - Go-live failed
+        run: |
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"❌ Go-Live thất bại\",
+                \"color\": 15158332,
+                \"fields\": [
+                  {\"name\": \"Tag\", \"value\": \"${{ github.ref_name }}\", \"inline\": true},
+                  {\"name\": \"Người thực hiện\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Bước lỗi\", \"value\": \"${{ steps.fail-info.outputs.job }}\", \"inline\": false},
+                  {\"name\": \"Thời gian\", \"value\": \"$(date -u '+%Y-%m-%d %H:%M:%S UTC')\", \"inline\": false},
+                  {\"name\": \"Chi tiết\", \"value\": \"[Xem log lỗi trên GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\", \"inline\": false}
+                ]
+              }]
+            }" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"

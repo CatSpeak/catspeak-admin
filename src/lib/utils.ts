@@ -12,7 +12,7 @@ export function formatDate(value?: string | null): string {
  */
 export function formatDateLong(value?: string | null): string {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("en-GB", {
+  return new Date(value).toLocaleDateString("vi-VN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -25,7 +25,14 @@ export function formatDateLong(value?: string | null): string {
  */
 export function formatDateTime(value?: string | null): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString();
+
+  return new Date(value).toLocaleString("vi-VN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export function formatAmount(amount: number) {
