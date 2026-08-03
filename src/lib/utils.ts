@@ -3,7 +3,13 @@
  * Returns "—" for null/undefined values.
  */
 export function formatDate(value?: string | null): string {
-  return value ? new Date(value).toLocaleDateString() : "—";
+  if (!value) return "—";
+
+  return new Date(value).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 /**
@@ -44,4 +50,13 @@ export function formatAmount(amount: number) {
   } catch {
     return `${amount} VND`;
   }
+}
+
+export function formatMonthYear(value?: string | null): string {
+  if (!value) return "—";
+
+  return new Date(value).toLocaleDateString("vi-VN", {
+    month: "2-digit",
+    year: "numeric",
+  });
 }

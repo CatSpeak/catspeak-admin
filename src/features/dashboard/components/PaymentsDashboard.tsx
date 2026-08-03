@@ -16,6 +16,7 @@ import {
 import Card from "../../../components/ui/Card";
 import type { DashboardStats } from "../api/getDashboardStats";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDate, formatAmount } from "../../../lib/utils";
 
 interface PaymentsDashboardProps {
   data: DashboardStats;
@@ -32,19 +33,15 @@ export default function PaymentsDashboard({
   const [chartMode, setChartMode] = useState<"revenue" | "transactions">("revenue");
   const { t } = useLanguage();
 
-  // Format currency helpers
+  // Format currency helpers using utils
   const formatVND = (value: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(value);
+    return formatAmount(value);
   };
 
-  // Format date helper for the chart x-axis
+  // Format date helper for the chart x-axis using utils
   const chartData = useMemo(() => {
     const dates = data.dailyRevenue.map((item) => {
-      const d = new Date(item.date);
-      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      return formatDate(item.date);
     });
 
     const revenue = data.dailyRevenue.map((item) => item.revenueVnd);
