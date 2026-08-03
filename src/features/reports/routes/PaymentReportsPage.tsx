@@ -17,7 +17,7 @@ import { useToastStore } from "../../../stores/toastStore";
 import ProcessReportModal from "../components/ProcessReportModal";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { formatAmount, formatDate } from "../../../lib/utils";
+import { formatAmount, formatDateTime } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -251,7 +251,7 @@ export default function PaymentReportsPage() {
             accessorKey: "createDate",
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium">
-                {formatDate(r.createDate)}
+                {formatDateTime(r.createDate)}
               </span>
             ),
             cellClassName: "px-6 py-4 text-sm whitespace-nowrap",

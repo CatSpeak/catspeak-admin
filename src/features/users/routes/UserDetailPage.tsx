@@ -24,6 +24,7 @@ import { getActivePlans } from "../../plans/api/getActivePlans";
 import { upgradeSubscription } from "../api/upgradeSubscription";
 import { getApiErrorMessage } from "../../../lib/axios";
 import type { Plan } from "../../../entities/types";
+import { formatDateTime } from "../../../lib/utils";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -334,10 +335,7 @@ export default function UserDetailPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5" />
-              {t.users.joined}:{" "}
-              {user.createDate
-                ? new Date(user.createDate).toLocaleDateString("en-GB")
-                : t.users.unknown}
+              {t.users.joined}: {formatDateTime(user.createDate)}
             </span>
           </div>
         </div>
@@ -371,15 +369,7 @@ export default function UserDetailPage() {
             <DetailItem
               icon={<Calendar className="w-4 h-4" />}
               label={t.common.createdDate}
-              value={
-                user.createDate
-                  ? new Date(user.createDate).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })
-                  : t.users.unknown
-              }
+              value={formatDateTime(user.createDate)}
             />
           </div>
         </div>
@@ -708,16 +698,7 @@ export default function UserDetailPage() {
                         }`}
                       >
                         <td className="px-5 py-4 text-xs text-gray-500 whitespace-nowrap font-medium">
-                          {new Date(payment.createDate).toLocaleString(
-                            "en-GB",
-                            {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
+                          {formatDateTime(payment.createDate)}
                         </td>
                         <td className="px-5 py-4 text-xs">
                           <div className="font-bold text-gray-900 text-xs">

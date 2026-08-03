@@ -19,7 +19,10 @@ import {
   Clock,
 } from "lucide-react";
 import ApplicationStatusBadge from "./ApplicationStatusBadge";
-import ReviewModal, { type ReviewAction, type ReviewModalResult } from "./ReviewModal";
+import ReviewModal, {
+  type ReviewAction,
+  type ReviewModalResult,
+} from "./ReviewModal";
 import Button from "../../../components/ui/Button";
 import { useToastStore } from "../../../stores/toastStore";
 import {
@@ -29,6 +32,7 @@ import {
 } from "../api/reviewInstructorApplication";
 import type { InstructorApplicationDetail } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDateTime } from "../../../lib/utils";
 
 interface ApplicationDetailPanelProps {
   application: InstructorApplicationDetail;
@@ -61,22 +65,6 @@ function formatLanguageLabel(value: JsonArrayValue): string {
   const level = typeof value.level === "string" ? value.level : "";
 
   return level ? `${language} (${level})` : language;
-}
-
-function formatDate(value?: string | null, language: string = "en") {
-  if (!value) return "—";
-  const localeMap: Record<string, string> = {
-    vi: "vi-VN",
-    zh: "zh-CN",
-    en: "en-GB",
-  };
-  return new Date(value).toLocaleString(localeMap[language] || "en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 function InfoRow({
@@ -164,7 +152,7 @@ export default function ApplicationDetailPanel({
   application,
   onReviewed,
 }: ApplicationDetailPanelProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
   const [modalAction, setModalAction] = useState<ReviewAction | null>(null);
@@ -358,7 +346,8 @@ export default function ApplicationDetailPanel({
                   {t.instructorApplications.introduction}
                 </p>
                 <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  {application.introduction || t.instructorApplications.noIntroduction}
+                  {application.introduction ||
+                    t.instructorApplications.noIntroduction}
                 </p>
               </div>
             </div>
@@ -377,13 +366,18 @@ export default function ApplicationDetailPanel({
                       className="flex items-center gap-2 text-sm text-primary hover:underline"
                     >
                       <FileText className="w-4 h-4 shrink-0" />
-                      {t.instructorApplications.credentialItem.replace("{index}", String(i + 1))}
+                      {t.instructorApplications.credentialItem.replace(
+                        "{index}",
+                        String(i + 1),
+                      )}
                     </a>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">{t.instructorApplications.noCredentials}</p>
+              <p className="text-sm text-gray-500">
+                {t.instructorApplications.noCredentials}
+              </p>
             )}
           </SectionCard>
 
@@ -414,7 +408,9 @@ export default function ApplicationDetailPanel({
                   label={t.instructorApplications.idCardFront}
                 />
               ) : (
-                <p className="text-sm text-gray-500">{t.instructorApplications.noFrontId}</p>
+                <p className="text-sm text-gray-500">
+                  {t.instructorApplications.noFrontId}
+                </p>
               )}
               {application.idCardBackUrl ? (
                 <ImagePreview
@@ -422,7 +418,9 @@ export default function ApplicationDetailPanel({
                   label={t.instructorApplications.idCardBack}
                 />
               ) : (
-                <p className="text-sm text-gray-500">{t.instructorApplications.noBackId}</p>
+                <p className="text-sm text-gray-500">
+                  {t.instructorApplications.noBackId}
+                </p>
               )}
             </div>
           </SectionCard>
@@ -433,13 +431,13 @@ export default function ApplicationDetailPanel({
               <InfoRow
                 icon={<Clock className="w-4 h-4" />}
                 label={t.instructorApplications.submitted}
-                value={formatDate(application.submittedAt, language)}
+                value={formatDateTime(application.submittedAt)}
               />
               {application.reviewedAt && (
                 <InfoRow
                   icon={<Clock className="w-4 h-4" />}
                   label={t.instructorApplications.lastReviewed}
-                  value={formatDate(application.reviewedAt, language)}
+                  value={formatDateTime(application.reviewedAt)}
                 />
               )}
               {application.reviewedByAdminUsername && (
@@ -475,7 +473,7 @@ export default function ApplicationDetailPanel({
                   label={t.instructorApplications.bannedUntil}
                   value={
                     <span className="text-red-600 font-medium">
-                      {formatDate(application.banUntil, language)}
+                      {formatDateTime(application.banUntil)}
                     </span>
                   }
                 />

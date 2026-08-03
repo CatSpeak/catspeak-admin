@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import type { ReelDto, ReelPrivacy, ChallengeDto } from "../types";
-import { formatDate, formatDateLong } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import Button from "../../../components/ui/Button";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -380,8 +380,8 @@ export default function ReelDetailView({
                       <div className="mt-4 pt-2 border-t border-gray-100/80 flex items-center gap-1 text-[9px] text-gray-400 font-semibold">
                         <Calendar className="w-3.5 h-3.5 shrink-0" />
                         <span>
-                          {formatDateLong(challenge.startDate)} -{" "}
-                          {formatDateLong(challenge.endDate)}
+                          {formatDateTime(challenge.startDate)} -{" "}
+                          {formatDateTime(challenge.endDate)}
                         </span>
                       </div>
                     </div>
@@ -433,7 +433,7 @@ export default function ReelDetailView({
                   {t.reels.dateUploaded}
                 </span>
                 <span className="font-semibold text-gray-700 tabular-nums">
-                  {formatDate(reel.createdAt)}
+                  {formatDateTime(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">
@@ -441,7 +441,7 @@ export default function ReelDetailView({
                   {t.reels.lastEdited}
                 </span>
                 <span className="font-semibold text-gray-700 tabular-nums">
-                  {formatDate(reel.createdAt)}
+                  {formatDateTime(reel.createdAt)}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5 border-t border-gray-50 pt-3">
