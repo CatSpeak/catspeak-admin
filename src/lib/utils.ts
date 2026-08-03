@@ -55,8 +55,11 @@ export function formatAmount(amount: number) {
 export function formatMonthYear(value?: string | null): string {
   if (!value) return "—";
 
-  return new Date(value).toLocaleDateString("vi-VN", {
-    month: "2-digit",
-    year: "numeric",
-  });
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "—";
+
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${month}/${year}`;
 }
