@@ -199,10 +199,7 @@ export default function PlatformOverview() {
     if (activeUsersLineData && activeUsersLineData.length > 0) {
       return activeUsersLineData.map((item) => ({
         ...item,
-        label:
-          item.label && !isNaN(Date.parse(item.label))
-            ? formatDate(item.label)
-            : item.label,
+        label: formatItemLabel(item),
       }));
     }
     if (!activeUsersData || activeUsersData.length === 0) {
