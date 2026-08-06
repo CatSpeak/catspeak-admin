@@ -13,10 +13,7 @@ import {
 import Button from "../../../components/ui/Button";
 import { useLanguage } from "../../../stores/languageStore";
 import Avatar from "../../../components/ui/Avatar";
-
-function formatDate(value?: string | null) {
-  return value ? new Date(value).toLocaleDateString() : "—";
-}
+import { formatDateTime } from "../../../lib/utils";
 
 export default function PostDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -147,7 +144,7 @@ export default function PostDetailPage() {
                 {post.authorName}
               </h2>
               <p className="text-sm text-gray-500">
-                {formatDate(post.createDate)}
+                {formatDateTime(post.createDate)}
               </p>
             </div>
 
@@ -283,7 +280,7 @@ export default function PostDetailPage() {
                     {t.news.created}
                   </div>
                   <div className="text-sm font-semibold text-gray-800">
-                    {formatDate(post.createDate)}
+                    {formatDateTime(post.createDate)}
                   </div>
                 </div>
 
@@ -294,7 +291,7 @@ export default function PostDetailPage() {
                     {t.news.lastEdited}
                   </div>
                   <div className="text-sm font-semibold text-gray-800">
-                    {formatDate(post.lastEdited)}
+                    {formatDateTime(post.lastEdited)}
                   </div>
                 </div>
               </div>

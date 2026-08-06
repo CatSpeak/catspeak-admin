@@ -3,7 +3,13 @@
  * Returns "—" for null/undefined values.
  */
 export function formatDate(value?: string | null): string {
-  return value ? new Date(value).toLocaleDateString() : "—";
+  if (!value) return "—";
+
+  return new Date(value).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 /**
@@ -12,7 +18,7 @@ export function formatDate(value?: string | null): string {
  */
 export function formatDateLong(value?: string | null): string {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("en-GB", {
+  return new Date(value).toLocaleDateString("vi-VN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -25,7 +31,19 @@ export function formatDateLong(value?: string | null): string {
  */
 export function formatDateTime(value?: string | null): string {
   if (!value) return "—";
-  return new Date(value).toLocaleString();
+
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) return "—";
+
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 }
 
 export function formatAmount(amount: number) {
@@ -37,4 +55,16 @@ export function formatAmount(amount: number) {
   } catch {
     return `${amount} VND`;
   }
+}
+
+export function formatMonthYear(value?: string | null): string {
+  if (!value) return "—";
+
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "—";
+
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${month}/${year}`;
 }

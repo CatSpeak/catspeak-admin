@@ -13,8 +13,9 @@ import {
   Trash2,
 } from "lucide-react";
 import type { EventDetail } from "../types";
-import { getColorClasses, formatDate, formatTime } from "../constants";
+import { getColorClasses, formatTime } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDateTime } from "../../../lib/utils";
 
 interface EventDetailModalProps {
   isOpen: boolean;
@@ -136,9 +137,10 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                     icon={<Calendar size={15} />}
                     label={t.common.createdDate}
                   >
-                    {formatDate(event.startTime) === formatDate(event.endTime)
-                      ? formatDate(event.startTime)
-                      : `${formatDate(event.startTime)} – ${formatDate(event.endTime)}`}
+                    {formatDateTime(event.startTime) ===
+                    formatDateTime(event.endTime)
+                      ? formatDateTime(event.startTime)
+                      : `${formatDateTime(event.startTime)} – ${formatDateTime(event.endTime)}`}
                   </InfoRow>
                 )}
                 {!event.isRecurring && event.startTime && event.endTime && (
@@ -176,8 +178,8 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
                       icon={<Calendar size={15} />}
                       label={t.calendar.period}
                     >
-                      {formatDate(event.recurrenceRule.recurrenceStartDate)} →{" "}
-                      {formatDate(event.recurrenceRule.recurrenceEndDate)}
+                      {formatDateTime(event.recurrenceRule.recurrenceStartDate)}{" "}
+                      → {formatDateTime(event.recurrenceRule.recurrenceEndDate)}
                     </InfoRow>
                   </>
                 )}
@@ -229,7 +231,7 @@ const EventDetailModal: React.FC<EventDetailModalProps> = ({
 
               {/* Created at */}
               <p className="text-xs text-gray-400">
-                {t.calendar.createdOn} {formatDate(event.createdAt)}
+                {t.calendar.createdOn} {formatDateTime(event.createdAt)}
               </p>
             </div>
           )}

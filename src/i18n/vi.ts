@@ -526,7 +526,7 @@ const vi = {
     noCoverImage: "Không có ảnh bìa",
     connectedChallenges: "Thử thách kết nối",
     noConnectedChallenges: "Không có thử thách nào phù hợp với reel này.",
-    metadata: "Dữ liệu tả",
+    metadata: "Thông tin cơ bản",
     uploadedBy: "Người tải lên",
     preview: "Xem trước",
     moderateVideoReel: "Kiểm duyệt Video Reel",
@@ -722,7 +722,8 @@ const vi = {
     processFailedError: "Xử lý báo cáo thanh toán thất bại.",
     reportIdLabel: "Mã báo cáo",
     noExplanationProvided: "Không có giải trình nào được cung cấp",
-    provideDetailsPlaceholder: "Cung cấp chi tiết lý do báo cáo này được xử lý...",
+    provideDetailsPlaceholder:
+      "Cung cấp chi tiết lý do báo cáo này được xử lý...",
   },
   room: {
     title: "Room",

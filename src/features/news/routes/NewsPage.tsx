@@ -22,13 +22,13 @@ import {
   type PostSortBy,
   type GetPostsParams,
 } from "../api/getPosts";
-import { formatDate } from "../../calendar/constants";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
 import Avatar from "../../../components/ui/Avatar";
 import FlagBadge, {
   type FlagBadgeLanguage,
 } from "../../../components/ui/FlagBadge";
+import { formatDateTime } from "../../../lib/utils";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -273,7 +273,7 @@ export default function NewsPage() {
             accessorKey: "createDate",
             render: (p) => (
               <span className="whitespace-nowrap">
-                {formatDate(p.createDate)}
+                {formatDateTime(p.createDate)}
               </span>
             ),
           },
@@ -282,7 +282,7 @@ export default function NewsPage() {
             accessorKey: "lastEdited",
             render: (p) => (
               <span className="whitespace-nowrap">
-                {formatDate(p.lastEdited)}
+                {formatDateTime(p.lastEdited)}
               </span>
             ),
           },

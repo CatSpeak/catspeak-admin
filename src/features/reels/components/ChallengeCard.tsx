@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Calendar, Pencil, Trash2, Trophy, Hash } from "lucide-react";
 import type { ChallengeDto } from "../types";
-import { formatDateLong } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import { useLanguage } from "../../../stores/languageStore";
 
 interface ChallengeCardProps {
@@ -11,26 +11,29 @@ interface ChallengeCardProps {
   status: "Active" | "Upcoming" | "Completed";
 }
 
-const STATUS_BADGE_STYLE: Record<"Active" | "Upcoming" | "Completed", { wrapper: string; indicator: string }> = {
+const STATUS_BADGE_STYLE: Record<
+  "Active" | "Upcoming" | "Completed",
+  { wrapper: string; indicator: string }
+> = {
   Active: {
     wrapper: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    indicator: "bg-emerald-500 animate-[pulse_1.5s_infinite]"
+    indicator: "bg-emerald-500 animate-[pulse_1.5s_infinite]",
   },
   Upcoming: {
     wrapper: "bg-blue-50 text-blue-700 border-blue-200",
-    indicator: "bg-blue-500"
+    indicator: "bg-blue-500",
   },
   Completed: {
     wrapper: "bg-gray-100 text-gray-700 border-gray-200",
-    indicator: "bg-gray-400"
-  }
+    indicator: "bg-gray-400",
+  },
 };
 
 const ChallengeCard: React.FC<ChallengeCardProps> = ({
   challenge,
   onEdit,
   onDelete,
-  status
+  status,
 }) => {
   const { t } = useLanguage();
   const [imageError, setImageError] = useState(false);
@@ -41,9 +44,9 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
     return (
       <span className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
         <Calendar className="w-3.5 h-3.5 text-gray-400" />
-        <span>{formatDateLong(challenge.startDate)}</span>
+        <span>{formatDateTime(challenge.startDate)}</span>
         <span className="text-gray-300">→</span>
-        <span>{formatDateLong(challenge.endDate)}</span>
+        <span>{formatDateTime(challenge.endDate)}</span>
       </span>
     );
   };
@@ -52,12 +55,17 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
     <div className="group relative flex flex-col bg-white rounded-2xl border border-gray-100 transition-all duration-300 overflow-hidden hover:shadow-lg hover:-translate-y-1">
       {/* Banner / Poster Image Container */}
       <div className="relative aspect-[16/9] w-full bg-gradient-to-br from-gray-900 via-gray-800 to-gray-950 overflow-hidden">
-
         {/* Dynamic Status Badge overlay */}
         <div className="absolute top-3 right-3 z-10">
-          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${styles.wrapper}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border shadow-sm ${styles.wrapper}`}
+          >
             <span className={`w-1.5 h-1.5 rounded-full ${styles.indicator}`} />
-            {status === "Active" ? t.common.active : status === "Completed" ? t.common.approved : status}
+            {status === "Active"
+              ? t.common.active
+              : status === "Completed"
+                ? t.common.approved
+                : status}
           </span>
         </div>
 
@@ -73,7 +81,9 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center select-none bg-gradient-to-tr from-primary/10 via-primary/5 to-transparent text-primary/80">
             <Trophy className="w-10 h-10 stroke-[1.5] mb-2 animate-bounce" />
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">Challenge Banner</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-primary">
+              Challenge Banner
+            </span>
           </div>
         )}
 
@@ -94,11 +104,11 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
 
       {/* Info Card Content */}
       <div className="flex flex-col flex-1 p-4 space-y-4 justify-between">
-
         {/* Description body */}
         <div className="space-y-1.5">
           <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">
-            {challenge.description || "No description provided for this dynamic community challenge."}
+            {challenge.description ||
+              "No description provided for this dynamic community challenge."}
           </p>
         </div>
 
@@ -124,7 +134,6 @@ const ChallengeCard: React.FC<ChallengeCardProps> = ({
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

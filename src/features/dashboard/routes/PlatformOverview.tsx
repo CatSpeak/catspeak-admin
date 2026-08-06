@@ -14,6 +14,7 @@ import UserStatsSummary from "../components/UserStatsSummary";
 import MonthlyTarget from "../components/MonthlyTarget";
 import { useOverviewStats } from "../hooks/useOverviewStats";
 import { mockupColors } from "../api/getOverviewStats";
+import { formatDate, formatMonthYear } from "../../../lib/utils";
 
 // Lazy-loaded charts
 // const WorldMapCard = lazy(() => import("../components/WorldMapCard"));
@@ -162,40 +163,53 @@ export default function PlatformOverview() {
     return ageGenderData;
   }, [ageGenderData]);
 
+  const formatItemLabel = (item: { periodStart?: string; label: string }) => {
+    const rawDate = item.periodStart || item.label;
+    if (rawDate && !isNaN(Date.parse(rawDate))) {
+      return activePeriod === "Monthly" || activePeriod === "Yearly"
+        ? formatMonthYear(rawDate)
+        : formatDate(rawDate);
+    }
+    return item.label;
+  };
+
   const barData = useMemo(() => {
     if (!activeUsersData || activeUsersData.length === 0) {
       return [];
     }
     return activeUsersData.map((item) => ({
-      label: item.label,
+      label: formatItemLabel(item),
       values: item.values,
       annotation: item.annotation,
     }));
-  }, [activeUsersData]);
+  }, [activeUsersData, activePeriod]);
 
   const areaChartData = useMemo(() => {
     if (!activeUsersData || activeUsersData.length === 0) {
       return [];
     }
     return activeUsersData.map((item) => ({
-      label: item.label,
+      label: formatItemLabel(item),
       accountUsers: item.accountUsers,
       activeUsers: item.activeUsers,
     }));
-  }, [activeUsersData]);
+  }, [activeUsersData, activePeriod]);
 
   const lineData = useMemo(() => {
     if (activeUsersLineData && activeUsersLineData.length > 0) {
-      return activeUsersLineData;
+      return activeUsersLineData.map((item) => ({
+        ...item,
+        label: formatItemLabel(item),
+      }));
     }
     if (!activeUsersData || activeUsersData.length === 0) {
       return [];
     }
     return activeUsersData.map((item) => ({
-      label: item.label,
+      label: formatItemLabel(item),
       value: item.activeUsers ?? item.value ?? 0,
     }));
-  }, [activeUsersLineData, activeUsersData]);
+  }, [activeUsersLineData, activeUsersData, activePeriod]);
 
   // Format header period label dynamically
   const activePeriodLabel = useMemo(() => {

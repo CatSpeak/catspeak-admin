@@ -226,6 +226,7 @@ export const getActiveUsersStats = async (
 export interface ActiveUserLineData {
   label: string;
   value: number;
+  periodStart?: string;
 }
 
 /**
@@ -286,7 +287,7 @@ export const getActiveUsersLineData = async (
           }
         }
 
-        return { label, value };
+        return { label, value, periodStart };
       });
   } catch (error) {
     console.error("Error fetching active users line data:", error);
