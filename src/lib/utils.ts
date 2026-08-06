@@ -32,13 +32,18 @@ export function formatDateLong(value?: string | null): string {
 export function formatDateTime(value?: string | null): string {
   if (!value) return "—";
 
-  return new Date(value).toLocaleString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  const date = new Date(value);
+
+  if (isNaN(date.getTime())) return "—";
+
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+
+  const hh = String(date.getHours()).padStart(2, "0");
+  const min = String(date.getMinutes()).padStart(2, "0");
+
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 }
 
 export function formatAmount(amount: number) {
