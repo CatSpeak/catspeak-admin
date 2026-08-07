@@ -64,7 +64,10 @@ export default function UsersPage() {
               : [String(value)];
           }
           const res = await getAccounts(params);
-          return res.data;
+          return {
+            data: res.data,
+            total: res.additionalData.totalCount,
+          };
         }}
         onClickRow={(r) => navigate(`/users/${r.accountId}`)}
         headers={[

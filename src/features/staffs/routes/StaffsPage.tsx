@@ -53,7 +53,10 @@ export default function StaffsPage() {
             params.PhoneNumber = value ? String(value) : undefined;
           }
           const res = await getStaffs(params);
-          return res.data;
+          return {
+            data: res.data,
+            total: res.additionalData.totalCount,
+          };
         }}
         onClickRow={(r) => navigate(`/staffs/${r.accountId}`)}
         headers={[
