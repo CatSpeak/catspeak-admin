@@ -1,8 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Users, Clock, Trash2, Pencil, GraduationCap, Tag, MoreVertical, Lock, Globe, Eye, Ban } from "lucide-react";
+import {
+  Users,
+  Clock,
+  Trash2,
+  Pencil,
+  GraduationCap,
+  Tag,
+  MoreVertical,
+  Lock,
+  Globe,
+  Eye,
+  Ban,
+} from "lucide-react";
 import type { Room, RoomTopic } from "../types";
 import { ROOM_TYPE_STYLES, LANGUAGE_FLAGS } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
+import { formatDate } from "../../../lib/utils";
 
 const DEFAULT_THUMBNAIL =
   "https://i.ibb.co/23fT32Dq/meeting-room-filled-with-chairs-and-a-large-table-in-a-modern-office-setting-details-free-photo.webp";
@@ -16,7 +29,14 @@ interface RoomCardProps {
   onClick?: (room: Room) => void;
 }
 
-const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail, onEdit, onClick }) => {
+const RoomCard: React.FC<RoomCardProps> = ({
+  room,
+  onDelete,
+  onDisable,
+  onDetail,
+  onEdit,
+  onClick,
+}) => {
   const { t } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -32,13 +52,17 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? { bg: "bg-gray-100", text: "text-gray-600", dot: "bg-gray-400" };
-  const flag = room.languageType ? LANGUAGE_FLAGS[room.languageType] : undefined;
+  const typeStyle = ROOM_TYPE_STYLES[room.roomType] ?? {
+    bg: "bg-gray-100",
+    text: "text-gray-600",
+    dot: "bg-gray-400",
+  };
+  const flag = room.languageType
+    ? LANGUAGE_FLAGS[room.languageType]
+    : undefined;
   const isActive = room.status === 1;
   const thumbnailSrc = room.thumbnailUrl || DEFAULT_THUMBNAIL;
-  const createdDate = new Date(room.createDate).toLocaleDateString("en-US", {
-    month: "short", day: "numeric",
-  });
+  const createdDate = formatDate(room.createDate);
 
   return (
     <div
@@ -51,21 +75,39 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
           src={thumbnailSrc}
           alt={room.name}
           className="w-full h-full object-cover rounded-t-xl"
-          onError={(e) => { (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL; }}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = DEFAULT_THUMBNAIL;
+          }}
         />
         {/* Status + Privacy */}
         <div className="absolute top-2 left-2 flex gap-1.5 z-10">
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`} />
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isActive ? "bg-emerald-500 text-white" : "bg-gray-400 text-white"}`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white animate-pulse" : "bg-white/60"}`}
+            />
             {isActive ? t.common.active : t.common.inactive}
           </span>
-          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ${room.privacy === "Private" ? "bg-amber-500/90 text-white" : "bg-white/80 text-gray-600"}`}>
-            {room.privacy === "Private" ? <Lock size={9} /> : <Globe size={9} />}
-            {room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm ${room.privacy === "Private" ? "bg-amber-500/90 text-white" : "bg-white/80 text-gray-600"}`}
+          >
+            {room.privacy === "Private" ? (
+              <Lock size={9} />
+            ) : (
+              <Globe size={9} />
+            )}
+            {room.privacy === "Private"
+              ? t.news.privateLabel
+              : t.news.publicLabel}
           </span>
         </div>
         {/* Menu — always visible on card */}
-        <div className="absolute top-2 right-2 z-30" ref={menuRef} onClick={(e) => e.stopPropagation()}>
+        <div
+          className="absolute top-2 right-2 z-30"
+          ref={menuRef}
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="p-1 rounded-md bg-black/20 text-white/80 hover:bg-black/40 hover:text-white transition-colors"
@@ -88,7 +130,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
               </button>
               {onEdit && (
                 <button
-                  onClick={() => { setMenuOpen(false); onEdit(room); }}
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit(room);
+                  }}
                   className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <Pencil size={14} />
@@ -96,14 +141,20 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
                 </button>
               )}
               <button
-                onClick={() => { setMenuOpen(false); onDisable?.(room.roomId); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onDisable?.(room.roomId);
+                }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors"
               >
                 <Ban size={14} />
                 {t.common.disable}
               </button>
               <button
-                onClick={() => { setMenuOpen(false); onDelete(room.roomId); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onDelete(room.roomId);
+                }}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
               >
                 <Trash2 size={14} />
@@ -117,26 +168,50 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
       {/* Content */}
       <div className="p-3.5 flex flex-col flex-1">
         {/* Name */}
-        <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1 mb-2">{room.name}</h3>
+        <h3 className="font-semibold text-gray-900 text-sm leading-tight line-clamp-1 mb-2">
+          {room.name}
+        </h3>
 
         {/* Info grid — 2 columns, fixed 2 rows */}
         <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-gray-500 mb-3">
           {/* Language */}
           <div className="flex items-center gap-1.5">
-            {flag && <img src={flag} alt={room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : ""} className="w-3.5 h-3.5 rounded-sm shrink-0" />}
-            <span className="truncate">{room.languageType ? (t.room.languages?.[room.languageType] || room.languageType) : "—"}</span>
+            {flag && (
+              <img
+                src={flag}
+                alt={
+                  room.languageType
+                    ? t.room.languages?.[room.languageType] || room.languageType
+                    : ""
+                }
+                className="w-3.5 h-3.5 rounded-sm shrink-0"
+              />
+            )}
+            <span className="truncate">
+              {room.languageType
+                ? t.room.languages?.[room.languageType] || room.languageType
+                : "—"}
+            </span>
           </div>
           {/* Type — styled tag */}
           <div className="flex items-center">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${typeStyle.bg} ${typeStyle.text}`}>
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${typeStyle.bg} ${typeStyle.text}`}
+            >
               <Users size={9} />
-              {room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
+              {room.roomType === "OneToOne"
+                ? t.room.oneToOneRooms
+                : t.room.groupRooms}
             </span>
           </div>
           {/* Level */}
           <div className="flex items-center gap-1.5">
             <GraduationCap size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate">{room.requiredLevel ? (t.room.levels?.[room.requiredLevel] || room.requiredLevel) : "N/A"}</span>
+            <span className="truncate">
+              {room.requiredLevel
+                ? t.room.levels?.[room.requiredLevel] || room.requiredLevel
+                : "N/A"}
+            </span>
           </div>
           {/* Topic */}
           <div className="flex items-center gap-1.5 min-w-0">
@@ -146,10 +221,15 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
                 const topics = Array.isArray(room.topic)
                   ? room.topic
                   : typeof room.topic === "string"
-                  ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
-                  : [];
+                    ? ((room.topic as string)
+                        .split(",")
+                        .map((t) => t.trim())
+                        .filter(Boolean) as RoomTopic[])
+                    : [];
                 if (topics.length === 0) return "N/A";
-                return topics.map((top) => t.room.topics?.[top] || top).join(", ");
+                return topics
+                  .map((top) => t.room.topics?.[top] || top)
+                  .join(", ");
               })()}
             </span>
           </div>
@@ -159,7 +239,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onDelete, onDisable, onDetail
         <div className="flex items-center justify-between pt-2.5 border-t border-gray-100 text-[11px] text-gray-400">
           <span className="inline-flex items-center gap-1">
             <Users size={11} />
-            {room.currentParticipantCount}{room.maxParticipants != null ? `/${room.maxParticipants}` : ""} {t.room.participants}
+            {room.currentParticipantCount}
+            {room.maxParticipants != null
+              ? `/${room.maxParticipants}`
+              : ""}{" "}
+            {t.room.participants}
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock size={11} />

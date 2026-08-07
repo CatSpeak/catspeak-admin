@@ -12,7 +12,7 @@ import {
   Ban,
 } from "lucide-react";
 import type { Room, RoomTopic } from "../types";
-import { formatDate } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import { useLanguage } from "../../../stores/languageStore";
 import Badge from "../../../components/ui/Badge";
 import FlagBadge from "../../../components/ui/FlagBadge";
@@ -48,7 +48,7 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = room.status === 1;
-  const createdDate = formatDate(room.createDate);
+  const createdDate = formatDateTime(room.createDate);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -83,7 +83,11 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       {/* Type Column */}
       <td className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap">
         <Badge
-          title={room.roomType === "OneToOne" ? t.room.oneToOneRooms : t.room.groupRooms}
+          title={
+            room.roomType === "OneToOne"
+              ? t.room.oneToOneRooms
+              : t.room.groupRooms
+          }
           type={room.roomType === "OneToOne" ? "Blue" : "Orange"}
           icon={<Users size={12} />}
         />
@@ -113,9 +117,13 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
           const topics = Array.isArray(room.topic)
             ? room.topic
             : typeof room.topic === "string"
-            ? (room.topic as string).split(",").map((t) => t.trim()).filter(Boolean) as RoomTopic[]
-            : [];
-          if (topics.length === 0) return <span className="text-gray-400">—</span>;
+              ? ((room.topic as string)
+                  .split(",")
+                  .map((t) => t.trim())
+                  .filter(Boolean) as RoomTopic[])
+              : [];
+          if (topics.length === 0)
+            return <span className="text-gray-400">—</span>;
           return (
             <div className="flex flex-wrap gap-1">
               {topics.map((top) => (
@@ -160,9 +168,19 @@ const RoomTableRow: React.FC<RoomTableRowProps> = ({
       {/* Privacy Column */}
       <td className="px-4 py-3 text-center text-sm text-gray-700 whitespace-nowrap">
         <Badge
-          title={room.privacy === "Private" ? t.news.privateLabel : t.news.publicLabel}
+          title={
+            room.privacy === "Private"
+              ? t.news.privateLabel
+              : t.news.publicLabel
+          }
           type={room.privacy === "Private" ? "Orange" : "Blue"}
-          icon={room.privacy === "Private" ? <Lock size={12} /> : <Globe size={12} />}
+          icon={
+            room.privacy === "Private" ? (
+              <Lock size={12} />
+            ) : (
+              <Globe size={12} />
+            )
+          }
         />
       </td>
 

@@ -1,5 +1,5 @@
 import type { ReelDto } from "../types";
-import { formatDate } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import { Film, Link2 } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
@@ -231,12 +231,12 @@ export default function ReelTable({
 
                 {/* Date Uploaded Column */}
                 <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
-                  {formatDate(reel.createdAt)}
+                  {formatDateTime(reel.createdAt)}
                 </td>
 
                 {/* Last Edited Column */}
                 <td className="px-4 py-3 text-sm text-gray-500 tabular-nums whitespace-nowrap">
-                  {formatDate(lastEditedDate)}
+                  {formatDateTime(lastEditedDate)}
                 </td>
 
                 {/* Total Reaction Column */}

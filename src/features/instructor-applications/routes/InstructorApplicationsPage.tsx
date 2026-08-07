@@ -4,7 +4,7 @@ import Table from "../../../components/ui/table/Table";
 import type { InstructorApplication } from "../types";
 import { getInstructorApplications } from "../api/getInstructorApplications";
 import { useNavigate } from "react-router-dom";
-import { formatDateLong } from "../../../lib/utils";
+import { formatDateTime } from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -65,7 +65,7 @@ export default function InstructorApplicationsPage() {
             accessorKey: "submittedAt",
             render: (app) => (
               <span className="whitespace-nowrap text-gray-600">
-                {formatDateLong(app.submittedAt)}
+                {formatDateTime(app.submittedAt)}
               </span>
             ),
           },
@@ -82,7 +82,12 @@ export default function InstructorApplicationsPage() {
                 case "Rejected":
                   return <Badge title={t.common.rejected} type="Red" />;
                 case "RequestEdit":
-                  return <Badge title={t.instructorApplications.requestEdit} type="Orange" />;
+                  return (
+                    <Badge
+                      title={t.instructorApplications.requestEdit}
+                      type="Orange"
+                    />
+                  );
                 default:
                   return <Badge title={p.status || "?"} type="Gray" />;
               }
