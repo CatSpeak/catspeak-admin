@@ -61,7 +61,10 @@ export default function HandleReportsPage() {
             SortBy: sortBy,
             SortOrder: order,
           });
-          return res.data || [];
+          return {
+            data: res.data || [],
+            total: res.total_records || 0,
+          };
         }}
         filter={async (attribute, value) => {
           const params: GetLetterReportsParams = {};
@@ -75,7 +78,10 @@ export default function HandleReportsPage() {
               : [String(value)];
           }
           const res = await getLetterReports(params);
-          return res.data || [];
+          return {
+            data: res.data || [],
+            total: res.total_records || 0,
+          };
         }}
         onClickRow={(r) => setSelectedId(r.storyId)}
         headers={[
