@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from "react";
-import { BookOpen, Loader2, Search, AlertCircle } from "lucide-react";
+import { BookOpen, Loader2, Search, AlertCircle, ChevronDown } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import { useLanguage } from "../../../stores/languageStore";
 import { useClasses } from "../hooks/useClasses";
 import type { AdminClass } from "../types";
-import { ClassesTable, ClassDetailModal } from "../components";
+import { ClassesTable, ClassDetailModal, ClassesStatsCards } from "../components";
 
 const STATUS_OPTIONS = [
   "UPCOMING",
@@ -16,10 +16,13 @@ const STATUS_OPTIONS = [
   "FINISHED",
 ] as const;
 
+const LANGUAGE_OPTIONS = ["ENGLISH", "CHINESE"] as const;
+
 const ClassesPage: React.FC = () => {
   const { t } = useLanguage();
   const {
     classes,
+    stats,
     pagination,
     filters,
     isLoading,
@@ -46,6 +49,8 @@ const ClassesPage: React.FC = () => {
           desc={t.classes.desc}
         />
 
+        <ClassesStatsCards stats={stats} loading={isLoading} />
+
         {/* Filters */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 space-y-3">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
@@ -61,18 +66,47 @@ const ClassesPage: React.FC = () => {
                 className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
-            <select
-              value={filters.status}
-              onChange={(e) => updateFilter("status", e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary/30"
-            >
-              <option value="">{t.common.status} — {t.common.filter}</option>
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {t.classes.statuses[status] ?? status}
+
+            <div className="relative">
+              <select
+                value={filters.language}
+                onChange={(e) => updateFilter("language", e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
+              >
+                <option value="">
+                  {t.classes.allLanguages}
                 </option>
-              ))}
-            </select>
+                {LANGUAGE_OPTIONS.map((language) => (
+                  <option key={language} value={language}>
+                    {language === "ENGLISH"
+                      ? t.room.languages.English
+                      : t.room.languages.Chinese}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
+                <ChevronDown size={16} />
+              </div>
+            </div>
+
+            <div className="relative">
+              <select
+                value={filters.status}
+                onChange={(e) => updateFilter("status", e.target.value)}
+                className="appearance-none pl-3 pr-8 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
+              >
+                <option value="">{t.classes.allStatuses}</option>
+                {STATUS_OPTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {t.classes.statuses[status] ?? status}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400">
+                <ChevronDown size={16} />
+              </div>
+            </div>
+
             {activeFilterCount > 0 && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 {t.common.cancel}
