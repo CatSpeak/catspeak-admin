@@ -20,6 +20,7 @@ const LiveChatPage = lazy(() => import("../features/chat/routes/LiveChatPage"));
 const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
 const CalendarPage = lazy(() => import("../features/calendar/routes/CalendarPage"));
 const RoomPage = lazy(() => import("../features/room/routes/RoomPage"));
+const ClassesPage = lazy(() => import("../features/classes/routes/ClassesPage"));
 const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage"));
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
@@ -70,6 +71,7 @@ export const router = createBrowserRouter([
           { path: "news", element: wrap(NewsPage) },
           { path: "calendar", element: wrap(CalendarPage) },
           { path: "room", element: wrap(RoomPage) },
+          { path: "classes", element: wrap(ClassesPage) },
           { path: "analytics", element: wrap(AnalyticsPage) },
           { path: "plans", element: wrap(PlansPage) },
           { path: "plans/create", element: wrap(PlanDetailsPage) },
