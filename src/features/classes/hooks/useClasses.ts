@@ -1,8 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { useToastStore } from "../../../stores/toastStore";
-import { getClasses, setClassStatus as setClassStatusApi, removeStudent as removeStudentApi } from "../api/classApi";
-import type { AdminClass, ClassFilters } from "../types";
+import {
+  getClasses,
+  getClassStats,
+  setClassStatus as setClassStatusApi,
+  removeStudent as removeStudentApi,
+} from "../api/classApi";
+import type { AdminClass, ClassFilters, ClassStats } from "../types";
 
 const EMPTY_PAGINATION = {
   currentPage: 1,
@@ -21,6 +26,7 @@ const EMPTY_FILTERS: ClassFilters = {
 
 export function useClasses() {
   const [classes, setClasses] = useState<AdminClass[]>([]);
+  const [stats, setStats] = useState<ClassStats | null>(null);
   const [paginationData, setPaginationData] = useState(EMPTY_PAGINATION);
   const [filters, setFilters] = useState<ClassFilters>(EMPTY_FILTERS);
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,10 +40,14 @@ export function useClasses() {
     const id = ++requestId.current;
     setIsLoading(true);
     try {
-      const res = await getClasses(currentPage, pageSize, filters);
+      const [res, statsRes] = await Promise.all([
+        getClasses(currentPage, pageSize, filters),
+        getClassStats(),
+      ]);
       if (id !== requestId.current) return;
       setClasses(res.data);
       setPaginationData(res.additionalData);
+      setStats(statsRes);
       setError(null);
     } catch (err) {
       if (id !== requestId.current) return;
@@ -105,6 +115,7 @@ export function useClasses() {
 
   return {
     classes,
+    stats,
     pagination: paginationData,
     filters,
     isLoading,

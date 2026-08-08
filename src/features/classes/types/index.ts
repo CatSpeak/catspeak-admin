@@ -85,3 +85,11 @@ export interface ClassFilters {
   language: string;
   status: string;
 }
+
+export interface ClassStats {
+  total: number;
+  openForEnrollment: number;
+  notStarted: number;
+  teaching: number;
+  finished: number;
+}

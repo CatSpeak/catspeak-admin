@@ -4,6 +4,7 @@ import type {
   AdminClassDetail,
   AdminCourse,
   ClassFilters,
+  ClassStats,
   PagedResponse,
 } from "../types";
 
@@ -43,6 +44,12 @@ export const getClassDetail = async (
 ): Promise<AdminClassDetail> => {
   return getResponseData(
     axiosClient.get<AdminClassDetail>(`/admin/classes/${classId}`),
+  );
+};
+
+export const getClassStats = async (): Promise<ClassStats> => {
+  return getResponseData(
+    axiosClient.get<ClassStats>("/admin/classes/stats"),
   );
 };
 
