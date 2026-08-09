@@ -5,6 +5,7 @@ export type UserSortBy = "Username" | "CreateDate";
 export type SortOrder = "Asc" | "Desc";
 
 export interface GetUsersParams {
+  SearchKeyword?: string;
   Username?: string;
   Email?: string;
   PhoneNumber?: string;
@@ -46,14 +47,7 @@ export const getAccounts = async (
     params.PageSize = pageSizeParam;
 
     if (filters.search) {
-      const query = filters.search.trim();
-      if (query.includes("@")) {
-        params.Email = query;
-      } else if (/^\+?[0-9\s\-()]{4,}$/.test(query)) {
-        params.PhoneNumber = query;
-      } else {
-        params.Username = query;
-      }
+      params.SearchKeyword = filters.search.trim();
     }
 
     if (filters.roleId !== undefined) params.RoleIds = [filters.roleId];

@@ -140,7 +140,10 @@ export default function NewsPage() {
                 ? "Desc"
                 : undefined;
           const res = await getPosts({ SortBy: sortBy, SortOrder: order });
-          return res.data;
+          return {
+            data: res.data,
+            total: res.total_records,
+          };
         }}
         filter={async (attribute, value) => {
           const params: GetPostsParams = {};
@@ -157,7 +160,10 @@ export default function NewsPage() {
               : [String(value)];
           }
           const res = await getPosts(params);
-          return res.data;
+          return {
+            data: res.data,
+            total: res.total_records,
+          };
         }}
         onClickRow={(p) => navigate(`/news/${p.slug}`)}
         headers={[

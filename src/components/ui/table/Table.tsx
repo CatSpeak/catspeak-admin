@@ -186,6 +186,11 @@ export type TableFetcher<T> = (
 
 export type SortOrder = "asc" | "desc" | undefined;
 
+export type TableCustomResult<T> =
+  | T[]
+  | TableFetcherResult<T>
+  | { data: T[]; total?: number; additionalData?: { totalCount?: number } };
+
 interface TableProps<T> {
   headers: TableHeader<T>[];
   /**
@@ -196,11 +201,11 @@ interface TableProps<T> {
   sorter?: (
     attribute: keyof T | string,
     sortOrder: SortOrder,
-  ) => T[] | Promise<T[]>;
+  ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
   filter?: (
     attribute: keyof T | string,
     value: any,
-  ) => T[] | Promise<T[]>;
+  ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
   onClickRow?: (row: T) => void;
   actions?: TableAction<T>[];
   loading?: boolean;
@@ -415,6 +420,7 @@ export default function Table<T>({
   const [globalFilter, setGlobalFilter] = useState("");
   const [searchInputValue, setSearchInputValue] = useState("");
   const [customData, setCustomData] = useState<T[] | null>(null);
+  const [customTotal, setCustomTotal] = useState<number | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: defaultPageSize,
@@ -481,12 +487,39 @@ export default function Table<T>({
   const data = customData ?? fetchedData;
   const effectiveLoading = loading || fetchLoading;
 
+  const effectiveTotal =
+    customTotal !== null
+      ? customTotal
+      : customData !== null
+        ? customData.length
+        : fetchedTotal;
+
+  const applyCustomResult = (res: any) => {
+    if (res && typeof res === "object" && !Array.isArray(res) && Array.isArray(res.data)) {
+      setCustomData(res.data);
+      const total =
+        typeof res.total === "number"
+          ? res.total
+          : typeof res.additionalData?.totalCount === "number"
+            ? res.additionalData.totalCount
+            : res.data.length;
+      setCustomTotal(total);
+    } else if (Array.isArray(res)) {
+      setCustomData(res);
+      setCustomTotal(res.length);
+    } else {
+      setCustomData(null);
+      setCustomTotal(null);
+    }
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
   const runCustomFilter = (attribute: keyof T | string, value: any) => {
     if (filter) {
       setFetchLoading(true);
       Promise.resolve(filter(attribute, value))
         .then((res) => {
-          setCustomData(res);
+          applyCustomResult(res);
         })
         .catch((err) => {
           console.error("Filter error:", err);
@@ -516,7 +549,7 @@ export default function Table<T>({
         setFetchLoading(true);
         Promise.resolve(sorter(attr as keyof T | string, order))
           .then((res) => {
-            setCustomData(res);
+            applyCustomResult(res);
           })
           .catch((err) => {
             console.error("Sorter error:", err);
@@ -528,6 +561,23 @@ export default function Table<T>({
       return next;
     });
   };
+
+  useEffect(() => {
+    if (usesServerPagination) {
+      const maxPageIndex = Math.max(
+        0,
+        Math.ceil(effectiveTotal / pagination.pageSize) - 1,
+      );
+      if (pagination.pageIndex > maxPageIndex) {
+        setPagination((prev) => ({ ...prev, pageIndex: maxPageIndex }));
+      }
+    }
+  }, [
+    effectiveTotal,
+    pagination.pageSize,
+    pagination.pageIndex,
+    usesServerPagination,
+  ]);
 
   const hasActions = !!actions && actions.length > 0;
 
@@ -601,7 +651,7 @@ export default function Table<T>({
     // automatic pagination/sorting/filtering apply.
     manualPagination: usesServerPagination,
     pageCount: usesServerPagination
-      ? Math.max(1, Math.ceil(fetchedTotal / pagination.pageSize))
+      ? Math.max(1, Math.ceil(effectiveTotal / pagination.pageSize))
       : undefined,
     ...tableOptions,
   });
@@ -623,6 +673,8 @@ export default function Table<T>({
     setGlobalFilter("");
     setSearchInputValue("");
     setCustomData(null);
+    setCustomTotal(null);
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
   const executeGlobalFilter = (val: string) => {
@@ -938,7 +990,7 @@ export default function Table<T>({
             entityName={effectiveEntityName}
             totalCount={
               usesServerPagination
-                ? fetchedTotal
+                ? effectiveTotal
                 : table.getFilteredRowModel().rows.length
             }
           />

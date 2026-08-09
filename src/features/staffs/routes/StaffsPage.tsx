@@ -47,30 +47,34 @@ export default function StaffsPage() {
         }}
         filter={async (attribute, value) => {
           const params: GetStaffsParams = {};
-          if (attribute === "global" || attribute === "username") {
-            params.Username = value ? String(value) : undefined;
-          } else if (attribute === "email") {
-            params.Email = value ? String(value) : undefined;
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined;
           } else if (attribute === "phoneNumber") {
             params.PhoneNumber = value ? String(value) : undefined;
           }
           const res = await getStaffs(params);
-          return res.data;
+          return {
+            data: res.data,
+            total: res.additionalData.totalCount,
+          };
         }}
         onClickRow={(r) => navigate(`/staffs/${r.accountId}`)}
         headers={[
           {
             name: t.users.id,
             accessorKey: "accountId",
+            showFilter: false,
           },
           {
             name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
+            showFilter: false,
           },
           {
             name: t.users.email,
             accessorKey: "email",
+            showFilter: false,
             render: (r) => (
               <span className="text-primary underline">{r.email}</span>
             ),
