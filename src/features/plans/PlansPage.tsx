@@ -61,7 +61,10 @@ const PlansPage: React.FC = () => {
                 ? "Desc"
                 : undefined;
           const res = await getPlans({ SortBy: sortBy, SortOrder: order });
-          return res.data;
+          return {
+            data: res.data,
+            total: res.total_records,
+          };
         }}
         filter={async (attribute, value) => {
           const params: GetPlansParams = {};
@@ -73,7 +76,10 @@ const PlansPage: React.FC = () => {
               : [String(value)];
           }
           const res = await getPlans(params);
-          return res.data;
+          return {
+            data: res.data,
+            total: res.total_records,
+          };
         }}
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
         headers={[
