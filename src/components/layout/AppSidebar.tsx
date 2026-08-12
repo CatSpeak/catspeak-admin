@@ -82,6 +82,7 @@ const AppSidebar: React.FC = () => {
         subItems: [
           { name: t.nav.letterReports, path: "/reports" },
           { name: t.nav.paymentReports, path: "/payments" },
+          { name: t.nav.refunds || "Yêu cầu hoàn tiền", path: "/refunds" },
         ],
       },
     ],

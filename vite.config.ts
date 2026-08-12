@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://admin-staging-api.catspeak.com.vn/api",
+        target: "https://admin-staging-api.catspeak.com.vn",
         changeOrigin: true,
         secure: true,
       },
