@@ -42,10 +42,13 @@ const isTokenValid = (token: string | null): boolean => {
   }
 };
 
-export const hasAdminAccess = (user: AuthUser | null): boolean =>
-  ADMIN_ACCESS_ROLES.includes(
-    user?.roleName as (typeof ADMIN_ACCESS_ROLES)[number],
+export const hasAdminAccess = (user: AuthUser | null): boolean => {
+  if (!user) return false;
+  if (user.roleId === 1 || user.roleId === 3) return true;
+  return ADMIN_ACCESS_ROLES.includes(
+    user.roleName as (typeof ADMIN_ACCESS_ROLES)[number],
   );
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(

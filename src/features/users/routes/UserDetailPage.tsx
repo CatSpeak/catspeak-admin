@@ -26,6 +26,10 @@ import { getApiErrorMessage } from "../../../lib/axios";
 import type { Plan } from "../../../entities/types";
 import { formatDateTime } from "../../../lib/utils";
 
+import { useAuthStore } from "../../../stores/authStore";
+import { promoteUserToStaff } from "../../staffs/api/permissions";
+import { UserPlus } from "lucide-react";
+
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -36,6 +40,8 @@ export default function UserDetailPage() {
     error: paymentsError,
   } = useUserPayments(id);
   const { t } = useLanguage();
+  const currentUser = useAuthStore((state) => state.user);
+  const isPrimaryAdmin = currentUser?.roleId === 1;
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
@@ -45,6 +51,32 @@ export default function UserDetailPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const [promoting, setPromoting] = useState(false);
+  const [promoteMsg, setPromoteMsg] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  const handlePromoteToStaff = async () => {
+    if (!user || !isPrimaryAdmin) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn thăng cấp người dùng '${user.username}' thành Staff?`)) {
+      return;
+    }
+
+    try {
+      setPromoting(true);
+      setPromoteMsg(null);
+      await promoteUserToStaff(user.accountId);
+      setPromoteMsg({ type: "success", text: `Đã thăng cấp người dùng '${user.username}' thành Staff!` });
+      if (refetch) await refetch();
+      setTimeout(() => navigate(`/staffs/${user.accountId}`), 1200);
+    } catch (err) {
+      setPromoteMsg({ type: "error", text: getApiErrorMessage(err, "Không thể thăng cấp người dùng thành Staff.") });
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -284,15 +316,45 @@ export default function UserDetailPage() {
             {t.users.userDetails}
           </h1>
 
-          <button
-            onClick={() => navigate("/users")}
-            className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0 cursor-pointer"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {t.common.back}
-          </button>
+          <div className="flex items-center gap-3">
+            {isPrimaryAdmin && user.roleId === 2 && (
+              <button
+                onClick={handlePromoteToStaff}
+                disabled={promoting}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 shadow-xs hover:shadow transition-all shrink-0 cursor-pointer disabled:opacity-50"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>{promoting ? "Đang thăng cấp..." : "Thăng Cấp Thành Staff"}</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => navigate("/users")}
+              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold rounded-xl text-white shadow-sm hover:shadow transition-all bg-primary hover:bg-primary-dark shrink-0 cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t.common.back}
+            </button>
+          </div>
         </div>
       </div>
+
+      {promoteMsg && (
+        <div
+          className={`p-4 rounded-2xl border text-sm font-semibold flex items-center gap-2 ${
+            promoteMsg.type === "success"
+              ? "bg-success-50 text-success-700 border-success-100"
+              : "bg-error-50 text-error-700 border-error-100"
+          }`}
+        >
+          {promoteMsg.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+          )}
+          <span>{promoteMsg.text}</span>
+        </div>
+      )}
 
       {/* Profile Banner */}
       <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-6 transition-all hover:shadow-md">
