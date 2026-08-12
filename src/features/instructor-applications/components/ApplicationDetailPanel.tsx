@@ -425,6 +425,80 @@ export default function ApplicationDetailPanel({
             </div>
           </SectionCard>
 
+          {/* Linked Account */}
+          <SectionCard title={t.instructorApplications.linkedAccount}>
+            <div className="space-y-3 text-sm">
+              {application.isTeacherAccount ? (
+                <>
+                  <InfoRow
+                    icon={<User className="w-4 h-4 text-emerald-500" />}
+                    label={t.instructorApplications.teacherAccount}
+                    value={
+                      <span className="text-emerald-700 font-medium">
+                        @{application.username} ·{" "}
+                        {t.instructorApplications.accountNumber.replace(
+                          "{id}",
+                          String(application.accountId),
+                        )}
+                      </span>
+                    }
+                  />
+                  {application.sourceAccountId != null && (
+                    <InfoRow
+                      icon={<User className="w-4 h-4 text-gray-400" />}
+                      label={t.instructorApplications.sourceAccount}
+                      value={
+                        <span>
+                          {application.sourceUsername ? (
+                            <span className="font-medium">
+                              @{application.sourceUsername}
+                            </span>
+                          ) : (
+                            t.instructorApplications.accountNumber.replace(
+                              "{id}",
+                              String(application.sourceAccountId),
+                            )
+                          )}
+                          {application.sourceAccountEmail && (
+                            <>
+                              {" "}
+                              ·{" "}
+                              <a
+                                href={`mailto:${application.sourceAccountEmail}`}
+                                className="text-primary underline"
+                              >
+                                {application.sourceAccountEmail}
+                              </a>
+                            </>
+                          )}
+                        </span>
+                      }
+                    />
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-500">
+                  {t.instructorApplications.accountNumber.replace(
+                    "{id}",
+                    String(application.accountId),
+                  )}
+                  {application.accountEmail && (
+                    <>
+                      {" "}
+                      ·{" "}
+                      <a
+                        href={`mailto:${application.accountEmail}`}
+                        className="text-primary underline"
+                      >
+                        {application.accountEmail}
+                      </a>
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+          </SectionCard>
+
           {/* Review Meta */}
           <SectionCard title={t.instructorApplications.reviewHistory}>
             <div className="space-y-3 text-sm">
