@@ -24,6 +24,13 @@ export interface PaymentRefund {
 }
 
 export interface GetRefundsParams {
+  Page?: number;
+  PageSize?: number;
+  Status?: RefundStatus | number;
+  Search?: string;
+  FromDate?: string;
+  ToDate?: string;
+  // Lower camelCase aliases for flexibility:
   page?: number;
   pageSize?: number;
   status?: RefundStatus | number;
@@ -78,9 +85,31 @@ export interface PayoutBalanceResponse {
 export const getRefunds = async (
   params?: GetRefundsParams
 ): Promise<GetRefundsResponse> => {
+  const queryParams: Record<string, unknown> = {};
+
+  if (params) {
+    const page = params.Page ?? params.page;
+    if (page !== undefined) queryParams.Page = page;
+
+    const pageSize = params.PageSize ?? params.pageSize;
+    if (pageSize !== undefined) queryParams.PageSize = pageSize;
+
+    const status = params.Status ?? params.status;
+    if (status !== undefined && status !== null) queryParams.Status = status;
+
+    const search = params.Search ?? params.search;
+    if (search) queryParams.Search = search;
+
+    const fromDate = params.FromDate ?? params.fromDate;
+    if (fromDate) queryParams.FromDate = fromDate;
+
+    const toDate = params.ToDate ?? params.toDate;
+    if (toDate) queryParams.ToDate = toDate;
+  }
+
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/admin/refunds", { params })
+      axiosClient.get<unknown>("/v1/admin/refunds", { params: queryParams })
     );
 
     // Defensive parsing for backend response shapes
@@ -103,15 +132,21 @@ export const getRefunds = async (
         items = resObj.items as PaymentRefund[];
       }
 
+      const additionalData = resObj.additionalData as RefundsPaginationAdditionalData | undefined;
+
+      const totalCount =
+        typeof resObj.total_records === "number"
+          ? resObj.total_records
+          : typeof resObj.total === "number"
+          ? resObj.total
+          : additionalData?.totalCount ?? items.length;
+
       return {
-        total_records:
-          typeof resObj.total_records === "number"
-            ? resObj.total_records
-            : items.length,
-        page: typeof resObj.page === "number" ? resObj.page : 1,
-        pageSize: typeof resObj.pageSize === "number" ? resObj.pageSize : 10,
+        total_records: totalCount,
+        page: (resObj.page as number) ?? additionalData?.currentPage ?? 1,
+        pageSize: (resObj.pageSize as number) ?? additionalData?.pageSize ?? 10,
         data: items,
-        additionalData: resObj.additionalData as RefundsPaginationAdditionalData,
+        additionalData,
       };
     }
 

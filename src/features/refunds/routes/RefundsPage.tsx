@@ -1,98 +1,89 @@
-import { useState, useMemo, useCallback } from "react";
-import {
-  DollarSign,
-  FileText,
-  Clock,
-  CheckCircle2,
-  XCircle,
-  AlertOctagon,
-  Building2,
-} from "lucide-react";
+import { useState, useCallback } from "react"
+import { DollarSign, Building2, Calendar, X } from "lucide-react"
 import {
   getRefunds,
   processRefund,
   type PaymentRefund,
   type RefundStatus,
   type GetRefundsParams,
-} from "../api/refundsApi";
-import PayoutBalanceWidget from "../components/PayoutBalanceWidget";
-import ProcessRefundModal from "../components/ProcessRefundModal";
-import { PageHeader } from "../../../components/ui/PageHeader";
-import Table from "../../../components/ui/table/Table";
-import Badge from "../../../components/ui/Badge";
-import Button from "../../../components/ui/Button";
-import { formatAmount, formatDateTime } from "../../../lib/utils";
-import { useToastStore } from "../../../stores/toastStore";
-import { useLanguage } from "../../../stores/languageStore";
+} from "../api/refundsApi"
+import PayoutBalanceWidget from "../components/PayoutBalanceWidget"
+import ProcessRefundModal from "../components/ProcessRefundModal"
+import { PageHeader } from "../../../components/ui/PageHeader"
+import Table from "../../../components/ui/table/Table"
+import Badge from "../../../components/ui/Badge"
+import Button from "../../../components/ui/Button"
+import { formatAmount, formatDateTime } from "../../../lib/utils"
+import { useToastStore } from "../../../stores/toastStore"
+import { useLanguage } from "../../../stores/languageStore"
 
 export default function RefundsPage() {
-  const { addToast } = useToastStore();
-  const { t } = useLanguage();
+  const { addToast } = useToastStore()
+  const { t } = useLanguage()
 
-  const [selectedRefund, setSelectedRefund] = useState<PaymentRefund | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
-  const [refundsList, setRefundsList] = useState<PaymentRefund[]>([]);
+  const [selectedRefund, setSelectedRefund] = useState<PaymentRefund | null>(
+    null,
+  )
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isProcessing, setIsProcessing] = useState<boolean>(false)
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0)
 
-  // Status Filter State
-  const [statusFilter, setStatusFilter] = useState<RefundStatus | "All">("All");
+  // Status & Date Filter State
+  const [statusFilter, setStatusFilter] = useState<RefundStatus | "All">("All")
+  const [fromDate, setFromDate] = useState<string>("")
+  const [toDate, setToDate] = useState<string>("")
 
-  // Compute metrics in-memory from loaded list
-  const metrics = useMemo(() => {
-    const counts = { total: 0, pending: 0, approved: 0, rejected: 0, failed: 0 };
-    refundsList.forEach((r) => {
-      counts.total++;
-      if (r.status === 0) counts.pending++;
-      else if (r.status === 1) counts.approved++;
-      else if (r.status === 2) counts.rejected++;
-      else if (r.status === 3) counts.failed++;
-    });
-    return counts;
-  }, [refundsList]);
+  const fetcher = useCallback(
+    async (page?: number, pageSize?: number) => {
+      const params: GetRefundsParams = {}
+      if (page !== undefined) params.Page = page
+      if (pageSize !== undefined) params.PageSize = pageSize
+      if (statusFilter !== "All") {
+        params.Status = statusFilter
+      }
+      if (fromDate) params.FromDate = fromDate
+      if (toDate) params.ToDate = toDate
 
-  const fetcher = useCallback(async () => {
-    const params: GetRefundsParams = {};
-    if (statusFilter !== "All") {
-      params.status = statusFilter;
-    }
-
-    const res = await getRefunds(params);
-    setRefundsList(res.data);
-    return {
-      data: res.data,
-      total: res.total_records ?? res.data.length,
-    };
-  }, [statusFilter]);
+      const res = await getRefunds(params)
+      return {
+        data: res.data,
+        total: res.total_records ?? res.data.length,
+      }
+    },
+    [statusFilter, fromDate, toDate],
+  )
 
   const handleReview = (refundItem: PaymentRefund) => {
-    setSelectedRefund(refundItem);
-    setIsModalOpen(true);
-  };
+    setSelectedRefund(refundItem)
+    setIsModalOpen(true)
+  }
 
   const handleProcessRefund = async (
     action: "Approve" | "Reject",
-    reason: string
+    reason: string,
   ) => {
-    if (!selectedRefund) return;
-    setIsProcessing(true);
+    if (!selectedRefund) return
+    setIsProcessing(true)
     try {
-      const res = await processRefund(selectedRefund.refundId, { action, reason });
+      const res = await processRefund(selectedRefund.refundId, {
+        action,
+        reason,
+      })
       addToast(
         "success",
         res.message ||
           `Yêu cầu hoàn tiền #${selectedRefund.refundId} đã được ${
             action === "Approve" ? "phê duyệt và chuyển khoản" : "từ chối"
-          } thành công.`
-      );
-      setRefreshTrigger((prev) => prev + 1);
+          } thành công.`,
+      )
+      setRefreshTrigger((prev) => prev + 1)
     } catch (err: unknown) {
-      console.error("Error processing refund:", err);
-      throw err;
+      console.error("Error processing refund:", err)
+      throw err
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
@@ -109,114 +100,110 @@ export default function RefundsPage() {
       {/* PayOS Payout Balance Card */}
       <PayoutBalanceWidget key={refreshTrigger} />
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Requests Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-            <FileText className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Tổng yêu cầu
-            </span>
-            <span className="text-2xl font-bold text-gray-900 block mt-0.5">
-              {metrics.total}
-            </span>
-          </div>
-        </div>
-
-        {/* Pending Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <Clock className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Chờ xử lý
-            </span>
-            <span className="text-2xl font-bold text-amber-600 block mt-0.5">
-              {metrics.pending}
-            </span>
-          </div>
-        </div>
-
-        {/* Approved Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Đã chuyển tiền
-            </span>
-            <span className="text-2xl font-bold text-emerald-600 block mt-0.5">
-              {metrics.approved}
-            </span>
-          </div>
-        </div>
-
-        {/* Rejected / Failed Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-            <XCircle className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
-              Từ chối / Lỗi
-            </span>
-            <span className="text-2xl font-bold text-rose-600 block mt-0.5">
-              {metrics.rejected + metrics.failed}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Bar & Status Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-gray-200 shadow-sm">
+      {/* Filter Bar & Status Tabs + Date Filters */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm">
         <div className="flex flex-wrap gap-1.5">
           {[
-            { key: "All", label: "Tất cả", count: metrics.total },
-            { key: 0, label: "Chờ xử lý", count: metrics.pending },
-            { key: 1, label: "Đã duyệt & Chuyển khoản", count: metrics.approved },
-            { key: 2, label: "Từ chối", count: metrics.rejected },
-            { key: 3, label: "Thất bại", count: metrics.failed },
+            { key: "All", label: "Tất cả" },
+            { key: 0, label: "Chờ xử lý" },
+            { key: 1, label: "Đã duyệt & Chuyển khoản" },
+            { key: 2, label: "Từ chối" },
+            { key: 3, label: "Thất bại" },
           ].map((tab) => {
-            const isActive = statusFilter === tab.key;
+            const isActive = statusFilter === tab.key
             return (
               <button
                 key={String(tab.key)}
                 onClick={() => setStatusFilter(tab.key as RefundStatus | "All")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   isActive
                     ? "bg-slate-900 text-white shadow-sm"
                     : "text-gray-600 hover:bg-gray-100"
                 }`}
               >
-                <span>{tab.label}</span>
-                <span
-                  className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                    isActive
-                      ? "bg-slate-700 text-white"
-                      : "bg-gray-200 text-gray-600"
-                  }`}
-                >
-                  {tab.count}
-                </span>
+                {tab.label}
               </button>
-            );
+            )
           })}
+        </div>
+
+        {/* Right: Date Range Pickers */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+            <span>Từ:</span>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-2.5 py-1 text-xs rounded-lg border border-gray-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
+            />
+          </div>
+          <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+            <span>Đến:</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-2.5 py-1 text-xs rounded-lg border border-gray-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
+            />
+          </div>
+          {(fromDate || toDate) && (
+            <button
+              type="button"
+              onClick={() => {
+                setFromDate("")
+                setToDate("")
+              }}
+              className="p-1 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+              title="Xóa bộ lọc ngày"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Table Element */}
       <Table<PaymentRefund>
         key={`${refreshTrigger}-${statusFilter}`}
+        keyExtractor={(r) => String(r.refundId)}
         fetcher={fetcher}
+        filter={async (attribute, value) => {
+          const params: GetRefundsParams = {}
+          if (statusFilter !== "All") {
+            params.Status = statusFilter
+          }
+
+          if (
+            attribute === "global" ||
+            attribute === "Search" ||
+            attribute === "username" ||
+            attribute === "email" ||
+            attribute === "reason"
+          ) {
+            params.Search = value ? String(value) : undefined
+          } else if (attribute === "fromDate" || attribute === "FromDate") {
+            params.FromDate = value ? String(value) : undefined
+          } else if (attribute === "toDate" || attribute === "ToDate") {
+            params.ToDate = value ? String(value) : undefined
+          } else if (
+            attribute === "status" &&
+            value !== undefined &&
+            value !== null
+          ) {
+            params.Status = Number(value)
+          }
+
+          const res = await getRefunds(params)
+          return res.data
+        }}
         headers={[
           {
+            id: "refundId",
             name: "ID",
             accessorKey: "refundId",
+            showFilter: false,
             render: (r) => (
               <span className="font-mono font-bold text-gray-900">
                 #{r.refundId}
@@ -224,8 +211,10 @@ export default function RefundsPage() {
             ),
           },
           {
+            id: "paymentId",
             name: "Mã Thanh Toán",
             accessorKey: "paymentId",
+            showFilter: false,
             render: (r) => (
               <span className="font-mono text-xs text-gray-600 font-medium">
                 #{r.paymentId}
@@ -233,8 +222,10 @@ export default function RefundsPage() {
             ),
           },
           {
+            id: "username",
             name: "Học Viên",
             accessorKey: "username",
+            showFilter: false,
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-bold text-gray-800 text-xs">
@@ -249,8 +240,10 @@ export default function RefundsPage() {
             ),
           },
           {
+            id: "amountVnd",
             name: "Số Tiền (VND)",
             accessorKey: "amountVnd",
+            showFilter: false,
             render: (r) => (
               <span className="font-extrabold text-emerald-600">
                 {formatAmount(r.amountVnd)}
@@ -259,8 +252,10 @@ export default function RefundsPage() {
             cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
           },
           {
+            id: "bankInfo",
             name: "Thông Tin Ngân Hàng",
             accessorKey: "accountNumber",
+            showFilter: false,
             render: (r) => (
               <div className="flex flex-col text-xs">
                 <span className="font-bold text-gray-900 flex items-center gap-1 uppercase">
@@ -274,8 +269,10 @@ export default function RefundsPage() {
             ),
           },
           {
+            id: "reason",
             name: "Lý Do Hoàn Tiền",
             accessorKey: "reason",
+            showFilter: false,
             render: (r) => (
               <p
                 className="text-xs text-gray-600 max-w-xs truncate font-medium"
@@ -287,8 +284,10 @@ export default function RefundsPage() {
             cellClassName: "px-6 py-4 text-sm",
           },
           {
+            id: "createDate",
             name: "Ngày Gửi",
             accessorKey: "createDate",
+            showFilter: false,
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
                 {formatDateTime(r.createDate)}
@@ -297,33 +296,37 @@ export default function RefundsPage() {
             cellClassName: "px-6 py-4 text-sm whitespace-nowrap",
           },
           {
+            id: "status",
             name: "Trạng Thái",
             accessorKey: "status",
+            showFilter: false,
             render: (r) => {
               switch (r.status) {
                 case 0:
-                  return <Badge title="Chờ xử lý" type="Yellow" showDot />;
+                  return <Badge title="Chờ xử lý" type="Yellow" showDot />
                 case 1:
-                  return <Badge title="Đã chuyển tiền" type="Green" showDot />;
+                  return <Badge title="Đã chuyển tiền" type="Green" showDot />
                 case 2:
-                  return <Badge title="Từ chối" type="Red" showDot />;
+                  return <Badge title="Từ chối" type="Red" showDot />
                 case 3:
-                  return <Badge title="Lỗi chuyển tiền" type="Orange" showDot />;
+                  return <Badge title="Lỗi chuyển tiền" type="Orange" showDot />
                 default:
-                  return <Badge title={String(r.status)} type="Gray" />;
+                  return <Badge title={String(r.status)} type="Gray" />
               }
             },
           },
           {
+            id: "actions",
             name: "Hành Động",
-            accessorKey: "refundId",
+            allowSort: false,
+            showFilter: false,
             render: (r) => (
               <Button
                 variant={r.status === 0 ? "primary" : "outline"}
                 size="sm"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  handleReview(r);
+                  e.stopPropagation()
+                  handleReview(r)
                 }}
                 className="text-xs cursor-pointer shadow-none font-semibold"
               >
@@ -341,12 +344,12 @@ export default function RefundsPage() {
         refund={selectedRefund}
         isOpen={isModalOpen}
         onClose={() => {
-          setIsModalOpen(false);
-          setSelectedRefund(null);
+          setIsModalOpen(false)
+          setSelectedRefund(null)
         }}
         onProcess={handleProcessRefund}
         isProcessing={isProcessing}
       />
     </div>
-  );
+  )
 }

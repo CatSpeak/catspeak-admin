@@ -91,6 +91,8 @@ export type renderComponent =
 export type render<T> = (row: T) => renderComponent | ReactNode;
 
 export interface TableHeader<T> {
+  /** Optional explicit column ID to prevent key duplication */
+  id?: string;
   /** Column label shown in the header */
   name: string;
   /** Optional icon rendered next to the label */
@@ -534,7 +536,7 @@ export default function Table<T>({
   const columns = useMemo<ColumnDef<T, any>[]>(
     () =>
       headers.map((h, i) => {
-        const id = h.accessorKey ?? h.mapTo ?? `col_${i}`;
+        const id = h.id ?? h.accessorKey ?? h.mapTo ?? `col_${i}`;
         const options = normalizeOptions(h.values, h.valueLabels);
         // Sort/filter off of accessorKey when present, otherwise fall
         // back to mapTo (the field actually shown in the cell) so a

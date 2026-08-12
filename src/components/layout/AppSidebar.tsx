@@ -9,6 +9,8 @@ import {
   FileWarning,
   GraduationCap,
   Package,
+  RotateCcw,
+  CreditCard,
 } from "lucide-react";
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
@@ -70,6 +72,17 @@ const AppSidebar: React.FC = () => {
         ],
       },
       {
+        section: t.nav.finance || "Tài chính & Thanh toán",
+        name: t.nav.refunds || "Yêu cầu hoàn tiền",
+        icon: <RotateCcw size={20} />,
+        path: "/refunds",
+      },
+      {
+        name: t.nav.paymentReports || "Báo cáo thanh toán",
+        icon: <CreditCard size={20} />,
+        path: "/payments",
+      },
+      {
         section: t.nav.applications,
         name: t.nav.instructorApplications,
         icon: <GraduationCap size={20} />,
@@ -77,13 +90,9 @@ const AppSidebar: React.FC = () => {
       },
       {
         section: t.nav.feedback,
-        name: t.nav.handleReports,
+        name: t.nav.letterReports || "Báo cáo nội dung",
         icon: <FileWarning size={20} />,
-        subItems: [
-          { name: t.nav.letterReports, path: "/reports" },
-          { name: t.nav.paymentReports, path: "/payments" },
-          { name: t.nav.refunds || "Yêu cầu hoàn tiền", path: "/refunds" },
-        ],
+        path: "/reports",
       },
     ],
     [t],
