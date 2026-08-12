@@ -13,11 +13,20 @@ import {
 import CatSpeakLogo from "../../assets/catspeak_logo.svg";
 import CatSpeakIcon from "../../assets/catspeak_icon.svg";
 
+import { useAuthStore } from "../../stores/authStore";
+
+interface NavSubItem {
+  name: string;
+  path: string;
+  permission?: string;
+}
+
 interface NavItem {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string }[];
+  permission?: string;
+  subItems?: NavSubItem[];
   section?: string;
 }
 
@@ -28,6 +37,7 @@ const isPathActive = (pathname: string, path: string) => {
 
 const AppSidebar: React.FC = () => {
   const { t } = useLanguage();
+  const currentUser = useAuthStore((state) => state.user);
   const {
     isExpanded,
     isMobileOpen,
@@ -37,36 +47,45 @@ const AppSidebar: React.FC = () => {
   } = useSidebar();
   const location = useLocation();
 
-  const navItems: NavItem[] = useMemo(
-    () => [
+  const isPermitted = (code?: string) => {
+    if (!currentUser) return false;
+    if (currentUser.roleId === 1) return true; // Primary Admin full access
+    if (!code) return true;
+    return currentUser.permissions?.includes(code) ?? false;
+  };
+
+  const navItems: NavItem[] = useMemo(() => {
+    const rawItems: NavItem[] = [
       {
         name: t.nav.dashboard,
         icon: <LayoutDashboard size={20} />,
         path: "/",
+        permission: "dashboard",
       },
       {
         name: t.nav.userManagement,
         icon: <Users size={20} />,
         subItems: [
-          { name: t.nav.users, path: "/users" },
-          { name: t.nav.staffs, path: "/staffs" },
+          { name: t.nav.users, path: "/users", permission: "users" },
+          { name: t.nav.staffs, path: "/staffs", permission: "staffs" },
         ],
       },
       {
         name: t.nav.planManagement,
         icon: <Package size={20} />,
         path: "/plans",
+        permission: "plans",
       },
       {
         name: t.nav.catSpeak,
         icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
         subItems: [
-          { name: t.nav.news, path: "/news" },
-          { name: t.nav.calendar, path: "/calendar" },
-          { name: t.nav.room, path: "/room" },
-          { name: t.nav.classes, path: "/classes" },
-          { name: t.nav.reels, path: "/reels" },
-          { name: t.nav.broadcastMail || "Gửi Mail Hàng Loạt", path: "/broadcast-mail" },
+          { name: t.nav.news, path: "/news", permission: "news" },
+          { name: t.nav.calendar, path: "/calendar", permission: "calendar" },
+          { name: t.nav.room, path: "/room", permission: "room" },
+          { name: t.nav.classes, path: "/classes", permission: "classes" },
+          { name: t.nav.reels, path: "/reels", permission: "reels" },
+          { name: t.nav.broadcastMail || "Gửi Mail Hàng Loạt", path: "/broadcast-mail", permission: "broadcast_mail" },
         ],
       },
       {
@@ -74,19 +93,30 @@ const AppSidebar: React.FC = () => {
         name: t.nav.instructorApplications,
         icon: <GraduationCap size={20} />,
         path: "/instructor-applications",
+        permission: "instructor_applications",
       },
       {
         section: t.nav.feedback,
         name: t.nav.handleReports,
         icon: <FileWarning size={20} />,
         subItems: [
-          { name: t.nav.letterReports, path: "/reports" },
-          { name: t.nav.paymentReports, path: "/payments" },
+          { name: t.nav.letterReports, path: "/reports", permission: "letter_reports" },
+          { name: t.nav.paymentReports, path: "/payments", permission: "payment_reports" },
         ],
       },
-    ],
-    [t],
-  );
+    ];
+
+    return rawItems
+      .map((item) => {
+        if (item.subItems) {
+          const filteredSub = item.subItems.filter((sub) => isPermitted(sub.permission));
+          if (filteredSub.length === 0) return null;
+          return { ...item, subItems: filteredSub };
+        }
+        return isPermitted(item.permission) ? item : null;
+      })
+      .filter((item): item is NavItem => item !== null);
+  }, [t, currentUser]);
 
   const [submenuOverride, setSubmenuOverride] = useState<
     number | null | "auto"
