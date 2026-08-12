@@ -41,6 +41,14 @@ export interface InstructorApplicationDetail {
   banUntil: string | null;
   isBanned: boolean;
   canReapply: boolean;
+  /** True when this profile now belongs to a dedicated teacher account (approved and re-pointed). */
+  isTeacherAccount?: boolean;
+  /** The teacher account ID the approved profile belongs to. */
+  teacherAccountId?: number | null;
+  /** The original user account the application was submitted from. */
+  sourceAccountId?: number | null;
+  sourceUsername?: string | null;
+  sourceAccountEmail?: string | null;
 }
 
 export interface GetInstructorApplicationsResponse {

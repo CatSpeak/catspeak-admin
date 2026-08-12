@@ -255,6 +255,9 @@ const vi = {
     rejectionReason: "Lý do từ chối",
     editRequestNote: "Ghi chú yêu cầu chỉnh sửa",
     bannedUntil: "Bị cấm đến",
+    linkedAccount: "Tài khoản liên kết",
+    teacherAccount: "Tài khoản giáo viên",
+    sourceAccount: "Tài khoản người nộp đơn",
     approveTitle: "Duyệt đơn đăng ký",
     approveDesc:
       "Hành động này sẽ duyệt hồ sơ giảng viên và cấp quyền truy cập giảng viên cho người dùng.",

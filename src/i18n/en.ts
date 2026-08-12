@@ -252,6 +252,9 @@ const en = {
     rejectionReason: "Rejection Reason",
     editRequestNote: "Edit Request Note",
     bannedUntil: "Banned Until",
+    linkedAccount: "Linked Account",
+    teacherAccount: "Teacher Account",
+    sourceAccount: "Applicant Account",
     approveTitle: "Approve Application",
     approveDesc:
       "This will approve the instructor profile and grant the user instructor access.",
