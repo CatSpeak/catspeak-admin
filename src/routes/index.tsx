@@ -16,6 +16,7 @@ const StaffsPage = lazy(() => import("../features/staffs/routes/StaffsPage"));
 const StaffDetailPage = lazy(() => import("../features/staffs/routes/StaffDetailPage"));
 const HandleReportsPage = lazy(() => import("../features/reports/routes/HandleReportsPage"));
 const PaymentReportsPage = lazy(() => import("../features/reports/routes/PaymentReportsPage"));
+const RefundsPage = lazy(() => import("../features/refunds/routes/RefundsPage"));
 const LiveChatPage = lazy(() => import("../features/chat/routes/LiveChatPage"));
 const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
 const CalendarPage = lazy(() => import("../features/calendar/routes/CalendarPage"));
@@ -67,6 +68,7 @@ export const router = createBrowserRouter([
           { path: "staffs/:id", element: wrap(StaffDetailPage) },
           { path: "reports", element: wrap(HandleReportsPage) },
           { path: "payments", element: wrap(PaymentReportsPage) },
+          { path: "refunds", element: wrap(RefundsPage) },
           { path: "live-chat", element: wrap(LiveChatPage) },
           { path: "news", element: wrap(NewsPage) },
           { path: "calendar", element: wrap(CalendarPage) },

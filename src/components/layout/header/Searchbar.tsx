@@ -25,6 +25,8 @@ const searchData: SearchItem[] = [
   { title: "Instructor Applications", url: "/instructor-applications" },
   { title: "Letter Reports", url: "/reports" },
   { title: "Payment Reports", url: "/payments" },
+  { title: "Refund Requests", url: "/refunds" },
+  { title: "Yêu cầu hoàn tiền", url: "/refunds" },
 ];
 
 const fuseOptions = {

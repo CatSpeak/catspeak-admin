@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useSidebar } from "../../context/SidebarContext";
-import { useLanguage } from "../../stores/languageStore";
+import React, { useMemo, useState } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { useSidebar } from "../../context/SidebarContext"
+import { useLanguage } from "../../stores/languageStore"
 import {
   LayoutDashboard,
   Users,
@@ -9,50 +9,52 @@ import {
   FileWarning,
   GraduationCap,
   Package,
-} from "lucide-react";
-import CatSpeakLogo from "../../assets/catspeak_logo.svg";
-import CatSpeakIcon from "../../assets/catspeak_icon.svg";
+  RotateCcw,
+  CreditCard,
+} from "lucide-react"
+import CatSpeakLogo from "../../assets/catspeak_logo.svg"
+import CatSpeakIcon from "../../assets/catspeak_icon.svg"
 
-import { useAuthStore } from "../../stores/authStore";
+import { useAuthStore } from "../../stores/authStore"
 
 interface NavSubItem {
-  name: string;
-  path: string;
-  permission?: string;
+  name: string
+  path: string
+  permission?: string
 }
 
 interface NavItem {
-  name: string;
-  icon: React.ReactNode;
-  path?: string;
-  permission?: string;
-  subItems?: NavSubItem[];
-  section?: string;
+  name: string
+  icon: React.ReactNode
+  path?: string
+  permission?: string
+  subItems?: NavSubItem[]
+  section?: string
 }
 
 const isPathActive = (pathname: string, path: string) => {
-  if (path === "/") return pathname === "/";
-  return pathname === path || pathname.startsWith(`${path}/`);
-};
+  if (path === "/") return pathname === "/"
+  return pathname === path || pathname.startsWith(`${path}/`)
+}
 
 const AppSidebar: React.FC = () => {
-  const { t } = useLanguage();
-  const currentUser = useAuthStore((state) => state.user);
+  const { t } = useLanguage()
+  const currentUser = useAuthStore((state) => state.user)
   const {
     isExpanded,
     isMobileOpen,
     isHovered,
     setIsHovered,
     toggleMobileSidebar,
-  } = useSidebar();
-  const location = useLocation();
+  } = useSidebar()
+  const location = useLocation()
 
   const isPermitted = (code?: string) => {
-    if (!currentUser) return false;
-    if (currentUser.roleId === 1) return true; // Primary Admin full access
-    if (!code) return true;
-    return currentUser.permissions?.includes(code) ?? false;
-  };
+    if (!currentUser) return false
+    if (currentUser.roleId === 1) return true // Primary Admin full access
+    if (!code) return true
+    return currentUser.permissions?.includes(code) ?? false
+  }
 
   const navItems: NavItem[] = useMemo(() => {
     const rawItems: NavItem[] = [
@@ -85,8 +87,23 @@ const AppSidebar: React.FC = () => {
           { name: t.nav.room, path: "/room", permission: "room" },
           { name: t.nav.classes, path: "/classes", permission: "classes" },
           { name: t.nav.reels, path: "/reels", permission: "reels" },
-          { name: t.nav.broadcastMail || "Gửi Mail Hàng Loạt", path: "/broadcast-mail", permission: "broadcast_mail" },
+          {
+            name: t.nav.broadcastMail || "Gửi Mail Hàng Loạt",
+            path: "/broadcast-mail",
+            permission: "broadcast_mail",
+          },
         ],
+      },
+      {
+        section: t.nav.finance || "Tài chính & Thanh toán",
+        name: t.nav.refunds || "Yêu cầu hoàn tiền",
+        icon: <RotateCcw size={20} />,
+        path: "/refunds",
+      },
+      {
+        name: t.nav.paymentReports || "Báo cáo thanh toán",
+        icon: <CreditCard size={20} />,
+        path: "/payments",
       },
       {
         section: t.nav.applications,
@@ -97,53 +114,63 @@ const AppSidebar: React.FC = () => {
       },
       {
         section: t.nav.feedback,
-        name: t.nav.handleReports,
+        name: t.nav.letterReports || "Báo cáo nội dung",
         icon: <FileWarning size={20} />,
         subItems: [
-          { name: t.nav.letterReports, path: "/reports", permission: "letter_reports" },
-          { name: t.nav.paymentReports, path: "/payments", permission: "payment_reports" },
+          {
+            name: t.nav.letterReports,
+            path: "/reports",
+            permission: "letter_reports",
+          },
+          {
+            name: t.nav.paymentReports,
+            path: "/payments",
+            permission: "payment_reports",
+          },
         ],
       },
-    ];
+    ]
 
     return rawItems
       .map((item) => {
         if (item.subItems) {
-          const filteredSub = item.subItems.filter((sub) => isPermitted(sub.permission));
-          if (filteredSub.length === 0) return null;
-          return { ...item, subItems: filteredSub };
+          const filteredSub = item.subItems.filter((sub) =>
+            isPermitted(sub.permission),
+          )
+          if (filteredSub.length === 0) return null
+          return { ...item, subItems: filteredSub }
         }
-        return isPermitted(item.permission) ? item : null;
+        return isPermitted(item.permission) ? item : null
       })
-      .filter((item): item is NavItem => item !== null);
-  }, [t, currentUser]);
+      .filter((item): item is NavItem => item !== null)
+  }, [t, currentUser])
 
   const [submenuOverride, setSubmenuOverride] = useState<
     number | null | "auto"
-  >("auto");
+  >("auto")
 
   const isActive = (path: string) => {
-    return isPathActive(location.pathname, path);
-  };
+    return isPathActive(location.pathname, path)
+  }
 
   const activeSubmenuIndex = useMemo(() => {
     const index = navItems.findIndex((nav) =>
       nav.subItems?.some((subItem) =>
         isPathActive(location.pathname, subItem.path),
       ),
-    );
-    return index === -1 ? null : index;
-  }, [location.pathname, navItems]);
+    )
+    return index === -1 ? null : index
+  }, [location.pathname, navItems])
 
   const openSubmenu =
-    submenuOverride === "auto" ? activeSubmenuIndex : submenuOverride;
+    submenuOverride === "auto" ? activeSubmenuIndex : submenuOverride
 
   const handleSubmenuToggle = (index: number) => {
     setSubmenuOverride((prev) => {
-      const current = prev === "auto" ? activeSubmenuIndex : prev;
-      return current === index ? null : index;
-    });
-  };
+      const current = prev === "auto" ? activeSubmenuIndex : prev
+      return current === index ? null : index
+    })
+  }
 
   return (
     <aside
@@ -234,8 +261,8 @@ const AppSidebar: React.FC = () => {
                               <Link
                                 to={subItem.path}
                                 onClick={() => {
-                                  setSubmenuOverride("auto");
-                                  if (isMobileOpen) toggleMobileSidebar();
+                                  setSubmenuOverride("auto")
+                                  if (isMobileOpen) toggleMobileSidebar()
                                 }}
                                 className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(subItem.path) ? "shadow-sm" : "text-gray-600 hover:bg-gray-50"}`}
                                 style={
@@ -259,8 +286,8 @@ const AppSidebar: React.FC = () => {
                   <Link
                     to={nav.path!}
                     onClick={() => {
-                      setSubmenuOverride("auto");
-                      if (isMobileOpen) toggleMobileSidebar();
+                      setSubmenuOverride("auto")
+                      if (isMobileOpen) toggleMobileSidebar()
                     }}
                     aria-label={nav.name}
                     title={nav.name}
@@ -285,7 +312,7 @@ const AppSidebar: React.FC = () => {
         </nav>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default AppSidebar;
+export default AppSidebar
