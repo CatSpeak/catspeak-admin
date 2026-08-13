@@ -881,6 +881,7 @@ const zh = {
     },
   },
   common: {
+    refresh: "刷新",
     error: "错误",
     search: "搜索",
     filter: "筛选",

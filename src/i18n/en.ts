@@ -908,6 +908,7 @@ const en = {
     },
   },
   common: {
+    refresh: "Refresh",
     error: "Error",
     search: "Search",
     filter: "Filter",

@@ -915,6 +915,7 @@ const vi = {
     },
   },
   common: {
+    refresh: "Làm mới",
     error: "Lỗi",
     search: "Tìm kiếm",
     filter: "Lọc",
