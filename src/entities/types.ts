@@ -22,6 +22,8 @@ export interface Account {
   username: string;
   visitDurationForStaff: number;
   visitDurationSeconds: number;
+  isInstructor?: boolean;
+  teacherAccountId?: number | null;
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;

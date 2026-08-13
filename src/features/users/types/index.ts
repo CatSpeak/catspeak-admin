@@ -13,7 +13,10 @@ export interface PaginationData {
 
 export interface GetAccountsResponse {
     data: Account[];
-    additionalData: PaginationData;
+    additionalData?: PaginationData;
+    total_records?: number;
+    page?: number;
+    pageSize?: number;
 }
 
 export interface Transaction {

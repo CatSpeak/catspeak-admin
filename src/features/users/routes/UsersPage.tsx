@@ -1,3 +1,4 @@
+import Badge from "../../../components/ui/Badge";
 import { UsersRound } from "lucide-react";
 // import Button from "../../../components/ui/Button";
 import { PageHeader } from "../../../components/ui/PageHeader";
@@ -31,7 +32,7 @@ export default function UsersPage() {
 
           return {
             data: res.data,
-            total: res.additionalData.totalCount,
+            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
           };
         }}
         sorter={async (attribute, sortOrder) => {
@@ -117,6 +118,23 @@ export default function UsersPage() {
           {
             name: t.users.role,
             accessorKey: "roleName",
+          },
+          {
+            name: t.users.isTeacher,
+            accessorKey: "isInstructor",
+            render: (p) => {
+              const isTeacher =
+                p.isInstructor ||
+                p.roleName === "Teacher" ||
+                p.roleName === "Instructor";
+              return isTeacher ? (
+                <Badge type="Green" showDot>
+                  Giảng viên
+                </Badge>
+              ) : (
+                <span className="text-gray-400">—</span>
+              );
+            },
           },
           {
             name: t.users.lastActive,
