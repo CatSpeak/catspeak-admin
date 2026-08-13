@@ -65,7 +65,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({
       language,
       setLanguage,
       toggleLanguage,
-      t: translations[language],
+      t: translations[language] as typeof translations.vi,
       languageName: languageNames[language],
       getLangFromStorage,
       setLangToStorage,
