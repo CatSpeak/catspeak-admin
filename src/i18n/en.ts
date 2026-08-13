@@ -166,6 +166,7 @@ const en = {
     country: "Country",
     level: "Level",
     role: "Role",
+    isTeacher: "Is Instructor",
     lastActive: "Last Active",
     userDetails: "User details",
     userProfile: "User Profile",

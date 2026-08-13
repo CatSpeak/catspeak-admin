@@ -162,6 +162,7 @@ const zh = {
     country: "国家",
     level: "等级",
     role: "角色",
+    isTeacher: "是否为教师",
     lastActive: "最后活跃",
     userDetails: "用户详情",
     userProfile: "用户资料",

@@ -169,6 +169,7 @@ const vi = {
     country: "Quốc gia",
     level: "Cấp độ",
     role: "Vai trò",
+    isTeacher: "Là Giảng Viên",
     lastActive: "Hoạt động lần cuối",
     userDetails: "Chi tiết người dùng",
     userProfile: "Hồ sơ người dùng",
