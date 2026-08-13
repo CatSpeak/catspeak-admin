@@ -19,6 +19,10 @@ import {
   FileText,
 } from "lucide-react";
 import { PageHeader } from "../../../components/ui/PageHeader";
+import {
+  BroadcastEmailEditor,
+  type BroadcastEmailEditorRef,
+} from "../components/BroadcastEmailEditor";
 
 interface BroadcastItem {
   id: number;
@@ -73,12 +77,13 @@ const BroadcastMailPage: React.FC = () => {
   const [subjectZh, setSubjectZh] = useState("");
   const [contentZh, setContentZh] = useState("");
 
-  // Targets
-  const [targetType, setTargetType] = useState<
-    "all" | "roles" | "countries" | "custom"
-  >("all");
+  // Targets (Multi-choice Audience Selection)
+  const [isAllUsers, setIsAllUsers] = useState(false);
+  const [isFilterRoles, setIsFilterRoles] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
+  const [isFilterCountries, setIsFilterCountries] = useState(false);
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [isImportCsv, setIsImportCsv] = useState(false);
   const [importedEmailsStr, setImportedEmailsStr] = useState("");
   const [uploadingCsv, setUploadingCsv] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,18 +127,20 @@ const BroadcastMailPage: React.FC = () => {
   const handleEstimate = async () => {
     setEstimating(true);
     try {
-      const importedList = importedEmailsStr
-        .split(/[\n,;]/)
-        .map((e) => e.trim())
-        .filter((e) => e.includes("@"));
+      const importedList = isImportCsv
+        ? importedEmailsStr
+            .split(/[\n,;]/)
+            .map((e) => e.trim())
+            .filter((e) => e.includes("@"))
+        : [];
 
       const res = await axiosClient.post<{ estimatedCount: number }>(
         "/Admin/broadcasts/estimate",
         {
-          targetRoleIds: targetType === "roles" ? selectedRoles : null,
-          targetCountries:
-            targetType === "countries" ? selectedCountries : null,
-          importedEmails: targetType === "custom" ? importedList : null,
+          isAllUsers,
+          targetRoleIds: isFilterRoles ? selectedRoles : null,
+          targetCountries: isFilterCountries ? selectedCountries : null,
+          importedEmails: isImportCsv ? importedList : null,
         },
       );
 
@@ -152,9 +159,12 @@ const BroadcastMailPage: React.FC = () => {
       fetchHistory();
     }
   }, [
-    targetType,
+    isAllUsers,
+    isFilterRoles,
     selectedRoles,
+    isFilterCountries,
     selectedCountries,
+    isImportCsv,
     importedEmailsStr,
     activeTab,
   ]);
@@ -190,13 +200,13 @@ const BroadcastMailPage: React.FC = () => {
         validEmails: string[];
         totalFound: number;
       }>("/Admin/broadcasts/parse-csv", formData, {
-        headers: { "Content-Type": "multipart/form-[#8f0d15]" },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       const parsedEmails = res.data.validEmails || [];
       if (parsedEmails.length > 0) {
         setImportedEmailsStr(parsedEmails.join("\n"));
-        setTargetType("custom");
+        setIsImportCsv(true);
         alert(
           t.broadcast.csvExtractSuccess.replace(
             "{count}",
@@ -216,11 +226,32 @@ const BroadcastMailPage: React.FC = () => {
     }
   };
 
+  // Editor Refs for WYSIWYG variable insertion
+  const editorViRef = useRef<BroadcastEmailEditorRef>(null);
+  const editorEnRef = useRef<BroadcastEmailEditorRef>(null);
+  const editorZhRef = useRef<BroadcastEmailEditorRef>(null);
+
   // Variable Helper Button
   const insertVariable = (variableStr: string) => {
-    if (langTab === "vi") setContentVi((prev) => prev + " " + variableStr);
-    else if (langTab === "en") setContentEn((prev) => prev + " " + variableStr);
-    else if (langTab === "zh") setContentZh((prev) => prev + " " + variableStr);
+    if (langTab === "vi") {
+      if (editorViRef.current) {
+        editorViRef.current.insertText(variableStr);
+      } else {
+        setContentVi((prev) => prev + " " + variableStr);
+      }
+    } else if (langTab === "en") {
+      if (editorEnRef.current) {
+        editorEnRef.current.insertText(variableStr);
+      } else {
+        setContentEn((prev) => prev + " " + variableStr);
+      }
+    } else if (langTab === "zh") {
+      if (editorZhRef.current) {
+        editorZhRef.current.insertText(variableStr);
+      } else {
+        setContentZh((prev) => prev + " " + variableStr);
+      }
+    }
   };
 
   // Submit Broadcast
@@ -234,15 +265,31 @@ const BroadcastMailPage: React.FC = () => {
       return;
     }
 
+    const importedList = isImportCsv
+      ? importedEmailsStr
+          .split(/[\n,;]/)
+          .map((e) => e.trim())
+          .filter((e) => e.includes("@"))
+      : [];
+
+    const hasSelection =
+      isAllUsers ||
+      (isFilterRoles && selectedRoles.length > 0) ||
+      (isFilterCountries && selectedCountries.length > 0) ||
+      (isImportCsv && importedList.length > 0);
+
+    if (!hasSelection) {
+      setMessage({
+        type: "error",
+        text: "Vui lòng chọn ít nhất 1 đối tượng nhận mail (Tất cả người dùng, Lọc vai trò, Lọc quốc gia, hoặc Import danh sách Email).",
+      });
+      return;
+    }
+
     setSubmitting(true);
     setMessage(null);
 
     try {
-      const importedList = importedEmailsStr
-        .split(/[\n,;]/)
-        .map((e) => e.trim())
-        .filter((e) => e.includes("@"));
-
       await axiosClient.post("/Admin/broadcasts", {
         title,
         subjectVi,
@@ -252,9 +299,10 @@ const BroadcastMailPage: React.FC = () => {
         subjectZh: isMultiLanguage ? subjectZh : null,
         contentZh: isMultiLanguage ? contentZh : null,
         isMultiLanguage,
-        targetRoleIds: targetType === "roles" ? selectedRoles : null,
-        targetCountries: targetType === "countries" ? selectedCountries : null,
-        importedEmails: targetType === "custom" ? importedList : null,
+        isAllUsers,
+        targetRoleIds: isFilterRoles ? selectedRoles : null,
+        targetCountries: isFilterCountries ? selectedCountries : null,
+        importedEmails: isImportCsv ? importedList : null,
         scheduledAt:
           isScheduled && scheduledDateTime
             ? new Date(scheduledDateTime).toISOString()
@@ -598,12 +646,11 @@ const BroadcastMailPage: React.FC = () => {
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           {t.broadcast.contentVi}
                         </label>
-                        <textarea
-                          rows={10}
-                          placeholder={t.broadcast.contentViPlaceholder}
+                        <BroadcastEmailEditor
+                          ref={editorViRef}
                           value={contentVi}
-                          onChange={(e) => setContentVi(e.target.value)}
-                          className="w-full px-4 py-3 font-mono text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f0d15]"
+                          onChange={setContentVi}
+                          placeholder={t.broadcast.contentViPlaceholder}
                         />
                       </div>
                     </div>
@@ -628,12 +675,11 @@ const BroadcastMailPage: React.FC = () => {
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           {t.broadcast.contentEn}
                         </label>
-                        <textarea
-                          rows={10}
-                          placeholder={t.broadcast.contentEnPlaceholder}
+                        <BroadcastEmailEditor
+                          ref={editorEnRef}
                           value={contentEn}
-                          onChange={(e) => setContentEn(e.target.value)}
-                          className="w-full px-4 py-3 font-mono text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f0d15]"
+                          onChange={setContentEn}
+                          placeholder={t.broadcast.contentEnPlaceholder}
                         />
                       </div>
                     </div>
@@ -658,12 +704,11 @@ const BroadcastMailPage: React.FC = () => {
                         <label className="block text-sm font-semibold text-gray-700 mb-1">
                           {t.broadcast.contentZh}
                         </label>
-                        <textarea
-                          rows={10}
-                          placeholder={t.broadcast.contentZhPlaceholder}
+                        <BroadcastEmailEditor
+                          ref={editorZhRef}
                           value={contentZh}
-                          onChange={(e) => setContentZh(e.target.value)}
-                          className="w-full px-4 py-3 font-mono text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f0d15]"
+                          onChange={setContentZh}
+                          placeholder={t.broadcast.contentZhPlaceholder}
                         />
                       </div>
                     </div>
@@ -690,153 +735,183 @@ const BroadcastMailPage: React.FC = () => {
                 {t.broadcast.targetAudience}
               </h3>
 
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="space-y-3">
+                {/* 1. Tất cả người dùng */}
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
                   <input
-                    type="radio"
-                    name="targetType"
-                    checked={targetType === "all"}
-                    onChange={() => setTargetType("all")}
-                    className="text-[#8f0d15] focus:ring-[#8f0d15]"
+                    type="checkbox"
+                    checked={isAllUsers}
+                    onChange={(e) => setIsAllUsers(e.target.checked)}
+                    className="w-4 h-4 text-[#8f0d15] rounded border-gray-300 focus:ring-[#8f0d15]"
                   />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-sm font-semibold text-gray-800">
                     {t.broadcast.allUsers}
                   </span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="targetType"
-                    checked={targetType === "roles"}
-                    onChange={() => setTargetType("roles")}
-                    className="text-[#8f0d15] focus:ring-[#8f0d15]"
-                  />
-                  <span className="text-sm font-medium text-gray-800">
-                    {t.broadcast.filterByRoles}
-                  </span>
-                </label>
+                {/* 2. Lọc theo vai trò */}
+                <div>
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={isFilterRoles}
+                      onChange={(e) => {
+                        setIsFilterRoles(e.target.checked);
+                        if (!e.target.checked) setSelectedRoles([]);
+                      }}
+                      className="w-4 h-4 text-[#8f0d15] rounded border-gray-300 focus:ring-[#8f0d15]"
+                    />
+                    <span className="text-sm font-semibold text-gray-800">
+                      {t.broadcast.filterByRoles}
+                    </span>
+                  </label>
 
-                {targetType === "roles" && (
-                  <div className="pl-6 space-y-1 text-xs">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedRoles.includes(1)}
-                        onChange={(e) =>
-                          setSelectedRoles(
-                            e.target.checked
-                              ? [...selectedRoles, 1]
-                              : selectedRoles.filter((r) => r !== 1),
-                          )
-                        }
-                      />
-                      {t.broadcast.roleUser}
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedRoles.includes(2)}
-                        onChange={(e) =>
-                          setSelectedRoles(
-                            e.target.checked
-                              ? [...selectedRoles, 2]
-                              : selectedRoles.filter((r) => r !== 2),
-                          )
-                        }
-                      />
-                      {t.broadcast.roleInstructor}
-                    </label>
-                  </div>
-                )}
-
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="targetType"
-                    checked={targetType === "countries"}
-                    onChange={() => setTargetType("countries")}
-                    className="text-[#8f0d15] focus:ring-[#8f0d15]"
-                  />
-                  <span className="text-sm font-medium text-gray-800">
-                    {t.broadcast.filterByCountry}
-                  </span>
-                </label>
-
-                {targetType === "countries" && (
-                  <div className="pl-6 space-y-1 text-xs">
-                    {[
-                      "Vietnam",
-                      "China",
-                      "United States",
-                      "Japan",
-                      "Korea",
-                    ].map((c) => (
-                      <label key={c} className="flex items-center gap-2">
+                  {isFilterRoles && (
+                    <div className="pl-7 pt-2 space-y-1.5 text-xs">
+                      <label className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedCountries.includes(c)}
+                          checked={selectedRoles.includes(1)}
                           onChange={(e) =>
-                            setSelectedCountries(
+                            setSelectedRoles(
                               e.target.checked
-                                ? [...selectedCountries, c]
-                                : selectedCountries.filter(
-                                    (item) => item !== c,
-                                  ),
+                                ? [...selectedRoles, 1]
+                                : selectedRoles.filter((r) => r !== 1),
                             )
                           }
+                          className="w-3.5 h-3.5 text-[#8f0d15] rounded border-gray-300"
                         />
-                        {c}
+                        <span className="text-gray-700">{t.broadcast.roleAdmin}</span>
                       </label>
-                    ))}
-                  </div>
-                )}
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedRoles.includes(2)}
+                          onChange={(e) =>
+                            setSelectedRoles(
+                              e.target.checked
+                                ? [...selectedRoles, 2]
+                                : selectedRoles.filter((r) => r !== 2),
+                            )
+                          }
+                          className="w-3.5 h-3.5 text-[#8f0d15] rounded border-gray-300"
+                        />
+                        <span className="text-gray-700">{t.broadcast.roleUser}</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedRoles.includes(3)}
+                          onChange={(e) =>
+                            setSelectedRoles(
+                              e.target.checked
+                                ? [...selectedRoles, 3]
+                                : selectedRoles.filter((r) => r !== 3),
+                            )
+                          }
+                          className="w-3.5 h-3.5 text-[#8f0d15] rounded border-gray-300"
+                        />
+                        <span className="text-gray-700">{t.broadcast.roleStaff}</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="targetType"
-                    checked={targetType === "custom"}
-                    onChange={() => setTargetType("custom")}
-                    className="text-[#8f0d15] focus:ring-[#8f0d15]"
-                  />
-                  <span className="text-sm font-medium text-gray-800">
-                    {t.broadcast.importEmailList}
-                  </span>
-                </label>
-
-                {targetType === "custom" && (
-                  <div className="pl-6 pt-1 space-y-2">
+                {/* 3. Lọc theo quốc gia */}
+                <div>
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
                     <input
-                      type="file"
-                      ref={fileInputRef}
-                      accept=".csv,.txt,.xlsx"
-                      onChange={handleCsvFileUpload}
-                      className="hidden"
+                      type="checkbox"
+                      checked={isFilterCountries}
+                      onChange={(e) => {
+                        setIsFilterCountries(e.target.checked);
+                        if (!e.target.checked) setSelectedCountries([]);
+                      }}
+                      className="w-4 h-4 text-[#8f0d15] rounded border-gray-300 focus:ring-[#8f0d15]"
                     />
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploadingCsv}
-                      className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2"
-                    >
-                      {uploadingCsv ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Upload className="w-3.5 h-3.5" />
-                      )}
-                      {t.broadcast.uploadCsvExcel}
-                    </button>
+                    <span className="text-sm font-semibold text-gray-800">
+                      {t.broadcast.filterByCountry}
+                    </span>
+                  </label>
 
-                    <textarea
-                      rows={4}
-                      placeholder={t.broadcast.emailsPlaceholder}
-                      value={importedEmailsStr}
-                      onChange={(e) => setImportedEmailsStr(e.target.value)}
-                      className="w-full text-xs p-2.5 rounded-lg border border-gray-200 focus:outline-none"
+                  {isFilterCountries && (
+                    <div className="pl-7 pt-2 space-y-1.5 text-xs">
+                      {[
+                        "Vietnam",
+                        "China",
+                        "United States",
+                        "Japan",
+                        "Korea",
+                      ].map((c) => (
+                        <label key={c} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={selectedCountries.includes(c)}
+                            onChange={(e) =>
+                              setSelectedCountries(
+                                e.target.checked
+                                  ? [...selectedCountries, c]
+                                  : selectedCountries.filter(
+                                      (item) => item !== c,
+                                    ),
+                              )
+                            }
+                            className="w-3.5 h-3.5 text-[#8f0d15] rounded border-gray-300"
+                          />
+                          <span className="text-gray-700">{c}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Import Danh Sách Email (CSV / Text / DOCX) */}
+                <div>
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={isImportCsv}
+                      onChange={(e) => setIsImportCsv(e.target.checked)}
+                      className="w-4 h-4 text-[#8f0d15] rounded border-gray-300 focus:ring-[#8f0d15]"
                     />
-                  </div>
-                )}
+                    <span className="text-sm font-semibold text-gray-800">
+                      {t.broadcast.importEmailList}
+                    </span>
+                  </label>
+
+                  {isImportCsv && (
+                    <div className="pl-7 pt-2 space-y-2">
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept=".csv,.txt,.xlsx,.docx,.doc"
+                        onChange={handleCsvFileUpload}
+                        className="hidden"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingCsv}
+                        className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all"
+                      >
+                        {uploadingCsv ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Upload className="w-3.5 h-3.5" />
+                        )}
+                        {t.broadcast.uploadCsvExcel}
+                      </button>
+
+                      <textarea
+                        rows={4}
+                        placeholder={t.broadcast.emailsPlaceholder}
+                        value={importedEmailsStr}
+                        onChange={(e) => setImportedEmailsStr(e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f0d15] font-mono"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Estimate Box */}
