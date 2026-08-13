@@ -1,13 +1,48 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStaffDetail } from "../hooks/useStaffDetail";
 import { useLanguage } from "../../../stores/languageStore";
+import { useAuthStore } from "../../../stores/authStore";
 import { formatDateTime } from "../../../lib/utils";
+import { PermissionMatrixModal } from "../components/PermissionMatrixModal";
+import { demoteStaffToUser } from "../api/permissions";
+import { ShieldCheck, UserMinus } from "lucide-react";
+import { getApiErrorMessage } from "../../../lib/axios";
 
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { staff, loading, error } = useStaffDetail(id);
+  const { staff, loading, error, refetch } = useStaffDetail(id);
   const { t } = useLanguage();
+  const currentUser = useAuthStore((state) => state.user);
+  const isPrimaryAdmin = currentUser?.roleId === 1;
+
+  const [isPermModalOpen, setIsPermModalOpen] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [demoting, setDemoting] = useState(false);
+
+  const handleDemote = async () => {
+    if (!staff || !isPrimaryAdmin) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn hạ cấp tài khoản '${staff.username}' từ Staff xuống User?`)) {
+      return;
+    }
+
+    try {
+      setDemoting(true);
+      setActionError(null);
+      setActionSuccess(null);
+
+      await demoteStaffToUser(staff.accountId);
+      setActionSuccess(`Đã hạ cấp tài khoản '${staff.username}' xuống User thành công.`);
+      if (refetch) await refetch();
+      setTimeout(() => navigate("/staffs"), 1500);
+    } catch (err) {
+      setActionError(getApiErrorMessage(err, "Không thể hạ cấp tài khoản nhân viên."));
+    } finally {
+      setDemoting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -43,8 +78,8 @@ export default function StaffDetailPage() {
 
   return (
     <div className="space-y-5">
-      {/* Breadcrumb */}
-      <div className="flex items-center justify-between">
+      {/* Breadcrumb & Actions */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <nav
           className="text-sm"
           style={{ color: "var(--color-text-secondary)" }}
@@ -60,14 +95,47 @@ export default function StaffDetailPage() {
           <span style={{ color: "var(--color-text)" }}>{t.common.details}</span>
         </nav>
 
-        <button
-          onClick={() => navigate("/staffs")}
-          className="px-6 py-2 text-sm font-semibold rounded-lg text-white transition-colors hover:opacity-90 cursor-pointer"
-          style={{ background: "var(--color-primary)" }}
-        >
-          {t.common.back}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsPermModalOpen(true)}
+            className="px-4 py-2 text-sm font-semibold rounded-lg text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center gap-2 cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Phân Quyền</span>
+          </button>
+
+          {isPrimaryAdmin && staff.roleId === 3 && (
+            <button
+              onClick={handleDemote}
+              disabled={demoting}
+              className="px-4 py-2 text-sm font-semibold rounded-lg text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <UserMinus className="w-4 h-4" />
+              <span>{demoting ? "Đang hạ cấp..." : "Hạ Cấp Xuống User"}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => navigate("/staffs")}
+            className="px-6 py-2 text-sm font-semibold rounded-lg text-white transition-colors hover:opacity-90 cursor-pointer"
+            style={{ background: "var(--color-primary)" }}
+          >
+            {t.common.back}
+          </button>
+        </div>
       </div>
+
+      {actionError && (
+        <div className="p-4 rounded-xl bg-error-50 border border-error-150 text-error-700 text-xs font-semibold">
+          {actionError}
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="p-4 rounded-xl bg-success-50 border border-success-150 text-success-700 text-xs font-semibold">
+          {actionSuccess}
+        </div>
+      )}
 
       {/* Information Section */}
       <div
@@ -283,6 +351,17 @@ export default function StaffDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Permission Matrix Modal */}
+      <PermissionMatrixModal
+        isOpen={isPermModalOpen}
+        onClose={() => setIsPermModalOpen(false)}
+        staffId={staff.accountId}
+        staffName={staff.username}
+        onSuccess={() => {
+          if (refetch) refetch();
+        }}
+      />
     </div>
   );
 }

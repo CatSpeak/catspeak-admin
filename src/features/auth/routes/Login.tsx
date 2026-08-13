@@ -44,6 +44,7 @@ export default function Login() {
         email: response.user.email,
         roleId: response.user.roleId,
         roleName: response.user.roleName || "",
+        permissions: response.user.permissions || [],
       };
 
       login(response.token, user);

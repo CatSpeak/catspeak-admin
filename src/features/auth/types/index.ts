@@ -1,5 +1,3 @@
-import type { Account } from "../../../entities/types";
-
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -9,7 +7,7 @@ export interface AuthResponse {
   token: string;
   refreshToken: string;
   expiration: string;
-  user: Account;
+  user: AuthUser;
 }
 
 export interface AuthUser {
@@ -18,6 +16,7 @@ export interface AuthUser {
   email: string;
   roleId: number;
   roleName: string;
+  permissions?: string[];
 }
 
 export interface ForgotPasswordRequest {
