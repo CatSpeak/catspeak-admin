@@ -1,93 +1,93 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react"
 import {
   FileText,
   AlertCircle,
   CheckCircle,
   Ban,
   DollarSign,
-} from "lucide-react";
+} from "lucide-react"
 import {
   getPaymentReports,
   processPaymentReport,
   type PaymentReport,
   type PaymentReportSortBy,
   type GetPaymentReportsParams,
-} from "../api/paymentReports";
-import { useToastStore } from "../../../stores/toastStore";
-import ProcessReportModal from "../components/ProcessReportModal";
-import { PageHeader } from "../../../components/ui/PageHeader";
-import Table from "../../../components/ui/table/Table";
+} from "../api/paymentReports"
+import { useToastStore } from "../../../stores/toastStore"
+import ProcessReportModal from "../components/ProcessReportModal"
+import { PageHeader } from "../../../components/ui/PageHeader"
+import Table from "../../../components/ui/table/Table"
 import {
   formatAmount,
   formatDateTime,
   formatDateToUtcStartOfDay,
   formatDateToUtcEndOfDay,
-} from "../../../lib/utils";
-import Badge from "../../../components/ui/Badge";
-import { useLanguage } from "../../../stores/languageStore";
+} from "../../../lib/utils"
+import Badge from "../../../components/ui/Badge"
+import { useLanguage } from "../../../stores/languageStore"
 
 export default function PaymentReportsPage() {
-  const { addToast } = useToastStore();
-  const { t } = useLanguage();
+  const { addToast } = useToastStore()
+  const { t } = useLanguage()
 
   // State
   const [selectedReport, setSelectedReport] = useState<PaymentReport | null>(
     null,
-  );
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [reports, setReports] = useState<PaymentReport[]>([]);
+  )
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [reports, setReports] = useState<PaymentReport[]>([])
   const [statusFilter] = useState<
     "Pending" | "Accepted" | "Denied" | "All" | null
-  >(null);
+  >(null)
 
   // Compute metrics in-memory from loaded reports
   const metrics = useMemo(() => {
-    const counts = { total: 0, pending: 0, accepted: 0, denied: 0 };
+    const counts = { total: 0, pending: 0, accepted: 0, denied: 0 }
     reports.forEach((curr) => {
-      counts.total++;
-      if (curr.status === 0) counts.pending++;
-      else if (curr.status === 1) counts.accepted++;
-      else if (curr.status === 2) counts.denied++;
-    });
-    return counts;
-  }, [reports]);
+      counts.total++
+      if (curr.status === 0) counts.pending++
+      else if (curr.status === 1) counts.accepted++
+      else if (curr.status === 2) counts.denied++
+    })
+    return counts
+  }, [reports])
 
   const fetcher = useCallback(async () => {
-    const data = await getPaymentReports(statusFilter);
-    setReports(data);
+    const data = await getPaymentReports(statusFilter)
+    setReports(data)
     return {
       data,
       total: data.length,
-    };
-  }, [statusFilter]);
+    }
+  }, [statusFilter])
 
   const handleReviewReport = (report: PaymentReport) => {
-    setSelectedReport(report);
-    setIsModalOpen(true);
-  };
+    setSelectedReport(report)
+    setIsModalOpen(true)
+  }
 
   const handleProcessReport = async (
     action: "Accept" | "Deny",
     reason: string,
   ) => {
-    if (!selectedReport) return;
-    setIsProcessing(true);
+    if (!selectedReport) return
+    setIsProcessing(true)
     try {
-      await processPaymentReport(selectedReport.reportId, { action, reason });
+      await processPaymentReport(selectedReport.reportId, { action, reason })
       addToast(
         "success",
         `Payment report #${selectedReport.reportId} has been ${action === "Accept" ? "accepted" : "denied"} successfully.`,
-      );
-      setRefreshTrigger((prev) => prev + 1);
+      )
+      setRefreshTrigger((prev) => prev + 1)
     } catch (err) {
-      console.error("Error processing report:", err);
-      throw err;
+      console.error("Error processing report:", err)
+      throw err
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
@@ -166,30 +166,29 @@ export default function PaymentReportsPage() {
         key={`${refreshTrigger}-${statusFilter}`}
         fetcher={fetcher}
         sorter={async (attribute, sortOrder) => {
-          let sortBy: PaymentReportSortBy | undefined = undefined;
-          if (attribute === "createDate") sortBy = "ReportDate";
-          else if (attribute === "amount") sortBy = "Amount";
+          let sortBy: PaymentReportSortBy | undefined = undefined
+          if (attribute === "createDate") sortBy = "ReportDate"
+          else if (attribute === "amount") sortBy = "Amount"
 
           const order =
             sortOrder === "asc"
               ? "Asc"
               : sortOrder === "desc"
                 ? "Desc"
-                : undefined;
-          const res = await getPaymentReports({ SortBy: sortBy, SortOrder: order });
+                : undefined
+          const res = await getPaymentReports({
+            SortBy: sortBy,
+            SortOrder: order,
+          })
           return {
             data: res,
             total: res.length,
-          };
+          }
         }}
         filter={async (attribute, value, toDate) => {
-          const params: GetPaymentReportsParams = {};
-          if (
-            attribute === "global" ||
-            attribute === "username" ||
-            attribute === "email"
-          ) {
-            params.UserEmail = value ? String(value) : undefined;
+          const params: GetPaymentReportsParams = {}
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
           } else if (
             attribute === "createDate" ||
             attribute === "dateReported" ||
@@ -200,11 +199,10 @@ export default function PaymentReportsPage() {
                 ? value
                 : Array.isArray(value)
                   ? value[0]
-                  : undefined;
-            const to =
-              toDate || (Array.isArray(value) ? value[1] : undefined);
-            params.FromDate = formatDateToUtcStartOfDay(from);
-            params.ToDate = formatDateToUtcEndOfDay(to);
+                  : undefined
+            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           } else if (
             attribute === "status" &&
             value !== undefined &&
@@ -212,13 +210,13 @@ export default function PaymentReportsPage() {
           ) {
             params.Statuses = Array.isArray(value)
               ? value.map(Number)
-              : [Number(value)];
+              : [Number(value)]
           }
-          const res = await getPaymentReports(params);
+          const res = await getPaymentReports(params)
           return {
             data: res,
             total: res.length,
-          };
+          }
         }}
         headers={[
           {
@@ -232,7 +230,6 @@ export default function PaymentReportsPage() {
           {
             name: t.reports.reporter,
             accessorKey: "username",
-            showFilter: true,
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-800 text-xs">
@@ -296,19 +293,19 @@ export default function PaymentReportsPage() {
             render: (p) => {
               switch (p.status) {
                 case 0:
-                  return <Badge title={t.common.pending} type="Yellow" />;
+                  return <Badge title={t.common.pending} type="Yellow" />
                 case 1:
-                  return <Badge title={t.common.approved} type="Green" />;
+                  return <Badge title={t.common.approved} type="Green" />
                 case 2:
-                  return <Badge title={t.common.rejected} type="Red" />;
+                  return <Badge title={t.common.rejected} type="Red" />
                 default:
-                  return <Badge title={p.status || "?"} type="Gray" />;
+                  return <Badge title={p.status || "?"} type="Gray" />
               }
             },
           },
         ]}
         onClickRow={(r) => {
-          handleReviewReport(r);
+          handleReviewReport(r)
         }}
       />
 
@@ -318,12 +315,12 @@ export default function PaymentReportsPage() {
         report={selectedReport}
         isOpen={isModalOpen}
         onClose={() => {
-          setIsModalOpen(false);
-          setSelectedReport(null);
+          setIsModalOpen(false)
+          setSelectedReport(null)
         }}
         onProcess={handleProcessReport}
         isProcessing={isProcessing}
       />
     </div>
-  );
+  )
 }

@@ -89,12 +89,10 @@ export default function StaffsPage() {
             name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
-            showFilter: true,
           },
           {
             name: t.users.email,
             accessorKey: "email",
-            showFilter: true,
             allowSort: true,
             render: (r) => (
               <span className="text-primary underline">{r.email}</span>
@@ -103,7 +101,6 @@ export default function StaffsPage() {
           {
             name: t.users.phone,
             accessorKey: "phoneNumber",
-            showFilter: true,
             render: (r) => (
               <span className="whitespace-nowrap">{r.phoneNumber || "—"}</span>
             ),

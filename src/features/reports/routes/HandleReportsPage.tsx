@@ -73,17 +73,8 @@ export default function HandleReportsPage() {
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetLetterReportsParams = {}
-          if (
-            attribute === "global" ||
-            attribute === "storyContent" ||
-            attribute === "Content"
-          ) {
-            params.Content = value ? String(value) : undefined
-          } else if (
-            attribute === "username" ||
-            attribute === "AuthorUsername"
-          ) {
-            params.AuthorUsername = value ? String(value) : undefined
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
           } else if (
             attribute === "createDate" ||
             attribute === "fromDate" ||
@@ -118,7 +109,6 @@ export default function HandleReportsPage() {
             name: t.news.author,
             accessorKey: "username",
             allowSort: true,
-            showFilter: true,
             render: (r) => (
               <span className="font-medium text-gray-700">
                 {r.username || "—"}
@@ -129,7 +119,6 @@ export default function HandleReportsPage() {
             name: t.news.preview,
             accessorKey: "storyContent",
             allowSort: true,
-            showFilter: true,
             render: (r) => (
               <p
                 className="text-sm text-gray-650 max-w-md truncate"
