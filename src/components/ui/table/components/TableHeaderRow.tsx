@@ -37,28 +37,38 @@ export default function TableHeaderRow<T>({
                   "px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
                 }
               >
-                <button
-                  type="button"
-                  disabled={!canSort}
-                  onClick={header.column.getToggleSortingHandler()}
-                  className={"inline-flex items-center gap-1.5 text-white!"}
-                >
-                  {meta?.icon}
-                  <span>
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </span>
-                  {canSort &&
-                    (sortDir === "asc" ? (
+                {canSort ? (
+                  <button
+                    type="button"
+                    onClick={header.column.getToggleSortingHandler()}
+                    className="inline-flex items-center gap-1.5 text-white hover:opacity-85 transition-opacity cursor-pointer"
+                  >
+                    {meta?.icon}
+                    <span>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </span>
+                    {sortDir === "asc" ? (
                       <ChevronUp size={14} />
                     ) : sortDir === "desc" ? (
                       <ChevronDown size={14} />
                     ) : (
                       <ChevronsUpDown size={14} className="opacity-50" />
-                    ))}
-                </button>
+                    )}
+                  </button>
+                ) : (
+                  <div className="inline-flex items-center gap-1.5 text-white">
+                    {meta?.icon}
+                    <span>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </span>
+                  </div>
+                )}
               </th>
             )
           })}
