@@ -7,6 +7,7 @@ import type {
 export interface GetInstructorApplicationsParams {
   page?: number;
   pageSize?: number;
+  SearchKeyword?: string;
   search?: string;
   status?: ApplicationStatus | "";
 }
@@ -14,7 +15,8 @@ export interface GetInstructorApplicationsParams {
 export const getInstructorApplications = async (
   params: GetInstructorApplicationsParams = {},
 ): Promise<GetInstructorApplicationsResponse> => {
-  const { page = 1, pageSize = 20, search, status } = params;
+  const { page = 1, pageSize = 20, search, SearchKeyword, status } = params;
+  const keyword = SearchKeyword ?? search;
   return getResponseData(
     axiosClient.get<GetInstructorApplicationsResponse>(
       "/Admin/instructor-profiles",
@@ -22,7 +24,7 @@ export const getInstructorApplications = async (
         params: {
           page,
           pageSize,
-          ...(search ? { search } : {}),
+          ...(keyword ? { SearchKeyword: keyword, search: keyword } : {}),
           ...(status ? { status } : {}),
         },
       },
