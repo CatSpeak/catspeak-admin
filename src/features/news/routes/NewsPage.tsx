@@ -24,7 +24,11 @@ import Avatar from "../../../components/ui/Avatar"
 import FlagBadge, {
   type FlagBadgeLanguage,
 } from "../../../components/ui/FlagBadge"
-import { formatDateTime } from "../../../lib/utils"
+import {
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 
 export default function NewsPage() {
   const navigate = useNavigate()
@@ -51,7 +55,12 @@ export default function NewsPage() {
       try {
         const res = await getPost({
           period: selectedPeriod,
-          ...(selectedPeriod === "custom" ? { fromDate, toDate } : {}),
+          ...(selectedPeriod === "custom"
+            ? {
+                fromDate: formatDateToUtcStartOfDay(fromDate),
+                toDate: formatDateToUtcEndOfDay(toDate),
+              }
+            : {}),
         })
         if (active) {
           setAnalyticsData(res)
@@ -158,8 +167,8 @@ export default function NewsPage() {
                   ? value[0]
                   : undefined
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = from || undefined
-            params.ToDate = to || undefined
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           }
           const res = await getPosts(params)
           return {

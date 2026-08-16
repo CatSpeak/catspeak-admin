@@ -6,7 +6,11 @@ import { getStaffs, type GetStaffsParams } from "../api/getStaffs"
 import type { UserSortBy } from "../../users/api/getUsers"
 import { useNavigate } from "react-router-dom"
 import type { Account } from "../types"
-import { formatDateTime } from "../../../lib/utils"
+import {
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 import { useLanguage } from "../../../stores/languageStore"
 
 export default function StaffsPage() {
@@ -66,8 +70,8 @@ export default function StaffsPage() {
                   ? value[0]
                   : undefined
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = from || undefined
-            params.ToDate = to || undefined
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           }
           const res = await getStaffs(params)
           return {

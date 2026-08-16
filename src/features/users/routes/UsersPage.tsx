@@ -9,7 +9,11 @@ import {
   type UserSortBy,
 } from "../api/getUsers"
 import { useNavigate } from "react-router-dom"
-import { formatDateTime } from "../../../lib/utils"
+import {
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 import type { Account } from "../types"
 import { useLanguage } from "../../../stores/languageStore"
 
@@ -78,8 +82,8 @@ export default function UsersPage() {
                   ? value[0]
                   : undefined
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = from || undefined
-            params.ToDate = to || undefined
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           }
           const res = await getAccounts(params)
           return {

@@ -1,5 +1,9 @@
 import type { FilterFn } from "@tanstack/react-table";
 import { approximateIncludes } from "./fuzzyMatch";
+import {
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../../lib/utils";
 
 /**
  * Multi-select ("checkbox list") filter. Both sides are stringified
@@ -66,14 +70,19 @@ export const dateRangeFilter: FilterFn<any> = (
   if (isNaN(rowDate)) return true;
 
   if (fromDate) {
-    const from = new Date(fromDate).getTime();
-    if (!isNaN(from) && rowDate < from) return false;
+    const isoStart = formatDateToUtcStartOfDay(fromDate);
+    if (isoStart) {
+      const from = new Date(isoStart).getTime();
+      if (!isNaN(from) && rowDate < from) return false;
+    }
   }
   if (toDate) {
-    const to = new Date(toDate);
-    to.setHours(23, 59, 59, 999);
-    const toTime = to.getTime();
-    if (!isNaN(toTime) && rowDate > toTime) return false;
+    const isoEnd = formatDateToUtcEndOfDay(toDate);
+    if (isoEnd) {
+      const toTime = new Date(isoEnd).getTime();
+      if (!isNaN(toTime) && rowDate > toTime) return false;
+    }
   }
   return true;
 };
+
