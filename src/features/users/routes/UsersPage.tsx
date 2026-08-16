@@ -122,6 +122,7 @@ export default function UsersPage() {
           {
             name: t.users.dateJoined,
             accessorKey: "createDate",
+            isDuration: true,
             showFilter: true,
             render: (p) => (
               <span className="text-sm text-gray-600">
