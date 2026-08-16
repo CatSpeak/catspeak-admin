@@ -151,7 +151,6 @@ export default function RefundsPage() {
             id: "refundId",
             name: "ID",
             accessorKey: "refundId",
-            showFilter: false,
             render: (r) => (
               <span className="font-mono font-bold text-gray-900">
                 #{r.refundId}
@@ -162,7 +161,6 @@ export default function RefundsPage() {
             id: "paymentId",
             name: "Mã Thanh Toán",
             accessorKey: "paymentId",
-            showFilter: false,
             render: (r) => (
               <span className="font-mono text-xs text-gray-600 font-medium">
                 #{r.paymentId}
@@ -173,7 +171,6 @@ export default function RefundsPage() {
             id: "username",
             name: "Học Viên",
             accessorKey: "username",
-            showFilter: true,
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-bold text-gray-800 text-xs">
@@ -191,7 +188,6 @@ export default function RefundsPage() {
             id: "amountVnd",
             name: "Số Tiền (VND)",
             accessorKey: "amountVnd",
-            showFilter: false,
             render: (r) => (
               <span className="font-extrabold text-emerald-600">
                 {formatAmount(r.amountVnd)}
@@ -203,7 +199,6 @@ export default function RefundsPage() {
             id: "bankInfo",
             name: "Thông Tin Ngân Hàng",
             accessorKey: "accountNumber",
-            showFilter: false,
             render: (r) => (
               <div className="flex flex-col text-xs">
                 <span className="font-bold text-gray-900 flex items-center gap-1 uppercase">
@@ -220,7 +215,6 @@ export default function RefundsPage() {
             id: "reason",
             name: "Lý Do Hoàn Tiền",
             accessorKey: "reason",
-            showFilter: true,
             render: (r) => (
               <p
                 className="text-xs text-gray-600 max-w-xs truncate font-medium"
@@ -275,7 +269,6 @@ export default function RefundsPage() {
             id: "actions",
             name: "Hành Động",
             allowSort: false,
-            showFilter: false,
             render: (r) => (
               <Button
                 variant={r.status === 0 ? "primary" : "outline"}
