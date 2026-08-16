@@ -1,21 +1,22 @@
-import { useState } from "react";
-import ReportsSummaryCards from "../components/ReportsSummaryCards";
-import ReportDialog from "../components/ReportDialog";
-import Table from "../../../components/ui/table/Table";
+import { useState } from "react"
+import ReportsSummaryCards from "../components/ReportsSummaryCards"
+import ReportDialog from "../components/ReportDialog"
+import Table from "../../../components/ui/table/Table"
 import {
   getLetterReports,
   type LetterReport,
   type LetterReportSortBy,
   type GetLetterReportsParams,
-} from "../api/letterReports";
-import { PageHeader } from "../../../components/ui/PageHeader";
-import { FileText } from "lucide-react";
-import { useLanguage } from "../../../stores/languageStore";
-import FlagBadge from "../../../components/ui/FlagBadge";
+} from "../api/letterReports"
+import { PageHeader } from "../../../components/ui/PageHeader"
+import { FileText } from "lucide-react"
+import { useLanguage } from "../../../stores/languageStore"
+import FlagBadge from "../../../components/ui/FlagBadge"
+import { formatDateTime } from "../../../lib/utils"
 
 export default function HandleReportsPage() {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const { t } = useLanguage();
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const { t } = useLanguage()
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -31,57 +32,74 @@ export default function HandleReportsPage() {
       <Table<LetterReport>
         fetcher={async (page = 1, pageSize = 10) => {
           try {
-            const response = await getLetterReports(page, pageSize);
+            const response = await getLetterReports(page, pageSize)
             return {
               data: response.data || [],
               total: response.total_records || 0,
-            };
+            }
           } catch (error) {
-            console.error("Error fetching letter reports:", error);
+            console.error("Error fetching letter reports:", error)
             return {
               data: [],
               total: 0,
-            };
+            }
           }
         }}
         sorter={async (attribute, sortOrder) => {
-          let sortBy: LetterReportSortBy | undefined = undefined;
-          if (attribute === "storyContent") sortBy = "Content";
-          else if (attribute === "username") sortBy = "AuthorUsername";
-          else if (attribute === "createDate") sortBy = "CreateDate";
-          else if (attribute === "status") sortBy = "Status";
+          let sortBy: LetterReportSortBy | undefined = undefined
+          if (attribute === "storyContent") sortBy = "Content"
+          else if (attribute === "username") sortBy = "AuthorUsername"
+          else if (attribute === "createDate") sortBy = "CreateDate"
+          else if (attribute === "status") sortBy = "Status"
 
           const order =
             sortOrder === "asc"
               ? "Asc"
               : sortOrder === "desc"
                 ? "Desc"
-                : undefined;
+                : undefined
           const res = await getLetterReports({
             SortBy: sortBy,
             SortOrder: order,
-          });
+          })
           return {
             data: res.data || [],
             total: res.total_records || 0,
-          };
-        }}
-        filter={async (attribute, value) => {
-          const params: GetLetterReportsParams = {};
-          if (attribute === "global" || attribute === "storyContent") {
-            params.Content = value ? String(value) : undefined;
-          } else if (attribute === "username") {
-            params.AuthorUsername = value ? String(value) : undefined;
-          } else if (attribute === "languageCommunity" && value) {
-            params.LanguageCommunities = Array.isArray(value)
-              ? value.map(String)
-              : [String(value)];
           }
-          const res = await getLetterReports(params);
+        }}
+        filter={async (attribute, value, toDate) => {
+          const params: GetLetterReportsParams = {}
+          if (
+            attribute === "global" ||
+            attribute === "storyContent" ||
+            attribute === "Content"
+          ) {
+            params.Content = value ? String(value) : undefined
+          } else if (
+            attribute === "username" ||
+            attribute === "AuthorUsername"
+          ) {
+            params.AuthorUsername = value ? String(value) : undefined
+          } else if (
+            attribute === "createDate" ||
+            attribute === "fromDate" ||
+            attribute === "CreateDate"
+          ) {
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined
+            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = from || undefined
+            params.ToDate = to || undefined
+          }
+          const res = await getLetterReports(params)
           return {
             data: res.data || [],
             total: res.total_records || 0,
-          };
+          }
         }}
         onClickRow={(r) => setSelectedId(r.storyId)}
         headers={[
@@ -95,6 +113,8 @@ export default function HandleReportsPage() {
           {
             name: t.news.author,
             accessorKey: "username",
+            allowSort: true,
+            showFilter: true,
             render: (r) => (
               <span className="font-medium text-gray-700">
                 {r.username || "—"}
@@ -104,6 +124,8 @@ export default function HandleReportsPage() {
           {
             name: t.news.preview,
             accessorKey: "storyContent",
+            allowSort: true,
+            showFilter: true,
             render: (r) => (
               <p
                 className="text-sm text-gray-650 max-w-md truncate"
@@ -118,6 +140,18 @@ export default function HandleReportsPage() {
             accessorKey: "languageCommunity",
             render: (p) => <FlagBadge languageType={p.languageCommunity} />,
           },
+          {
+            name: t.common.createdDate,
+            accessorKey: "createDate",
+            allowSort: true,
+            isDuration: true,
+            showFilter: true,
+            render: (p) => (
+              <span className="text-sm text-gray-600 whitespace-nowrap">
+                {formatDateTime(p.createDate)}
+              </span>
+            ),
+          },
         ]}
       />
 
@@ -126,11 +160,11 @@ export default function HandleReportsPage() {
           id={selectedId}
           onClose={() => setSelectedId(null)}
           onDeleteSuccess={() => {
-            setSelectedId(null);
-            window.location.reload();
+            setSelectedId(null)
+            window.location.reload()
           }}
         />
       )}
     </div>
-  );
+  )
 }

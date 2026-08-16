@@ -164,7 +164,6 @@ export default function PaymentReportsPage() {
           let sortBy: PaymentReportSortBy | undefined = undefined;
           if (attribute === "createDate") sortBy = "ReportDate";
           else if (attribute === "amount") sortBy = "Amount";
-          else if (attribute === "status") sortBy = "Status";
 
           const order =
             sortOrder === "asc"
@@ -174,7 +173,7 @@ export default function PaymentReportsPage() {
                 : undefined;
           return await getPaymentReports({ SortBy: sortBy, SortOrder: order });
         }}
-        filter={async (attribute, value) => {
+        filter={async (attribute, value, toDate) => {
           const params: GetPaymentReportsParams = {};
           if (
             attribute === "global" ||
@@ -183,10 +182,20 @@ export default function PaymentReportsPage() {
           ) {
             params.UserEmail = value ? String(value) : undefined;
           } else if (
-            attribute === "userExplanation" ||
-            attribute === "reason"
+            attribute === "createDate" ||
+            attribute === "dateReported" ||
+            attribute === "fromDate"
           ) {
-            params.Reason = value ? String(value) : undefined;
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined;
+            const to =
+              toDate || (Array.isArray(value) ? value[1] : undefined);
+            params.FromDate = from || undefined;
+            params.ToDate = to || undefined;
           } else if (
             attribute === "status" &&
             value !== undefined &&
@@ -210,6 +219,7 @@ export default function PaymentReportsPage() {
           {
             name: t.reports.reporter,
             accessorKey: "username",
+            showFilter: true,
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-800 text-xs">
@@ -226,6 +236,7 @@ export default function PaymentReportsPage() {
           {
             name: t.reports.amount,
             accessorKey: "amount",
+            allowSort: true,
             render: (r) => (
               <span className="font-bold text-gray-950">
                 {formatAmount(r.amount)}
@@ -249,6 +260,9 @@ export default function PaymentReportsPage() {
           {
             name: t.reports.dateReported,
             accessorKey: "createDate",
+            allowSort: true,
+            isDuration: true,
+            showFilter: true,
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium">
                 {formatDateTime(r.createDate)}
@@ -259,6 +273,7 @@ export default function PaymentReportsPage() {
           {
             name: t.common.status,
             accessorKey: "status",
+            showFilter: true,
             values: [0, 1, 2],
             valueLabels: [
               t.common.pending,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 import {
   Plus,
   Newspaper,
@@ -7,78 +7,74 @@ import {
   Heart,
   MessageSquare,
   Share2,
-} from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import Button from "../../../components/ui/Button";
-import { PostAnalyticsCards } from "../components";
-import type { Post } from "../types";
-import { getPost } from "../../analytics/api/getAnalytics";
-import type { AnalyticsPeriod, PostResponse } from "../../analytics/types";
-import { getApiErrorMessage } from "../../../lib/axios";
-import { PageHeader } from "../../../components/ui/PageHeader";
-import Table from "../../../components/ui/table/Table";
-import {
-  getPosts,
-  type PostSortBy,
-  type GetPostsParams,
-} from "../api/getPosts";
-import Badge from "../../../components/ui/Badge";
-import { useLanguage } from "../../../stores/languageStore";
-import Avatar from "../../../components/ui/Avatar";
+} from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import Button from "../../../components/ui/Button"
+import { PostAnalyticsCards } from "../components"
+import type { Post } from "../types"
+import { getPost } from "../../analytics/api/getAnalytics"
+import type { AnalyticsPeriod, PostResponse } from "../../analytics/types"
+import { getApiErrorMessage } from "../../../lib/axios"
+import { PageHeader } from "../../../components/ui/PageHeader"
+import Table from "../../../components/ui/table/Table"
+import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts"
+import Badge from "../../../components/ui/Badge"
+import { useLanguage } from "../../../stores/languageStore"
+import Avatar from "../../../components/ui/Avatar"
 import FlagBadge, {
   type FlagBadgeLanguage,
-} from "../../../components/ui/FlagBadge";
-import { formatDateTime } from "../../../lib/utils";
+} from "../../../components/ui/FlagBadge"
+import { formatDateTime } from "../../../lib/utils"
 
 export default function NewsPage() {
-  const navigate = useNavigate();
-  const { t } = useLanguage();
+  const navigate = useNavigate()
+  const { t } = useLanguage()
 
   // Post Analytics States
   const [selectedPeriod, setSelectedPeriod] =
-    useState<AnalyticsPeriod>("last7days");
-  const [fromDate, setFromDate] = useState<string>("");
-  const [toDate, setToDate] = useState<string>("");
-  const [analyticsData, setAnalyticsData] = useState<PostResponse | null>(null);
-  const [analyticsLoading, setAnalyticsLoading] = useState<boolean>(false);
-  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+    useState<AnalyticsPeriod>("last7days")
+  const [fromDate, setFromDate] = useState<string>("")
+  const [toDate, setToDate] = useState<string>("")
+  const [analyticsData, setAnalyticsData] = useState<PostResponse | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState<boolean>(false)
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null)
 
   useEffect(() => {
     if (selectedPeriod === "custom" && (!fromDate || !toDate)) {
-      return;
+      return
     }
 
-    let active = true;
+    let active = true
     const fetchAnalytics = async () => {
-      setAnalyticsLoading(true);
-      setAnalyticsError(null);
+      setAnalyticsLoading(true)
+      setAnalyticsError(null)
       try {
         const res = await getPost({
           period: selectedPeriod,
           ...(selectedPeriod === "custom" ? { fromDate, toDate } : {}),
-        });
+        })
         if (active) {
-          setAnalyticsData(res);
+          setAnalyticsData(res)
         }
       } catch (err: unknown) {
         if (active) {
           setAnalyticsError(
             getApiErrorMessage(err, "Failed to fetch post analytics."),
-          );
+          )
         }
       } finally {
         if (active) {
-          setAnalyticsLoading(false);
+          setAnalyticsLoading(false)
         }
       }
-    };
+    }
 
-    fetchAnalytics();
+    fetchAnalytics()
 
     return () => {
-      active = false;
-    };
-  }, [selectedPeriod, fromDate, toDate]);
+      active = false
+    }
+  }, [selectedPeriod, fromDate, toDate])
 
   return (
     <div className="space-y-6">
@@ -109,61 +105,67 @@ export default function NewsPage() {
         toDate={toDate}
         onPeriodChange={setSelectedPeriod}
         onDateRangeChange={(from, to) => {
-          setFromDate(from);
-          setToDate(to);
+          setFromDate(from)
+          setToDate(to)
         }}
       />
 
       <Table<Post>
         fetcher={async (page, pageSize) => {
-          const data = await getPosts(page, pageSize);
+          const data = await getPosts(page, pageSize)
           return {
             data: data.data,
             total: data.total_records,
-          };
+          }
         }}
         sorter={async (attribute, sortOrder) => {
-          let sortBy: PostSortBy | undefined = undefined;
-          if (attribute === "createDate" || attribute === "lastEdited") {
-            sortBy = "CreateDate";
-          } else if (
-            attribute === "content" ||
-            attribute === "postId" ||
-            attribute === "authorName"
-          ) {
-            sortBy = "Title";
+          let sortBy: PostSortBy | undefined = undefined
+          if (attribute === "createDate") {
+            sortBy = "CreateDate"
+          } else {
+            sortBy = "Title"
           }
           const order =
             sortOrder === "asc"
               ? "Asc"
               : sortOrder === "desc"
                 ? "Desc"
-                : undefined;
-          const res = await getPosts({ SortBy: sortBy, SortOrder: order });
+                : undefined
+          const res = await getPosts({ SortBy: sortBy, SortOrder: order })
           return {
             data: res.data,
             total: res.total_records,
-          };
+          }
         }}
-        filter={async (attribute, value) => {
-          const params: GetPostsParams = {};
+        filter={async (attribute, value, toDate) => {
+          const params: GetPostsParams = {}
           if (
             attribute === "global" ||
             attribute === "content" ||
             attribute === "postId" ||
             attribute === "authorName"
           ) {
-            params.Title = value ? String(value) : undefined;
+            params.Title = value ? String(value) : undefined
           } else if (attribute === "languageCommunity" && value) {
             params.LanguageCommunities = Array.isArray(value)
               ? value
-              : [String(value)];
+              : [String(value)]
+          } else if (attribute === "createDate" || attribute === "fromDate") {
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined
+            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = from || undefined
+            params.ToDate = to || undefined
           }
-          const res = await getPosts(params);
+          const res = await getPosts(params)
           return {
             data: res.data,
             total: res.total_records,
-          };
+          }
         }}
         onClickRow={(p) => navigate(`/news/${p.slug}`)}
         headers={[
@@ -174,6 +176,7 @@ export default function NewsPage() {
           {
             name: t.news.author,
             accessorKey: "authorName",
+            allowSort: true,
             render: (p) => (
               <div className="flex items-center gap-2">
                 <Avatar name={p.authorName} url={p.avatarUrl} size="xs" />
@@ -194,7 +197,7 @@ export default function NewsPage() {
                 >
                   {p.content ?? ""}
                 </span>
-              );
+              )
             },
           },
           {
@@ -215,11 +218,11 @@ export default function NewsPage() {
             render: (p) => {
               switch (p.privacy) {
                 case "Public":
-                  return <Badge title={t.news.publicLabel} type="Green" />;
+                  return <Badge title={t.news.publicLabel} type="Green" />
                 case "Private":
-                  return <Badge title={t.news.privateLabel} type="Blue" />;
+                  return <Badge title={t.news.privateLabel} type="Blue" />
                 default:
-                  return <Badge title={p.privacy || "?"} type="Gray" />;
+                  return <Badge title={p.privacy || "?"} type="Gray" />
               }
             },
           },
@@ -237,6 +240,7 @@ export default function NewsPage() {
           {
             name: t.news.views,
             accessorKey: "viewCount",
+            // allowSort: true,
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
                 <Eye size={14} className="text-gray-400" />
@@ -247,6 +251,7 @@ export default function NewsPage() {
           {
             name: t.news.reactions,
             accessorKey: "totalReactions",
+            // allowSort: true,
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
                 <Heart size={14} className="text-gray-400" />
@@ -257,6 +262,7 @@ export default function NewsPage() {
           {
             name: t.news.comments,
             accessorKey: "totalComments",
+            // allowSort: true,
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
                 <MessageSquare size={14} className="text-gray-400" />
@@ -267,6 +273,7 @@ export default function NewsPage() {
           {
             name: t.news.shares,
             accessorKey: "shareCount",
+            // allowSort: true,
             render: (p) => (
               <div className="flex items-center justify-center gap-1.5 text-gray-700">
                 <Share2 size={14} className="text-gray-400" />
@@ -277,6 +284,8 @@ export default function NewsPage() {
           {
             name: t.common.createdDate,
             accessorKey: "createDate",
+            isDuration: true,
+            showFilter: true,
             render: (p) => (
               <span className="whitespace-nowrap">
                 {formatDateTime(p.createDate)}
@@ -333,5 +342,5 @@ export default function NewsPage() {
         isDeleting={isDeleting}
       /> */}
     </div>
-  );
+  )
 }

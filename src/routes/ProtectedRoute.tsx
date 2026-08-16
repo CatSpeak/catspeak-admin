@@ -23,3 +23,17 @@ export const ProtectedRoute = () => {
 
   return <Outlet />;
 };
+
+export const PermissionGuardRoute = ({
+  permission,
+  children,
+}: {
+  permission: string;
+  children: React.ReactElement;
+}) => {
+  const { user } = useAuthStore();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.roleId === 1) return children;
+  if (user.permissions?.includes(permission)) return children;
+  return <Navigate to="/" replace />;
+};

@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import AppLayout from "../components/layout/AppLayout";
-import { ProtectedRoute } from "./ProtectedRoute";
+import { ProtectedRoute, PermissionGuardRoute } from "./ProtectedRoute";
 import { PublicRoute } from "./PublicRoute";
 import { ComingSoonPage } from "./ComingSoonPage";
 import PageLoader from "./PageLoader";
@@ -38,6 +38,12 @@ const wrap = (Component: React.ComponentType) => (
   </Suspense>
 );
 
+const guard = (Component: React.ComponentType, perm: string) => (
+  <PermissionGuardRoute permission={perm}>
+    {wrap(Component)}
+  </PermissionGuardRoute>
+);
+
 const secondaryRoutes = [
   { path: "settings", title: "Settings - Coming Soon" },
 ] as const;
@@ -62,28 +68,28 @@ export const router = createBrowserRouter([
         errorElement: <RouteErrorElement />,
         children: [
           { index: true, element: wrap(Dashboard) },
-          { path: "users", element: wrap(UsersPage) },
-          { path: "users/:id", element: wrap(UserDetailPage) },
-          { path: "staffs", element: wrap(StaffsPage) },
-          { path: "staffs/:id", element: wrap(StaffDetailPage) },
-          { path: "reports", element: wrap(HandleReportsPage) },
-          { path: "payments", element: wrap(PaymentReportsPage) },
-          { path: "refunds", element: wrap(RefundsPage) },
+          { path: "users", element: guard(UsersPage, "users") },
+          { path: "users/:id", element: guard(UserDetailPage, "users") },
+          { path: "staffs", element: guard(StaffsPage, "staffs") },
+          { path: "staffs/:id", element: guard(StaffDetailPage, "staffs") },
+          { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
+          { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
+          { path: "refunds", element: guard(RefundsPage, "payment_reports") },
           { path: "live-chat", element: wrap(LiveChatPage) },
-          { path: "news", element: wrap(NewsPage) },
-          { path: "calendar", element: wrap(CalendarPage) },
-          { path: "room", element: wrap(RoomPage) },
-          { path: "classes", element: wrap(ClassesPage) },
-          { path: "analytics", element: wrap(AnalyticsPage) },
-          { path: "plans", element: wrap(PlansPage) },
-          { path: "plans/create", element: wrap(PlanDetailsPage) },
-          { path: "plans/:id", element: wrap(PlanDetailsPage) },
-          { path: "news/create", element: wrap(PostCreatePage) },
-          { path: "news/:slug", element: wrap(PostDetailPage) },
-          { path: "instructor-applications", element: wrap(InstructorApplicationsPage) },
-          { path: "instructor-applications/:id", element: wrap(InstructorApplicationDetailPage) },
-          { path: "reels", element: wrap(ReelsPage) },
-          { path: "broadcast-mail", element: wrap(BroadcastMailPage) },
+          { path: "news", element: guard(NewsPage, "news") },
+          { path: "calendar", element: guard(CalendarPage, "calendar") },
+          { path: "room", element: guard(RoomPage, "room") },
+          { path: "classes", element: guard(ClassesPage, "classes") },
+          { path: "analytics", element: guard(AnalyticsPage, "reports") },
+          { path: "plans", element: guard(PlansPage, "plans") },
+          { path: "plans/create", element: guard(PlanDetailsPage, "plans") },
+          { path: "plans/:id", element: guard(PlanDetailsPage, "plans") },
+          { path: "news/create", element: guard(PostCreatePage, "news") },
+          { path: "news/:slug", element: guard(PostDetailPage, "news") },
+          { path: "instructor-applications", element: guard(InstructorApplicationsPage, "instructor_applications") },
+          { path: "instructor-applications/:id", element: guard(InstructorApplicationDetailPage, "instructor_applications") },
+          { path: "reels", element: guard(ReelsPage, "reels") },
+          { path: "broadcast-mail", element: guard(BroadcastMailPage, "broadcast_mail") },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
             element: <ComingSoonPage title={route.title} />,

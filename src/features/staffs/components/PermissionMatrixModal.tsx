@@ -8,6 +8,7 @@ import {
 } from "../api/permissions";
 import { useAuthStore } from "../../../stores/authStore";
 import { getApiErrorMessage } from "../../../lib/axios";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
 
 interface PermissionMatrixModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -84,7 +86,7 @@ export const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({
     }
   };
 
-  const handleSave = async () => {
+  const executeSavePermissions = async () => {
     if (!isPrimaryAdmin) return;
 
     try {
@@ -238,20 +240,42 @@ export const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({
           </button>
 
           {isPrimaryAdmin && (
-            <button
-              type="button"
-              onClick={handleSave}
-              disabled={saving || loading}
-              className="px-6 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer flex items-center gap-2"
-            >
-              {saving && (
-                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-              )}
-              <span>Lưu Phân Quyền</span>
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setShowSaveConfirm(true)}
+                disabled={saving || loading}
+                className="px-6 py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-sm hover:shadow disabled:opacity-50 cursor-pointer flex items-center gap-2"
+              >
+                {saving && (
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                )}
+                <span>Lưu Phân Quyền</span>
+              </button>
+
+              <ConfirmModal
+                isOpen={showSaveConfirm}
+                onClose={() => setShowSaveConfirm(false)}
+                onConfirm={() => {
+                  setShowSaveConfirm(false);
+                  executeSavePermissions();
+                }}
+                title="Xác nhận cập nhật phân quyền"
+                description={
+                  <span>
+                    Bạn có chắc chắn muốn cập nhật phân quyền cho Staff <strong className="text-gray-900">'{staffName}'</strong>?
+                    <br />
+                    Các thay đổi sẽ có hiệu lực ngay lập tức.
+                  </span>
+                }
+                confirmText="Cập nhật quyền"
+                variant="primary"
+                isLoading={saving}
+              />
+            </>
           )}
         </div>
       </div>

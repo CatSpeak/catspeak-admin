@@ -9,6 +9,8 @@ import { demoteStaffToUser } from "../api/permissions";
 import { ShieldCheck, UserMinus } from "lucide-react";
 import { getApiErrorMessage } from "../../../lib/axios";
 
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
+
 export default function StaffDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -21,13 +23,10 @@ export default function StaffDetailPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
   const [demoting, setDemoting] = useState(false);
+  const [showDemoteConfirm, setShowDemoteConfirm] = useState(false);
 
-  const handleDemote = async () => {
+  const executeDemote = async () => {
     if (!staff || !isPrimaryAdmin) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn hạ cấp tài khoản '${staff.username}' từ Staff xuống User?`)) {
-      return;
-    }
-
     try {
       setDemoting(true);
       setActionError(null);
@@ -105,14 +104,36 @@ export default function StaffDetailPage() {
           </button>
 
           {isPrimaryAdmin && staff.roleId === 3 && (
-            <button
-              onClick={handleDemote}
-              disabled={demoting}
-              className="px-4 py-2 text-sm font-semibold rounded-lg text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <UserMinus className="w-4 h-4" />
-              <span>{demoting ? "Đang hạ cấp..." : "Hạ Cấp Xuống User"}</span>
-            </button>
+            <>
+              <button
+                onClick={() => setShowDemoteConfirm(true)}
+                disabled={demoting}
+                className="px-4 py-2 text-sm font-semibold rounded-lg text-rose-600 border border-rose-200 bg-rose-50 hover:bg-rose-100 transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                <UserMinus className="w-4 h-4" />
+                <span>{demoting ? "Đang hạ cấp..." : "Hạ Cấp Xuống User"}</span>
+              </button>
+
+              <ConfirmModal
+                isOpen={showDemoteConfirm}
+                onClose={() => setShowDemoteConfirm(false)}
+                onConfirm={() => {
+                  setShowDemoteConfirm(false);
+                  executeDemote();
+                }}
+                title="Xác nhận hạ cấp người dùng"
+                description={
+                  <span>
+                    Bạn có chắc chắn muốn hạ cấp tài khoản <strong className="text-gray-900">'{staff.username}'</strong> từ <strong>Staff</strong> xuống <strong>User</strong>?
+                    <br />
+                    Tài khoản này sẽ lập tức mất toàn bộ quyền truy cập vào trang Admin và bị thu hồi các phân quyền Staff hiện có.
+                  </span>
+                }
+                confirmText="Hạ cấp xuống User"
+                variant="danger"
+                isLoading={demoting}
+              />
+            </>
           )}
 
           <button
