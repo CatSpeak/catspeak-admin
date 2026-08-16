@@ -12,7 +12,12 @@ import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import Badge from "../../../components/ui/Badge"
 import Button from "../../../components/ui/Button"
-import { formatAmount, formatDateTime } from "../../../lib/utils"
+import {
+  formatAmount,
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 import { useToastStore } from "../../../stores/toastStore"
 import { useLanguage } from "../../../stores/languageStore"
 
@@ -119,8 +124,8 @@ export default function RefundsPage() {
                   ? value[0]
                   : undefined
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = from || undefined
-            params.ToDate = to || undefined
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           } else if (
             attribute === "status" &&
             value !== undefined &&

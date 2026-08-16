@@ -2,6 +2,10 @@ import React from "react";
 import { Search, X, Filter, ChevronDown, ChevronUp, User } from "lucide-react";
 import type { RoomFilters as Filters } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
+import {
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils";
 
 interface RoomFiltersProps {
   filters: Filters;
@@ -160,7 +164,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
                 type="date"
                 value={filters.createdFrom ? filters.createdFrom.substring(0, 10) : ""}
                 onChange={(e) =>
-                  onUpdate("createdFrom", e.target.value ? new Date(e.target.value).toISOString() : "")
+                  onUpdate("createdFrom", formatDateToUtcStartOfDay(e.target.value) || "")
                 }
                 className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
               />
@@ -171,7 +175,7 @@ const RoomFiltersComponent: React.FC<RoomFiltersProps> = ({
                 type="date"
                 value={filters.createdTo ? filters.createdTo.substring(0, 10) : ""}
                 onChange={(e) =>
-                  onUpdate("createdTo", e.target.value ? new Date(e.target.value).toISOString() : "")
+                  onUpdate("createdTo", formatDateToUtcEndOfDay(e.target.value) || "")
                 }
                 className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
               />

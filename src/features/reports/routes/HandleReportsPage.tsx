@@ -12,7 +12,11 @@ import { PageHeader } from "../../../components/ui/PageHeader"
 import { FileText } from "lucide-react"
 import { useLanguage } from "../../../stores/languageStore"
 import FlagBadge from "../../../components/ui/FlagBadge"
-import { formatDateTime } from "../../../lib/utils"
+import {
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 
 export default function HandleReportsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -92,8 +96,8 @@ export default function HandleReportsPage() {
                   ? value[0]
                   : undefined
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = from || undefined
-            params.ToDate = to || undefined
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           }
           const res = await getLetterReports(params)
           return {

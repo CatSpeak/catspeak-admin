@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Check, Calendar, X } from "lucide-react";
 import type { Column as TanstackColumn } from "@tanstack/react-table";
 import { useLanguage } from "../../../../stores/languageStore";
+import {
+  formatDateToDisplay,
+  parseDateToIsoDate,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../../lib/utils";
 import "../types"; // ensure TanStack ColumnMeta module augmentation is loaded
 
 export interface ColumnFilterControlProps<T> {
@@ -94,6 +100,102 @@ export function ColumnTextFilterInput<T>({
   );
 }
 
+function DateDisplayPicker({
+  value,
+  onChange,
+  placeholder = "dd/mm/yyyy",
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+}) {
+  const [localText, setLocalText] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+  const hiddenDateInputRef = useRef<HTMLInputElement>(null);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setLocalText(value);
+  }
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalText(val);
+    // If complete date dd/mm/yyyy (10 chars e.g. 16/08/2026 or 16-08-2026)
+    if (/^\d{2}[\/\-]\d{2}[\/\-]\d{4}$/.test(val.trim())) {
+      onChange(val.trim());
+    }
+  };
+
+  const handleBlur = () => {
+    if (localText !== value) {
+      onChange(localText.trim());
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      onChange(localText.trim());
+    }
+  };
+
+  const handleNativePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isoDate = e.target.value; // YYYY-MM-DD
+    if (isoDate) {
+      const display = formatDateToDisplay(isoDate);
+      setLocalText(display);
+      onChange(display);
+    } else {
+      setLocalText("");
+      onChange("");
+    }
+  };
+
+  const openNativePicker = () => {
+    if (hiddenDateInputRef.current) {
+      if (typeof hiddenDateInputRef.current.showPicker === "function") {
+        hiddenDateInputRef.current.showPicker();
+      } else {
+        hiddenDateInputRef.current.click();
+      }
+    }
+  };
+
+  const isoValue = parseDateToIsoDate(localText) || "";
+
+  return (
+    <div className="relative flex items-center gap-1">
+      <input
+        type="text"
+        value={localText}
+        onChange={handleTextChange}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        maxLength={10}
+        className="w-24 text-xs bg-transparent border-none font-medium focus:outline-none text-gray-700 placeholder-gray-400 cursor-text"
+      />
+      <button
+        type="button"
+        onClick={openNativePicker}
+        className="text-gray-400 hover:text-primary transition-colors cursor-pointer p-0.5"
+        title="Chọn ngày từ lịch"
+      >
+        <Calendar className="w-3.5 h-3.5 shrink-0" />
+      </button>
+      <input
+        type="date"
+        ref={hiddenDateInputRef}
+        value={isoValue}
+        onChange={handleNativePickerChange}
+        className="sr-only opacity-0 pointer-events-none absolute w-0 h-0"
+        tabIndex={-1}
+      />
+    </div>
+  );
+}
+
 export function ColumnDurationFilterInput<T>({
   column,
   label,
@@ -112,12 +214,15 @@ export function ColumnDurationFilterInput<T>({
     | { fromDate?: string; toDate?: string }
     | undefined;
 
-  const initialFrom = Array.isArray(filterValue)
+  const rawFrom = Array.isArray(filterValue)
     ? (filterValue[0] ?? "")
     : (filterValue?.fromDate ?? "");
-  const initialTo = Array.isArray(filterValue)
+  const rawTo = Array.isArray(filterValue)
     ? (filterValue[1] ?? "")
     : (filterValue?.toDate ?? "");
+
+  const initialFrom = formatDateToDisplay(rawFrom);
+  const initialTo = formatDateToDisplay(rawTo);
 
   const [fromDate, setFromDate] = useState(initialFrom);
   const [toDate, setToDate] = useState(initialTo);
@@ -130,33 +235,39 @@ export function ColumnDurationFilterInput<T>({
   }
 
   const applyDurationFilter = (newFrom: string, newTo: string) => {
-    const hasFrom = newFrom.trim().length > 0;
-    const hasTo = newTo.trim().length > 0;
-    const val = hasFrom || hasTo ? [newFrom.trim(), newTo.trim()] : undefined;
+    const trimmedFrom = newFrom.trim();
+    const trimmedTo = newTo.trim();
+    const hasFrom = trimmedFrom.length > 0;
+    const hasTo = trimmedTo.length > 0;
+    const val = hasFrom || hasTo ? [trimmedFrom, trimmedTo] : undefined;
 
     const currentVal = column.getFilterValue() as
       | [string, string]
       | { fromDate?: string; toDate?: string }
       | undefined;
-    const currentFrom = Array.isArray(currentVal)
-      ? (currentVal[0] ?? "")
-      : (currentVal?.fromDate ?? "");
-    const currentTo = Array.isArray(currentVal)
-      ? (currentVal[1] ?? "")
-      : (currentVal?.toDate ?? "");
+    const currentFrom = formatDateToDisplay(
+      Array.isArray(currentVal)
+        ? (currentVal[0] ?? "")
+        : (currentVal?.fromDate ?? ""),
+    );
+    const currentTo = formatDateToDisplay(
+      Array.isArray(currentVal)
+        ? (currentVal[1] ?? "")
+        : (currentVal?.toDate ?? ""),
+    );
 
-    if (
-      newFrom.trim() === currentFrom.trim() &&
-      newTo.trim() === currentTo.trim()
-    ) {
+    if (trimmedFrom === currentFrom && trimmedTo === currentTo) {
       return;
     }
 
     column.setFilterValue(val);
+    const utcFrom = hasFrom ? formatDateToUtcStartOfDay(trimmedFrom) : undefined;
+    const utcTo = hasTo ? formatDateToUtcEndOfDay(trimmedTo) : undefined;
+
     onFilterSubmit?.(
       column.id,
-      hasFrom ? newFrom.trim() : undefined,
-      hasTo ? newTo.trim() : undefined,
+      utcFrom,
+      utcTo,
     );
   };
 
@@ -181,22 +292,19 @@ export function ColumnDurationFilterInput<T>({
       <label className="text-xs font-semibold text-gray-500">{label}</label>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all shadow-sm">
-          <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
           <span className="text-gray-400 font-normal">Từ:</span>
-          <input
-            type="date"
+          <DateDisplayPicker
             value={fromDate}
-            onChange={(e) => handleFromChange(e.target.value)}
-            className="text-xs bg-transparent border-none font-medium focus:outline-none cursor-pointer text-gray-700"
+            onChange={handleFromChange}
+            placeholder="dd/mm/yyyy"
           />
         </div>
         <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all shadow-sm">
           <span className="text-gray-400 font-normal">Đến:</span>
-          <input
-            type="date"
+          <DateDisplayPicker
             value={toDate}
-            onChange={(e) => handleToChange(e.target.value)}
-            className="text-xs bg-transparent border-none font-medium focus:outline-none cursor-pointer text-gray-700"
+            onChange={handleToChange}
+            placeholder="dd/mm/yyyy"
           />
         </div>
         {(fromDate || toDate) && (
@@ -213,6 +321,7 @@ export function ColumnDurationFilterInput<T>({
     </div>
   );
 }
+
 
 export function ColumnMultiSelectFilterInput<T>({
   column,

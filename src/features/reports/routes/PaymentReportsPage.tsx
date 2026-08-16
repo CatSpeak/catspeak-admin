@@ -17,7 +17,12 @@ import { useToastStore } from "../../../stores/toastStore";
 import ProcessReportModal from "../components/ProcessReportModal";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Table from "../../../components/ui/table/Table";
-import { formatAmount, formatDateTime } from "../../../lib/utils";
+import {
+  formatAmount,
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils";
 import Badge from "../../../components/ui/Badge";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -198,8 +203,8 @@ export default function PaymentReportsPage() {
                   : undefined;
             const to =
               toDate || (Array.isArray(value) ? value[1] : undefined);
-            params.FromDate = from || undefined;
-            params.ToDate = to || undefined;
+            params.FromDate = formatDateToUtcStartOfDay(from);
+            params.ToDate = formatDateToUtcEndOfDay(to);
           } else if (
             attribute === "status" &&
             value !== undefined &&
