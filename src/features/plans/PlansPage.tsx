@@ -1,22 +1,22 @@
-import React from "react";
-import { FileText, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
-import PlanSummaryCards from "./components/PlanSummaryCards";
-import { usePlans } from "./hooks/usePlans";
-import { PageHeader } from "../../components/ui/PageHeader";
-import type { Plan } from "../../entities/types";
-import Table from "../../components/ui/table/Table";
-import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans";
-import { formatDateTime } from "../../lib/utils";
-import PlanStatusBadge from "./components/PlanStatusBadge";
-import { useLanguage } from "../../stores/languageStore";
-import Avatar from "../../components/ui/Avatar";
+import React from "react"
+import { FileText, Plus } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import Button from "../../components/ui/Button"
+import PlanSummaryCards from "./components/PlanSummaryCards"
+import { usePlans } from "./hooks/usePlans"
+import { PageHeader } from "../../components/ui/PageHeader"
+import type { Plan } from "../../entities/types"
+import Table from "../../components/ui/table/Table"
+import { getPlans, type PlanSortBy, type GetPlansParams } from "./api/getPlans"
+import { formatDateTime } from "../../lib/utils"
+import PlanStatusBadge from "./components/PlanStatusBadge"
+import { useLanguage } from "../../stores/languageStore"
+import Avatar from "../../components/ui/Avatar"
 
 const PlansPage: React.FC = () => {
-  const navigate = useNavigate();
-  const { plans, stats } = usePlans();
-  const { t } = useLanguage();
+  const navigate = useNavigate()
+  const { plans, stats } = usePlans()
+  const { t } = useLanguage()
 
   return (
     <div className="space-y-6">
@@ -45,47 +45,50 @@ const PlansPage: React.FC = () => {
           return {
             data: plans?.data || [],
             total: plans?.total_records || 0,
-          };
+          }
         }}
         sorter={async (attribute, sortOrder) => {
-          let sortBy: PlanSortBy | undefined = undefined;
-          if (attribute === "planName") sortBy = "PlanName";
-          else if (attribute === "priceVnd") sortBy = "Price";
+          let sortBy: PlanSortBy | undefined = undefined
+          if (attribute === "planName") sortBy = "PlanName"
+          else if (attribute === "priceVnd") sortBy = "Price"
           else if (attribute === "lastEdited" || attribute === "createDate")
-            sortBy = "CreateDate";
+            sortBy = "CreateDate"
 
           const order =
             sortOrder === "asc"
               ? "Asc"
               : sortOrder === "desc"
                 ? "Desc"
-                : undefined;
-          const res = await getPlans({ SortBy: sortBy, SortOrder: order });
+                : undefined
+          const res = await getPlans({ SortBy: sortBy, SortOrder: order })
           return {
             data: res.data,
             total: res.total_records,
-          };
+          }
         }}
         filter={async (attribute, value) => {
-          const params: GetPlansParams = {};
-          if (attribute === "global" || attribute === "planName") {
-            params.PlanName = value ? String(value) : undefined;
+          const params: GetPlansParams = {}
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
+          } else if (attribute === "planName") {
+            params.PlanName = value ? String(value) : undefined
           } else if (attribute === "packageStatus" && value) {
             params.PackageStatuses = Array.isArray(value)
               ? value.map(String)
-              : [String(value)];
+              : [String(value)]
           }
-          const res = await getPlans(params);
+          const res = await getPlans(params)
           return {
             data: res.data,
             total: res.total_records,
-          };
+          }
         }}
         onClickRow={(p: Plan) => navigate(`/plans/${p.planId}`)}
         headers={[
           {
             name: t.plans.planName,
             accessorKey: "planName",
+            allowSort: true,
             render: (p) => (
               <div className="flex items-center gap-3">
                 <Avatar name={p.planName} url={p.iconUrl} size="md" />
@@ -104,6 +107,7 @@ const PlansPage: React.FC = () => {
           },
           {
             name: t.plans.price,
+            allowSort: true,
             accessorKey: "priceVnd",
             render: (p) => (
               <div>
@@ -119,14 +123,21 @@ const PlansPage: React.FC = () => {
           {
             name: t.common.status,
             accessorKey: "packageStatus",
-            values: ["Public", "Published", "Draft", "Archived"],
+            showFilter: true,
+            values: [
+              { value: "Public", label: t.plans.public },
+              { value: "Published", label: t.plans.published },
+              { value: "Draft", label: t.plans.draft },
+              { value: "Archived", label: t.plans.archived },
+              { value: "Hidden", label: t.plans.hidden },
+            ],
             render: (p) => <PlanStatusBadge status={p.packageStatus} />,
           },
           {
             name: t.plans.features,
             accessorKey: "subscriptionFeatures",
             render: (p) => {
-              const count = p.subscriptionFeatures?.length || 0;
+              const count = p.subscriptionFeatures?.length || 0
               return (
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-900">
@@ -136,7 +147,7 @@ const PlansPage: React.FC = () => {
                     {t.plans.features.toLowerCase()}
                   </span>
                 </div>
-              );
+              )
             },
           },
           {
@@ -151,7 +162,7 @@ const PlansPage: React.FC = () => {
         ]}
       />
     </div>
-  );
-};
+  )
+}
 
-export default PlansPage;
+export default PlansPage

@@ -1,21 +1,25 @@
-import Badge from "../../../components/ui/Badge";
-import { UsersRound } from "lucide-react";
+import Badge from "../../../components/ui/Badge"
+import { UsersRound } from "lucide-react"
 // import Button from "../../../components/ui/Button";
-import { PageHeader } from "../../../components/ui/PageHeader";
-import Table from "../../../components/ui/table/Table";
+import { PageHeader } from "../../../components/ui/PageHeader"
+import Table from "../../../components/ui/table/Table"
 import {
   getAccounts,
   type GetUsersParams,
   type UserSortBy,
-} from "../api/getUsers";
-import { useNavigate } from "react-router-dom";
-import { formatDateTime } from "../../../lib/utils";
-import type { Account } from "../types";
-import { useLanguage } from "../../../stores/languageStore";
+} from "../api/getUsers"
+import { useNavigate } from "react-router-dom"
+import {
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
+import type { Account } from "../types"
+import { useLanguage } from "../../../stores/languageStore"
 
 export default function UsersPage() {
-  const navigate = useNavigate();
-  const { t } = useLanguage();
+  const navigate = useNavigate()
+  const { t } = useLanguage()
 
   return (
     <div className="space-y-6">
@@ -28,65 +32,80 @@ export default function UsersPage() {
 
       <Table<Account>
         fetcher={async (page, pageSize) => {
-          const res = await getAccounts(page, pageSize);
+          const res = await getAccounts(page, pageSize)
 
           return {
             data: res.data,
             total: res.additionalData?.totalCount ?? res.total_records ?? 0,
-          };
+          }
         }}
         sorter={async (attribute, sortOrder) => {
-          let sortBy: UserSortBy | undefined = undefined;
-          if (attribute === "username") sortBy = "Username";
-          else if (attribute === "createDate") sortBy = "CreateDate";
+          let sortBy: UserSortBy | undefined = undefined
+          if (attribute === "username") sortBy = "Username"
+          else if (attribute === "createDate") sortBy = "CreateDate"
 
           const order =
             sortOrder === "asc"
               ? "Asc"
               : sortOrder === "desc"
                 ? "Desc"
-                : undefined;
-          const res = await getAccounts({ SortBy: sortBy, SortOrder: order });
-          return res.data;
-        }}
-        filter={async (attribute, value) => {
-          const params: GetUsersParams = {};
-          if (attribute === "global") {
-            params.SearchKeyword = value ? String(value) : undefined;
-          } else if (attribute === "phoneNumber") {
-            params.PhoneNumber = value ? String(value) : undefined;
-          } else if (attribute === "country" && value) {
-            params.Countries = Array.isArray(value)
-              ? value.map(String)
-              : [String(value)];
-          } else if (attribute === "level" && value) {
-            params.Levels = Array.isArray(value)
-              ? value.map(String)
-              : [String(value)];
-          }
-          const res = await getAccounts(params);
+                : undefined
+          const res = await getAccounts({ SortBy: sortBy, SortOrder: order })
           return {
             data: res.data,
             total: res.additionalData?.totalCount ?? res.total_records ?? 0,
-          };
+          }
+        }}
+        filter={async (attribute, value, toDate) => {
+          const params: GetUsersParams = {}
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
+          } else if (attribute === "phoneNumber") {
+            params.PhoneNumber = value ? String(value) : undefined
+          } else if (attribute === "country" && value) {
+            params.Countries = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)]
+          } else if (attribute === "level" && value) {
+            params.Levels = Array.isArray(value)
+              ? value.map(String)
+              : [String(value)]
+          } else if (
+            attribute === "createDate" ||
+            attribute === "dateJoined" ||
+            attribute === "fromDate"
+          ) {
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined
+            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
+          }
+          const res = await getAccounts(params)
+          return {
+            data: res.data,
+            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
+          }
         }}
         onClickRow={(r) => navigate(`/users/${r.accountId}`)}
         headers={[
           {
             name: t.users.id,
             accessorKey: "accountId",
-            showFilter: false,
           },
           {
             name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
-            showFilter: false,
+            allowSort: true,
           },
           {
             name: t.users.email,
             accessorKey: "email",
-            showFilter: false,
             render: (r) => (
               <span className="text-primary underline">{r.email}</span>
             ),
@@ -101,6 +120,8 @@ export default function UsersPage() {
           {
             name: t.users.dateJoined,
             accessorKey: "createDate",
+            isDuration: true,
+            showFilter: true,
             render: (p) => (
               <span className="text-sm text-gray-600">
                 {formatDateTime(p.createDate)}
@@ -126,14 +147,14 @@ export default function UsersPage() {
               const isTeacher =
                 p.isInstructor ||
                 p.roleName === "Teacher" ||
-                p.roleName === "Instructor";
+                p.roleName === "Instructor"
               return isTeacher ? (
                 <Badge type="Green" showDot>
                   Giảng viên
                 </Badge>
               ) : (
                 <span className="text-gray-400">—</span>
-              );
+              )
             },
           },
           {
@@ -148,5 +169,5 @@ export default function UsersPage() {
         ]}
       />
     </div>
-  );
+  )
 }

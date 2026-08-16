@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react"
-import { DollarSign, Building2, Calendar, X } from "lucide-react"
+import { DollarSign, Building2 } from "lucide-react"
 import {
   getRefunds,
   processRefund,
   type PaymentRefund,
-  type RefundStatus,
   type GetRefundsParams,
 } from "../api/refundsApi"
 import PayoutBalanceWidget from "../components/PayoutBalanceWidget"
@@ -13,7 +12,12 @@ import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import Badge from "../../../components/ui/Badge"
 import Button from "../../../components/ui/Button"
-import { formatAmount, formatDateTime } from "../../../lib/utils"
+import {
+  formatAmount,
+  formatDateTime,
+  formatDateToUtcStartOfDay,
+  formatDateToUtcEndOfDay,
+} from "../../../lib/utils"
 import { useToastStore } from "../../../stores/toastStore"
 import { useLanguage } from "../../../stores/languageStore"
 
@@ -28,21 +32,11 @@ export default function RefundsPage() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0)
 
-  // Status & Date Filter State
-  const [statusFilter, setStatusFilter] = useState<RefundStatus | "All">("All")
-  const [fromDate, setFromDate] = useState<string>("")
-  const [toDate, setToDate] = useState<string>("")
-
   const fetcher = useCallback(
     async (page?: number, pageSize?: number) => {
       const params: GetRefundsParams = {}
       if (page !== undefined) params.Page = page
       if (pageSize !== undefined) params.PageSize = pageSize
-      if (statusFilter !== "All") {
-        params.Status = statusFilter
-      }
-      if (fromDate) params.FromDate = fromDate
-      if (toDate) params.ToDate = toDate
 
       const res = await getRefunds(params)
       return {
@@ -50,7 +44,8 @@ export default function RefundsPage() {
         total: res.total_records ?? res.data.length,
       }
     },
-    [statusFilter, fromDate, toDate],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [refreshTrigger],
   )
 
   const handleReview = (refundItem: PaymentRefund) => {
@@ -100,110 +95,62 @@ export default function RefundsPage() {
       {/* PayOS Payout Balance Card */}
       <PayoutBalanceWidget key={refreshTrigger} />
 
-      {/* Filter Bar & Status Tabs + Date Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-gray-200 shadow-sm">
-        <div className="flex flex-wrap gap-1.5">
-          {[
-            { key: "All", label: "Tất cả" },
-            { key: 0, label: "Chờ xử lý" },
-            { key: 1, label: "Đã duyệt & Chuyển khoản" },
-            { key: 2, label: "Từ chối" },
-            { key: 3, label: "Thất bại" },
-          ].map((tab) => {
-            const isActive = statusFilter === tab.key
-            return (
-              <button
-                key={String(tab.key)}
-                onClick={() => setStatusFilter(tab.key as RefundStatus | "All")}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  isActive
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Right: Date Range Pickers */}
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
-            <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-            <span>Từ:</span>
-            <input
-              type="date"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="px-2.5 py-1 text-xs rounded-lg border border-gray-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
-            />
-          </div>
-          <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
-            <span>Đến:</span>
-            <input
-              type="date"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="px-2.5 py-1 text-xs rounded-lg border border-gray-200 bg-white font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer"
-            />
-          </div>
-          {(fromDate || toDate) && (
-            <button
-              type="button"
-              onClick={() => {
-                setFromDate("")
-                setToDate("")
-              }}
-              className="p-1 rounded-lg text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-              title="Xóa bộ lọc ngày"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Table Element */}
+      {/* Table Element with Integrated Filters */}
       <Table<PaymentRefund>
-        key={`${refreshTrigger}-${statusFilter}`}
+        key={refreshTrigger}
         keyExtractor={(r) => String(r.refundId)}
         fetcher={fetcher}
-        filter={async (attribute, value) => {
+        filter={async (attribute, value, toDate) => {
           const params: GetRefundsParams = {}
-          if (statusFilter !== "All") {
-            params.Status = statusFilter
-          }
 
           if (
             attribute === "global" ||
             attribute === "Search" ||
             attribute === "username" ||
             attribute === "email" ||
-            attribute === "reason"
+            attribute === "reason" ||
+            attribute === "accountNumber"
           ) {
             params.Search = value ? String(value) : undefined
-          } else if (attribute === "fromDate" || attribute === "FromDate") {
-            params.FromDate = value ? String(value) : undefined
-          } else if (attribute === "toDate" || attribute === "ToDate") {
-            params.ToDate = value ? String(value) : undefined
+          } else if (
+            attribute === "createDate" ||
+            attribute === "fromDate" ||
+            attribute === "FromDate"
+          ) {
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined
+            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = formatDateToUtcStartOfDay(from)
+            params.ToDate = formatDateToUtcEndOfDay(to)
           } else if (
             attribute === "status" &&
             value !== undefined &&
             value !== null
           ) {
-            params.Status = Number(value)
+            if (Array.isArray(value)) {
+              if (value.length === 1) {
+                params.Status = Number(value[0])
+              }
+            } else {
+              params.Status = Number(value)
+            }
           }
 
           const res = await getRefunds(params)
-          return res.data
+          return {
+            data: res.data,
+            total: res.total_records ?? res.data.length,
+          }
         }}
         headers={[
           {
             id: "refundId",
             name: "ID",
             accessorKey: "refundId",
-            showFilter: false,
             render: (r) => (
               <span className="font-mono font-bold text-gray-900">
                 #{r.refundId}
@@ -214,7 +161,6 @@ export default function RefundsPage() {
             id: "paymentId",
             name: "Mã Thanh Toán",
             accessorKey: "paymentId",
-            showFilter: false,
             render: (r) => (
               <span className="font-mono text-xs text-gray-600 font-medium">
                 #{r.paymentId}
@@ -225,7 +171,6 @@ export default function RefundsPage() {
             id: "username",
             name: "Học Viên",
             accessorKey: "username",
-            showFilter: false,
             render: (r) => (
               <div className="flex flex-col">
                 <span className="font-bold text-gray-800 text-xs">
@@ -243,7 +188,6 @@ export default function RefundsPage() {
             id: "amountVnd",
             name: "Số Tiền (VND)",
             accessorKey: "amountVnd",
-            showFilter: false,
             render: (r) => (
               <span className="font-extrabold text-emerald-600">
                 {formatAmount(r.amountVnd)}
@@ -255,7 +199,6 @@ export default function RefundsPage() {
             id: "bankInfo",
             name: "Thông Tin Ngân Hàng",
             accessorKey: "accountNumber",
-            showFilter: false,
             render: (r) => (
               <div className="flex flex-col text-xs">
                 <span className="font-bold text-gray-900 flex items-center gap-1 uppercase">
@@ -272,7 +215,6 @@ export default function RefundsPage() {
             id: "reason",
             name: "Lý Do Hoàn Tiền",
             accessorKey: "reason",
-            showFilter: false,
             render: (r) => (
               <p
                 className="text-xs text-gray-600 max-w-xs truncate font-medium"
@@ -287,7 +229,8 @@ export default function RefundsPage() {
             id: "createDate",
             name: "Ngày Gửi",
             accessorKey: "createDate",
-            showFilter: false,
+            isDuration: true,
+            showFilter: true,
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
                 {formatDateTime(r.createDate)}
@@ -299,7 +242,14 @@ export default function RefundsPage() {
             id: "status",
             name: "Trạng Thái",
             accessorKey: "status",
-            showFilter: false,
+            showFilter: true,
+            values: [0, 1, 2, 3],
+            valueLabels: [
+              "Chờ xử lý",
+              "Đã duyệt & Chuyển khoản",
+              "Từ chối",
+              "Thất bại",
+            ],
             render: (r) => {
               switch (r.status) {
                 case 0:
@@ -319,7 +269,6 @@ export default function RefundsPage() {
             id: "actions",
             name: "Hành Động",
             allowSort: false,
-            showFilter: false,
             render: (r) => (
               <Button
                 variant={r.status === 0 ? "primary" : "outline"}
