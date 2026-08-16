@@ -41,7 +41,7 @@ export default function TableHeaderRow<T>({
                   type="button"
                   disabled={!canSort}
                   onClick={header.column.getToggleSortingHandler()}
-                  className={"inline-flex items-center gap-1.5"}
+                  className={"inline-flex items-center gap-1.5 text-white!"}
                 >
                   {meta?.icon}
                   <span>
