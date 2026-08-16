@@ -1,8 +1,11 @@
 import { IdCardLanyard } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
-import type { InstructorApplication } from "../types"
-import { getInstructorApplications } from "../api/getInstructorApplications"
+import type { ApplicationStatus, InstructorApplication } from "../types"
+import {
+  getInstructorApplications,
+  type GetInstructorApplicationsParams,
+} from "../api/getInstructorApplications"
 import { useNavigate } from "react-router-dom"
 import { formatDateTime } from "../../../lib/utils"
 import Badge from "../../../components/ui/Badge"
@@ -23,6 +26,21 @@ export default function InstructorApplicationsPage() {
       <Table<InstructorApplication>
         fetcher={async (page, pageSize) => {
           const data = await getInstructorApplications({ page, pageSize })
+          return {
+            data: data.items,
+            total: data.totalCount,
+          }
+        }}
+        filter={async (attribute, value) => {
+          const params: GetInstructorApplicationsParams = {}
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
+          } else if (attribute === "status" && value) {
+            params.status = (
+              Array.isArray(value) ? value[0] : value
+            ) as ApplicationStatus
+          }
+          const data = await getInstructorApplications(params)
           return {
             data: data.items,
             total: data.totalCount,

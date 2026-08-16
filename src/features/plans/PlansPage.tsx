@@ -68,7 +68,9 @@ const PlansPage: React.FC = () => {
         }}
         filter={async (attribute, value) => {
           const params: GetPlansParams = {}
-          if (attribute === "global" || attribute === "planName") {
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
+          } else if (attribute === "planName") {
             params.PlanName = value ? String(value) : undefined
           } else if (attribute === "packageStatus" && value) {
             params.PackageStatuses = Array.isArray(value)
@@ -87,7 +89,6 @@ const PlansPage: React.FC = () => {
             name: t.plans.planName,
             accessorKey: "planName",
             allowSort: true,
-            showFilter: true,
             render: (p) => (
               <div className="flex items-center gap-3">
                 <Avatar name={p.planName} url={p.iconUrl} size="md" />

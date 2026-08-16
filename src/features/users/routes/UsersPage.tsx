@@ -101,7 +101,6 @@ export default function UsersPage() {
             name: t.users.username,
             accessorKey: "username",
             cellClassName: "font-bold",
-            showFilter: true,
             allowSort: true,
           },
           {
@@ -114,7 +113,6 @@ export default function UsersPage() {
           {
             name: t.users.phone,
             accessorKey: "phoneNumber",
-            showFilter: true,
             render: (r) => (
               <span className="whitespace-nowrap">{r.phoneNumber || "—"}</span>
             ),
@@ -162,8 +160,6 @@ export default function UsersPage() {
           {
             name: t.users.lastActive,
             accessorKey: "lastSeen",
-            showFilter: false,
-            allowSort: false,
             render: (p) => (
               <span className="text-sm text-gray-600">
                 {formatDateTime(p.lastSeen)}

@@ -148,17 +148,8 @@ export default function NewsPage() {
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetPostsParams = {}
-          if (
-            attribute === "global" ||
-            attribute === "content" ||
-            attribute === "postId" ||
-            attribute === "authorName"
-          ) {
-            params.Title = value ? String(value) : undefined
-          } else if (attribute === "languageCommunity" && value) {
-            params.LanguageCommunities = Array.isArray(value)
-              ? value
-              : [String(value)]
+          if (attribute === "global") {
+            params.SearchKeyword = value ? String(value) : undefined
           } else if (attribute === "createDate" || attribute === "fromDate") {
             const from =
               typeof value === "string"
