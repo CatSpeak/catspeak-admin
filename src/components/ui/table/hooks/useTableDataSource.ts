@@ -120,15 +120,21 @@ export function useTableDataSource<T>({
       const obj = res as {
         data: T[];
         total?: number;
+        total_records?: number;
+        totalCount?: number;
         additionalData?: { totalCount?: number };
       };
       setCustomData(obj.data);
       const total =
         typeof obj.total === "number"
           ? obj.total
-          : typeof obj.additionalData?.totalCount === "number"
-            ? obj.additionalData.totalCount
-            : obj.data.length;
+          : typeof obj.total_records === "number"
+            ? obj.total_records
+            : typeof obj.totalCount === "number"
+              ? obj.totalCount
+              : typeof obj.additionalData?.totalCount === "number"
+                ? obj.additionalData.totalCount
+                : obj.data.length;
       setCustomTotal(total);
     } else if (Array.isArray(res)) {
       setCustomData(res as T[]);

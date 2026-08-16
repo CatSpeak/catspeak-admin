@@ -43,7 +43,10 @@ export default function StaffsPage() {
                 ? "Desc"
                 : undefined
           const res = await getStaffs({ SortBy: sortBy, SortOrder: order })
-          return res.data
+          return {
+            data: res.data,
+            total: res.additionalData.totalCount,
+          }
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetStaffsParams = {}

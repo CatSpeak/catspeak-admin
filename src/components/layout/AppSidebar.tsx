@@ -166,14 +166,14 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 flex flex-col bg-white border-r border-gray-200 h-screen h-dvh transition-all duration-300 ease-in-out z-50 
+      className={`fixed inset-y-0 left-0 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out z-50 
         ${isExpanded || isMobileOpen || isHovered ? "w-72.5" : "w-22.5"}
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         md:translate-x-0`}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center justify-center h-(--header-height)">
+      <div className="flex items-center justify-center h-16 shrink-0">
         <Link to="/" className="flex items-center gap-2">
           {isExpanded || isHovered || isMobileOpen ? (
             <div className="py-4 scale-75 origin-center">
@@ -195,7 +195,7 @@ const AppSidebar: React.FC = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col overflow-y-auto flex-1 px-4">
+      <div className="flex flex-col overflow-y-auto flex-1 px-4 min-h-0">
         <nav className="mb-6">
           <ul className="flex flex-col gap-2">
             {navItems.map((nav, index) => (

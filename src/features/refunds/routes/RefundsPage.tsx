@@ -209,7 +209,10 @@ export default function RefundsPage() {
           }
 
           const res = await getRefunds(params)
-          return res.data
+          return {
+            data: res.data,
+            total: res.total_records ?? res.data.length,
+          }
         }}
         headers={[
           {

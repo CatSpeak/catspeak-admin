@@ -160,7 +160,13 @@ export type SortOrder = "asc" | "desc" | undefined;
 export type TableCustomResult<T> =
   | T[]
   | TableFetcherResult<T>
-  | { data: T[]; total?: number; additionalData?: { totalCount?: number } };
+  | {
+      data: T[];
+      total?: number;
+      total_records?: number;
+      totalCount?: number;
+      additionalData?: { totalCount?: number };
+    };
 
 export interface TableProps<T> {
   headers: TableHeader<T>[];

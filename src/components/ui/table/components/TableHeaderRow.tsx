@@ -1,12 +1,12 @@
-import { flexRender, type Table as TanstackTable } from "@tanstack/react-table";
-import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
-import { useLanguage } from "../../../../stores/languageStore";
-import "../types"; // ensure TanStack ColumnMeta module augmentation is loaded
+import { flexRender, type Table as TanstackTable } from "@tanstack/react-table"
+import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
+import { useLanguage } from "../../../../stores/languageStore"
+import "../types" // ensure TanStack ColumnMeta module augmentation is loaded
 
 export interface TableHeaderRowProps<T> {
-  table: TanstackTable<T>;
-  stickyHeader?: boolean;
-  hasActions?: boolean;
+  table: TanstackTable<T>
+  stickyHeader?: boolean
+  hasActions?: boolean
 }
 
 export default function TableHeaderRow<T>({
@@ -14,7 +14,7 @@ export default function TableHeaderRow<T>({
   stickyHeader = true,
   hasActions = false,
 }: TableHeaderRowProps<T>) {
-  const { t } = useLanguage();
+  const { t } = useLanguage()
 
   return (
     <thead
@@ -25,9 +25,9 @@ export default function TableHeaderRow<T>({
       {table.getHeaderGroups().map((headerGroup) => (
         <tr key={headerGroup.id}>
           {headerGroup.headers.map((header) => {
-            const meta = header.column.columnDef.meta;
-            const canSort = header.column.getCanSort();
-            const sortDir = header.column.getIsSorted();
+            const meta = header.column.columnDef.meta
+            const canSort = header.column.getCanSort()
+            const sortDir = header.column.getIsSorted()
             return (
               <th
                 key={header.id}
@@ -41,11 +41,7 @@ export default function TableHeaderRow<T>({
                   type="button"
                   disabled={!canSort}
                   onClick={header.column.getToggleSortingHandler()}
-                  className={`inline-flex items-center gap-1.5 ${
-                    canSort
-                      ? "cursor-pointer select-none"
-                      : "cursor-default"
-                  }`}
+                  className={"inline-flex items-center gap-1.5"}
                 >
                   {meta?.icon}
                   <span>
@@ -60,14 +56,11 @@ export default function TableHeaderRow<T>({
                     ) : sortDir === "desc" ? (
                       <ChevronDown size={14} />
                     ) : (
-                      <ChevronsUpDown
-                        size={14}
-                        className="opacity-50"
-                      />
+                      <ChevronsUpDown size={14} className="opacity-50" />
                     ))}
                 </button>
               </th>
-            );
+            )
           })}
           {hasActions && (
             <th
@@ -80,5 +73,5 @@ export default function TableHeaderRow<T>({
         </tr>
       ))}
     </thead>
-  );
+  )
 }
