@@ -28,6 +28,7 @@ import { formatDateTime } from "../../../lib/utils";
 
 import { useAuthStore } from "../../../stores/authStore";
 import { promoteUserToStaff } from "../../staffs/api/permissions";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
 import { UserPlus } from "lucide-react";
 
 export default function UserDetailPage() {
@@ -53,17 +54,14 @@ export default function UserDetailPage() {
   } | null>(null);
 
   const [promoting, setPromoting] = useState(false);
+  const [showPromoteConfirm, setShowPromoteConfirm] = useState(false);
   const [promoteMsg, setPromoteMsg] = useState<{
     type: "success" | "error";
     text: string;
   } | null>(null);
 
-  const handlePromoteToStaff = async () => {
+  const executePromoteToStaff = async () => {
     if (!user || !isPrimaryAdmin) return;
-    if (!window.confirm(`Bạn có chắc chắn muốn thăng cấp người dùng '${user.username}' thành Staff?`)) {
-      return;
-    }
-
     try {
       setPromoting(true);
       setPromoteMsg(null);
@@ -319,7 +317,7 @@ export default function UserDetailPage() {
           <div className="flex items-center gap-3">
             {isPrimaryAdmin && user.roleId === 2 && (
               <button
-                onClick={handlePromoteToStaff}
+                onClick={() => setShowPromoteConfirm(true)}
                 disabled={promoting}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 shadow-xs hover:shadow transition-all shrink-0 cursor-pointer disabled:opacity-50"
               >
@@ -327,6 +325,26 @@ export default function UserDetailPage() {
                 <span>{promoting ? "Đang thăng cấp..." : "Thăng Cấp Thành Staff"}</span>
               </button>
             )}
+
+            <ConfirmModal
+              isOpen={showPromoteConfirm}
+              onClose={() => setShowPromoteConfirm(false)}
+              onConfirm={() => {
+                setShowPromoteConfirm(false);
+                executePromoteToStaff();
+              }}
+              title="Xác nhận thăng cấp người dùng"
+              description={
+                <span>
+                  Bạn có chắc chắn muốn thăng cấp người dùng <strong className="text-gray-900">'{user.username}'</strong> thành <strong>Staff</strong>?
+                  <br />
+                  Tài khoản này sẽ có quyền truy cập vào hệ thống Admin với các phân quyền cơ bản.
+                </span>
+              }
+              confirmText="Thăng cấp thành Staff"
+              variant="primary"
+              isLoading={promoting}
+            />
 
             <button
               onClick={() => navigate("/users")}

@@ -105,7 +105,14 @@ export default function StaffsPage() {
           },
           {
             name: t.users.lastActive,
-            accessorKey: "visitDurationForStaff",
+            accessorKey: "lastActiveDate",
+            render: (p) => (
+              <span className="text-sm text-gray-600">
+                {p.lastActiveDate || p.lastSeen
+                  ? formatDateTime(p.lastActiveDate || p.lastSeen)
+                  : "—"}
+              </span>
+            ),
           },
         ]}
       />

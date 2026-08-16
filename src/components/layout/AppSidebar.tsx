@@ -99,11 +99,13 @@ const AppSidebar: React.FC = () => {
         name: t.nav.refunds || "Yêu cầu hoàn tiền",
         icon: <RotateCcw size={20} />,
         path: "/refunds",
+        permission: "payment_reports",
       },
       {
         name: t.nav.paymentReports || "Báo cáo thanh toán",
         icon: <CreditCard size={20} />,
         path: "/payments",
+        permission: "payment_reports",
       },
       {
         section: t.nav.applications,
@@ -116,18 +118,8 @@ const AppSidebar: React.FC = () => {
         section: t.nav.feedback,
         name: t.nav.letterReports || "Báo cáo nội dung",
         icon: <FileWarning size={20} />,
-        subItems: [
-          {
-            name: t.nav.letterReports,
-            path: "/reports",
-            permission: "letter_reports",
-          },
-          {
-            name: t.nav.paymentReports,
-            path: "/payments",
-            permission: "payment_reports",
-          },
-        ],
+        path: "/reports",
+        permission: "letter_reports",
       },
     ]
 
