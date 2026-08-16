@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, X, Filter, ChevronDown, ChevronUp } from "lucide-react";
 import type { Column as TanstackColumn } from "@tanstack/react-table";
 import { useLanguage } from "../../../../stores/languageStore";
@@ -36,6 +36,25 @@ export default function TableToolbar<T>({
   const { t } = useLanguage();
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // Sort columns: single-cell text filters first, full-width filters (multi-select & isDuration) at the end
+  const sortedFilterableColumns = useMemo(() => {
+    const regularColumns: TanstackColumn<T, unknown>[] = [];
+    const fullWidthColumns: TanstackColumn<T, unknown>[] = [];
+
+    for (const column of filterableColumns) {
+      const meta = column.columnDef.meta;
+      const isFullWidth =
+        meta?.isDuration || (meta?.values && meta.values.length > 0);
+      if (isFullWidth) {
+        fullWidthColumns.push(column);
+      } else {
+        regularColumns.push(column);
+      }
+    }
+
+    return [...regularColumns, ...fullWidthColumns];
+  }, [filterableColumns]);
+
   if (!showGlobalSearch && !hasFilterableColumns) {
     return null;
   }
@@ -55,7 +74,6 @@ export default function TableToolbar<T>({
               placeholder={`${t.common.search} ${entityName}…`}
               value={searchInputValue}
               onChange={(e) => setSearchInputValue(e.target.value)}
-              onBlur={() => onSearchSubmit(searchInputValue)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -71,7 +89,7 @@ export default function TableToolbar<T>({
                   setSearchInputValue("");
                   onSearchSubmit("");
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors cursor-pointer"
                 title={t.table.clearSearch}
               >
                 <X size={14} />
@@ -132,12 +150,12 @@ export default function TableToolbar<T>({
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
             filtersOpen
-              ? "max-h-[500px] opacity-100 visible border-t border-gray-100"
+              ? "max-h-[1000px] opacity-100 visible border-t border-gray-100"
               : "max-h-0 opacity-0 invisible"
           }`}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-white">
-            {filterableColumns.map((column) => (
+            {sortedFilterableColumns.map((column) => (
               <ColumnFilterControl
                 key={column.id}
                 column={column}
