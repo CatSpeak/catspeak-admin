@@ -47,7 +47,10 @@ export default function UsersPage() {
                 ? "Desc"
                 : undefined
           const res = await getAccounts({ SortBy: sortBy, SortOrder: order })
-          return res.data
+          return {
+            data: res.data,
+            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
+          }
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetUsersParams = {}

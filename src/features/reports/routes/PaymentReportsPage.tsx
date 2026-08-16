@@ -171,7 +171,11 @@ export default function PaymentReportsPage() {
               : sortOrder === "desc"
                 ? "Desc"
                 : undefined;
-          return await getPaymentReports({ SortBy: sortBy, SortOrder: order });
+          const res = await getPaymentReports({ SortBy: sortBy, SortOrder: order });
+          return {
+            data: res,
+            total: res.length,
+          };
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetPaymentReportsParams = {};
@@ -205,7 +209,11 @@ export default function PaymentReportsPage() {
               ? value.map(Number)
               : [Number(value)];
           }
-          return await getPaymentReports(params);
+          const res = await getPaymentReports(params);
+          return {
+            data: res,
+            total: res.length,
+          };
         }}
         headers={[
           {
