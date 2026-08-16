@@ -128,8 +128,11 @@ export default function Table<T>({
   };
 
   const executeGlobalFilter = (val: string) => {
-    setGlobalFilter(val);
-    runCustomFilter("global", val);
+    const trimmed = val.trim();
+    const current = typeof globalFilter === "string" ? globalFilter.trim() : "";
+    if (trimmed === current) return;
+    setGlobalFilter(trimmed);
+    runCustomFilter("global", trimmed);
   };
 
   if (!configValid) {

@@ -40,9 +40,21 @@ export function ColumnTextFilterInput<T>({
   const submitFilter = (textToSubmit?: string) => {
     const raw = textToSubmit !== undefined ? textToSubmit : localText;
     const trimmed = raw.trim();
-    const val = trimmed.length > 0 ? trimmed : undefined;
-    column.setFilterValue(val);
-    onFilterSubmit?.(column.id, val);
+    const nextVal = trimmed.length > 0 ? trimmed : undefined;
+
+    const currentRaw = column.getFilterValue();
+    const currentVal =
+      typeof currentRaw === "string" && currentRaw.trim().length > 0
+        ? currentRaw.trim()
+        : undefined;
+
+    // Only apply and submit if value actually changed
+    if (nextVal === currentVal) {
+      return;
+    }
+
+    column.setFilterValue(nextVal);
+    onFilterSubmit?.(column.id, nextVal);
   };
 
   const handleClear = () => {
@@ -58,7 +70,6 @@ export function ColumnTextFilterInput<T>({
           type="text"
           value={localText}
           onChange={(e) => setLocalText(e.target.value)}
-          onBlur={() => submitFilter()}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -72,7 +83,7 @@ export function ColumnTextFilterInput<T>({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-2 p-1 text-gray-400 hover:text-gray-600 rounded-md transition-colors"
+            className="absolute right-2 p-1 text-gray-400 hover:text-gray-600 rounded-md transition-colors cursor-pointer"
             title="Xóa"
           >
             <X size={14} />
@@ -122,6 +133,25 @@ export function ColumnDurationFilterInput<T>({
     const hasFrom = newFrom.trim().length > 0;
     const hasTo = newTo.trim().length > 0;
     const val = hasFrom || hasTo ? [newFrom.trim(), newTo.trim()] : undefined;
+
+    const currentVal = column.getFilterValue() as
+      | [string, string]
+      | { fromDate?: string; toDate?: string }
+      | undefined;
+    const currentFrom = Array.isArray(currentVal)
+      ? (currentVal[0] ?? "")
+      : (currentVal?.fromDate ?? "");
+    const currentTo = Array.isArray(currentVal)
+      ? (currentVal[1] ?? "")
+      : (currentVal?.toDate ?? "");
+
+    if (
+      newFrom.trim() === currentFrom.trim() &&
+      newTo.trim() === currentTo.trim()
+    ) {
+      return;
+    }
+
     column.setFilterValue(val);
     onFilterSubmit?.(
       column.id,
@@ -147,7 +177,7 @@ export function ColumnDurationFilterInput<T>({
   };
 
   return (
-    <div className="flex flex-col gap-1.5 col-span-1 sm:col-span-2">
+    <div className="flex flex-col gap-1.5 col-span-full w-full">
       <label className="text-xs font-semibold text-gray-500">{label}</label>
       <div className="flex flex-wrap items-center gap-2">
         <div className="flex items-center gap-1.5 text-xs text-gray-600 font-medium bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all shadow-sm">
@@ -184,6 +214,62 @@ export function ColumnDurationFilterInput<T>({
   );
 }
 
+export function ColumnMultiSelectFilterInput<T>({
+  column,
+  label,
+  options,
+  onFilterSubmit,
+}: {
+  column: TanstackColumn<T, unknown>;
+  label: string;
+  options: { label: string; value: string | number | boolean }[];
+  onFilterSubmit?: (
+    attribute: string,
+    value: unknown,
+    toDate?: string,
+  ) => void;
+}) {
+  const filterValue = column.getFilterValue();
+  const selected: (string | number | boolean)[] = Array.isArray(filterValue)
+    ? filterValue
+    : [];
+
+  const toggle = (value: string | number | boolean) => {
+    const next = selected.includes(value)
+      ? selected.filter((v) => v !== value)
+      : [...selected, value];
+    const val = next.length > 0 ? next : undefined;
+    column.setFilterValue(val);
+    onFilterSubmit?.(column.id, val);
+  };
+
+  return (
+    <div className="flex flex-col gap-1.5 col-span-full w-full">
+      <label className="text-xs font-semibold text-gray-500">{label}</label>
+      <div className="flex flex-wrap gap-1.5 w-full">
+        {options.map((opt) => {
+          const active = selected.includes(opt.value);
+          return (
+            <button
+              type="button"
+              key={String(opt.value)}
+              onClick={() => toggle(opt.value)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                active
+                  ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-xs"
+                  : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
+              }`}
+            >
+              {active && <Check size={12} className="stroke-[2.5]" />}
+              <span>{opt.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function ColumnFilterControl<T>({
   column,
   onFilterSubmit,
@@ -195,7 +281,6 @@ export default function ColumnFilterControl<T>({
       : column.id;
   const options = meta?.values;
   const isDuration = meta?.isDuration;
-  const filterValue = column.getFilterValue();
 
   if (isDuration) {
     return (
@@ -208,43 +293,13 @@ export default function ColumnFilterControl<T>({
   }
 
   if (options && options.length > 0) {
-    const selected: (string | number | boolean)[] = Array.isArray(filterValue)
-      ? filterValue
-      : [];
-
-    const toggle = (value: string | number | boolean) => {
-      const next = selected.includes(value)
-        ? selected.filter((v) => v !== value)
-        : [...selected, value];
-      const val = next.length > 0 ? next : undefined;
-      column.setFilterValue(val);
-      onFilterSubmit?.(column.id, val);
-    };
-
     return (
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-semibold text-gray-500">{label}</label>
-        <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto rounded-lg border border-gray-200 bg-white p-2">
-          {options.map((opt) => {
-            const active = selected.includes(opt.value);
-            return (
-              <button
-                type="button"
-                key={String(opt.value)}
-                onClick={() => toggle(opt.value)}
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-colors ${
-                  active
-                    ? "bg-primary/10 border-primary/30 text-primary"
-                    : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {active && <Check size={12} />}
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <ColumnMultiSelectFilterInput
+        column={column}
+        label={label}
+        options={options}
+        onFilterSubmit={onFilterSubmit}
+      />
     );
   }
 
