@@ -23,9 +23,13 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
               dataKey
                 ? (row as Record<string, unknown>)[dataKey]
                 : (row as Record<string, unknown>)[h.name]),
-          enableSorting: h.allowSort ?? true,
-          enableColumnFilter: h.showFilter ?? true,
-          filterFn: options ? "multiSelect" : "approximateText",
+          enableSorting: h.allowSort ?? false,
+          enableColumnFilter: h.showFilter ?? false,
+          filterFn: h.isDuration
+            ? "dateRange"
+            : options
+              ? "multiSelect"
+              : "approximateText",
           cell: (info) => {
             const raw = h.mapTo
               ? (info.row.original as Record<string, unknown>)[h.mapTo]
@@ -36,7 +40,8 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
           meta: {
             icon: h.icon,
             values: options,
-            showFilter: h.showFilter ?? true,
+            showFilter: h.showFilter ?? false,
+            isDuration: h.isDuration,
             headerClassName: h.headerClassName,
             cellClassName: h.cellClassName,
             width: h.width,

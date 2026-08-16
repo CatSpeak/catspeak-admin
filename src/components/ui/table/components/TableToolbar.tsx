@@ -13,7 +13,11 @@ export interface TableToolbarProps<T> {
   setSearchInputValue: (val: string) => void;
   onSearchSubmit: (val: string) => void;
   onClearAll: () => void;
-  onColumnFilterSubmit: (attribute: string, value: unknown) => void;
+  onColumnFilterSubmit: (
+    attribute: string,
+    value: unknown,
+    toDate?: string,
+  ) => void;
   entityName: string;
 }
 
@@ -51,6 +55,7 @@ export default function TableToolbar<T>({
               placeholder={`${t.common.search} ${entityName}…`}
               value={searchInputValue}
               onChange={(e) => setSearchInputValue(e.target.value)}
+              onBlur={() => onSearchSubmit(searchInputValue)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -136,7 +141,9 @@ export default function TableToolbar<T>({
               <ColumnFilterControl
                 key={column.id}
                 column={column}
-                onFilterSubmit={(attr, val) => onColumnFilterSubmit(attr, val)}
+                onFilterSubmit={(attr, val, toDate) =>
+                  onColumnFilterSubmit(attr, val, toDate)
+                }
               />
             ))}
           </div>

@@ -43,3 +43,37 @@ export const globalContainsFilter: FilterFn<any> = (
     .getAllCells()
     .some((cell) => approximateIncludes(cell.getValue(), search));
 };
+
+/** Date range filter for columns with isDuration: true */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const dateRangeFilter: FilterFn<any> = (
+  row,
+  columnId,
+  filterValue: [string, string] | { fromDate?: string; toDate?: string } | undefined,
+) => {
+  if (!filterValue) return true;
+  const fromDate = Array.isArray(filterValue)
+    ? filterValue[0]
+    : filterValue.fromDate;
+  const toDate = Array.isArray(filterValue)
+    ? filterValue[1]
+    : filterValue.toDate;
+  if (!fromDate && !toDate) return true;
+
+  const raw = row.getValue(columnId);
+  if (!raw) return false;
+  const rowDate = new Date(raw as string | number | Date).getTime();
+  if (isNaN(rowDate)) return true;
+
+  if (fromDate) {
+    const from = new Date(fromDate).getTime();
+    if (!isNaN(from) && rowDate < from) return false;
+  }
+  if (toDate) {
+    const to = new Date(toDate);
+    to.setHours(23, 59, 59, 999);
+    const toTime = to.getTime();
+    if (!isNaN(toTime) && rowDate > toTime) return false;
+  }
+  return true;
+};

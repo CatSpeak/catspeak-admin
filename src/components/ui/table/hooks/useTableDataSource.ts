@@ -10,6 +10,7 @@ export interface UseTableDataSourceParams<T> {
   filter?: (
     attribute: keyof T | string,
     value: unknown,
+    toDate?: string,
   ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
   loading?: boolean;
   defaultPageSize?: number;
@@ -139,10 +140,14 @@ export function useTableDataSource<T>({
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
-  const runCustomFilter = (attribute: keyof T | string, value: unknown) => {
+  const runCustomFilter = (
+    attribute: keyof T | string,
+    value: unknown,
+    toDate?: string,
+  ) => {
     if (filter) {
       setFetchLoading(true);
-      Promise.resolve(filter(attribute, value))
+      Promise.resolve(filter(attribute, value, toDate))
         .then((res) => {
           applyCustomResult(res);
         })

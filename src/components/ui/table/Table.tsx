@@ -10,6 +10,22 @@ import TableHeaderRow from "./components/TableHeaderRow";
 import TableBody from "./components/TableBody";
 import TablePagination from "./components/TablePagination";
 
+export function isFilterValueActive(value: unknown): boolean {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "number" || typeof value === "boolean") return true;
+  if (Array.isArray(value)) {
+    if (value.length === 0) return false;
+    return value.some((v) => isFilterValueActive(v));
+  }
+  if (typeof value === "object") {
+    return Object.values(value as Record<string, unknown>).some((v) =>
+      isFilterValueActive(v),
+    );
+  }
+  return false;
+}
+
 export default function Table<T>({
   headers,
   fetcher,
@@ -66,8 +82,8 @@ export default function Table<T>({
   const {
     table,
     columnFilters,
-    setColumnFilters,
     globalFilter,
+    setColumnFilters,
     setGlobalFilter,
   } = useTanstackTableInstance<T>({
     data,
@@ -85,9 +101,17 @@ export default function Table<T>({
 
   const filterableColumns = table
     .getAllColumns()
-    .filter((c) => c.getCanFilter() && (c.columnDef.meta?.showFilter ?? true));
+    .filter((c) => c.getCanFilter() && (c.columnDef.meta?.showFilter ?? false));
   const hasFilterableColumns = filterableColumns.length > 0;
-  const activeFilterCount = columnFilters.length + (globalFilter ? 1 : 0);
+  const activeColumnFilterCount = columnFilters.filter((f) =>
+    isFilterValueActive(f.value),
+  ).length;
+  const isGlobalFilterActive =
+    typeof globalFilter === "string"
+      ? globalFilter.trim().length > 0
+      : isFilterValueActive(globalFilter);
+  const activeFilterCount =
+    activeColumnFilterCount + (isGlobalFilterActive ? 1 : 0);
   const hasActions = !!actions && actions.length > 0;
   const totalColumns = headers.length + (hasActions ? 1 : 0);
   const rows = table.getRowModel().rows;

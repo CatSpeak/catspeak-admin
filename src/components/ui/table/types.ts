@@ -12,6 +12,7 @@ declare module "@tanstack/react-table" {
     icon?: ReactNode;
     values?: FilterOption[];
     showFilter?: boolean;
+    isDuration?: boolean;
     headerClassName?: string;
     cellClassName?: string;
     width?: number | string;
@@ -20,6 +21,7 @@ declare module "@tanstack/react-table" {
   interface FilterFns {
     multiSelect: FilterFn<unknown>;
     approximateText: FilterFn<unknown>;
+    dateRange: FilterFn<unknown>;
   }
 }
 
@@ -96,10 +98,15 @@ export interface TableHeader<T> {
    * without a corresponding label fall back to that default rendering.
    */
   valueLabels?: string[];
-  /** Enable/disable sorting for this column (default: true) */
+  /** Enable/disable sorting for this column (default: false) */
   allowSort?: boolean;
-  /** Enable/disable the filter control for this column (default: true) */
+  /** Enable/disable the filter control for this column (default: false) */
   showFilter?: boolean;
+  /**
+   * Enable date range filtering for this column. When true and showFilter is true,
+   * renders two datepickers (fromDate - toDate) in the filter control panel.
+   */
+  isDuration?: boolean;
   /** Optional column width (px number or any CSS width string) */
   width?: number | string;
   headerClassName?: string;
@@ -169,6 +176,7 @@ export interface TableProps<T> {
   filter?: (
     attribute: keyof T | string,
     value: unknown,
+    toDate?: string,
   ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
   onClickRow?: (row: T) => void;
   actions?: TableAction<T>[];

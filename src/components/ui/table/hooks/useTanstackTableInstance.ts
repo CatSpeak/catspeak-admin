@@ -17,6 +17,7 @@ import {
   multiSelectFilter,
   approximateTextFilter,
   globalContainsFilter,
+  dateRangeFilter,
 } from "../filters/filterFns";
 
 export interface UseTanstackTableInstanceParams<T> {
@@ -96,6 +97,7 @@ export function useTanstackTableInstance<T>({
     filterFns: {
       multiSelect: multiSelectFilter as FilterFn<T>,
       approximateText: approximateTextFilter as FilterFn<T>,
+      dateRange: dateRangeFilter as FilterFn<T>,
     },
     globalFilterFn: globalContainsFilter as FilterFn<T>,
     getRowId: keyExtractor

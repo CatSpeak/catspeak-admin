@@ -169,7 +169,7 @@ export default function RefundsPage() {
         key={`${refreshTrigger}-${statusFilter}`}
         keyExtractor={(r) => String(r.refundId)}
         fetcher={fetcher}
-        filter={async (attribute, value) => {
+        filter={async (attribute, value, toDate) => {
           const params: GetRefundsParams = {}
           if (statusFilter !== "All") {
             params.Status = statusFilter
@@ -183,8 +183,21 @@ export default function RefundsPage() {
             attribute === "reason"
           ) {
             params.Search = value ? String(value) : undefined
-          } else if (attribute === "fromDate" || attribute === "FromDate") {
-            params.FromDate = value ? String(value) : undefined
+          } else if (
+            attribute === "createDate" ||
+            attribute === "fromDate" ||
+            attribute === "FromDate"
+          ) {
+            const from =
+              typeof value === "string"
+                ? value
+                : Array.isArray(value)
+                  ? value[0]
+                  : undefined
+            const to =
+              toDate || (Array.isArray(value) ? value[1] : undefined)
+            params.FromDate = from || undefined
+            params.ToDate = to || undefined
           } else if (attribute === "toDate" || attribute === "ToDate") {
             params.ToDate = value ? String(value) : undefined
           } else if (
@@ -287,7 +300,8 @@ export default function RefundsPage() {
             id: "createDate",
             name: "Ngày Gửi",
             accessorKey: "createDate",
-            showFilter: false,
+            isDuration: true,
+            showFilter: true,
             render: (r) => (
               <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
                 {formatDateTime(r.createDate)}

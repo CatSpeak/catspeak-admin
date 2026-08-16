@@ -1,822 +1,117 @@
-Mình đã đọc toàn bộ `Table.tsx`. Component này được thiết kế khá bài bản, mục tiêu là đóng gói gần như toàn bộ chức năng của **TanStack Table** thành một reusable package, chỉ cần truyền `headers` và `fetcher` là có:
+## Props
 
-- Sorting
-- Global search
-- Column filter
-- Pagination (client hoặc server)
-- Loading / Empty / Error
-- Row actions
-- Row click
-- Custom cell render
-- Custom TanStack options
+### `TableProps<T>` (Props cấp Component)
 
-Điểm hay nhất là **nó tự quyết định dùng client-side hay server-side pagination dựa vào số lượng tham số của fetcher**.
-
----
-
-# Workflow tổng thể
-
-```
-Parent Component
-       │
-       │ headers + fetcher
-       ▼
-<Table />
-       │
-       │
-       ├── xác định pagination mode
-       │
-       ├── fetch data
-       │
-       ├── build columns
-       │
-       ├── useReactTable()
-       │
-       ├── render toolbar
-       │
-       ├── render filters
-       │
-       ├── render table
-       │
-       └── render pagination
-```
+| Prop                 | Kiểu dữ liệu                                            | Mặc định                     | Bắt buộc | Mô tả & Ý nghĩa                                                                                                                    |
+| :------------------- | :------------------------------------------------------ | :--------------------------- | :------: | :--------------------------------------------------------------------------------------------------------------------------------- |
+| `headers`            | `TableHeader<T>[]`                                      | —                            |  **Có**  | Danh sách cấu hình các cột trong bảng (xem chi tiết mục `TableHeader<T>`).                                                         |
+| `fetcher`            | `TableFetcher<T>`                                       | —                            |  **Có**  | Hàm cung cấp dữ liệu cho bảng. Tự động nhận diện Client-side hoặc Server-side pagination qua số lượng tham số (arity).             |
+| `sorter`             | `(attr, order) => TableCustomResult<T> \| Promise<...>` | `undefined`                  |  Không   | Callback khi người dùng click sort cột. Dùng khi muốn can thiệp server-side sorting hoặc custom sorting logic ngoài TanStack.      |
+| `filter`             | `(attr, val, toDate) => TableCustomResult<T> \| Promise<...>` | `undefined`                  |  Không   | Callback khi submit filter cột hoặc global search. Đối với cột có `isDuration: true`, hàm nhận `(attr, fromDate, toDate)`. Cho phép gọi API lọc từ server hoặc override data thủ công. |
+| `onClickRow`         | `(row: T) => void`                                      | `undefined`                  |  Không   | Handler khi người dùng click hoặc nhấn `Enter`/`Space` vào 1 dòng. Khi được truyền, dòng sẽ có hiệu ứng hover & con trỏ `pointer`. |
+| `actions`            | `TableAction<T>[]`                                      | `undefined`                  |  Không   | Danh sách các hành động trên từng dòng (hiển thị dưới dạng menu kebab `⋮` ở cột cuối cùng).                                        |
+| `loading`            | `boolean`                                               | `false`                      |  Không   | Ép trạng thái loading từ component cha (kết hợp với `fetchLoading` nội bộ để hiện Skeleton).                                       |
+| `loadingMessage`     | `string`                                                | `t.common.loading`           |  Không   | Thông báo cho trình đọc màn hình (accessibility - `aria-live`/`status`) khi đang tải dữ liệu.                                      |
+| `emptyMessage`       | `string`                                                | `t.common.noData`            |  Không   | Nội dung hiển thị khi bảng không có dữ liệu (`rows.length === 0`).                                                                 |
+| `configErrorMessage` | `string`                                                | `t.table.configErrorMessage` |  Không   | Thông báo lỗi hiển thị trên Card cảnh báo nếu runtime phát hiện `fetcher` không phải là một hàm hợp lệ.                            |
+| `pageSizeOptions`    | `number[]`                                              | `[10, 20, 50, 100, 200]`     |  Không   | Danh sách các tùy chọn số dòng trên 1 trang trong dropdown phân trang.                                                             |
+| `defaultPageSize`    | `number`                                                | `10`                         |  Không   | Số lượng dòng hiển thị mặc định trên mỗi trang khi khởi tạo.                                                                       |
+| `stickyHeader`       | `boolean`                                               | `true`                       |  Không   | Ghim cố định thanh tiêu đề `<thead>` ở trên cùng khi cuộn bảng theo chiều dọc (`sticky top-0 z-10`).                               |
+| `className`          | `string`                                                | `""`                         |  Không   | Class CSS tùy biến bổ sung cho thẻ `<div>` bao ngoài toàn bộ Table component.                                                      |
+| `showGlobalSearch`   | `boolean`                                               | `true`                       |  Không   | Bật/tắt thanh tìm kiếm nhanh toàn cục (Global Fuzzy Search) ở Toolbar.                                                             |
+| `showPagination`     | `boolean`                                               | `true`                       |  Không   | Bật/tắt thanh phân trang (Pagination bar) ở dưới chân bảng.                                                                        |
+| `keyExtractor`       | `(row: T, index: number) => string \| number`           | `undefined`                  |  Không   | Hàm trích xuất ID định danh duy nhất cho mỗi dòng (kết nối trực tiếp vào `getRowId` của TanStack Table).                           |
+| `entityName`         | `string`                                                | `t.table.row`                |  Không   | Tên thực thể hiển thị trong placeholder ô tìm kiếm ("Tìm kiếm {entityName}...") và tổng số bản ghi ("Tổng N {entityName}").        |
+| `tableOptions`       | `Partial<TableOptions<T>>`                              | `undefined`                  |  Không   | **Escape Hatch**: Cho phép ghi đè hoặc bổ sung bất kỳ cấu hình nâng cao nào vào trực tiếp `useReactTable()`.                       |
 
 ---
 
-# 1. Props
+### `TableHeader<T>` (Cấu hình Cột)
+
+| Thuộc tính        | Kiểu dữ liệu                               | Mặc định    | Mô tả & Ý nghĩa                                                                                                                                                                                             |
+| :---------------- | :----------------------------------------- | :---------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`            | `string`                                   | _Bắt buộc_  | Tiêu đề hiển thị của cột trên thẻ `<th>`.                                                                                                                                                                   |
+| `id`              | `string`                                   | Tự sinh     | ID duy nhất định danh cột trong TanStack (mặc định lấy theo `accessorKey`, `mapTo` hoặc `col_{index}`).                                                                                                     |
+| `icon`            | `ReactNode`                                | `undefined` | Icon nhỏ hiển thị bên trái tiêu đề cột trong thẻ `<th>`.                                                                                                                                                    |
+| `accessorKey`     | `keyof T & string`                         | `undefined` | Tên thuộc tính trong đối tượng `row` dùng để đọc giá trị, sắp xếp và lọc dữ liệu.                                                                                                                           |
+| `accessorFn`      | `(row: T) => unknown`                      | `undefined` | Hàm tính toán/trích xuất giá trị ô (dùng khi dữ liệu phức tạp, lồng nhau hoặc ghép chuỗi từ nhiều trường).                                                                                                  |
+| `mapTo`           | `keyof T & string`                         | `undefined` | **Phân tách Sorting vs Display**: Tên thuộc tính dùng để hiển thị trên UI khi thuộc tính dùng để sort/filter khác với thuộc tính hiển thị (ví dụ: sort bằng `statusCode` nhưng hiển thị bằng `statusName`). |
+| `cell`            | `(value, row, index) => ReactNode`         | `undefined` | Hàm render toàn quyền nội dung ô `<td>`. Nhận vào giá trị thô `value`, toàn bộ object `row` và chỉ số `index`.                                                                                              |
+| `render`          | `(row: T) => renderComponent \| ReactNode` | `undefined` | Factory bọc giá trị: Trả về một Component/tag (như `"strong"`, `"span"`, `Badge`) để bọc giá trị thô làm `children`, hoặc trả về một React element hoàn chỉnh.                                              |
+| `values`          | `(FilterOption \| string \| number)[]`     | `undefined` | Tập hợp các giá trị cố định của cột. Khi có thuộc tính này, bộ lọc của cột sẽ tự động chuyển từ ô nhập text sang dạng **Dropdown Checkbox đa lựa chọn**.                                                    |
+| `valueLabels`     | `string[]`                                 | `undefined` | Nhãn hiển thị tương ứng theo vị trí index của mảng `values` trong menu lọc.                                                                                                                                 |
+| `allowSort`       | `boolean`                                  | `false`     | Bật hoặc tắt tính năng sắp xếp (Sort) trên cột này (mặc định: `false`).                                                                                                                                      |
+| `showFilter`      | `boolean`                                  | `false`     | Bật hoặc ẩn cột này khỏi panel bộ lọc mở rộng ở Toolbar (mặc định: `false`).                                                                                                                                 |
+| `isDuration`      | `boolean`                                  | `false`     | Kích hoạt bộ lọc khoảng thời gian/ngày (Date Range). Khi `isDuration = true` và `showFilter = true`, panel filter sẽ hiển thị 2 ô datetimepicker (Từ: fromDate - Đến: toDate); callback `filter` của bảng sẽ nhận 2 tham số là `(attribute, fromDate, toDate)`. |
+| `width`           | `number \| string`                         | `undefined` | Độ rộng cố định của cột (hỗ trợ pixel `150` hoặc chuỗi CSS `"20%"`).                                                                                                                                        |
+| `headerClassName` | `string`                                   | `undefined` | Custom class CSS cho ô tiêu đề `<th>` của cột.                                                                                                                                                              |
+| `cellClassName`   | `string`                                   | `undefined` | Custom class CSS cho các ô dữ liệu `<td>` thuộc cột này.                                                                                                                                                    |
+
+---
+
+### `TableAction<T>` (Cấu hình Row Action Menu)
+
+| Thuộc tính | Kiểu dữ liệu          | Bắt buộc | Mô tả & Ý nghĩa                                                                         |
+| :--------- | :-------------------- | :------: | :-------------------------------------------------------------------------------------- |
+| `label`    | `string`              |  **Có**  | Nhãn văn bản hiển thị cho hành động trong dropdown menu.                                |
+| `icon`     | `ReactNode`           |  Không   | Icon hiển thị bên cạnh nhãn hành động (ví dụ: `Edit`, `Trash2`, `Eye`).                 |
+| `handler`  | `(row: T) => void`    |  Không   | Hàm callback thực thi khi người dùng click vào hành động, nhận dữ liệu dòng `row`.      |
+| `hidden`   | `(row: T) => boolean` |  Không   | Hàm điều kiện ẩn/hiện hành động động theo từng dòng dữ liệu cụ thể.                     |
+| `danger`   | `boolean`             |  Không   | Đánh dấu hành động nguy hiểm (sẽ hiển thị màu đỏ cảnh báo, ví dụ: Xóa, Khóa tài khoản). |
+
+---
+
+### `TableFetcher<T>` & `TableFetcherResult<T>`
 
 ```ts
-interface TableProps<T>
-```
+export interface TableFetcherResult<T> {
+  data: T[] // Danh sách các bản ghi của trang hiện tại (hoặc toàn bộ dataset)
+  total: number // Tổng số bản ghi (bắt buộc khi dùng Server-side Pagination)
+}
 
-là API mà package expose.
-
----
-
-## headers
-
-```ts
-headers: TableHeader < T > [];
-```
-
-Định nghĩa các cột.
-
-Ví dụ
-
-```ts
-headers={[
-   {
-      name:"Name",
-      accessorKey:"name"
-   },
-   {
-      name:"Age",
-      accessorKey:"age"
-   }
-]}
-```
-
-Sau đó component sẽ convert thành
-
-```
-ColumnDef[]
-```
-
-để TanStack hiểu.
-
----
-
-## fetcher
-
-Đây là phần quan trọng nhất.
-
-```ts
-fetcher: TableFetcher<T>;
-```
-
-Có thể có 2 kiểu.
-
-### Client side
-
-```ts
-const fetcher = async () => {
-  return {
-    data,
-    total: data.length,
-  };
-};
-```
-
-↓
-
-Table gọi đúng **1 lần**
-
-```
-fetcher()
-```
-
-↓
-
-Toàn bộ data nằm trong browser.
-
-Pagination
-
-Sorting
-
-Filter
-
-đều chạy ở client.
-
----
-
-### Server side
-
-Nếu khai báo
-
-```ts
-const fetcher = async (page, pageSize) => {};
-```
-
-thì
-
-```
-fetcher.length == 2
-```
-
-↓
-
-Table tự hiểu
-
-```
-Server pagination
-```
-
-↓
-
-Mỗi lần đổi page
-
-```
-fetcher(page,pageSize)
+export type TableFetcher<T> = (
+  page?: number,
+  pageSize?: number,
+) => Promise<TableFetcherResult<T>> | TableFetcherResult<T>
 ```
 
 ---
 
-Đây là đoạn quyết định
-
-```ts
-const usesServerPagination = fetcher.length >= 2;
-```
-
-Khá thông minh.
-
----
-
-# onClickRow
-
-```ts
-(row) => {};
-```
-
-Nếu truyền
-
-```
-row sẽ clickable
-```
-
-Nếu không truyền
-
-```
-row chỉ hiển thị
-```
-
----
-
-# actions
-
-```
-...
-```
-
-Mỗi row sẽ có
-
-```
-⋮
-```
-
-Ví dụ
-
-```
-Edit
-
-Delete
-
-Disable
-```
-
-được render từ
-
-```
-ActionsMenu
-```
-
----
-
-# loading
-
-Cho phép parent ép loading.
-
-```
-loading=true
-```
-
-↓
-
-Hiện skeleton.
-
----
-
-# loadingMessage
-
-Accessibility
-
-```
-Loading...
-```
-
----
-
-# emptyMessage
-
-```
-No data
-```
-
----
-
-# configErrorMessage
-
-Nếu quên truyền fetcher
-
-```
-Table requires fetcher
-```
-
----
-
-# pageSizeOptions
-
-```
-[10,20,50]
-```
-
-↓
-
-Dropdown
-
-```
-Rows per page
-```
-
----
-
-# defaultPageSize
-
-Khởi tạo
-
-```ts
-pagination = {
-  pageSize: 10,
-};
-```
-
----
-
-# stickyHeader
-
-```
-true
-```
-
-↓
-
-thead
-
-```
-sticky top-0
-```
-
----
-
-# className
-
-Class ngoài cùng.
-
----
-
-# showGlobalSearch
-
-Ẩn hiện
-
-```
-Search...
-```
-
----
-
-# showPagination
-
-Ẩn pagination.
-
----
-
-# keyExtractor
-
-Mặc định
-
-TanStack dùng index.
-
-Nếu truyền
-
-```ts
-keyExtractor={(row)=>row.id}
-```
-
-↓
-
-```
-getRowId
-```
-
-sẽ dùng id.
-
----
-
-# entityName
-
-Đổi text
-
-Ví dụ
-
-```
-Total 100 Accounts
-```
-
-hay
-
-```
-Total 20 Users
-```
-
----
-
-# tableOptions
-
-Đây là escape hatch.
-
-```ts
-...tableOptions
-```
-
-được merge vào
-
-```ts
-useReactTable();
-```
-
-Nghĩa là package không expose hết API TanStack nhưng vẫn cho phép override khi cần.
-
-Ví dụ
-
-```ts
-tableOptions = {
-  enableMultiSort: false,
-};
-```
-
----
-
-# 2. Header
-
-Một column gồm
-
-```ts
-interface TableHeader
-```
-
----
-
-## name
-
-Tên cột.
-
----
-
-## accessorKey
-
-Lấy dữ liệu
-
-```ts
-row.name;
-```
-
----
-
-## accessorFn
-
-Nếu dữ liệu phải tính toán
-
-Ví dụ
-
-```ts
-accessorFn: (row) => row.first + " " + row.last;
-```
-
----
-
-## mapTo
-
-Đây là điểm khá thú vị.
-
-Ví dụ
-
-Server trả
-
-```
-statusCode=1
-statusName="Active"
-```
-
-Bạn muốn
-
-Sort theo
-
-```
-statusCode
-```
-
-nhưng hiển thị
-
-```
-statusName
-```
-
-thì
-
-```
-accessorKey=statusCode
-
-mapTo=statusName
-```
-
----
-
-## cell
-
-Custom render.
-
-Ví dụ
-
-```tsx
-cell: (value, row) => <Badge>{value}</Badge>;
+## Flow
+
+```mermaid
+flowchart TD
+    A["Caller Component (truyền headers, fetcher, actions...)"] --> B["Table.tsx (Orchestrator)"]
+
+    subgraph Data_Layer ["1. Data & Fetching Layer (useTableDataSource)"]
+        B --> C{"Kiểm tra fetcher.length"}
+        C -- "fetcher.length >= 2" --> D["Server-side Mode: fetcher(page, pageSize)"]
+        C -- "fetcher.length < 2" --> E["Client-side Mode: fetcher() (toàn bộ data)"]
+        D --> F["Lưu fetchedData & fetchedTotal"]
+        E --> F
+        G["Custom Sorter / Filter Trigger"] --> H["Override customData & customTotal"]
+        H --> I["data = customData ?? fetchedData"]
+        F --> I
+    end
+
+    subgraph Column_Layer ["2. Columns Adapter Layer (useTableColumns)"]
+        B --> J["headers: TableHeader[]"]
+        J --> K["Chuẩn hóa options (normalizeOptions)"]
+        K --> L["Định nghĩa Accessor & FilterFn (multiSelect / approximateText)"]
+        L --> M["Thiết lập Cell Renderer Fallback (renderCellValue)"]
+        M --> N["Trả về TanStack ColumnDef[]"]
+    end
+
+    subgraph Tanstack_Engine ["3. Engine Layer (useTanstackTableInstance)"]
+        I & N --> O["useReactTable({ data, columns, state, filterFns, manualPagination })"]
+        O --> P["Quản lý SortingState, ColumnFiltersState, GlobalFilterState, PaginationState"]
+    end
+
+    subgraph Presentation_Layer ["4. Presentation Layer (JSX Components)"]
+        P --> Q["TableToolbar: Global Search (Fuzzy) & Collapsible Filter Panel"]
+        P --> R["TableHeaderRow: thead, Sort Icons (asc/desc/default)"]
+        P --> S["TableBody: Điều phối Error | Skeleton | Empty | TableRow Items"]
+        S --> T["ActionsMenu: Kebab ⋮ dropdown menu theo từng dòng"]
+        P --> U["TablePagination: Rows per page, Total count, Page buttons"]
+    end
 ```
-
----
-
-## render
-
-Khác cell.
-
-cell
-
-↓
-
-Render hoàn toàn.
-
-render
-
-↓
-
-Chỉ bọc value.
-
-Ví dụ
-
-```
-value
-
-↓
-
-<strong>value</strong>
-```
-
----
-
-## values
-
-Nếu truyền
-
-```
-values
-```
-
-↓
-
-Filter sẽ đổi thành
-
-Checkbox
-
-không còn textbox.
-
-Ví dụ
-
-```
-Role
-
-☑ Admin
-
-☑ User
-
-☑ Guest
-```
-
----
-
-## allowSort
-
-Bật tắt sorting.
-
----
-
-## showFilter
-
-Ẩn filter cột.
-
----
-
-## width
-
-Width cột.
-
----
-
-## headerClassName
-
-Custom TH.
-
----
-
-## cellClassName
-
-Custom TD.
-
----
-
-# 3. Workflow fetch data
-
-Ban đầu
-
-```
-useEffect
-```
-
-↓
-
-Kiểm tra
-
-```
-Server?
-```
-
-Nếu
-
-Server
-
-↓
-
-```
-fetcher(page,pageSize)
-```
-
-Nếu
-
-Client
-
-↓
-
-```
-fetcher()
-```
-
-↓
-
-```
-setFetchedData()
-
-setFetchedTotal()
-```
-
-↓
-
-```
-useReactTable(data)
-```
-
----
-
-# 4. Build columns
-
-Từ
-
-```
-TableHeader
-```
-
-↓
-
-Convert
-
-```
-ColumnDef
-```
-
-↓
-
-Đưa vào
-
-```
-useReactTable()
-```
-
----
-
-# 5. TanStack
-
-```ts
-useReactTable({
-    data,
-    columns,
-    state,
-    ...
-})
-```
-
-Đây là "engine" của toàn bộ table.
-
-Nó quản lý:
-
-- sorting
-- filtering
-- pagination
-- row model
-- header model
-- page model
-
----
-
-# 6. Search
-
-Global search
-
-↓
-
-```
-globalContainsFilter
-```
-
-↓
-
-Mỗi cell
-
-↓
-
-```
-approximateIncludes()
-```
-
-↓
-
-Có fuzzy search.
-
-Ví dụ
-
-```
-Jhon
-```
-
-vẫn match
-
-```
-John
-```
-
----
-
-# 7. Column Filter
-
-Nếu
-
-```
-values
-```
-
-↓
-
-Checkbox.
-
-Nếu không
-
-↓
-
-Textbox.
-
----
-
-# 8. Pagination
-
-Nếu
-
-Client
-
-↓
-
-TanStack
-
-```
-getPaginationRowModel()
-```
-
-chia page.
-
-Nếu
-
-Server
-
-↓
-
-Server chia page.
-
-TanStack chỉ hiển thị.
-
----
-
-# 9. Actions
-
-Nếu
-
-```
-actions
-```
-
-↓
-
-Render
-
-```
-⋮
-```
-
-↓
-
-Click
-
-↓
-
-Menu
-
-↓
-
-handler(row)
-
----
-
-# 10. Các state chính
-
-| State         | Ý nghĩa                          |
-| ------------- | -------------------------------- |
-| sorting       | Trạng thái sắp xếp               |
-| columnFilters | Filter từng cột                  |
-| globalFilter  | Ô search toàn cục                |
-| pagination    | pageIndex, pageSize              |
-| filtersOpen   | Mở/đóng panel filter             |
-| openRowId     | Menu actions của row nào đang mở |
-| fetchedData   | Dữ liệu hiện tại                 |
-| fetchedTotal  | Tổng số bản ghi                  |
-| fetchLoading  | Loading khi gọi fetcher          |
-| fetchError    | Lỗi khi fetch                    |
-
-## Đánh giá thiết kế
-
-### Ưu điểm
-
-- **API đơn giản:** chỉ cần `headers` + `fetcher` là có một bảng đầy đủ chức năng.
-- **Tự động chọn client/server pagination** dựa trên chữ ký của `fetcher`, giúp component dễ dùng.
-- **Phân tách tốt** giữa cấu hình (`headers`) và dữ liệu (`fetcher`).
-- **Khả năng mở rộng cao:** `cell`, `render`, `tableOptions`, `actions`, `keyExtractor` cho phép tùy biến mà không phải sửa component.
-- **Tích hợp nhiều tính năng sẵn có:** sorting, filtering, global search, pagination, loading, error, empty state.
-
-### Hạn chế đáng lưu ý
-
-- **Phát hiện server pagination bằng `fetcher.length` khá "ma thuật" (magic behavior):** nếu `fetcher` được bọc bởi một wrapper hoặc dùng rest parameters, `length` có thể không phản ánh đúng ý định.
-- **Server-side sorting và filtering chưa được hỗ trợ:** trong chế độ server, sorting/filtering vẫn chạy trên dữ liệu của **trang hiện tại**, nên kết quả không đúng nếu tổng dữ liệu lớn. Muốn hỗ trợ đầy đủ, `sorting` và `columnFilters` nên được truyền vào `fetcher` để API xử lý.
-- **`fetcher` hiện chỉ nhận `(page, pageSize)`:** nếu sau này cần server-side search, sort hoặc filter, kiểu `TableFetcher` sẽ cần mở rộng (ví dụ nhận thêm một object chứa `sorting`, `filters`, `globalFilter`).
-
-Nhìn chung, đây là một thiết kế sạch và phù hợp cho khoảng **80–90%** các bảng dữ liệu thông thường. Nếu mục tiêu là xây dựng một package dùng chung cho nhiều dự án và làm việc với API lớn, bước nâng cấp tiếp theo nên là hỗ trợ **server-side sorting, filtering và search** thay vì chỉ có server-side pagination.
