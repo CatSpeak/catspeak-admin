@@ -20,6 +20,7 @@ import type {
 } from "../types"
 import { useLanguage } from "../../../stores/languageStore"
 import { formatDateToDisplay } from "../../../lib/utils"
+import ProgressBar from "../components/ProgressBar"
 
 export default function VoucherPage() {
   const { t } = useLanguage()
@@ -263,6 +264,17 @@ export default function VoucherPage() {
               )}
             </div>
           </div>
+        ),
+      },
+      {
+        name: t.vouchers.usage,
+        accessorKey: "usedCount",
+        render: (row) => (
+          <ProgressBar
+            usedCount={row.usedCount}
+            totalUsageLimit={row.totalUsageLimit}
+            isUnlimitedUsage={row.isUnlimitedUsage}
+          />
         ),
       },
       {

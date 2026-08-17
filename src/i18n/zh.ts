@@ -968,6 +968,7 @@ const zh = {
     discountValue: "折扣金额",
     deposit: "押金",
     validity: "有效期",
+    usage: "已使用",
     sponsorType: "赞助来源",
     status: "状态",
     maxDiscount: "最高",

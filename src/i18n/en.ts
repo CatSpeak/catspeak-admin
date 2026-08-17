@@ -995,6 +995,7 @@ const en = {
     discountValue: "Discount Value",
     deposit: "Deposit",
     validity: "Validity",
+    usage: "Used",
     sponsorType: "Sponsor",
     status: "Status",
     maxDiscount: "Max",

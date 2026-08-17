@@ -1002,6 +1002,7 @@ const vi = {
     discountValue: "Giá trị",
     deposit: "Tiền cọc",
     validity: "Hiệu lực",
+    usage: "Đã dùng",
     sponsorType: "Nguồn",
     status: "Trạng thái",
     maxDiscount: "Tối đa",
