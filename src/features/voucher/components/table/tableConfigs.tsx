@@ -1,0 +1,601 @@
+import type { RefObject } from "react"
+import {
+  EllipsisVertical,
+  Eye,
+  Edit,
+  Trash2,
+  Calendar,
+  TrendingUp,
+  ShieldCheck,
+  XCircle,
+  Ban,
+  CheckCircle2,
+} from "lucide-react"
+import Badge, { type BadgeType } from "../../../../components/ui/Badge"
+import type { TableHeader } from "../../../../components/ui/table/types"
+import type { VoucherListItem } from "../../types"
+import { formatDateToDisplay } from "../../../../lib/utils"
+import ProgressBar from "../ProgressBar"
+
+export interface VoucherActionItem {
+  key: string
+  label: string
+  icon: React.ReactNode
+  danger?: boolean
+  onClick: () => void
+}
+
+export interface GetRowActionsParams {
+  row: VoucherListItem
+  navigate: (path: string) => void
+  onOpenActivate: (row: VoucherListItem) => void
+  onOpenDisable: (row: VoucherListItem) => void
+  onOpenExtend: (row: VoucherListItem) => void
+  onOpenIncreaseLimit: (row: VoucherListItem) => void
+  onOpenDelete: (row: VoucherListItem) => void
+  onOpenApproveDeposit: (row: VoucherListItem) => void
+  onOpenReject: (row: VoucherListItem) => void
+}
+
+/**
+ * Helper to get status badge type and label
+ */
+export const getStatusBadgeConfig = (
+  status: string,
+  statusesText: Record<string, string>,
+): { type: BadgeType; label: string; showDot?: boolean } => {
+  switch (status) {
+    case "Active":
+      return {
+        type: "Green",
+        label: statusesText.active || "Đang hoạt động",
+        showDot: true,
+      }
+    case "Draft":
+      return {
+        type: "Gray",
+        label: statusesText.draft || "Bản nháp",
+      }
+    case "PendingApproval":
+      return {
+        type: "Yellow",
+        label: statusesText.pendingApproval || "Chờ duyệt",
+        showDot: true,
+      }
+    case "PendingDeposit":
+      return {
+        type: "Orange",
+        label: statusesText.pendingDeposit || "Chờ nạp cọc",
+        showDot: true,
+      }
+    case "Disabled":
+      return {
+        type: "Gray",
+        label: statusesText.disabled || "Đã vô hiệu hóa",
+      }
+    case "Expired":
+      return {
+        type: "Red",
+        label: statusesText.expired || "Đã hết hạn",
+      }
+    case "Exhausted":
+      return {
+        type: "Purple",
+        label: statusesText.exhausted || "Đã hết lượt",
+      }
+    case "Rejected":
+      return {
+        type: "Red",
+        label: statusesText.rejected || "Bị từ chối",
+      }
+    case "Stopped":
+      return {
+        type: "Gray",
+        label: statusesText.stopped || "Đã dừng",
+      }
+    default:
+      return {
+        type: "Gray",
+        label: status,
+      }
+  }
+}
+
+/**
+ * Compute row action list based on sponsorType & status
+ */
+export const getRowActions = ({
+  row,
+  navigate,
+  onOpenActivate,
+  onOpenDisable,
+  onOpenExtend,
+  onOpenIncreaseLimit,
+  onOpenDelete,
+  onOpenApproveDeposit,
+  onOpenReject,
+}: GetRowActionsParams): VoucherActionItem[] => {
+  const isCatSpeak = row.sponsorType === "CatSpeak"
+
+  if (isCatSpeak) {
+    if (row.status === "Active") {
+      return [
+        {
+          key: "view",
+          label: "Xem chi tiết",
+          icon: <Eye size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "disable",
+          label: "Vô hiệu hóa",
+          icon: <Ban size={14} />,
+          onClick: () => onOpenDisable(row),
+        },
+        {
+          key: "extend",
+          label: "Gia hạn",
+          icon: <Calendar size={14} />,
+          onClick: () => onOpenExtend(row),
+        },
+        {
+          key: "delete",
+          label: "Xóa",
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onClick: () => onOpenDelete(row),
+        },
+      ]
+    }
+    if (row.status === "Disabled") {
+      return [
+        {
+          key: "view",
+          label: "Xem chi tiết",
+          icon: <Eye size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "activate",
+          label: "Kích hoạt",
+          icon: <CheckCircle2 size={14} />,
+          onClick: () => onOpenActivate(row),
+        },
+        {
+          key: "delete",
+          label: "Xóa",
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onClick: () => onOpenDelete(row),
+        },
+      ]
+    }
+    if (row.status === "Draft") {
+      return [
+        {
+          key: "edit",
+          label: "Sửa",
+          icon: <Edit size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "view",
+          label: "Xem chi tiết",
+          icon: <Eye size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "activate",
+          label: "Kích hoạt",
+          icon: <CheckCircle2 size={14} />,
+          onClick: () => onOpenActivate(row),
+        },
+        {
+          key: "delete",
+          label: "Xóa",
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onClick: () => onOpenDelete(row),
+        },
+      ]
+    }
+    if (row.status === "Expired") {
+      return [
+        {
+          key: "view",
+          label: "Xem chi tiết",
+          icon: <Eye size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "extend",
+          label: "Gia hạn",
+          icon: <Calendar size={14} />,
+          onClick: () => onOpenExtend(row),
+        },
+        {
+          key: "delete",
+          label: "Xóa",
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onClick: () => onOpenDelete(row),
+        },
+      ]
+    }
+    if (row.status === "Exhausted") {
+      return [
+        {
+          key: "view",
+          label: "Xem chi tiết",
+          icon: <Eye size={14} />,
+          onClick: () => navigate(`/voucher/${row.id}`),
+        },
+        {
+          key: "increase",
+          label: "Tăng số lượt",
+          icon: <TrendingUp size={14} />,
+          onClick: () => onOpenIncreaseLimit(row),
+        },
+        {
+          key: "delete",
+          label: "Xóa",
+          icon: <Trash2 size={14} />,
+          danger: true,
+          onClick: () => onOpenDelete(row),
+        },
+      ]
+    }
+    return [
+      {
+        key: "view",
+        label: "Xem chi tiết",
+        icon: <Eye size={14} />,
+        onClick: () => navigate(`/voucher/${row.id}`),
+      },
+      {
+        key: "delete",
+        label: "Xóa",
+        icon: <Trash2 size={14} />,
+        danger: true,
+        onClick: () => onOpenDelete(row),
+      },
+    ]
+  }
+
+  // Instructor Sponsor
+  if (row.status === "PendingApproval" || row.status === "PendingDeposit") {
+    return [
+      {
+        key: "view",
+        label: "Xem chi tiết",
+        icon: <Eye size={14} />,
+        onClick: () => navigate(`/voucher/${row.id}`),
+      },
+      {
+        key: "approve",
+        label: "Xác nhận đã nhận cọc",
+        icon: <ShieldCheck size={14} />,
+        onClick: () => onOpenApproveDeposit(row),
+      },
+      {
+        key: "reject",
+        label: "Từ chối & Hủy",
+        icon: <XCircle size={14} />,
+        danger: true,
+        onClick: () => onOpenReject(row),
+      },
+    ]
+  }
+  if (row.status === "Active") {
+    return [
+      {
+        key: "view",
+        label: "Xem chi tiết",
+        icon: <Eye size={14} />,
+        onClick: () => navigate(`/voucher/${row.id}`),
+      },
+      {
+        key: "disable",
+        label: "Vô hiệu hóa",
+        icon: <Ban size={14} />,
+        onClick: () => onOpenDisable(row),
+      },
+    ]
+  }
+  return [
+    {
+      key: "view",
+      label: "Xem chi tiết",
+      icon: <Eye size={14} />,
+      onClick: () => navigate(`/voucher/${row.id}`),
+    },
+  ]
+}
+
+export interface GetVoucherTableHeadersOptions {
+  vouchersText: {
+    code: string
+    name: string
+    discountType: string
+    discountValue: string
+    deposit: string
+    validity: string
+    usage: string
+    sponsorType: string
+    status: string
+    maxDiscount: string
+    neverExpired: string
+    from: string
+    to: string
+    discountTypes: {
+      percentage: string
+      fixedAmount: string
+    }
+    sponsorTypes: {
+      catspeak: string
+      instructor: string
+    }
+    statuses: Record<string, string>
+  }
+  openDropdownId: number | null
+  setOpenDropdownId: (id: number | null) => void
+  dropdownRef: RefObject<HTMLDivElement | null>
+  getRowActions: (row: VoucherListItem) => VoucherActionItem[]
+  getStatusBadgeConfig: (status: string) => {
+    type: BadgeType
+    label: string
+    showDot?: boolean
+  }
+}
+
+/**
+ * Generate Voucher table headers configuration
+ */
+export const getVoucherTableHeaders = ({
+  vouchersText,
+  openDropdownId,
+  setOpenDropdownId,
+  dropdownRef,
+  getRowActions: computeRowActions,
+  getStatusBadgeConfig: computeBadgeConfig,
+}: GetVoucherTableHeadersOptions): TableHeader<VoucherListItem>[] => [
+  {
+    name: vouchersText.code,
+    accessorKey: "code",
+    render: (row) => (
+      <span className="font-bold text-red-600 font-mono tracking-wide whitespace-nowrap">
+        {row.code}
+      </span>
+    ),
+  },
+  {
+    name: vouchersText.name,
+    accessorKey: "title",
+    render: (row) => (
+      <div className="max-w-xs space-y-0.5">
+        <p className="font-medium text-gray-900 leading-snug">{row.title}</p>
+        {row.description ? (
+          <p
+            className="text-xs text-gray-500 italic truncate"
+            title={row.description}
+          >
+            {row.description}
+          </p>
+        ) : (
+          <p className="text-xs text-gray-400 italic">—</p>
+        )}
+      </div>
+    ),
+  },
+  {
+    name: vouchersText.discountType,
+    accessorKey: "discountType",
+    showFilter: true,
+    values: [
+      {
+        label: vouchersText.discountTypes.percentage,
+        value: "Percentage",
+      },
+      {
+        label: vouchersText.discountTypes.fixedAmount,
+        value: "FixedAmount",
+      },
+    ],
+    render: (row) => {
+      const isPercentage = row.discountType === "Percentage"
+      return (
+        <Badge type={isPercentage ? "Blue" : "Purple"}>
+          {isPercentage
+            ? vouchersText.discountTypes.percentage
+            : vouchersText.discountTypes.fixedAmount}
+        </Badge>
+      )
+    },
+  },
+  {
+    name: vouchersText.discountValue,
+    accessorKey: "discountValue",
+    render: (row) => {
+      const isPercentage = row.discountType === "Percentage"
+      const displayValue = isPercentage
+        ? `${row.discountValue}%`
+        : `${row.discountValue.toLocaleString("vi-VN")} đ`
+
+      return (
+        <div className="space-y-0.5 whitespace-nowrap">
+          <div className="font-medium text-gray-900">{displayValue}</div>
+          {row.maxDiscountAmount != null && row.maxDiscountAmount > 0 && (
+            <div className="text-xs text-gray-500 italic">
+              {vouchersText.maxDiscount}{" "}
+              {row.maxDiscountAmount.toLocaleString("vi-VN")} đ
+            </div>
+          )}
+        </div>
+      )
+    },
+  },
+  {
+    name: vouchersText.deposit,
+    accessorKey: "depositAmount",
+    render: (row) => (
+      <div className="space-y-0.5 whitespace-nowrap">
+        <div className="font-medium text-gray-900">
+          {row.depositAmount != null
+            ? `${row.depositAmount.toLocaleString("vi-VN")} đ`
+            : "—"}
+        </div>
+        {row.depositRequired != null && row.depositRequired > 0 && (
+          <div className="text-xs text-gray-500 italic">
+            / {row.depositRequired.toLocaleString("vi-VN")} đ
+          </div>
+        )}
+      </div>
+    ),
+  },
+  {
+    name: vouchersText.validity,
+    accessorKey: "validFrom",
+    render: (row) => (
+      <div className="text-xs space-y-0.5 whitespace-nowrap">
+        <div className="text-gray-700">
+          <span className="text-gray-400 mr-1">{vouchersText.from}:</span>
+          <span className="font-medium">
+            {formatDateToDisplay(row.validFrom) || "—"}
+          </span>
+        </div>
+        <div className="text-gray-700">
+          <span className="text-gray-400 mr-1">{vouchersText.to}:</span>
+          {row.isNeverExpired ? (
+            <span className="text-emerald-600 font-medium">
+              {vouchersText.neverExpired}
+            </span>
+          ) : (
+            <span className="font-medium">
+              {formatDateToDisplay(row.validTo) || "—"}
+            </span>
+          )}
+        </div>
+      </div>
+    ),
+  },
+  {
+    name: vouchersText.usage,
+    accessorKey: "usedCount",
+    render: (row) => (
+      <ProgressBar
+        usedCount={row.usedCount}
+        totalUsageLimit={row.totalUsageLimit}
+        isUnlimitedUsage={row.isUnlimitedUsage}
+      />
+    ),
+  },
+  {
+    name: vouchersText.sponsorType,
+    accessorKey: "sponsorType",
+    showFilter: true,
+    values: [
+      {
+        label: vouchersText.sponsorTypes.catspeak,
+        value: "CatSpeak",
+      },
+      {
+        label: vouchersText.sponsorTypes.instructor,
+        value: "Instructor",
+      },
+    ],
+    render: (row) => {
+      const isCatSpeak = row.sponsorType === "CatSpeak"
+      return (
+        <Badge type={isCatSpeak ? "Red" : "Blue"}>
+          {isCatSpeak
+            ? vouchersText.sponsorTypes.catspeak
+            : vouchersText.sponsorTypes.instructor}
+        </Badge>
+      )
+    },
+  },
+  {
+    name: vouchersText.status,
+    accessorKey: "status",
+    showFilter: true,
+    values: [
+      { label: vouchersText.statuses.active, value: "Active" },
+      { label: vouchersText.statuses.draft, value: "Draft" },
+      {
+        label: vouchersText.statuses.pendingApproval,
+        value: "PendingApproval",
+      },
+      {
+        label: vouchersText.statuses.pendingDeposit,
+        value: "PendingDeposit",
+      },
+      { label: vouchersText.statuses.disabled, value: "Disabled" },
+      { label: vouchersText.statuses.expired, value: "Expired" },
+      { label: vouchersText.statuses.exhausted, value: "Exhausted" },
+      { label: vouchersText.statuses.rejected, value: "Rejected" },
+      { label: vouchersText.statuses.stopped, value: "Stopped" },
+    ],
+    render: (row) => {
+      const { type, label, showDot } = computeBadgeConfig(row.status)
+      return (
+        <Badge type={type} showDot={showDot}>
+          {label}
+        </Badge>
+      )
+    },
+  },
+  {
+    name: "",
+    id: "actions",
+    width: 48,
+    render: (row) => {
+      const actions = computeRowActions(row)
+      const isOpen = openDropdownId === row.id
+
+      return (
+        <div
+          className="relative inline-block text-left"
+          ref={isOpen ? dropdownRef : undefined}
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpenDropdownId(isOpen ? null : row.id)
+            }}
+            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none"
+            title="Tùy chọn thao tác"
+          >
+            <EllipsisVertical size={16} />
+          </button>
+
+          {isOpen && (
+            <div
+              className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-gray-100 py-1.5 z-30 animate-[fadeIn_100ms_ease-out]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {actions.map((act) => (
+                <button
+                  key={act.key}
+                  type="button"
+                  onClick={() => {
+                    setOpenDropdownId(null)
+                    act.onClick()
+                  }}
+                  className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium transition-colors ${
+                    act.danger
+                      ? "text-red-600 hover:bg-red-50"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  {act.icon}
+                  <span>{act.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    },
+  },
+]

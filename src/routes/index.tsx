@@ -31,6 +31,8 @@ const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsP
 const PlansPage = lazy(() => import("../features/plans/PlansPage"));
 const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsPage"));
 const VoucherPage = lazy(() => import("../features/voucher/routes/VoucherPage"));
+const VoucherCreatePage = lazy(() => import("../features/voucher/routes/VoucherCreatePage"));
+const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherDetailPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 
 const wrap = (Component: React.ComponentType) => (
@@ -86,6 +88,10 @@ export const router = createBrowserRouter([
           { path: "plans/create", element: guard(PlanDetailsPage, "plans") },
           { path: "plans/:id", element: guard(PlanDetailsPage, "plans") },
           { path: "vouchers", element: guard(VoucherPage, "vouchers") },
+          { path: "vouchers/create", element: guard(VoucherCreatePage, "vouchers") },
+          { path: "voucher/create", element: guard(VoucherCreatePage, "vouchers") },
+          { path: "vouchers/:id", element: guard(VoucherDetailPage, "vouchers") },
+          { path: "voucher/:id", element: guard(VoucherDetailPage, "vouchers") },
           { path: "news/create", element: guard(PostCreatePage, "news") },
           { path: "news/:slug", element: guard(PostDetailPage, "news") },
           { path: "instructor-applications", element: guard(InstructorApplicationsPage, "instructor_applications") },
