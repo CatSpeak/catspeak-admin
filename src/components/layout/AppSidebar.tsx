@@ -52,6 +52,7 @@ const AppSidebar: React.FC = () => {
 
   const isPermitted = React.useCallback(
     (code?: string) => {
+      console.log(code)
       return true
       // if (!currentUser) return false
       // if (currentUser.roleId === 1) return true // Primary Admin full access
