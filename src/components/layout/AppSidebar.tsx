@@ -9,6 +9,7 @@ import {
   FileWarning,
   GraduationCap,
   Package,
+  Ticket,
   RotateCcw,
   CreditCard,
 } from "lucide-react"
@@ -49,12 +50,15 @@ const AppSidebar: React.FC = () => {
   } = useSidebar()
   const location = useLocation()
 
-  const isPermitted = (code?: string) => {
-    if (!currentUser) return false
-    if (currentUser.roleId === 1) return true // Primary Admin full access
-    if (!code) return true
-    return currentUser.permissions?.includes(code) ?? false
-  }
+  const isPermitted = React.useCallback(
+    (code?: string) => {
+      if (!currentUser) return false
+      if (currentUser.roleId === 1) return true // Primary Admin full access
+      if (!code) return true
+      return currentUser.permissions?.includes(code) ?? false
+    },
+    [currentUser],
+  )
 
   const navItems: NavItem[] = useMemo(() => {
     const rawItems: NavItem[] = [
@@ -77,6 +81,12 @@ const AppSidebar: React.FC = () => {
         icon: <Package size={20} />,
         path: "/plans",
         permission: "plans",
+      },
+      {
+        name: t.nav.vouchers || "Quản lý voucher",
+        icon: <Ticket size={20} />,
+        path: "/vouchers",
+        permission: "vouchers",
       },
       {
         name: t.nav.catSpeak,
@@ -135,7 +145,7 @@ const AppSidebar: React.FC = () => {
         return isPermitted(item.permission) ? item : null
       })
       .filter((item): item is NavItem => item !== null)
-  }, [t, currentUser])
+  }, [t, isPermitted])
 
   const [submenuOverride, setSubmenuOverride] = useState<
     number | null | "auto"
