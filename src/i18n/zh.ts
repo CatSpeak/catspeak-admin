@@ -1149,6 +1149,9 @@ const zh = {
     actions: "操作",
     row: "行",
     rows: "行",
+    noData: "暂无数据",
+    error: "发生错误",
+    errorDesc: "无法从服务器加载数据，请稍后重试。",
   },
   pagination: {
     rowsPerPage: "每页行数:",

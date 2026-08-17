@@ -181,6 +181,7 @@ export default function VoucherTable({ onRefreshStats }: VoucherTableProps) {
         onClickRow={(row) => navigate(`/voucher/${row.id}`)}
         showGlobalSearch={true}
         defaultPageSize={10}
+        choiceMode="single"
       />
 
       {/* ── Action Modals ── */}
