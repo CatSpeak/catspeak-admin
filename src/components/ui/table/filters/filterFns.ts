@@ -6,20 +6,24 @@ import {
 } from "../../../../lib/utils";
 
 /**
- * Multi-select ("checkbox list") filter. Both sides are stringified
- * before comparing so filter options work regardless of whether the
- * underlying value is a string, number, or boolean (e.g. a `value: 1`
- * checkbox correctly matches a row whose accessed value is `1`).
+ * Choice filter (supports both single select and multi-select options).
+ * Both sides are stringified before comparing so filter options work
+ * regardless of whether the underlying value is a string, number, or boolean
+ * (e.g. a `value: 1` option correctly matches a row whose accessed value is `1`).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const multiSelectFilter: FilterFn<any> = (
   row,
   columnId,
-  filterValue: unknown[],
+  filterValue: unknown,
 ) => {
-  if (!filterValue || filterValue.length === 0) return true;
+  if (filterValue === undefined || filterValue === null || filterValue === "") return true;
   const value = row.getValue(columnId);
-  return filterValue.some((fv) => String(fv) === String(value));
+  if (Array.isArray(filterValue)) {
+    if (filterValue.length === 0) return true;
+    return filterValue.some((fv) => String(fv) === String(value));
+  }
+  return String(filterValue) === String(value);
 };
 
 /** Per-column free-text filter with approximate/fuzzy matching. */

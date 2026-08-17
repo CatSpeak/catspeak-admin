@@ -2,30 +2,19 @@ import { useState } from "react";
 import {
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
   type PaginationState,
   type TableOptions,
-  type FilterFn,
 } from "@tanstack/react-table";
 import type { SortOrder, TableCustomResult } from "../types";
-import {
-  multiSelectFilter,
-  approximateTextFilter,
-  globalContainsFilter,
-  dateRangeFilter,
-} from "../filters/filterFns";
 
 export interface UseTanstackTableInstanceParams<T> {
   data: T[];
   columns: ColumnDef<T, unknown>[];
   pagination: PaginationState;
   setPagination: React.Dispatch<React.SetStateAction<PaginationState>>;
-  usesServerPagination: boolean;
   effectiveTotal: number;
   sorter?: (
     attribute: keyof T | string,
@@ -42,7 +31,6 @@ export function useTanstackTableInstance<T>({
   columns,
   pagination,
   setPagination,
-  usesServerPagination,
   effectiveTotal,
   sorter,
   applyCustomResult,
@@ -94,29 +82,14 @@ export function useTanstackTableInstance<T>({
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
-    filterFns: {
-      multiSelect: multiSelectFilter as FilterFn<T>,
-      approximateText: approximateTextFilter as FilterFn<T>,
-      dateRange: dateRangeFilter as FilterFn<T>,
-    },
-    globalFilterFn: globalContainsFilter as FilterFn<T>,
     getRowId: keyExtractor
       ? (row, index) => String(keyExtractor(row, index))
       : undefined,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    // Server pagination mode: rows already arrive pre-paginated from the
-    // fetcher, so TanStack shouldn't slice them again — just trust
-    // `fetchedTotal` for page-count math. Sorting/filtering still run
-    // client-side, but only over the currently loaded page. In client
-    // pagination mode `fetchedData` holds the whole dataset, so regular
-    // automatic pagination/sorting/filtering apply.
-    manualPagination: usesServerPagination,
-    pageCount: usesServerPagination
-      ? Math.max(1, Math.ceil(effectiveTotal / pagination.pageSize))
-      : undefined,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
+    pageCount: Math.max(1, Math.ceil(effectiveTotal / pagination.pageSize)),
     ...tableOptions,
   });
 

@@ -1183,6 +1183,9 @@ const vi = {
     actions: "Thao tác",
     row: "dòng",
     rows: "dòng",
+    noData: "Không có dữ liệu",
+    error: "Đã có lỗi xảy ra",
+    errorDesc: "Không thể tải dữ liệu từ máy chủ. Vui lòng thử lại sau.",
   },
   pagination: {
     rowsPerPage: "Số dòng mỗi trang:",

@@ -1176,6 +1176,9 @@ const en = {
     actions: "Actions",
     row: "row",
     rows: "rows",
+    noData: "No data available",
+    error: "An error occurred",
+    errorDesc: "Failed to load data from the server. Please try again later.",
   },
   pagination: {
     rowsPerPage: "Rows per page:",

@@ -31,9 +31,7 @@ export default function VoucherCreatePage() {
   const [code, setCode] = useState<string>("")
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
-  const [sponsorType, setSponsorType] = useState<"CatSpeak" | "Instructor">(
-    "CatSpeak",
-  )
+  const sponsorType = "CatSpeak" as const
 
   // Discount Configuration
   const [discountType, setDiscountType] = useState<"Percentage" | "FixedAmount">(
@@ -372,7 +370,7 @@ export default function VoucherCreatePage() {
         <button
           type="button"
           onClick={() => navigate("/vouchers")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shrink-0 shadow-xs"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shrink-0 shadow-xs cursor-pointer"
         >
           <ArrowLeft size={16} /> {t.vouchers.create.cancel}
         </button>
@@ -415,32 +413,32 @@ export default function VoucherCreatePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               {/* Code */}
-              <div className="space-y-1.5 sm:col-span-1">
+              <div className="space-y-1.5 sm:col-span-2">
                 <label className="block font-semibold text-gray-700">
                   {t.vouchers.create.code} <span className="text-red-500">*</span>
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full">
                   <input
                     type="text"
                     required
                     placeholder={t.vouchers.create.codePlaceholder}
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm font-mono font-bold text-red-600 tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors"
+                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-mono text-gray-900 tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                   <button
                     type="button"
                     disabled={isGeneratingCode}
                     onClick={handleGenerateCode}
-                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-gray-300 bg-gray-50 text-xs font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 transition-colors shrink-0 shadow-xs"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 transition-all shrink-0 shadow-xs whitespace-nowrap cursor-pointer"
                     title={t.vouchers.create.generateRandom}
                   >
                     {isGeneratingCode ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
                     ) : (
-                      <Sparkles size={14} className="text-red-600" />
+                      <Sparkles size={14} className="text-primary" />
                     )}
-                    <span className="hidden sm:inline">
+                    <span>
                       {t.vouchers.create.generateRandom}
                     </span>
                   </button>
@@ -448,7 +446,7 @@ export default function VoucherCreatePage() {
               </div>
 
               {/* Title */}
-              <div className="space-y-1.5 sm:col-span-1">
+              <div className="space-y-1.5 sm:col-span-2">
                 <label className="block font-semibold text-gray-700">
                   {t.vouchers.create.voucherName} <span className="text-red-500">*</span>
                 </label>
@@ -458,7 +456,7 @@ export default function VoucherCreatePage() {
                   placeholder={t.vouchers.create.voucherNamePlaceholder}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
 
@@ -472,7 +470,7 @@ export default function VoucherCreatePage() {
                   placeholder={t.vouchers.create.descriptionPlaceholder}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
 
@@ -482,55 +480,27 @@ export default function VoucherCreatePage() {
                   {t.vouchers.create.sponsorType}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                      sponsorType === "CatSpeak"
-                        ? "border-red-500 bg-red-50/50 text-red-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
+                  <div
+                    className="flex items-center gap-3 p-3 rounded-lg border border-blue-500 bg-blue-50/50 text-blue-900 shadow-xs cursor-not-allowed hover:cursor-not-allowed opacity-90 select-none"
+                    title="Nguồn tài trợ cố định là CatSpeak"
                   >
                     <input
                       type="radio"
                       name="sponsorType"
                       value="CatSpeak"
-                      checked={sponsorType === "CatSpeak"}
-                      onChange={() => setSponsorType("CatSpeak")}
-                      className="w-4 h-4 text-red-600 focus:ring-red-500"
+                      checked={true}
+                      disabled
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-not-allowed hover:cursor-not-allowed"
                     />
                     <div>
-                      <p className="text-xs font-semibold">
+                      <p className="text-xs font-semibold text-blue-900">
                         {t.vouchers.sponsorTypes.catspeak}
                       </p>
                       <p className="text-[11px] text-gray-500 font-normal">
                         Nền tảng CatSpeak trực tiếp tài trợ ngân sách
                       </p>
                     </div>
-                  </label>
-
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                      sponsorType === "Instructor"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="sponsorType"
-                      value="Instructor"
-                      checked={sponsorType === "Instructor"}
-                      onChange={() => setSponsorType("Instructor")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold">
-                        {t.vouchers.sponsorTypes.instructor}
-                      </p>
-                      <p className="text-[11px] text-gray-500 font-normal">
-                        Giáo viên phát hành và nạp tiền cọc ký quỹ
-                      </p>
-                    </div>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -560,7 +530,7 @@ export default function VoucherCreatePage() {
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                       discountType === "Percentage"
                         ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
@@ -572,7 +542,7 @@ export default function VoucherCreatePage() {
                       value="Percentage"
                       checked={discountType === "Percentage"}
                       onChange={() => setDiscountType("Percentage")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <div>
                       <p className="text-xs font-semibold">
@@ -585,9 +555,9 @@ export default function VoucherCreatePage() {
                   </label>
 
                   <label
-                    className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                       discountType === "FixedAmount"
-                        ? "border-purple-500 bg-purple-50/50 text-purple-900 font-semibold shadow-xs"
+                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
                     }`}
                   >
@@ -597,7 +567,7 @@ export default function VoucherCreatePage() {
                       value="FixedAmount"
                       checked={discountType === "FixedAmount"}
                       onChange={() => setDiscountType("FixedAmount")}
-                      className="w-4 h-4 text-purple-600 focus:ring-purple-500"
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <div>
                       <p className="text-xs font-semibold">
@@ -627,7 +597,7 @@ export default function VoucherCreatePage() {
                       placeholder={discountType === "Percentage" ? "20" : "50000"}
                       value={discountValue}
                       onChange={(e) => setDiscountValue(e.target.value)}
-                      className="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     />
                     <span className="absolute right-3 font-bold text-gray-500 text-xs pointer-events-none">
                       {discountType === "Percentage" ? "%" : "đ"}
@@ -648,7 +618,7 @@ export default function VoucherCreatePage() {
                       placeholder="200000"
                       value={maxDiscountAmount}
                       onChange={(e) => setMaxDiscountAmount(e.target.value)}
-                      className="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     />
                     <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
                       đ
@@ -669,7 +639,7 @@ export default function VoucherCreatePage() {
                       placeholder="300000"
                       value={minOrderAmount}
                       onChange={(e) => setMinOrderAmount(e.target.value)}
-                      className="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     />
                     <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
                       đ
@@ -704,9 +674,9 @@ export default function VoucherCreatePage() {
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                       scopeType === "All"
-                        ? "border-violet-500 bg-violet-50/50 text-violet-900 font-semibold shadow-xs"
+                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
                     }`}
                   >
@@ -716,15 +686,15 @@ export default function VoucherCreatePage() {
                       value="All"
                       checked={scopeType === "All"}
                       onChange={() => setScopeType("All")}
-                      className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-xs">{t.vouchers.create.scopeAll}</span>
                   </label>
 
                   <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                       scopeType === "SpecificCourses"
-                        ? "border-violet-500 bg-violet-50/50 text-violet-900 font-semibold shadow-xs"
+                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
                     }`}
                   >
@@ -734,15 +704,15 @@ export default function VoucherCreatePage() {
                       value="SpecificCourses"
                       checked={scopeType === "SpecificCourses"}
                       onChange={() => setScopeType("SpecificCourses")}
-                      className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-xs">{t.vouchers.create.scopeCourses}</span>
                   </label>
 
                   <label
-                    className={`flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-all ${
+                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
                       scopeType === "SpecificClasses"
-                        ? "border-violet-500 bg-violet-50/50 text-violet-900 font-semibold shadow-xs"
+                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
                         : "border-gray-200 hover:bg-gray-50 text-gray-700"
                     }`}
                   >
@@ -752,7 +722,7 @@ export default function VoucherCreatePage() {
                       value="SpecificClasses"
                       checked={scopeType === "SpecificClasses"}
                       onChange={() => setScopeType("SpecificClasses")}
-                      className="w-4 h-4 text-violet-600 focus:ring-violet-500"
+                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-xs">{t.vouchers.create.scopeClasses}</span>
                   </label>
@@ -773,18 +743,18 @@ export default function VoucherCreatePage() {
                         placeholder={t.vouchers.create.searchCourses}
                         value={itemSearch}
                         onChange={(e) => setItemSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-2 text-xs">
-                      <span className="font-semibold text-violet-700">
+                      <span className="font-semibold text-blue-700">
                         {t.vouchers.create.selectedCount}: {courseIds.length}
                       </span>
                       {courseIds.length > 0 && (
                         <button
                           type="button"
                           onClick={() => setCourseIds([])}
-                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5"
+                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5 cursor-pointer"
                         >
                           <X size={12} /> {t.vouchers.create.clearAll}
                         </button>
@@ -795,7 +765,7 @@ export default function VoucherCreatePage() {
                   <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100">
                     {loadingItems ? (
                       <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-violet-600" />
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                         Đang tải danh sách khóa học...
                       </div>
                     ) : filteredCourses.length === 0 ? (
@@ -808,9 +778,9 @@ export default function VoucherCreatePage() {
                         return (
                           <label
                             key={c.id}
-                            className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors ${
+                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer select-none transition-colors ${
                               isChecked
-                                ? "bg-violet-100/60 text-violet-950"
+                                ? "bg-blue-50 text-blue-950"
                                 : "hover:bg-white text-gray-800"
                             }`}
                           >
@@ -818,7 +788,7 @@ export default function VoucherCreatePage() {
                               type="checkbox"
                               checked={isChecked}
                               onChange={() => toggleCourse(c.id)}
-                              className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500"
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                             />
                             <div className="flex-1 truncate">
                               <span className="font-bold text-xs">{c.name}</span>
@@ -848,18 +818,18 @@ export default function VoucherCreatePage() {
                         placeholder={t.vouchers.create.searchClasses}
                         value={itemSearch}
                         onChange={(e) => setItemSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-2 text-xs">
-                      <span className="font-semibold text-violet-700">
+                      <span className="font-semibold text-blue-700">
                         {t.vouchers.create.selectedCount}: {classIds.length}
                       </span>
                       {classIds.length > 0 && (
                         <button
                           type="button"
                           onClick={() => setClassIds([])}
-                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5"
+                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5 cursor-pointer"
                         >
                           <X size={12} /> {t.vouchers.create.clearAll}
                         </button>
@@ -870,7 +840,7 @@ export default function VoucherCreatePage() {
                   <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100">
                     {loadingItems ? (
                       <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-violet-600" />
+                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
                         Đang tải danh sách lớp học...
                       </div>
                     ) : filteredClasses.length === 0 ? (
@@ -883,9 +853,9 @@ export default function VoucherCreatePage() {
                         return (
                           <label
                             key={cl.id}
-                            className={`flex items-center gap-3 p-2 rounded-xl cursor-pointer transition-colors ${
+                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer select-none transition-colors ${
                               isChecked
-                                ? "bg-violet-100/60 text-violet-950"
+                                ? "bg-blue-50 text-blue-950"
                                 : "hover:bg-white text-gray-800"
                             }`}
                           >
@@ -893,7 +863,7 @@ export default function VoucherCreatePage() {
                               type="checkbox"
                               checked={isChecked}
                               onChange={() => toggleClass(cl.id)}
-                              className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500"
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                             />
                             <div className="flex-1 truncate">
                               <span className="font-bold text-xs">{cl.name}</span>
@@ -911,26 +881,26 @@ export default function VoucherCreatePage() {
 
               {/* Checkboxes & MinLearners */}
               <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-100 items-center">
-                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700">
+                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
                   <input
                     type="checkbox"
                     checked={isOnlyNewUser}
                     onChange={(e) => setIsOnlyNewUser(e.target.checked)}
-                    className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500"
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-xs font-medium">
+                  <span className="text-xs font-medium select-none">
                     {t.vouchers.create.isOnlyNewUser}
                   </span>
                 </label>
 
-                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700">
+                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
                   <input
                     type="checkbox"
                     checked={isNotCombineOther}
                     onChange={(e) => setIsNotCombineOther(e.target.checked)}
-                    className="w-4 h-4 text-violet-600 rounded focus:ring-violet-500"
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-xs font-medium">
+                  <span className="text-xs font-medium select-none">
                     {t.vouchers.create.isNotCombineOther}
                   </span>
                 </label>
@@ -944,7 +914,7 @@ export default function VoucherCreatePage() {
                     min={1}
                     value={minLearners}
                     onChange={(e) => setMinLearners(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-300 text-xs focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                 </div>
               </div>
@@ -981,19 +951,19 @@ export default function VoucherCreatePage() {
                   required
                   value={validFrom}
                   onChange={(e) => setValidFrom(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
 
               {/* Is Never Expired Checkbox */}
-              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 pt-1">
+              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none pt-1">
                 <input
                   type="checkbox"
                   checked={isNeverExpired}
                   onChange={(e) => setIsNeverExpired(e.target.checked)}
-                  className="w-4 h-4 text-teal-600 rounded focus:ring-teal-500"
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs font-semibold text-teal-800">
+                <span className="text-xs font-semibold text-gray-800 select-none">
                   {t.vouchers.create.isNeverExpired}
                 </span>
               </label>
@@ -1010,7 +980,7 @@ export default function VoucherCreatePage() {
                     min={validFrom || todayStr}
                     value={validTo}
                     onChange={(e) => setValidTo(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                 </div>
               )}
@@ -1035,14 +1005,14 @@ export default function VoucherCreatePage() {
 
             <div className="space-y-3.5 text-xs">
               {/* Unlimited Usage Checkbox */}
-              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700">
+              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
                 <input
                   type="checkbox"
                   checked={isUnlimitedUsage}
                   onChange={(e) => setIsUnlimitedUsage(e.target.checked)}
-                  className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500"
+                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
                 />
-                <span className="text-xs font-semibold text-amber-800">
+                <span className="text-xs font-semibold text-gray-800 select-none">
                   {t.vouchers.create.isUnlimitedUsage}
                 </span>
               </label>
@@ -1059,7 +1029,7 @@ export default function VoucherCreatePage() {
                     placeholder="100"
                     value={totalUsageLimit}
                     onChange={(e) => setTotalUsageLimit(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                 </div>
               )}
@@ -1075,7 +1045,7 @@ export default function VoucherCreatePage() {
                   placeholder="1"
                   value={perUserLimit}
                   onChange={(e) => setPerUserLimit(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
 
@@ -1090,7 +1060,7 @@ export default function VoucherCreatePage() {
                   placeholder="Không giới hạn"
                   value={dailyLimit}
                   onChange={(e) => setDailyLimit(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </div>
 
@@ -1107,7 +1077,7 @@ export default function VoucherCreatePage() {
                     placeholder="Không giới hạn"
                     value={maxBudget}
                     onChange={(e) => setMaxBudget(e.target.value)}
-                    className="w-full pl-3.5 pr-8 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+                    className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   />
                   <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
                     đ
@@ -1125,7 +1095,7 @@ export default function VoucherCreatePage() {
           type="button"
           disabled={isSubmitting}
           onClick={() => navigate("/vouchers")}
-          className="px-4 py-2.5 rounded-xl border border-gray-300 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+          className="px-4 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
         >
           {t.vouchers.create.cancel}
         </button>
@@ -1135,7 +1105,7 @@ export default function VoucherCreatePage() {
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSubmit(true)}
-            className="px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors shadow-xs"
+            className="px-5 py-2 rounded-lg border border-gray-200 bg-white text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-50 transition-colors shadow-xs cursor-pointer"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
@@ -1151,7 +1121,7 @@ export default function VoucherCreatePage() {
             type="button"
             disabled={isSubmitting}
             onClick={() => handleSubmit(false)}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary-dark disabled:opacity-50 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary-dark disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
           >
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {isSubmitting

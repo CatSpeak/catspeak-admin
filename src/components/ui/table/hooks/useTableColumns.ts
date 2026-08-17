@@ -1,9 +1,12 @@
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TableHeader } from "../types";
+import type { ChoiceMode, TableHeader } from "../types";
 import { normalizeOptions, renderCellValue } from "../utils/renderCellValue";
 
-export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unknown>[] {
+export function useTableColumns<T>(
+  headers: TableHeader<T>[],
+  defaultChoiceMode: ChoiceMode = "multi",
+): ColumnDef<T, unknown>[] {
   return useMemo<ColumnDef<T, unknown>[]>(
     () =>
       headers.map((h, i) => {
@@ -13,6 +16,7 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
         // back to mapTo (the field actually shown in the cell) so a
         // column defined with only `mapTo` still sorts/filters correctly.
         const dataKey = h.accessorKey ?? h.mapTo;
+        const choiceMode = h.choiceMode ?? defaultChoiceMode;
 
         return {
           id,
@@ -25,11 +29,6 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
                 : (row as Record<string, unknown>)[h.name]),
           enableSorting: h.allowSort ?? false,
           enableColumnFilter: h.showFilter ?? false,
-          filterFn: h.isDuration
-            ? "dateRange"
-            : options
-              ? "multiSelect"
-              : "approximateText",
           cell: (info) => {
             const raw = h.mapTo
               ? (info.row.original as Record<string, unknown>)[h.mapTo]
@@ -41,6 +40,7 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
             icon: h.icon,
             values: options,
             showFilter: h.showFilter ?? false,
+            choiceMode,
             isDuration: h.isDuration,
             headerClassName: h.headerClassName,
             cellClassName: h.cellClassName,
@@ -48,6 +48,6 @@ export function useTableColumns<T>(headers: TableHeader<T>[]): ColumnDef<T, unkn
           },
         } satisfies ColumnDef<T, unknown>;
       }),
-    [headers],
+    [headers, defaultChoiceMode],
   );
 }

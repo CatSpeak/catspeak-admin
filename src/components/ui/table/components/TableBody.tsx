@@ -1,4 +1,6 @@
 import type { Table as TanstackTable } from "@tanstack/react-table";
+import { AlertCircle, Inbox } from "lucide-react";
+import { useLanguage } from "../../../../stores/languageStore";
 import type { TableHeader, TableAction } from "../types";
 import TableSkeletonRows from "./TableSkeletonRows";
 import TableRow from "./TableRow";
@@ -13,9 +15,8 @@ export interface TableBodyProps<T> {
   setOpenRowId: React.Dispatch<React.SetStateAction<string | null>>;
   totalColumns: number;
   effectiveLoading: boolean;
-  effectiveLoadingMessage: string;
   fetchError: string | null;
-  effectiveEmptyMessage: string;
+  emptyMessage?: string;
 }
 
 export default function TableBody<T>({
@@ -28,25 +29,41 @@ export default function TableBody<T>({
   setOpenRowId,
   totalColumns,
   effectiveLoading,
-  effectiveLoadingMessage,
   fetchError,
-  effectiveEmptyMessage,
+  emptyMessage,
 }: TableBodyProps<T>) {
+  const { t } = useLanguage();
   const rows = table.getRowModel().rows;
+  const resolvedEmptyMessage = emptyMessage ?? t.common.noData;
 
   return (
     <tbody className="divide-y divide-gray-200">
       <tr className="sr-only">
-        <td role="status">{effectiveLoading ? effectiveLoadingMessage : ""}</td>
+        <td role="status">{effectiveLoading ? t.common.loading : ""}</td>
       </tr>
 
       {fetchError ? (
         <tr>
           <td
             colSpan={totalColumns}
-            className="px-4 py-8 text-center text-sm text-red-600"
+            className="px-4 py-12 text-center"
           >
-            {fetchError}
+            <div className="flex flex-col items-center justify-center gap-2.5 max-w-sm mx-auto">
+              <div className="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center">
+                <AlertCircle size={22} />
+              </div>
+              <p className="text-sm font-semibold text-gray-900">
+                {t.table.error}
+              </p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {fetchError &&
+                fetchError !== "Error" &&
+                fetchError !== "Failed to load data." &&
+                fetchError !== "Failed to filter data."
+                  ? fetchError
+                  : t.table.errorDesc}
+              </p>
+            </div>
           </td>
         </tr>
       ) : effectiveLoading ? (
@@ -55,9 +72,16 @@ export default function TableBody<T>({
         <tr>
           <td
             colSpan={totalColumns}
-            className="px-4 py-8 text-center text-sm text-gray-500"
+            className="px-4 py-12 text-center"
           >
-            {effectiveEmptyMessage}
+            <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+              <div className="w-10 h-10 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center">
+                <Inbox size={22} />
+              </div>
+              <p className="text-sm font-semibold text-gray-700">
+                {resolvedEmptyMessage}
+              </p>
+            </div>
           </td>
         </tr>
       ) : (
