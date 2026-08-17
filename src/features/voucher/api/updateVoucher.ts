@@ -1,14 +1,14 @@
 import { axiosClient, getResponseData } from "../../../lib/axios"
-import type { UpdateVoucherRequest, VoucherDetail } from "../types"
+import type { UpdateVoucherRequest, VoucherDetailDto } from "../types"
 
 /**
- * Cập nhật cấu hình voucher (chỉ cho phép khi voucher đang ở trạng thái Draft).
+ * Cập nhật cấu hình voucher (chỉ cho phép khi voucher đang ở trạng thái Draft) (PUT /api/vouchers/{id})
  */
 export const updateVoucher = async (
   id: number,
   payload: UpdateVoucherRequest,
-): Promise<VoucherDetail> => {
+): Promise<VoucherDetailDto> => {
   return getResponseData(
-    axiosClient.put<VoucherDetail>(`/vouchers/${id}`, payload),
+    axiosClient.put<VoucherDetailDto>(`/vouchers/${id}`, payload),
   )
 }

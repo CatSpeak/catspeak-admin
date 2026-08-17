@@ -1,12 +1,12 @@
 import { axiosClient, getResponseData } from "../../../lib/axios"
-import type { GetVouchersParams, GetVouchersResponse } from "../types"
+import type { GetVouchersParams, VoucherListResponse } from "../types"
 
 /**
  * Lấy danh sách voucher hỗ trợ tìm kiếm, lọc theo nhiều tiêu chí và phân trang.
  */
 export const getVouchers = async (
   params: GetVouchersParams = {},
-): Promise<GetVouchersResponse> => {
+): Promise<VoucherListResponse> => {
   const {
     page = 1,
     pageSize = 10,
@@ -17,25 +17,25 @@ export const getVouchers = async (
   } = params
 
   const queryParams: Record<string, unknown> = {
-    page,
-    pageSize,
+    Page: page,
+    PageSize: pageSize,
   }
 
   if (search && search.trim().length > 0) {
-    queryParams.search = search.trim()
+    queryParams.Search = search.trim()
   }
   if (status) {
-    queryParams.status = status
+    queryParams.Status = status
   }
   if (discountType) {
-    queryParams.discountType = discountType
+    queryParams.DiscountType = discountType
   }
   if (sponsorType) {
-    queryParams.sponsorType = sponsorType
+    queryParams.SponsorType = sponsorType
   }
 
   return getResponseData(
-    axiosClient.get<GetVouchersResponse>("/vouchers", {
+    axiosClient.get<VoucherListResponse>("/vouchers", {
       params: queryParams,
     }),
   )
