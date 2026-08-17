@@ -256,9 +256,15 @@ export default function VoucherCreatePage() {
         description: description.trim() || null,
         discountType: discountType === "Percentage" ? 1 : 2,
         discountValue: numDiscountValue,
-        maxDiscountAmount: maxDiscountAmount ? Number(maxDiscountAmount) : null,
-        minOrderAmount: minOrderAmount ? Number(minOrderAmount) : null,
-        minLearners: minLearners ? Number(minLearners) : 1,
+        maxDiscountAmount:
+          maxDiscountAmount && !isNaN(Number(maxDiscountAmount))
+            ? Number(maxDiscountAmount)
+            : null,
+        minOrderAmount:
+          minOrderAmount && !isNaN(Number(minOrderAmount))
+            ? Number(minOrderAmount)
+            : 0,
+        minLearners: minLearners && !isNaN(Number(minLearners)) ? Number(minLearners) : 1,
         validFrom: new Date(`${validFrom}T00:00:00Z`).toISOString(),
         validTo:
           !isNeverExpired && validTo
@@ -272,12 +278,18 @@ export default function VoucherCreatePage() {
         isNotCombineOther,
         isUnlimitedUsage,
         totalUsageLimit:
-          !isUnlimitedUsage && totalUsageLimit ? Number(totalUsageLimit) : null,
-        perUserLimit: perUserLimit ? Number(perUserLimit) : null,
-        dailyLimit: dailyLimit ? Number(dailyLimit) : null,
-        maxBudget: maxBudget ? Number(maxBudget) : null,
-        courseIds: scopeType === "SpecificCourses" ? courseIds : undefined,
-        classIds: scopeType === "SpecificClasses" ? classIds : undefined,
+          !isUnlimitedUsage && totalUsageLimit && !isNaN(Number(totalUsageLimit))
+            ? Number(totalUsageLimit)
+            : null,
+        perUserLimit:
+          perUserLimit && !isNaN(Number(perUserLimit)) ? Number(perUserLimit) : 1,
+        dailyLimit:
+          dailyLimit && !isNaN(Number(dailyLimit)) ? Number(dailyLimit) : null,
+        maxBudget:
+          maxBudget && !isNaN(Number(maxBudget)) ? Number(maxBudget) : null,
+        instructorIds: [],
+        courseIds: scopeType === "SpecificCourses" ? courseIds : [],
+        classIds: scopeType === "SpecificClasses" ? classIds : [],
       }
 
       try {

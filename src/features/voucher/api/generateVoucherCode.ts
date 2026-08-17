@@ -1,12 +1,11 @@
 import { axiosClient, getResponseData } from "../../../lib/axios"
-import type { GenerateVoucherCodeResponse } from "../types"
+import type { GenerateCodeResponse } from "../types"
 
 /**
- * Tự động sinh mã voucher ngẫu nhiên duy nhất theo Role.
+ * Tự động sinh mã voucher ngẫu nhiên duy nhất theo Role (GET /api/vouchers/generate-code)
  */
-export const generateVoucherCode =
-  async (): Promise<GenerateVoucherCodeResponse> => {
-    return getResponseData(
-      axiosClient.get<GenerateVoucherCodeResponse>("/vouchers/generate-code"),
-    )
-  }
+export const generateVoucherCode = async (): Promise<GenerateCodeResponse> => {
+  return getResponseData(
+    axiosClient.get<GenerateCodeResponse>("/vouchers/generate-code"),
+  )
+}
