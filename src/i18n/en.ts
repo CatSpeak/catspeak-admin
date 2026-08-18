@@ -1044,6 +1044,22 @@ const en = {
       dateRangeInvalidError: "End date must be greater than start date.",
       selectCourseRequiredError: "Please select at least 1 course.",
       selectClassRequiredError: "Please select at least 1 class.",
+      sponsorFixedTooltip: "Fixed sponsor is CatSpeak",
+      sponsorCatspeakDesc: "CatSpeak platform directly funds the budget",
+      percentageDesc: "Discount by percentage of total order value",
+      fixedAmountDesc: "Directly deduct fixed amount (VND)",
+      loadingCourses: "Loading courses list...",
+      noCoursesFound: "No matching courses found.",
+      loadingClasses: "Loading classes list...",
+      noClassesFound: "No matching classes found.",
+      languageDefault: "Language",
+      classesCountSuffix: "classes",
+      teacherDefault: "Instructor",
+      freePrice: "Free",
+      codePrefix: "Code",
+      unlimitedPlaceholder: "Unlimited",
+      createGenericError:
+        "Cannot create voucher. Please check your input.",
     },
     depositApprovalIsland: {
       title: "Deposit Approval & Voucher Activation",
@@ -1088,6 +1104,11 @@ const en = {
     sponsorTypes: {
       catspeak: "CatSpeak",
       instructor: "Instructor",
+    },
+    scopeTypes: {
+      all: "All",
+      specificCourses: "Specific Courses",
+      specificClasses: "Specific Classes",
     },
     statuses: {
       draft: "Draft",

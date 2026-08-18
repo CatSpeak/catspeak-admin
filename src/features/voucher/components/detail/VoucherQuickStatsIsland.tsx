@@ -95,75 +95,77 @@ export default function VoucherQuickStatsIsland({
         </div>
       </div>
 
-      {/* Nhóm Ký quỹ / Cọc */}
-      <div className="pt-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1 mb-2">
-          {isInstructor ? "Đối soát Cọc Giáo Viên" : "Ký quỹ & Ngân sách"}
-        </p>
+      {/* Nhóm Ký quỹ / Cọc (Chỉ dành cho voucher của Giảng viên) */}
+      {isInstructor && (
+        <div className="pt-2">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1 mb-2">
+            Đối soát Cọc Giáo Viên
+          </p>
 
-        <div className="space-y-3">
-          {/* 5. Tiền cọc đã đóng */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-teal-50 text-teal-600 shrink-0">
-              <Wallet size={20} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 font-medium truncate">Tiền cọc đã đóng</p>
-              <div className="text-base font-bold text-teal-700 truncate">
-                {(voucher.depositPaid ?? voucher.depositAmount ?? 0).toLocaleString(
-                  "vi-VN",
-                )}{" "}
-                đ
+          <div className="space-y-3">
+            {/* 5. Tiền cọc đã đóng */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
+              <div className="p-2.5 rounded-xl bg-teal-50 text-teal-600 shrink-0">
+                <Wallet size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500 font-medium truncate">Tiền cọc đã đóng</p>
+                <div className="text-base font-bold text-teal-700 truncate">
+                  {(voucher.depositPaid ?? voucher.depositAmount ?? 0).toLocaleString(
+                    "vi-VN",
+                  )}{" "}
+                  đ
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 6. Tiền cọc đã dùng */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0">
-              <Coins size={20} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 font-medium truncate">
-                Tiền cọc đã khấu trừ
-              </p>
-              <div className="text-base font-bold text-amber-700 truncate">
-                {(voucher.depositUsed ?? 0).toLocaleString("vi-VN")} đ
+            {/* 6. Tiền cọc đã dùng */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
+              <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600 shrink-0">
+                <Coins size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500 font-medium truncate">
+                  Tiền cọc đã khấu trừ
+                </p>
+                <div className="text-base font-bold text-amber-700 truncate">
+                  {(voucher.depositUsed ?? 0).toLocaleString("vi-VN")} đ
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 7. Tiền cọc còn lại */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
-              <Wallet size={20} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 font-medium truncate">
-                Tiền cọc còn lại (Escrow)
-              </p>
-              <div className="text-base font-bold text-indigo-700 truncate">
-                {(voucher.depositRemaining ?? 0).toLocaleString("vi-VN")} đ
+            {/* 7. Tiền cọc còn lại */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
+              <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
+                <Wallet size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500 font-medium truncate">
+                  Tiền cọc còn lại (Escrow)
+                </p>
+                <div className="text-base font-bold text-indigo-700 truncate">
+                  {(voucher.depositRemaining ?? 0).toLocaleString("vi-VN")} đ
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 8. Ước tính hoàn cọc */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 shrink-0">
-              <RotateCcw size={20} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-500 font-medium truncate">
-                Ước tính hoàn cọc
-              </p>
-              <div className="text-base font-bold text-purple-700 truncate">
-                {(voucher.estimatedRefund ?? 0).toLocaleString("vi-VN")} đ
+            {/* 8. Ước tính hoàn cọc */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex items-center gap-3.5">
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600 shrink-0">
+                <RotateCcw size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-500 font-medium truncate">
+                  Ước tính hoàn cọc
+                </p>
+                <div className="text-base font-bold text-purple-700 truncate">
+                  {(voucher.estimatedRefund ?? 0).toLocaleString("vi-VN")} đ
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

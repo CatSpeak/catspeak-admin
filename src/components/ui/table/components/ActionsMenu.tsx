@@ -48,7 +48,7 @@ export default function ActionsMenu<T>({
       {isOpen && (
         <div
           role="menu"
-          className="absolute right-0 z-20 mt-1 w-44 origin-top-right rounded-lg border border-gray-100 bg-white shadow-lg py-1"
+          className="absolute right-0 z-20 mt-1 min-w-[180px] w-max max-w-xs origin-top-right rounded-lg border border-gray-100 bg-white shadow-lg py-1"
         >
           {visibleActions.map((action, i) => (
             <button
@@ -59,14 +59,14 @@ export default function ActionsMenu<T>({
                 action.handler?.(row);
                 onClose();
               }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
+              className={`flex w-full items-center justify-start text-left gap-2 px-3 py-2 text-sm whitespace-nowrap transition-colors cursor-pointer ${
                 action.danger
                   ? "text-red-600 hover:bg-red-50"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
-              {action.icon}
-              {action.label}
+              <span className="shrink-0">{action.icon}</span>
+              <span className="whitespace-nowrap text-left">{action.label}</span>
             </button>
           ))}
         </div>

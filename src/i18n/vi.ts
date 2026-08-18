@@ -596,13 +596,11 @@ const vi = {
     subjectEnPlaceholder:
       "[CatSpeak] System Update & New Features Announcement...",
     contentEn: "Email Body (EN)",
-    contentEnPlaceholder:
-      "Hello {{name}}, We are excited to announce...",
+    contentEnPlaceholder: "Hello {{name}}, We are excited to announce...",
     subjectZh: "邮件主题 (ZH)",
     subjectZhPlaceholder: "[CatSpeak] 系统更新与新功能通知...",
     contentZh: "邮件内容 (ZH)",
-    contentZhPlaceholder:
-      "尊敬的用户 您好：我们很荣幸向您宣布...",
+    contentZhPlaceholder: "尊敬的用户 您好：我们很荣幸向您宣布...",
     noPreviewContent: "Chưa có nội dung để xem trước",
     targetAudience: "Đối Tượng Nhận Mail",
     allUsers: "Tất cả người dùng (All Active Users)",
@@ -997,9 +995,11 @@ const vi = {
       generalInfo: "Thông tin chung",
       generalInfoDesc: "Mã định danh, tên chương trình và nguồn tài trợ",
       discountConfig: "Cấu hình giảm giá",
-      discountConfigDesc: "Loại giảm giá, mức giảm và giá trị đơn hàng tối thiểu",
+      discountConfigDesc:
+        "Loại giảm giá, mức giảm và giá trị đơn hàng tối thiểu",
       conditions: "Điều kiện áp dụng",
-      conditionsDesc: "Phạm vi áp dụng cho khóa học, lớp học và đối tượng học viên",
+      conditionsDesc:
+        "Phạm vi áp dụng cho khóa học, lớp học và đối tượng học viên",
       validityPeriod: "Thời gian hiệu lực",
       validityPeriodDesc: "Khung thời gian voucher có hiệu lực áp dụng",
       usageLimits: "Giới hạn sử dụng",
@@ -1010,7 +1010,8 @@ const vi = {
       voucherName: "Tên voucher",
       voucherNamePlaceholder: "VD: Giảm 20% cho học viên mới",
       description: "Mô tả chi tiết",
-      descriptionPlaceholder: "Nhập mô tả hoặc điều khoản áp dụng của voucher...",
+      descriptionPlaceholder:
+        "Nhập mô tả hoặc điều khoản áp dụng của voucher...",
       sponsorType: "Nguồn tài trợ",
       discountType: "Loại giảm giá",
       discountValue: "Giá trị giảm",
@@ -1051,6 +1052,22 @@ const vi = {
       dateRangeInvalidError: "Ngày kết thúc phải lớn hơn ngày bắt đầu.",
       selectCourseRequiredError: "Vui lòng chọn ít nhất 1 khóa học.",
       selectClassRequiredError: "Vui lòng chọn ít nhất 1 lớp học.",
+      sponsorFixedTooltip: "Nguồn tài trợ cố định là CatSpeak",
+      sponsorCatspeakDesc: "Nền tảng CatSpeak trực tiếp tài trợ ngân sách",
+      percentageDesc: "Giảm theo tỷ lệ phần trăm trên tổng giá trị",
+      fixedAmountDesc: "Giảm trừ trực tiếp số tiền cố định (VNĐ)",
+      loadingCourses: "Đang tải danh sách khóa học...",
+      noCoursesFound: "Không tìm thấy khóa học phù hợp.",
+      loadingClasses: "Đang tải danh sách lớp học...",
+      noClassesFound: "Không tìm thấy lớp học phù hợp.",
+      languageDefault: "Ngôn ngữ",
+      classesCountSuffix: "lớp",
+      teacherDefault: "GV",
+      freePrice: "Miễn phí",
+      codePrefix: "Mã",
+      unlimitedPlaceholder: "Không giới hạn",
+      createGenericError:
+        "Không thể tạo voucher. Vui lòng kiểm tra lại thông tin.",
     },
     depositApprovalIsland: {
       title: "Phê duyệt cọc & Kích hoạt voucher",
@@ -1062,7 +1079,8 @@ const vi = {
       depositTime: "Thời gian",
       instructor: "Giảng viên phát hành",
       warningTitle: "Lưu ý kiểm tra ngân hàng:",
-      warningDesc: "Vui lòng kiểm tra sao kê tài khoản ngân hàng chính xác trước khi bấm phê duyệt để tránh thất thoát.",
+      warningDesc:
+        "Vui lòng kiểm tra sao kê tài khoản ngân hàng chính xác trước khi bấm phê duyệt để tránh thất thoát.",
       approveBtn: "Xác nhận đã nhận cọc",
       rejectBtn: "Từ chối & Hủy voucher",
       approveSuccess: "Đã xác nhận cọc và kích hoạt voucher thành công!",
@@ -1090,11 +1108,16 @@ const vi = {
     to: "Đến",
     discountTypes: {
       percentage: "Phần trăm (%)",
-      fixedAmount: "Số tiền cố định (VNĐ)",
+      fixedAmount: "Cố định (VNĐ)",
     },
     sponsorTypes: {
       catspeak: "CatSpeak",
       instructor: "Giảng viên",
+    },
+    scopeTypes: {
+      all: "Tất cả",
+      specificCourses: "Khóa học cụ thể",
+      specificClasses: "Lớp học cụ thể",
     },
     statuses: {
       draft: "Bản nháp",
@@ -1111,7 +1134,8 @@ const vi = {
       activateTitle: "Kích hoạt voucher",
       activatePrompt: "Bạn có chắc chắn muốn kích hoạt mã voucher",
       activateExpiryWarningTitle: "Lưu ý về thời hạn:",
-      activateExpiryWarningDesc: "Voucher này đã từng hết hạn. Vui lòng kiểm tra lại thời hạn mới để đảm bảo voucher hoạt động chính xác sau khi kích hoạt.",
+      activateExpiryWarningDesc:
+        "Voucher này đã từng hết hạn. Vui lòng kiểm tra lại thời hạn mới để đảm bảo voucher hoạt động chính xác sau khi kích hoạt.",
       activateConfirm: "Kích hoạt",
 
       disableTitle: "Vô hiệu hóa voucher",
@@ -1126,17 +1150,20 @@ const vi = {
       extendCurrentExpiry: "Ngày hết hạn hiện tại:",
       extendNewExpiry: "Ngày gia hạn mới (validTo)",
       extendRequiredError: "Vui lòng chọn ngày gia hạn mới.",
-      extendDateInvalidError: "Ngày gia hạn mới phải lớn hơn ngày hết hạn hiện tại.",
+      extendDateInvalidError:
+        "Ngày gia hạn mới phải lớn hơn ngày hết hạn hiện tại.",
       extendGenericError: "Không thể gia hạn voucher. Vui lòng thử lại.",
       extendConfirm: "Xác nhận gia hạn",
 
       increaseLimitTitle: "Tăng tổng lượt sử dụng",
-      increaseLimitSubtitle: "Mở rộng giới hạn sử dụng cho voucher CatSpeak khi đã hết lượt",
+      increaseLimitSubtitle:
+        "Mở rộng giới hạn sử dụng cho voucher CatSpeak khi đã hết lượt",
       increaseLimitCode: "Mã voucher:",
       increaseLimitCurrentUsage: "Lượt dùng hiện tại:",
       increaseLimitAmount: "Số lượt muốn tăng thêm",
       increaseLimitMinError: "Số lượt tăng thêm phải lớn hơn 0.",
-      increaseLimitGenericError: "Không thể tăng số lượt voucher. Vui lòng thử lại.",
+      increaseLimitGenericError:
+        "Không thể tăng số lượt voucher. Vui lòng thử lại.",
       increaseLimitConfirm: "Xác nhận tăng",
 
       deleteTitle: "Xóa voucher",
@@ -1144,17 +1171,20 @@ const vi = {
       deleteCurrentStatus: "Trạng thái hiện tại:",
       deleteUsedCount: "Số lượt đã dùng:",
       deleteWarningTitle: "Cảnh báo:",
-      deleteWarningDesc: "Hành động này không thể hoàn tác. Toàn bộ cấu hình và thông tin của voucher này sẽ bị xóa khỏi hệ thống.",
+      deleteWarningDesc:
+        "Hành động này không thể hoàn tác. Toàn bộ cấu hình và thông tin của voucher này sẽ bị xóa khỏi hệ thống.",
       deleteConfirm: "Xóa voucher",
 
       approveDepositTitle: "Xác nhận đã nhận cọc",
-      approveDepositSubtitle: "Duyệt thanh toán cọc và chuyển voucher Giáo viên sang trạng thái Active",
+      approveDepositSubtitle:
+        "Duyệt thanh toán cọc và chuyển voucher Giáo viên sang trạng thái Active",
       approveDepositCode: "Mã voucher:",
       approveDepositInstructor: "Giảng viên phát hành:",
       approveDepositAmount: "Số tiền cọc:",
       approveDepositContent: "Nội dung chuyển khoản:",
       approveDepositWarningTitle: "Cảnh báo kiểm tra:",
-      approveDepositWarningDesc: "Hãy chắc chắn đã kiểm tra giao dịch chuyển khoản thực tế trong tài khoản ngân hàng trước khi xác nhận.",
+      approveDepositWarningDesc:
+        "Hãy chắc chắn đã kiểm tra giao dịch chuyển khoản thực tế trong tài khoản ngân hàng trước khi xác nhận.",
       approveDepositConfirm: "Xác nhận & Kích hoạt",
 
       rejectTitle: "Từ chối & Hủy voucher Giáo viên",
@@ -1163,8 +1193,10 @@ const vi = {
       rejectReasonDepositNotReceived: "Chưa nhận được tiền cọc",
       rejectReasonInappropriateContent: "Nội dung không phù hợp",
       rejectNoteLabel: "Mô tả chi tiết / Ghi chú cho giáo viên",
-      rejectNotePlaceholder: "Nhập chi tiết lý do từ chối để giáo viên nắm rõ...",
-      rejectInfoBanner: "Giáo viên sẽ nhận thông báo kèm lý do này và có thể tạo lại sau khi điều chỉnh.",
+      rejectNotePlaceholder:
+        "Nhập chi tiết lý do từ chối để giáo viên nắm rõ...",
+      rejectInfoBanner:
+        "Giáo viên sẽ nhận thông báo kèm lý do này và có thể tạo lại sau khi điều chỉnh.",
       rejectReasonRequiredError: "Vui lòng chọn lý do từ chối.",
       rejectGenericError: "Không thể từ chối voucher. Vui lòng thử lại.",
       rejectConfirm: "Xác nhận Từ chối & Báo GV",
@@ -1195,6 +1227,6 @@ const vi = {
     pagination: "phân trang",
     page: "Trang",
   },
-};
+}
 
-export default vi;
+export default vi

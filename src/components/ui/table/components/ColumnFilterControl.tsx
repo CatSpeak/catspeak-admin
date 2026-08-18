@@ -381,14 +381,14 @@ export function ColumnMultiSelectFilterInput<T>({
               type="button"
               key={String(opt.value)}
               onClick={() => toggle(opt.value)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+              className={`inline-flex items-center justify-start text-left gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer ${
                 active
                   ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-xs"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
               }`}
             >
-              {active && <Check size={12} className="stroke-[2.5]" />}
-              <span>{opt.label}</span>
+              {active && <Check size={12} className="stroke-[2.5] shrink-0" />}
+              <span className="whitespace-nowrap text-left">{opt.label}</span>
             </button>
           );
         })}

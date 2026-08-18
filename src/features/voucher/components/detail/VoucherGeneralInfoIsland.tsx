@@ -12,6 +12,7 @@ import { useLanguage } from "../../../../stores/languageStore"
 import { formatDateToDisplay, formatDateTime } from "../../../../lib/utils"
 import Badge from "../../../../components/ui/Badge"
 import Avatar from "../../../../components/ui/Avatar"
+import { getScopeTypeLabel } from "../table/tableConfigs"
 
 export interface VoucherGeneralInfoIslandProps {
   voucher: VoucherDetail
@@ -235,7 +236,9 @@ export default function VoucherGeneralInfoIsland({
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
             <span className="text-gray-500 font-medium">Phạm vi áp dụng:</span>
-            <div className="font-semibold text-gray-900">{voucher.scopeType}</div>
+            <div className="font-semibold text-gray-900">
+              {getScopeTypeLabel(voucher.scopeType, t.vouchers.scopeTypes)}
+            </div>
           </div>
         </div>
 
@@ -356,109 +359,111 @@ export default function VoucherGeneralInfoIsland({
         </div>
       </div>
 
-      {/* ── 4. Tiền cọc, Phê duyệt & Nhật ký ── */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-          <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-            <DollarSign size={18} />
+      {/* ── 4. Tiền cọc, Phê duyệt & Nhật ký (Chỉ hiển thị đối với voucher do Giảng viên tài trợ) ── */}
+      {voucher.sponsorType !== "CatSpeak" && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+              <DollarSign size={18} />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 text-base">
+                Ký quỹ, Phê duyệt & Nhật ký
+              </h3>
+              <p className="text-xs text-gray-500">
+                Thông tin nạp cọc giáo viên, phê duyệt và hủy bỏ
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-bold text-gray-900 text-base">
-              Ký quỹ, Phê duyệt & Nhật ký
-            </h3>
-            <p className="text-xs text-gray-500">
-              Thông tin nạp cọc giáo viên, phê duyệt và hủy bỏ
-            </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Tiền cọc yêu cầu:</span>
+              <div>
+                {voucher.depositRequired != null && voucher.depositRequired > 0
+                  ? `${voucher.depositRequired.toLocaleString("vi-VN")} đ`
+                  : renderValue(null)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Tiền cọc đã nạp:</span>
+              <div>
+                {voucher.depositAmount != null && voucher.depositAmount > 0
+                  ? `${voucher.depositAmount.toLocaleString("vi-VN")} đ`
+                  : renderValue(null)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Nội dung chuyển khoản:</span>
+              <div>{renderValue(voucher.depositTransactionContent)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Thời gian xác nhận cọc:</span>
+              <div>
+                {voucher.depositConfirmedAt
+                  ? formatDateTime(voucher.depositConfirmedAt)
+                  : renderValue(null)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Người xác nhận cọc:</span>
+              <div>{renderValue(voucher.depositConfirmedBy)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Thời gian tạo:</span>
+              <div>{formatDateTime(voucher.createdAt) || renderValue(null)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Người tạo (User ID):</span>
+              <div>{renderValue(voucher.createdBy)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Thời gian từ chối:</span>
+              <div>
+                {voucher.rejectedAt
+                  ? formatDateTime(voucher.rejectedAt)
+                  : renderValue(null)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Người từ chối:</span>
+              <div>{renderValue(voucher.rejectedBy)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1 sm:col-span-2">
+              <span className="text-gray-500 font-medium">Lý do từ chối:</span>
+              <div>{renderValue(voucher.rejectionReason)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1 sm:col-span-2">
+              <span className="text-gray-500 font-medium">Ghi chú từ chối:</span>
+              <div>{renderValue(voucher.rejectionNote)}</div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Thời gian dừng sớm:</span>
+              <div>
+                {voucher.stoppedAt
+                  ? formatDateTime(voucher.stoppedAt)
+                  : renderValue(null)}
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+              <span className="text-gray-500 font-medium">Người thực hiện dừng:</span>
+              <div>{renderValue(voucher.stoppedBy)}</div>
+            </div>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Tiền cọc yêu cầu:</span>
-            <div>
-              {voucher.depositRequired != null && voucher.depositRequired > 0
-                ? `${voucher.depositRequired.toLocaleString("vi-VN")} đ`
-                : renderValue(null)}
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Tiền cọc đã nạp:</span>
-            <div>
-              {voucher.depositAmount != null && voucher.depositAmount > 0
-                ? `${voucher.depositAmount.toLocaleString("vi-VN")} đ`
-                : renderValue(null)}
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Nội dung chuyển khoản:</span>
-            <div>{renderValue(voucher.depositTransactionContent)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Thời gian xác nhận cọc:</span>
-            <div>
-              {voucher.depositConfirmedAt
-                ? formatDateTime(voucher.depositConfirmedAt)
-                : renderValue(null)}
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Người xác nhận cọc:</span>
-            <div>{renderValue(voucher.depositConfirmedBy)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Thời gian tạo:</span>
-            <div>{formatDateTime(voucher.createdAt) || renderValue(null)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Người tạo (User ID):</span>
-            <div>{renderValue(voucher.createdBy)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Thời gian từ chối:</span>
-            <div>
-              {voucher.rejectedAt
-                ? formatDateTime(voucher.rejectedAt)
-                : renderValue(null)}
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Người từ chối:</span>
-            <div>{renderValue(voucher.rejectedBy)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1 sm:col-span-2">
-            <span className="text-gray-500 font-medium">Lý do từ chối:</span>
-            <div>{renderValue(voucher.rejectionReason)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1 sm:col-span-2">
-            <span className="text-gray-500 font-medium">Ghi chú từ chối:</span>
-            <div>{renderValue(voucher.rejectionNote)}</div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Thời gian dừng sớm:</span>
-            <div>
-              {voucher.stoppedAt
-                ? formatDateTime(voucher.stoppedAt)
-                : renderValue(null)}
-            </div>
-          </div>
-
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Người thực hiện dừng:</span>
-            <div>{renderValue(voucher.stoppedBy)}</div>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }
