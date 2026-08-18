@@ -1,15 +1,18 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 import AppSidebar from "./AppSidebar";
 import AppHeader from "./AppHeader";
 import { SidebarProvider, useSidebar } from "../../context/SidebarContext";
 import Backdrop from "./Backdrop";
+import ScrollToTop from "../common/ScrollToTop";
 
 const LayoutContent: React.FC = () => {
   const { isExpanded, isMobileOpen } = useSidebar();
 
   return (
     <div className="min-h-screen md:flex w-full overflow-x-hidden">
+      <ScrollRestoration />
+      <ScrollToTop />
       <div>
         <AppSidebar />
         <Backdrop />

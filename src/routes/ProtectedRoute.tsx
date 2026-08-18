@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { hasAdminAccess, useAuthStore } from "../stores/authStore";
+import ScrollToTop from "../components/common/ScrollToTop";
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -21,7 +22,12 @@ export const ProtectedRoute = () => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <ScrollToTop />
+      <Outlet />
+    </>
+  );
 };
 
 export const PermissionGuardRoute = ({

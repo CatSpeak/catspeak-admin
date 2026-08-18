@@ -1,4 +1,11 @@
-import type { RefObject } from "react"
+import {
+  type RefObject,
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+} from "react"
+import { createPortal } from "react-dom"
 import {
   EllipsisVertical,
   Eye,
@@ -388,13 +395,159 @@ export interface GetVoucherTableHeadersOptions {
   }
   openDropdownId: number | null
   setOpenDropdownId: (id: number | null) => void
-  dropdownRef: RefObject<HTMLDivElement | null>
+  dropdownRef?: RefObject<HTMLDivElement | null>
   getRowActions: (row: VoucherListItem) => VoucherActionItem[]
   getStatusBadgeConfig: (status: string) => {
     type: BadgeType
     label: string
     showDot?: boolean
   }
+}
+
+interface VoucherRowActionMenuProps {
+  actions: VoucherActionItem[]
+  isOpen: boolean
+  onToggle: () => void
+  onClose: () => void
+}
+
+function VoucherRowActionMenu({
+  actions,
+  isOpen,
+  onToggle,
+  onClose,
+}: VoucherRowActionMenuProps) {
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [coords, setCoords] = useState<{
+    top: number
+    left: number
+    placement: "bottom" | "top"
+  }>({
+    top: 0,
+    left: 0,
+    placement: "bottom",
+  })
+
+  const updatePosition = () => {
+    if (!buttonRef.current) return
+    const rect = buttonRef.current.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    const estimatedMenuHeight = 220
+    const placement =
+      spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight
+        ? "top"
+        : "bottom"
+
+    setCoords({
+      top: placement === "bottom" ? rect.bottom + 4 : rect.top - 4,
+      left: rect.right,
+      placement,
+    })
+  }
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      updatePosition()
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleMouseDown = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (
+        buttonRef.current &&
+        !buttonRef.current.contains(target) &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
+      ) {
+        onClose()
+      }
+    }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+    }
+
+    const handleScrollOrResize = (e: Event) => {
+      if (menuRef.current && menuRef.current.contains(e.target as Node)) {
+        return
+      }
+      onClose()
+    }
+
+    document.addEventListener("mousedown", handleMouseDown)
+    document.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("resize", handleScrollOrResize)
+    window.addEventListener("scroll", handleScrollOrResize, true)
+
+    return () => {
+      document.removeEventListener("mousedown", handleMouseDown)
+      document.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("resize", handleScrollOrResize)
+      window.removeEventListener("scroll", handleScrollOrResize, true)
+    }
+  }, [isOpen, onClose])
+
+  return (
+    <div className="relative inline-block text-left">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          onToggle()
+        }}
+        className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer"
+        title="Tùy chọn thao tác"
+      >
+        <EllipsisVertical size={16} />
+      </button>
+
+      {isOpen &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            style={{
+              position: "fixed",
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+              transform:
+                coords.placement === "top"
+                  ? "translate(-100%, -100%)"
+                  : "translateX(-100%)",
+              zIndex: 9999,
+            }}
+            className="min-w-[180px] w-max max-w-xs rounded-xl bg-white shadow-xl border border-gray-100 py-1.5 animate-[fadeIn_100ms_ease-out]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {actions.map((act) => (
+              <button
+                key={act.key}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  onClose()
+                  act.onClick()
+                }}
+                className={`w-full flex items-center justify-start text-left gap-2.5 px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                  act.danger
+                    ? "text-red-600 hover:bg-red-50"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <span className="shrink-0">{act.icon}</span>
+                <span className="whitespace-nowrap text-left">{act.label}</span>
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
+    </div>
+  )
 }
 
 /**
@@ -404,7 +557,6 @@ export const getVoucherTableHeaders = ({
   vouchersText,
   openDropdownId,
   setOpenDropdownId,
-  dropdownRef,
   getRowActions: computeRowActions,
   getStatusBadgeConfig: computeBadgeConfig,
 }: GetVoucherTableHeadersOptions): TableHeader<VoucherListItem>[] => [
@@ -581,53 +733,15 @@ export const getVoucherTableHeaders = ({
     width: 48,
     render: (row) => {
       const actions = computeRowActions(row)
-      const isOpen = openDropdownId === row.id
-
       return (
-        <div
-          className="relative inline-block text-left"
-          ref={isOpen ? dropdownRef : undefined}
-        >
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              setOpenDropdownId(isOpen ? null : row.id)
-            }}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer"
-            title="Tùy chọn thao tác"
-          >
-            <EllipsisVertical size={16} />
-          </button>
-
-          {isOpen && (
-            <div
-              className="absolute right-0 top-full mt-1 min-w-[180px] w-max max-w-xs rounded-xl bg-white shadow-xl border border-gray-100 py-1.5 z-30 animate-[fadeIn_100ms_ease-out]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {actions.map((act) => (
-                <button
-                  key={act.key}
-                  type="button"
-                  onClick={() => {
-                    setOpenDropdownId(null)
-                    act.onClick()
-                  }}
-                  className={`w-full flex items-center justify-start text-left gap-2.5 px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                    act.danger
-                      ? "text-red-600 hover:bg-red-50"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                  }`}
-                >
-                  <span className="shrink-0">{act.icon}</span>
-                  <span className="whitespace-nowrap text-left">
-                    {act.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <VoucherRowActionMenu
+          actions={actions}
+          isOpen={openDropdownId === row.id}
+          onToggle={() =>
+            setOpenDropdownId(openDropdownId === row.id ? null : row.id)
+          }
+          onClose={() => setOpenDropdownId(null)}
+        />
       )
     },
   },
