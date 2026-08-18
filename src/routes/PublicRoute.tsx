@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
+import ScrollToTop from "../components/common/ScrollToTop";
 
 export const PublicRoute = () => {
   const { isAuthenticated } = useAuthStore();
@@ -8,5 +9,10 @@ export const PublicRoute = () => {
     return <Navigate to="/" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <ScrollToTop />
+      <Outlet />
+    </>
+  );
 };
