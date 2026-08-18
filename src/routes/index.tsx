@@ -90,6 +90,8 @@ export const router = createBrowserRouter([
           { path: "vouchers", element: guard(VoucherPage, "vouchers") },
           { path: "vouchers/create", element: guard(VoucherCreatePage, "vouchers") },
           { path: "voucher/create", element: guard(VoucherCreatePage, "vouchers") },
+          { path: "vouchers/:id/edit", element: guard(VoucherCreatePage, "vouchers") },
+          { path: "voucher/:id/edit", element: guard(VoucherCreatePage, "vouchers") },
           { path: "vouchers/:id", element: guard(VoucherDetailPage, "vouchers") },
           { path: "voucher/:id", element: guard(VoucherDetailPage, "vouchers") },
           { path: "news/create", element: guard(PostCreatePage, "news") },

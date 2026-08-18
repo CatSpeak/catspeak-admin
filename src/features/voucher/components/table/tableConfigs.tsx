@@ -34,7 +34,7 @@ export interface VoucherActionItem {
 
 export interface GetRowActionsParams {
   row: VoucherListItem
-  navigate: (path: string) => void
+  navigate: (path: string, options?: { state?: unknown; replace?: boolean }) => void
   onOpenActivate: (row: VoucherListItem) => void
   onOpenDisable: (row: VoucherListItem) => void
   onOpenExtend: (row: VoucherListItem) => void
@@ -189,7 +189,10 @@ export const getRowActions = ({
           key: "edit",
           label: "Sửa",
           icon: <Edit size={14} />,
-          onClick: () => navigate(`/voucher/${row.id}`),
+          onClick: () =>
+            navigate("/voucher/create", {
+              state: { voucher: row, isEdit: true, editId: row.id },
+            }),
         },
         {
           key: "view",
