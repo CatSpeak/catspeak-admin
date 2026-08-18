@@ -1,68 +1,221 @@
 import { useCallback, useEffect, useState, useMemo } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate, useLocation, useParams, Link } from "react-router-dom"
 import {
   Ticket,
-  Percent as BadgePercent,
-  ListTodo,
-  Calendar as CalendarRange,
-  Calculator,
   ArrowLeft,
   ChevronRight,
-  Sparkles,
-  Search,
-  X,
   Loader2,
   Check,
   AlertCircle,
 } from "lucide-react"
 import { generateVoucherCode } from "../api/generateVoucherCode"
 import { createVoucher } from "../api/createVoucher"
+import { updateVoucher } from "../api/updateVoucher"
+import { getVoucherDetail } from "../api/getVoucherDetail"
 import { getCourses, getClasses } from "../../classes/api/classApi"
 import type { AdminCourse, AdminClass } from "../../classes/types"
-import type { CreateVoucherRequest } from "../types"
+import type {
+  CreateVoucherRequest,
+  VoucherDetailDto,
+  VoucherListItem,
+} from "../types"
 import { useLanguage } from "../../../stores/languageStore"
 import { getApiErrorMessage } from "../../../lib/axios"
+import {
+  GeneralInfoSection,
+  DiscountConfigSection,
+  ConditionsSection,
+  ValidityPeriodSection,
+  UsageLimitsSection,
+} from "../components/create"
 
 export default function VoucherCreatePage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { id: paramId } = useParams<{ id?: string }>()
   const { t } = useLanguage()
 
-  // Form States
-  const [code, setCode] = useState<string>("")
-  const [title, setTitle] = useState<string>("")
-  const [description, setDescription] = useState<string>("")
+  // Voucher passed via location.state (e.g. from table action "Sửa")
+  const stateVoucher =
+    (
+      location.state as {
+        voucher?: VoucherListItem | VoucherDetailDto
+        editVoucher?: VoucherListItem | VoucherDetailDto
+        editId?: number | string
+      } | null
+    )?.voucher ||
+    (location.state as any)?.editVoucher ||
+    null
+
+  const editId = useMemo(() => {
+    const rawStateId = (location.state as any)?.editId
+    if (rawStateId && !isNaN(Number(rawStateId))) return Number(rawStateId)
+    if (stateVoucher?.id && !isNaN(Number(stateVoucher.id)))
+      return Number(stateVoucher.id)
+    if (paramId && !isNaN(Number(paramId))) return Number(paramId)
+    return null
+  }, [location.state, stateVoucher, paramId])
+
+  const isEditMode = Boolean(editId && editId > 0)
+
+  // Validity Period default
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], [])
+
+  // Form States initialized with stateVoucher fallback if present
+  const [code, setCode] = useState<string>(() => stateVoucher?.code || "")
+  const [title, setTitle] = useState<string>(() => stateVoucher?.title || "")
+  const [description, setDescription] = useState<string>(
+    () => stateVoucher?.description || "",
+  )
   const sponsorType = "CatSpeak" as const
 
   // Discount Configuration
-  const [discountType, setDiscountType] = useState<"Percentage" | "FixedAmount">(
-    "Percentage",
+  const [discountType, setDiscountType] = useState<
+    "Percentage" | "FixedAmount"
+  >(() =>
+    stateVoucher?.discountType === "FixedAmount" ||
+    stateVoucher?.discountType === 2
+      ? "FixedAmount"
+      : "Percentage",
   )
-  const [discountValue, setDiscountValue] = useState<string>("")
-  const [maxDiscountAmount, setMaxDiscountAmount] = useState<string>("")
-  const [minOrderAmount, setMinOrderAmount] = useState<string>("")
+  const [discountValue, setDiscountValue] = useState<string>(() =>
+    stateVoucher?.discountValue !== undefined &&
+    stateVoucher?.discountValue !== null
+      ? String(stateVoucher.discountValue)
+      : "",
+  )
+  const [maxDiscountAmount, setMaxDiscountAmount] = useState<string>(() =>
+    stateVoucher?.maxDiscountAmount !== undefined &&
+    stateVoucher?.maxDiscountAmount !== null
+      ? String(stateVoucher.maxDiscountAmount)
+      : "",
+  )
+  const [minOrderAmount, setMinOrderAmount] = useState<string>(() =>
+    stateVoucher?.minOrderAmount !== undefined &&
+    stateVoucher?.minOrderAmount !== null
+      ? String(stateVoucher.minOrderAmount)
+      : "",
+  )
 
   // Application Conditions
   const [scopeType, setScopeType] = useState<
     "All" | "SpecificCourses" | "SpecificClasses"
-  >("All")
-  const [courseIds, setCourseIds] = useState<number[]>([])
-  const [classIds, setClassIds] = useState<number[]>([])
-  const [isOnlyNewUser, setIsOnlyNewUser] = useState<boolean>(false)
-  const [isNotCombineOther, setIsNotCombineOther] = useState<boolean>(true)
-  const [minLearners, setMinLearners] = useState<number>(1)
+  >(() => {
+    if (
+      stateVoucher?.scopeType === "SpecificCourses" ||
+      stateVoucher?.scopeType === 2
+    )
+      return "SpecificCourses"
+    if (
+      stateVoucher?.scopeType === "SpecificClasses" ||
+      stateVoucher?.scopeType === 3
+    )
+      return "SpecificClasses"
+    return "All"
+  })
+  const [courseIds, setCourseIds] = useState<number[]>(() => {
+    if (
+      (stateVoucher as any)?.courses &&
+      Array.isArray((stateVoucher as any).courses)
+    ) {
+      return (stateVoucher as any).courses.map((c: any) => c.id)
+    }
+    if (
+      (stateVoucher as any)?.courseIds &&
+      Array.isArray((stateVoucher as any).courseIds)
+    ) {
+      return (stateVoucher as any).courseIds
+    }
+    return []
+  })
+  const [classIds, setClassIds] = useState<number[]>(() => {
+    if (
+      (stateVoucher as any)?.classes &&
+      Array.isArray((stateVoucher as any).classes)
+    ) {
+      return (stateVoucher as any).classes.map((c: any) => c.id)
+    }
+    if (
+      (stateVoucher as any)?.classIds &&
+      Array.isArray((stateVoucher as any).classIds)
+    ) {
+      return (stateVoucher as any).classIds
+    }
+    return []
+  })
+  const [isOnlyNewUser, setIsOnlyNewUser] = useState<boolean>(() =>
+    (stateVoucher as any)?.isOnlyNewUser !== undefined
+      ? Boolean((stateVoucher as any).isOnlyNewUser)
+      : false,
+  )
+  const [isNotCombineOther, setIsNotCombineOther] = useState<boolean>(() =>
+    (stateVoucher as any)?.isNotCombineOther !== undefined
+      ? Boolean((stateVoucher as any).isNotCombineOther)
+      : true,
+  )
+  const [minLearners, setMinLearners] = useState<number>(() =>
+    (stateVoucher as any)?.minLearners !== undefined &&
+    (stateVoucher as any)?.minLearners !== null
+      ? Number((stateVoucher as any).minLearners)
+      : 1,
+  )
 
   // Validity Period
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], [])
-  const [validFrom, setValidFrom] = useState<string>(todayStr)
-  const [validTo, setValidTo] = useState<string>("")
-  const [isNeverExpired, setIsNeverExpired] = useState<boolean>(false)
+  const [validFrom, setValidFrom] = useState<string>(() => {
+    if (stateVoucher?.validFrom) {
+      try {
+        return stateVoucher.validFrom.split("T")[0]
+      } catch {
+        return todayStr
+      }
+    }
+    return todayStr
+  })
+  const [validTo, setValidTo] = useState<string>(() => {
+    if (stateVoucher?.validTo) {
+      try {
+        return stateVoucher.validTo.split("T")[0]
+      } catch {
+        return ""
+      }
+    }
+    return ""
+  })
+  const [isNeverExpired, setIsNeverExpired] = useState<boolean>(() =>
+    stateVoucher?.isNeverExpired !== undefined
+      ? Boolean(stateVoucher.isNeverExpired)
+      : false,
+  )
 
   // Usage Limits
-  const [isUnlimitedUsage, setIsUnlimitedUsage] = useState<boolean>(false)
-  const [totalUsageLimit, setTotalUsageLimit] = useState<string>("100")
-  const [perUserLimit, setPerUserLimit] = useState<string>("1")
-  const [dailyLimit, setDailyLimit] = useState<string>("")
-  const [maxBudget, setMaxBudget] = useState<string>("")
+  const [isUnlimitedUsage, setIsUnlimitedUsage] = useState<boolean>(() =>
+    stateVoucher?.isUnlimitedUsage !== undefined
+      ? Boolean(stateVoucher.isUnlimitedUsage)
+      : false,
+  )
+  const [totalUsageLimit, setTotalUsageLimit] = useState<string>(() =>
+    stateVoucher?.totalUsageLimit !== undefined &&
+    stateVoucher?.totalUsageLimit !== null
+      ? String(stateVoucher.totalUsageLimit)
+      : "",
+  )
+  const [perUserLimit, setPerUserLimit] = useState<string>(() =>
+    (stateVoucher as any)?.perUserLimit !== undefined &&
+    (stateVoucher as any)?.perUserLimit !== null
+      ? String((stateVoucher as any).perUserLimit)
+      : "",
+  )
+  const [dailyLimit, setDailyLimit] = useState<string>(() =>
+    (stateVoucher as any)?.dailyLimit !== undefined &&
+    (stateVoucher as any)?.dailyLimit !== null
+      ? String((stateVoucher as any).dailyLimit)
+      : "",
+  )
+  const [maxBudget, setMaxBudget] = useState<string>(() =>
+    stateVoucher?.maxBudget !== undefined && stateVoucher?.maxBudget !== null
+      ? String(stateVoucher.maxBudget)
+      : "",
+  )
 
   // Data fetching states for courses/classes
   const [coursesList, setCoursesList] = useState<AdminCourse[]>([])
@@ -75,6 +228,170 @@ export default function VoucherCreatePage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  // Validation memo for Discount Value (real-time FE check)
+  const discountValueError = useMemo(() => {
+    if (!discountValue || !discountValue.trim()) return null
+    const num = Number(discountValue)
+    if (isNaN(num)) return "Vui lòng nhập giá trị giảm hợp lệ."
+    if (discountType === "Percentage") {
+      if (num < 0 || num > 100) {
+        return "Giá trị giảm (phần trăm) phải từ 0 đến 100."
+      }
+    } else {
+      if (num <= 0) {
+        return "Giá trị giảm phải lớn hơn 0."
+      }
+    }
+    return null
+  }, [discountValue, discountType])
+
+  // Validation memo for Date Range (real-time FE check: validTo must not be before validFrom)
+  const dateRangeError = useMemo(() => {
+    if (isNeverExpired || !validFrom || !validTo) return null
+    if (validTo < validFrom) {
+      return "Ngày kết thúc không được nhỏ hơn ngày bắt đầu."
+    }
+    return null
+  }, [isNeverExpired, validFrom, validTo])
+
+  // Helper to populate form fields from a voucher object
+  const applyVoucherData = useCallback(
+    (v: Partial<VoucherDetailDto & VoucherListItem>) => {
+      if (!v) return
+
+      if (v.code) setCode(v.code)
+      if (v.title) setTitle(v.title)
+      if (v.description !== undefined && v.description !== null)
+        setDescription(v.description)
+
+      if (
+        v.discountType === "FixedAmount" ||
+        (v.discountType as any) === 2
+      ) {
+        setDiscountType("FixedAmount")
+      } else {
+        setDiscountType("Percentage")
+      }
+
+      if (v.discountValue !== undefined && v.discountValue !== null) {
+        setDiscountValue(String(v.discountValue))
+      }
+      if (v.maxDiscountAmount !== undefined && v.maxDiscountAmount !== null) {
+        setMaxDiscountAmount(String(v.maxDiscountAmount))
+      } else if (v.maxDiscountAmount === null) {
+        setMaxDiscountAmount("")
+      }
+
+      if (v.minOrderAmount !== undefined && v.minOrderAmount !== null) {
+        setMinOrderAmount(String(v.minOrderAmount))
+      } else if (v.minOrderAmount === null) {
+        setMinOrderAmount("")
+      }
+
+      if (v.minLearners !== undefined && v.minLearners !== null) {
+        setMinLearners(Number(v.minLearners))
+      }
+
+      if (
+        v.scopeType === "SpecificCourses" ||
+        (v.scopeType as any) === 2
+      ) {
+        setScopeType("SpecificCourses")
+      } else if (
+        v.scopeType === "SpecificClasses" ||
+        (v.scopeType as any) === 3
+      ) {
+        setScopeType("SpecificClasses")
+      } else {
+        setScopeType("All")
+      }
+
+      if (v.courses && Array.isArray(v.courses)) {
+        setCourseIds(v.courses.map((c) => c.id))
+      } else if ((v as any).courseIds && Array.isArray((v as any).courseIds)) {
+        setCourseIds((v as any).courseIds)
+      }
+
+      if (v.classes && Array.isArray(v.classes)) {
+        setClassIds(v.classes.map((cl) => cl.id))
+      } else if ((v as any).classIds && Array.isArray((v as any).classIds)) {
+        setClassIds((v as any).classIds)
+      }
+
+      if (v.isOnlyNewUser !== undefined) {
+        setIsOnlyNewUser(Boolean(v.isOnlyNewUser))
+      }
+      if (v.isNotCombineOther !== undefined) {
+        setIsNotCombineOther(Boolean(v.isNotCombineOther))
+      }
+
+      if (v.validFrom) {
+        try {
+          setValidFrom(v.validFrom.split("T")[0])
+        } catch {
+          // ignore
+        }
+      }
+      if (v.validTo) {
+        try {
+          setValidTo(v.validTo.split("T")[0])
+        } catch {
+          // ignore
+        }
+      } else if (v.validTo === null) {
+        setValidTo("")
+      }
+      if (v.isNeverExpired !== undefined) {
+        setIsNeverExpired(Boolean(v.isNeverExpired))
+      }
+
+      if (v.isUnlimitedUsage !== undefined) {
+        setIsUnlimitedUsage(Boolean(v.isUnlimitedUsage))
+      }
+      if (v.totalUsageLimit !== undefined && v.totalUsageLimit !== null) {
+        setTotalUsageLimit(String(v.totalUsageLimit))
+      } else if (v.totalUsageLimit === null) {
+        setTotalUsageLimit("")
+      }
+
+      if (v.perUserLimit !== undefined && v.perUserLimit !== null) {
+        setPerUserLimit(String(v.perUserLimit))
+      }
+      if (v.dailyLimit !== undefined && v.dailyLimit !== null) {
+        setDailyLimit(String(v.dailyLimit))
+      } else if (v.dailyLimit === null) {
+        setDailyLimit("")
+      }
+      if (v.maxBudget !== undefined && v.maxBudget !== null) {
+        setMaxBudget(String(v.maxBudget))
+      } else if (v.maxBudget === null) {
+        setMaxBudget("")
+      }
+    },
+    [],
+  )
+
+  // Fetch full details if editId exists to ensure relations (courses/classes, minLearners...) are fully populated
+  useEffect(() => {
+    if (editId) {
+      let isMounted = true
+      const fetchDetail = async () => {
+        try {
+          const detail = await getVoucherDetail(editId)
+          if (detail && isMounted) {
+            applyVoucherData(detail)
+          }
+        } catch (err) {
+          console.error("Failed to load voucher detail for edit:", err)
+        }
+      }
+      fetchDetail()
+      return () => {
+        isMounted = false
+      }
+    }
+  }, [editId, applyVoucherData])
 
   // Generate random voucher code
   const handleGenerateCode = async () => {
@@ -192,7 +509,11 @@ export default function VoucherCreatePage() {
       }
 
       const numDiscountValue = Number(discountValue)
-      if (!discountValue || isNaN(numDiscountValue) || numDiscountValue <= 0) {
+      if (
+        !discountValue ||
+        discountValue.trim() === "" ||
+        isNaN(numDiscountValue)
+      ) {
         setFormError(
           t.vouchers.create.discountValueRequiredError ||
             "Vui lòng nhập giá trị giảm hợp lệ.",
@@ -200,12 +521,22 @@ export default function VoucherCreatePage() {
         return
       }
 
-      if (discountType === "Percentage" && numDiscountValue > 100) {
-        setFormError(
-          t.vouchers.create.percentageLimitError ||
-            "Mức giảm phần trăm không thể vượt quá 100%.",
-        )
-        return
+      if (discountType === "Percentage") {
+        if (numDiscountValue < 0 || numDiscountValue > 100) {
+          setFormError(
+            t.vouchers.create.percentageLimitError ||
+              "Giá trị giảm (nếu loại giảm là Phần trăm) phải từ 0 đến 100.",
+          )
+          return
+        }
+      } else {
+        if (numDiscountValue <= 0) {
+          setFormError(
+            t.vouchers.create.discountValueRequiredError ||
+              "Giá trị giảm phải lớn hơn 0.",
+          )
+          return
+        }
       }
 
       if (!validFrom) {
@@ -224,10 +555,15 @@ export default function VoucherCreatePage() {
         return
       }
 
-      if (!isNeverExpired && validTo && new Date(validTo) <= new Date(validFrom)) {
+      if (
+        !isNeverExpired &&
+        validTo &&
+        validFrom &&
+        validTo < validFrom
+      ) {
         setFormError(
           t.vouchers.create.dateRangeInvalidError ||
-            "Ngày kết thúc phải lớn hơn ngày bắt đầu.",
+            "Ngày kết thúc không được nhỏ hơn ngày bắt đầu.",
         )
         return
       }
@@ -264,7 +600,8 @@ export default function VoucherCreatePage() {
           minOrderAmount && !isNaN(Number(minOrderAmount))
             ? Number(minOrderAmount)
             : 0,
-        minLearners: minLearners && !isNaN(Number(minLearners)) ? Number(minLearners) : 1,
+        minLearners:
+          minLearners && !isNaN(Number(minLearners)) ? Number(minLearners) : 1,
         validFrom: new Date(`${validFrom}T00:00:00Z`).toISOString(),
         validTo:
           !isNeverExpired && validTo
@@ -278,11 +615,15 @@ export default function VoucherCreatePage() {
         isNotCombineOther,
         isUnlimitedUsage,
         totalUsageLimit:
-          !isUnlimitedUsage && totalUsageLimit && !isNaN(Number(totalUsageLimit))
+          !isUnlimitedUsage &&
+          totalUsageLimit &&
+          !isNaN(Number(totalUsageLimit))
             ? Number(totalUsageLimit)
             : null,
         perUserLimit:
-          perUserLimit && !isNaN(Number(perUserLimit)) ? Number(perUserLimit) : 1,
+          perUserLimit && !isNaN(Number(perUserLimit))
+            ? Number(perUserLimit)
+            : 1,
         dailyLimit:
           dailyLimit && !isNaN(Number(dailyLimit)) ? Number(dailyLimit) : null,
         maxBudget:
@@ -294,16 +635,30 @@ export default function VoucherCreatePage() {
 
       try {
         setIsSubmitting(true)
-        const result = await createVoucher(payload)
-        setSuccessMessage(
-          isDraft
-            ? t.vouchers.create.saveDraftSuccess ||
-                "Lưu bản nháp voucher thành công!"
-            : t.vouchers.create.createSuccess || "Tạo voucher thành công!",
-        )
+        let result: any
+        if (isEditMode && editId) {
+          result = await updateVoucher(editId, payload)
+          setSuccessMessage(
+            isDraft
+              ? t.vouchers.create.saveDraftSuccess ||
+                  "Lưu bản nháp voucher thành công!"
+              : t.vouchers.create.updateSuccess ||
+                  "Cập nhật voucher thành công!",
+          )
+        } else {
+          result = await createVoucher(payload)
+          setSuccessMessage(
+            isDraft
+              ? t.vouchers.create.saveDraftSuccess ||
+                  "Lưu bản nháp voucher thành công!"
+              : t.vouchers.create.createSuccess || "Tạo voucher thành công!",
+          )
+        }
         setTimeout(() => {
           if (result?.id) {
             navigate(`/voucher/${result.id}`)
+          } else if (editId) {
+            navigate(`/voucher/${editId}`)
           } else {
             navigate("/vouchers")
           }
@@ -313,8 +668,11 @@ export default function VoucherCreatePage() {
         setFormError(
           getApiErrorMessage(
             err,
-            t.vouchers.create.createGenericError ||
-              "Không thể tạo voucher. Vui lòng kiểm tra lại thông tin.",
+            isEditMode
+              ? t.vouchers.create.updateGenericError ||
+                  "Không thể cập nhật voucher. Vui lòng kiểm tra lại thông tin."
+              : t.vouchers.create.createGenericError ||
+                  "Không thể tạo voucher. Vui lòng kiểm tra lại thông tin.",
           ),
         )
       } finally {
@@ -322,6 +680,8 @@ export default function VoucherCreatePage() {
       }
     },
     [
+      isEditMode,
+      editId,
       code,
       title,
       description,
@@ -362,7 +722,9 @@ export default function VoucherCreatePage() {
         </Link>
         <ChevronRight size={14} className="text-gray-400" />
         <span className="text-gray-900 font-semibold">
-          {t.vouchers.create.breadcrumb}
+          {isEditMode
+            ? t.vouchers.create.editBreadcrumb || "Chỉnh sửa voucher"
+            : t.vouchers.create.breadcrumb}
         </span>
       </nav>
 
@@ -375,10 +737,15 @@ export default function VoucherCreatePage() {
 
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-gray-900 leading-snug">
-              {t.vouchers.create.title}
+              {isEditMode
+                ? t.vouchers.create.editTitle || "Chỉnh sửa voucher"
+                : t.vouchers.create.title}
             </h1>
             <p className="text-xs text-gray-500 max-w-xl">
-              {t.vouchers.create.desc}
+              {isEditMode
+                ? t.vouchers.create.editDesc ||
+                  "Cập nhật thông tin, cấu hình mức giảm và điều kiện áp dụng cho mã ưu đãi."
+                : t.vouchers.create.desc}
             </p>
           </div>
         </div>
@@ -412,696 +779,81 @@ export default function VoucherCreatePage() {
         {/* ══════════ LEFT COLUMN (Col-span 2) ══════════ */}
         <div className="lg:col-span-2 space-y-6">
           {/* ── Section 1: Thông tin chung ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-              <div className="p-2 rounded-xl bg-red-50 text-red-600">
-                <Ticket size={18} />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">
-                  {t.vouchers.create.generalInfo}
-                </h2>
-                <p className="text-xs text-gray-500">
-                  {t.vouchers.create.generalInfoDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              {/* Code */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.code} <span className="text-red-500">*</span>
-                </label>
-                <div className="flex items-center gap-2 w-full">
-                  <input
-                    type="text"
-                    required
-                    placeholder={t.vouchers.create.codePlaceholder}
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-mono text-gray-900 tracking-wider uppercase focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                  <button
-                    type="button"
-                    disabled={isGeneratingCode}
-                    onClick={handleGenerateCode}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 transition-all shrink-0 shadow-xs whitespace-nowrap cursor-pointer"
-                    title={t.vouchers.create.generateRandom}
-                  >
-                    {isGeneratingCode ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
-                    ) : (
-                      <Sparkles size={14} className="text-primary" />
-                    )}
-                    <span>
-                      {t.vouchers.create.generateRandom}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Title */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.voucherName} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t.vouchers.create.voucherNamePlaceholder}
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.description}
-                </label>
-                <textarea
-                  rows={2}
-                  placeholder={t.vouchers.create.descriptionPlaceholder}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-
-              {/* Sponsor Type */}
-              <div className="space-y-2 sm:col-span-2 pt-1">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.sponsorType}
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div
-                    className="flex items-center gap-3 p-3 rounded-lg border border-blue-500 bg-blue-50/50 text-blue-900 shadow-xs cursor-not-allowed hover:cursor-not-allowed opacity-90 select-none"
-                    title={t.vouchers.create.sponsorFixedTooltip}
-                  >
-                    <input
-                      type="radio"
-                      name="sponsorType"
-                      value="CatSpeak"
-                      checked={true}
-                      disabled
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-not-allowed hover:cursor-not-allowed"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold text-blue-900">
-                        {t.vouchers.sponsorTypes.catspeak}
-                      </p>
-                      <p className="text-[11px] text-gray-500 font-normal">
-                        {t.vouchers.create.sponsorCatspeakDesc}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <GeneralInfoSection
+            code={code}
+            setCode={setCode}
+            title={title}
+            setTitle={setTitle}
+            description={description}
+            setDescription={setDescription}
+            isGeneratingCode={isGeneratingCode}
+            handleGenerateCode={handleGenerateCode}
+          />
 
           {/* ── Section 2: Cấu hình giảm giá ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-              <div className="p-2 rounded-xl bg-blue-50 text-blue-600">
-                <BadgePercent size={18} />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">
-                  {t.vouchers.create.discountConfig}
-                </h2>
-                <p className="text-xs text-gray-500">
-                  {t.vouchers.create.discountConfigDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              {/* Discount Type Radio */}
-              <div className="space-y-2">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.discountType} <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
-                      discountType === "Percentage"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="discountType"
-                      value="Percentage"
-                      checked={discountType === "Percentage"}
-                      onChange={() => setDiscountType("Percentage")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold">
-                        {t.vouchers.discountTypes.percentage}
-                      </p>
-                      <p className="text-[11px] text-gray-500 font-normal">
-                        {t.vouchers.create.percentageDesc}
-                      </p>
-                    </div>
-                  </label>
-
-                  <label
-                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer select-none transition-all ${
-                      discountType === "FixedAmount"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="discountType"
-                      value="FixedAmount"
-                      checked={discountType === "FixedAmount"}
-                      onChange={() => setDiscountType("FixedAmount")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <div>
-                      <p className="text-xs font-semibold">
-                        {t.vouchers.discountTypes.fixedAmount}
-                      </p>
-                      <p className="text-[11px] text-gray-500 font-normal">
-                        {t.vouchers.create.fixedAmountDesc}
-                      </p>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Numerical Inputs Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
-                {/* Discount Value */}
-                <div className="space-y-1.5">
-                  <label className="block font-semibold text-gray-700">
-                    {t.vouchers.create.discountValue} <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="number"
-                      required
-                      min={1}
-                      max={discountType === "Percentage" ? 100 : undefined}
-                      placeholder={discountType === "Percentage" ? "20" : "50000"}
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(e.target.value)}
-                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
-                    <span className="absolute right-3 font-bold text-gray-500 text-xs pointer-events-none">
-                      {discountType === "Percentage" ? "%" : "đ"}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Max Discount Amount */}
-                <div className="space-y-1.5">
-                  <label className="block font-semibold text-gray-700">
-                    {t.vouchers.create.maxDiscountAmount}
-                  </label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="number"
-                      min={0}
-                      step={5000}
-                      placeholder="200000"
-                      value={maxDiscountAmount}
-                      onChange={(e) => setMaxDiscountAmount(e.target.value)}
-                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
-                    <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
-                      đ
-                    </span>
-                  </div>
-                </div>
-
-                {/* Min Order Amount */}
-                <div className="space-y-1.5">
-                  <label className="block font-semibold text-gray-700">
-                    {t.vouchers.create.minOrderAmount}
-                  </label>
-                  <div className="relative flex items-center">
-                    <input
-                      type="number"
-                      min={0}
-                      step={5000}
-                      placeholder="300000"
-                      value={minOrderAmount}
-                      onChange={(e) => setMinOrderAmount(e.target.value)}
-                      className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                    />
-                    <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
-                      đ
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DiscountConfigSection
+            discountType={discountType}
+            setDiscountType={setDiscountType}
+            discountValue={discountValue}
+            setDiscountValue={setDiscountValue}
+            discountValueError={discountValueError}
+            maxDiscountAmount={maxDiscountAmount}
+            setMaxDiscountAmount={setMaxDiscountAmount}
+            minOrderAmount={minOrderAmount}
+            setMinOrderAmount={setMinOrderAmount}
+          />
 
           {/* ── Section 3: Điều kiện áp dụng ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-              <div className="p-2 rounded-xl bg-violet-50 text-violet-600">
-                <ListTodo size={18} />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">
-                  {t.vouchers.create.conditions}
-                </h2>
-                <p className="text-xs text-gray-500">
-                  {t.vouchers.create.conditionsDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              {/* Scope Type Selector */}
-              <div className="space-y-2">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.scopeType} <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
-                      scopeType === "All"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="All"
-                      checked={scopeType === "All"}
-                      onChange={() => setScopeType("All")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <span className="text-xs">{t.vouchers.create.scopeAll}</span>
-                  </label>
-
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
-                      scopeType === "SpecificCourses"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="SpecificCourses"
-                      checked={scopeType === "SpecificCourses"}
-                      onChange={() => setScopeType("SpecificCourses")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <span className="text-xs">{t.vouchers.create.scopeCourses}</span>
-                  </label>
-
-                  <label
-                    className={`flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer select-none transition-all ${
-                      scopeType === "SpecificClasses"
-                        ? "border-blue-500 bg-blue-50/50 text-blue-900 font-semibold shadow-xs"
-                        : "border-gray-200 hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="scopeType"
-                      value="SpecificClasses"
-                      checked={scopeType === "SpecificClasses"}
-                      onChange={() => setScopeType("SpecificClasses")}
-                      className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <span className="text-xs">{t.vouchers.create.scopeClasses}</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Sub-selector: Specific Courses */}
-              {scopeType === "SpecificCourses" && (
-                <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-3 animate-fade-in">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                    <div className="relative flex-1">
-                      <Search
-                        size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
-                      <input
-                        type="text"
-                        placeholder={t.vouchers.create.searchCourses}
-                        value={itemSearch}
-                        onChange={(e) => setItemSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-2 text-xs">
-                      <span className="font-semibold text-blue-700">
-                        {t.vouchers.create.selectedCount}: {courseIds.length}
-                      </span>
-                      {courseIds.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setCourseIds([])}
-                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5 cursor-pointer"
-                        >
-                          <X size={12} /> {t.vouchers.create.clearAll}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100">
-                    {loadingItems ? (
-                      <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                        {t.vouchers.create.loadingCourses}
-                      </div>
-                    ) : filteredCourses.length === 0 ? (
-                      <div className="py-6 text-center text-gray-400 italic">
-                        {t.vouchers.create.noCoursesFound}
-                      </div>
-                    ) : (
-                      filteredCourses.map((c) => {
-                        const isChecked = courseIds.includes(c.id)
-                        return (
-                          <label
-                            key={c.id}
-                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer select-none transition-colors ${
-                              isChecked
-                                ? "bg-blue-50 text-blue-950"
-                                : "hover:bg-white text-gray-800"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleCourse(c.id)}
-                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                            />
-                            <div className="flex-1 truncate">
-                              <span className="font-bold text-xs">{c.name}</span>
-                              <span className="text-[11px] text-gray-400 ml-2">
-                                (ID: {c.id} · {c.language || t.vouchers.create.languageDefault} · {c.classCount || 0} {t.vouchers.create.classesCountSuffix})
-                              </span>
-                            </div>
-                          </label>
-                        )
-                      })
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Sub-selector: Specific Classes */}
-              {scopeType === "SpecificClasses" && (
-                <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200 space-y-3 animate-fade-in">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                    <div className="relative flex-1">
-                      <Search
-                        size={14}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                      />
-                      <input
-                        type="text"
-                        placeholder={t.vouchers.create.searchClasses}
-                        value={itemSearch}
-                        onChange={(e) => setItemSearch(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-2 text-xs">
-                      <span className="font-semibold text-blue-700">
-                        {t.vouchers.create.selectedCount}: {classIds.length}
-                      </span>
-                      {classIds.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => setClassIds([])}
-                          className="text-[11px] font-semibold text-red-600 hover:underline flex items-center gap-0.5 cursor-pointer"
-                        >
-                          <X size={12} /> {t.vouchers.create.clearAll}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100">
-                    {loadingItems ? (
-                      <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                        {t.vouchers.create.loadingClasses}
-                      </div>
-                    ) : filteredClasses.length === 0 ? (
-                      <div className="py-6 text-center text-gray-400 italic">
-                        {t.vouchers.create.noClassesFound}
-                      </div>
-                    ) : (
-                      filteredClasses.map((cl) => {
-                        const isChecked = classIds.includes(cl.id)
-                        return (
-                          <label
-                            key={cl.id}
-                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer select-none transition-colors ${
-                              isChecked
-                                ? "bg-blue-50 text-blue-950"
-                                : "hover:bg-white text-gray-800"
-                            }`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => toggleClass(cl.id)}
-                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                            />
-                            <div className="flex-1 truncate">
-                              <span className="font-bold text-xs">{cl.name}</span>
-                              <span className="text-[11px] text-gray-400 ml-2">
-                                ({t.vouchers.create.codePrefix}: #{cl.id} · {cl.teacherName || t.vouchers.create.teacherDefault} · {cl.price ? `${cl.price.toLocaleString("vi-VN")} đ` : t.vouchers.create.freePrice})
-                              </span>
-                            </div>
-                          </label>
-                        )
-                      })
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Checkboxes & MinLearners */}
-              <div className="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-gray-100 items-center">
-                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
-                  <input
-                    type="checkbox"
-                    checked={isOnlyNewUser}
-                    onChange={(e) => setIsOnlyNewUser(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                  />
-                  <span className="text-xs font-medium select-none">
-                    {t.vouchers.create.isOnlyNewUser}
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
-                  <input
-                    type="checkbox"
-                    checked={isNotCombineOther}
-                    onChange={(e) => setIsNotCombineOther(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                  />
-                  <span className="text-xs font-medium select-none">
-                    {t.vouchers.create.isNotCombineOther}
-                  </span>
-                </label>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-semibold text-gray-600">
-                    {t.vouchers.create.minLearners}
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={minLearners}
-                    onChange={(e) => setMinLearners(Math.max(1, Number(e.target.value)))}
-                    className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          <ConditionsSection
+            scopeType={scopeType}
+            setScopeType={setScopeType}
+            courseIds={courseIds}
+            setCourseIds={setCourseIds}
+            toggleCourse={toggleCourse}
+            classIds={classIds}
+            setClassIds={setClassIds}
+            toggleClass={toggleClass}
+            isOnlyNewUser={isOnlyNewUser}
+            setIsOnlyNewUser={setIsOnlyNewUser}
+            isNotCombineOther={isNotCombineOther}
+            setIsNotCombineOther={setIsNotCombineOther}
+            minLearners={minLearners}
+            setMinLearners={setMinLearners}
+            itemSearch={itemSearch}
+            setItemSearch={setItemSearch}
+            loadingItems={loadingItems}
+            filteredCourses={filteredCourses}
+            filteredClasses={filteredClasses}
+          />
         </div>
 
         {/* ══════════ RIGHT COLUMN (Col-span 1) ══════════ */}
         <div className="lg:col-span-1 space-y-6">
           {/* ── Section 4: Thời gian hiệu lực ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-              <div className="p-2 rounded-xl bg-teal-50 text-teal-600">
-                <CalendarRange size={18} />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">
-                  {t.vouchers.create.validityPeriod}
-                </h2>
-                <p className="text-[11px] text-gray-500">
-                  {t.vouchers.create.validityPeriodDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3.5 text-xs">
-              {/* Valid From */}
-              <div className="space-y-1.5">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.validFrom} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={validFrom}
-                  onChange={(e) => setValidFrom(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-
-              {/* Is Never Expired Checkbox */}
-              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none pt-1">
-                <input
-                  type="checkbox"
-                  checked={isNeverExpired}
-                  onChange={(e) => setIsNeverExpired(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                />
-                <span className="text-xs font-semibold text-gray-800 select-none">
-                  {t.vouchers.create.isNeverExpired}
-                </span>
-              </label>
-
-              {/* Valid To */}
-              {!isNeverExpired && (
-                <div className="space-y-1.5 animate-fade-in">
-                  <label className="block font-semibold text-gray-700">
-                    {t.vouchers.create.validTo} <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    required={!isNeverExpired}
-                    min={validFrom || todayStr}
-                    value={validTo}
-                    onChange={(e) => setValidTo(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          <ValidityPeriodSection
+            validFrom={validFrom}
+            setValidFrom={setValidFrom}
+            validTo={validTo}
+            setValidTo={setValidTo}
+            isNeverExpired={isNeverExpired}
+            setIsNeverExpired={setIsNeverExpired}
+            todayStr={todayStr}
+            dateRangeError={dateRangeError}
+          />
 
           {/* ── Section 5: Giới hạn sử dụng ── */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
-              <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
-                <Calculator size={18} />
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 text-base">
-                  {t.vouchers.create.usageLimits}
-                </h2>
-                <p className="text-[11px] text-gray-500">
-                  {t.vouchers.create.usageLimitsDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3.5 text-xs">
-              {/* Unlimited Usage Checkbox */}
-              <label className="flex items-center gap-2.5 cursor-pointer text-gray-700 select-none">
-                <input
-                  type="checkbox"
-                  checked={isUnlimitedUsage}
-                  onChange={(e) => setIsUnlimitedUsage(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
-                />
-                <span className="text-xs font-semibold text-gray-800 select-none">
-                  {t.vouchers.create.isUnlimitedUsage}
-                </span>
-              </label>
-
-              {/* Total Usage Limit */}
-              {!isUnlimitedUsage && (
-                <div className="space-y-1.5 animate-fade-in">
-                  <label className="block font-semibold text-gray-700">
-                    {t.vouchers.create.totalUsageLimit}
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="100"
-                    value={totalUsageLimit}
-                    onChange={(e) => setTotalUsageLimit(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                </div>
-              )}
-
-              {/* Per User Limit */}
-              <div className="space-y-1.5">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.perUserLimit}
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  placeholder="1"
-                  value={perUserLimit}
-                  onChange={(e) => setPerUserLimit(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-
-              {/* Daily Limit */}
-              <div className="space-y-1.5">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.dailyLimit}
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  placeholder={t.vouchers.create.unlimitedPlaceholder}
-                  value={dailyLimit}
-                  onChange={(e) => setDailyLimit(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </div>
-
-              {/* Max Budget */}
-              <div className="space-y-1.5">
-                <label className="block font-semibold text-gray-700">
-                  {t.vouchers.create.maxBudget}
-                </label>
-                <div className="relative flex items-center">
-                  <input
-                    type="number"
-                    min={0}
-                    step={10000}
-                    placeholder={t.vouchers.create.unlimitedPlaceholder}
-                    value={maxBudget}
-                    onChange={(e) => setMaxBudget(e.target.value)}
-                    className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                  <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
-                    đ
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <UsageLimitsSection
+            isUnlimitedUsage={isUnlimitedUsage}
+            setIsUnlimitedUsage={setIsUnlimitedUsage}
+            totalUsageLimit={totalUsageLimit}
+            setTotalUsageLimit={setTotalUsageLimit}
+            perUserLimit={perUserLimit}
+            setPerUserLimit={setPerUserLimit}
+            dailyLimit={dailyLimit}
+            setDailyLimit={setDailyLimit}
+            maxBudget={maxBudget}
+            setMaxBudget={setMaxBudget}
+          />
         </div>
       </div>
 
@@ -1141,8 +893,12 @@ export default function VoucherCreatePage() {
           >
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
             {isSubmitting
-              ? t.vouchers.create.creating
-              : t.vouchers.create.createVoucher}
+              ? isEditMode
+                ? t.vouchers.create.updating || "Đang cập nhật..."
+                : t.vouchers.create.creating
+              : isEditMode
+                ? t.vouchers.create.updateVoucher || "Cập nhật voucher"
+                : t.vouchers.create.createVoucher}
           </button>
         </div>
       </div>
