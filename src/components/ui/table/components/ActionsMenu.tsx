@@ -22,36 +22,40 @@ export default function ActionsMenu<T>({
   const { t } = useLanguage();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState<{
-    top: number;
-    left: number;
-    placement: "bottom" | "top";
-  }>({
-    top: 0,
-    left: 0,
-    placement: "bottom",
-  });
+  const [stylePos, setStylePos] = useState<React.CSSProperties | null>(null);
 
-  const updatePosition = () => {
-    if (!buttonRef.current) return;
+  const calculatePosition = () => {
+    if (!buttonRef.current) return null;
     const rect = buttonRef.current.getBoundingClientRect();
     const spaceBelow = window.innerHeight - rect.bottom;
-    const estimatedMenuHeight = 220;
-    const placement =
-      spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight
-        ? "top"
-        : "bottom";
+    const estimatedMenuHeight = 200;
+    const isTop =
+      spaceBelow < estimatedMenuHeight && rect.top > estimatedMenuHeight;
 
-    setCoords({
-      top: placement === "bottom" ? rect.bottom + 4 : rect.top - 4,
-      left: rect.right,
-      placement,
-    });
+    const right = Math.max(8, window.innerWidth - rect.right);
+
+    if (isTop) {
+      return {
+        position: "fixed" as const,
+        bottom: `${window.innerHeight - rect.top + 4}px`,
+        right: `${right}px`,
+        zIndex: 9999,
+      };
+    }
+
+    return {
+      position: "fixed" as const,
+      top: `${rect.bottom + 4}px`,
+      right: `${right}px`,
+      zIndex: 9999,
+    };
   };
 
   useLayoutEffect(() => {
     if (isOpen) {
-      updatePosition();
+      setStylePos(calculatePosition());
+    } else {
+      setStylePos(null);
     }
   }, [isOpen]);
 
@@ -96,6 +100,14 @@ export default function ActionsMenu<T>({
     };
   }, [isOpen, onClose]);
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isOpen) {
+      setStylePos(calculatePosition());
+    }
+    onToggle();
+  };
+
   const visibleActions = actions.filter((a) => !a.hidden?.(row));
   if (visibleActions.length === 0) return null;
 
@@ -104,7 +116,7 @@ export default function ActionsMenu<T>({
       <button
         ref={buttonRef}
         type="button"
-        onClick={onToggle}
+        onClick={handleToggle}
         aria-label={t.table.rowActions}
         aria-haspopup="menu"
         aria-expanded={isOpen}
@@ -114,20 +126,12 @@ export default function ActionsMenu<T>({
       </button>
 
       {isOpen &&
+        stylePos &&
         createPortal(
           <div
             ref={menuRef}
             role="menu"
-            style={{
-              position: "fixed",
-              top: `${coords.top}px`,
-              left: `${coords.left}px`,
-              transform:
-                coords.placement === "top"
-                  ? "translate(-100%, -100%)"
-                  : "translateX(-100%)",
-              zIndex: 9999,
-            }}
+            style={stylePos}
             className="min-w-[180px] w-max max-w-xs origin-top-right rounded-lg border border-gray-100 bg-white shadow-xl py-1 animate-[fadeIn_100ms_ease-out]"
             onClick={(e) => e.stopPropagation()}
           >
@@ -137,8 +141,8 @@ export default function ActionsMenu<T>({
                 type="button"
                 role="menuitem"
                 onClick={() => {
-                  action.handler?.(row);
                   onClose();
+                  action.handler?.(row);
                 }}
                 className={`flex w-full items-center justify-start text-left gap-2 px-3 py-2 text-sm whitespace-nowrap transition-colors cursor-pointer ${
                   action.danger
