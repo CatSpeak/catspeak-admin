@@ -56,6 +56,12 @@ export interface AdminEnrolledStudent {
   enrolledAtTick: number;
 }
 
+export interface StudentCandidate {
+  accountId: number;
+  name: string;
+  email: string;
+}
+
 export interface AdminClassDetail {
   item: AdminClass;
   schedule: AdminScheduleEntry[];

@@ -1,13 +1,14 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { X, Users, CalendarClock, Trash2, Plus, Loader2 } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { X, Users, CalendarClock, Trash2, Loader2, Search } from "lucide-react";
 import Badge from "../../../components/ui/Badge";
 import Button from "../../../components/ui/Button";
 import { getApiErrorMessage } from "../../../lib/axios";
 import { useToastStore } from "../../../stores/toastStore";
 import { useLanguage } from "../../../stores/languageStore";
-import { getClassDetail, addStudent, removeStudent, setClassStatus } from "../api/classApi";
-import type { AdminClass, AdminClassDetail } from "../types";
+import { getClassDetail, addStudent, removeStudent, setClassStatus, searchStudents } from "../api/classApi";
+import type { AdminClass, AdminClassDetail, StudentCandidate } from "../types";
 import { ClassStatusBadge } from "./ClassStatusBadge";
+import { toLocalScheduleEntry, toLocalSession, utcDateFromTick } from "../utils/time";
 
 const STATUS_ORDER = [
   "UPCOMING",
@@ -18,9 +19,11 @@ const STATUS_ORDER = [
   "FINISHED",
 ] as const;
 
+const AUTO_STATUS = "";
+
 function fromTick(tick?: number): string {
   if (!tick) return "—";
-  return new Date(tick / 10000 - 62135596800000).toLocaleDateString("vi-VN");
+  return utcDateFromTick(tick).toLocaleDateString("vi-VN");
 }
 
 interface ClassDetailModalProps {
@@ -38,9 +41,17 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
   const addToast = useToastStore((s) => s.addToast);
   const [detail, setDetail] = useState<AdminClassDetail | null>(null);
   const [loading, setLoading] = useState(false);
-  const [newStudentId, setNewStudentId] = useState("");
-  const [adding, setAdding] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [studentResults, setStudentResults] = useState<StudentCandidate[]>([]);
+  const [matchedCount, setMatchedCount] = useState(0);
+  const [searching, setSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [addingId, setAddingId] = useState<number | null>(null);
+  const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchSeq = useRef(0);
+  const searchBoxRef = useRef<HTMLDivElement | null>(null);
 
   const loadDetail = useCallback(async () => {
     if (!cl) return;
@@ -57,30 +68,81 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
   useEffect(() => {
     if (cl) {
       setDetail(null);
-      setNewStudentId("");
+      setSearchTerm("");
+      setStudentResults([]);
+      setMatchedCount(0);
+      setShowDropdown(false);
       loadDetail();
     }
   }, [cl, loadDetail]);
 
+  useEffect(() => {
+    const handleMouseDown = (e: MouseEvent) => {
+      if (searchBoxRef.current && !searchBoxRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleMouseDown);
+    return () => document.removeEventListener("mousedown", handleMouseDown);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimer.current) clearTimeout(searchTimer.current);
+    };
+  }, []);
+
   if (!cl) return null;
 
-  const handleAddStudent = async () => {
-    const accountId = Number(newStudentId);
-    if (!accountId) {
-      addToast("error", t.classes.addStudentPlaceholder);
+  const enrolledIds = new Set((detail?.students ?? []).map((s) => s.accountId));
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setShowDropdown(true);
+
+    if (searchTimer.current) clearTimeout(searchTimer.current);
+
+    const keyword = value.trim();
+    if (!keyword) {
+      setStudentResults([]);
+      setMatchedCount(0);
+      setSearching(false);
       return;
     }
-    setAdding(true);
+
+    const seq = ++searchSeq.current;
+    setSearching(true);
+    searchTimer.current = setTimeout(async () => {
+      try {
+        const results = await searchStudents(keyword);
+        if (seq !== searchSeq.current) return;
+        setStudentResults(results.filter((r) => !enrolledIds.has(r.accountId)));
+        setMatchedCount(results.length);
+      } catch {
+        if (seq !== searchSeq.current) return;
+        setStudentResults([]);
+        setMatchedCount(0);
+      } finally {
+        if (seq === searchSeq.current) setSearching(false);
+      }
+    }, 300);
+  };
+
+  const handleAddStudent = async (accountId: number) => {
+    setAddingId(accountId);
     try {
       await addStudent(cl.id, accountId);
       addToast("success", t.classes.addStudentSuccess);
-      setNewStudentId("");
+      setSearchTerm("");
+      setStudentResults([]);
+      setMatchedCount(0);
+      setShowDropdown(false);
       await loadDetail();
       onChanged();
     } catch (err) {
       addToast("error", getApiErrorMessage(err, "Failed to add student."));
     } finally {
-      setAdding(false);
+      setAddingId(null);
     }
   };
 
@@ -107,6 +169,15 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
       onChanged();
     } catch (err) {
       addToast("error", getApiErrorMessage(err, "Failed to update status."));
+    }
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && studentResults.length > 0) {
+      e.preventDefault();
+      handleAddStudent(studentResults[0].accountId);
+    } else if (e.key === "Escape") {
+      setShowDropdown(false);
     }
   };
 
@@ -170,12 +241,21 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
                 <span className="text-sm font-medium text-gray-600">
                   {t.classes.setStatus}:
                 </span>
+                {detail.item.adminStatus === null && (
+                  <button
+                    onClick={() => handleSetStatus(AUTO_STATUS)}
+                    className="px-3 py-1 rounded-full text-xs font-medium border bg-slate-700 text-white border-slate-700 transition-colors cursor-pointer"
+                  >
+                    {t.classes.autoStatus}
+                  </button>
+                )}
                 {STATUS_ORDER.map((status) => (
                   <button
                     key={status}
                     onClick={() => handleSetStatus(status)}
                     className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
-                      detail.item.status === status
+                      detail.item.status === status &&
+                      detail.item.adminStatus !== null
                         ? "bg-primary text-white border-primary"
                         : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"
                     }`}
@@ -204,15 +284,23 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {detail.schedule.map((s, i) => (
-                          <tr key={i} className="border-b border-gray-100">
-                            <td className="px-3 py-2">
-                              {t.classes.days[s.dayOfWeek as keyof typeof t.classes.days] ?? s.dayOfWeek}
-                            </td>
-                            <td className="px-3 py-2">{s.startTime}</td>
-                            <td className="px-3 py-2">{s.endTime}</td>
-                          </tr>
-                        ))}
+                        {detail.schedule.map((s, i) => {
+                          const local = toLocalScheduleEntry(
+                            s.dayOfWeek,
+                            s.startTime,
+                            s.endTime,
+                            detail.item.startDateTick,
+                          );
+                          return (
+                            <tr key={i} className="border-b border-gray-100">
+                              <td className="px-3 py-2">
+                                {t.classes.days[local.dayKey as keyof typeof t.classes.days] ?? local.dayKey}
+                              </td>
+                              <td className="px-3 py-2">{local.startTime}</td>
+                              <td className="px-3 py-2">{local.endTime}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -239,17 +327,20 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
                         </tr>
                       </thead>
                       <tbody>
-                        {detail.sessions.map((s) => (
-                          <tr key={s.sessionNumber} className="border-b border-gray-100">
-                            <td className="px-3 py-2">{s.sessionNumber}</td>
-                            <td className="px-3 py-2">{s.date}</td>
-                            <td className="px-3 py-2">{s.startTime}</td>
-                            <td className="px-3 py-2">{s.endTime}</td>
-                            <td className="px-3 py-2">
-                              {s.isModified ? <Badge type="Yellow" title="✓" /> : "—"}
-                            </td>
-                          </tr>
-                        ))}
+                        {detail.sessions.map((s) => {
+                          const local = toLocalSession(s.date, s.startTime, s.endTime);
+                          return (
+                            <tr key={s.sessionNumber} className="border-b border-gray-100">
+                              <td className="px-3 py-2">{s.sessionNumber}</td>
+                              <td className="px-3 py-2">{local.date}</td>
+                              <td className="px-3 py-2">{local.startTime}</td>
+                              <td className="px-3 py-2">{local.endTime}</td>
+                              <td className="px-3 py-2">
+                                {s.isModified ? <Badge type="Yellow" title="✓" /> : "—"}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -265,22 +356,60 @@ export const ClassDetailModal: React.FC<ClassDetailModalProps> = ({
                   </h3>
                 </div>
 
-                <div className="flex items-center gap-2 mb-3">
-                  <input
-                    type="number"
-                    value={newStudentId}
-                    onChange={(e) => setNewStudentId(e.target.value)}
-                    placeholder={t.classes.addStudentPlaceholder}
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
+                <div className="relative mb-3" ref={searchBoxRef}>
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
                   />
-                  <Button
-                    size="sm"
-                    isLoading={adding}
-                    leftIcon={<Plus size={14} />}
-                    onClick={handleAddStudent}
-                  >
-                    {t.classes.addStudent}
-                  </Button>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    onFocus={() => setShowDropdown(true)}
+                    onKeyDown={handleSearchKeyDown}
+                    placeholder={t.classes.searchStudentPlaceholder}
+                    className="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  />
+
+                  {showDropdown && searchTerm.trim() && (
+                    <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                      {searching ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 size={18} className="text-primary animate-spin" />
+                        </div>
+                      ) : studentResults.length === 0 && matchedCount > 0 ? (
+                        <p className="px-4 py-3 text-sm text-gray-500">
+                          {t.classes.allStudentsEnrolled}
+                        </p>
+                      ) : studentResults.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-gray-500">
+                          {t.classes.noSearchResults}
+                        </p>
+                      ) : (
+                        studentResults.map((candidate) => (
+                          <button
+                            key={candidate.accountId}
+                            type="button"
+                            disabled={addingId === candidate.accountId}
+                            onClick={() => handleAddStudent(candidate.accountId)}
+                            className="w-full flex items-center justify-between gap-2 px-4 py-2.5 text-left text-sm hover:bg-primary/5 transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            <span className="flex items-center gap-2 min-w-0">
+                              <span className="font-medium text-gray-800 truncate">
+                                {candidate.name}
+                              </span>
+                              {addingId === candidate.accountId && (
+                                <Loader2 size={14} className="text-primary animate-spin shrink-0" />
+                              )}
+                            </span>
+                            <span className="text-gray-400 text-xs truncate shrink-0">
+                              {candidate.email}
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {detail.students.length === 0 ? (
