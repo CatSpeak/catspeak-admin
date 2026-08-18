@@ -53,7 +53,7 @@ export const getStatusBadgeConfig = (
       }
     case "Draft":
       return {
-        type: "Gray",
+        type: "Orange",
         label: statusesText.draft || "Bản nháp",
       }
     case "PendingApproval":
@@ -312,6 +312,38 @@ export const getRowActions = ({
   ]
 }
 
+/**
+ * Helper to get translated scope type label
+ */
+export const getScopeTypeLabel = (
+  scopeType: string | number | undefined | null,
+  scopeTypesText?: {
+    all: string
+    specificCourses: string
+    specificClasses: string
+  },
+): string => {
+  if (!scopeTypesText) {
+    if (scopeType === "All" || scopeType === 1 || scopeType === "1")
+      return "Tất cả"
+    if (scopeType === "SpecificCourses" || scopeType === 2 || scopeType === "2")
+      return "Khóa học cụ thể"
+    if (scopeType === "SpecificClasses" || scopeType === 3 || scopeType === "3")
+      return "Lớp học cụ thể"
+    return String(scopeType || "—")
+  }
+  if (scopeType === "All" || scopeType === 1 || scopeType === "1") {
+    return scopeTypesText.all
+  }
+  if (scopeType === "SpecificCourses" || scopeType === 2 || scopeType === "2") {
+    return scopeTypesText.specificCourses
+  }
+  if (scopeType === "SpecificClasses" || scopeType === 3 || scopeType === "3") {
+    return scopeTypesText.specificClasses
+  }
+  return String(scopeType || "—")
+}
+
 export interface GetVoucherTableHeadersOptions {
   vouchersText: {
     code: string
@@ -334,6 +366,11 @@ export interface GetVoucherTableHeadersOptions {
     sponsorTypes: {
       catspeak: string
       instructor: string
+    }
+    scopeTypes?: {
+      all: string
+      specificCourses: string
+      specificClasses: string
     }
     statuses: Record<string, string>
   }
@@ -433,24 +470,6 @@ export const getVoucherTableHeaders = ({
         </div>
       )
     },
-  },
-  {
-    name: vouchersText.deposit,
-    accessorKey: "depositAmount",
-    render: (row) => (
-      <div className="space-y-0.5 whitespace-nowrap">
-        <div className="font-medium text-gray-900">
-          {row.depositAmount != null
-            ? `${row.depositAmount.toLocaleString("vi-VN")} đ`
-            : "—"}
-        </div>
-        {row.depositRequired != null && row.depositRequired > 0 && (
-          <div className="text-xs text-gray-500 italic">
-            / {row.depositRequired.toLocaleString("vi-VN")} đ
-          </div>
-        )}
-      </div>
-    ),
   },
   {
     name: vouchersText.validity,
@@ -563,7 +582,7 @@ export const getVoucherTableHeaders = ({
               e.stopPropagation()
               setOpenDropdownId(isOpen ? null : row.id)
             }}
-            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none"
+            className="p-1.5 rounded-lg text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors focus:outline-none cursor-pointer"
             title="Tùy chọn thao tác"
           >
             <EllipsisVertical size={16} />
@@ -571,7 +590,7 @@ export const getVoucherTableHeaders = ({
 
           {isOpen && (
             <div
-              className="absolute right-0 top-full mt-1 w-44 rounded-xl bg-white shadow-xl border border-gray-100 py-1.5 z-30 animate-[fadeIn_100ms_ease-out]"
+              className="absolute right-0 top-full mt-1 min-w-[180px] w-max max-w-xs rounded-xl bg-white shadow-xl border border-gray-100 py-1.5 z-30 animate-[fadeIn_100ms_ease-out]"
               onClick={(e) => e.stopPropagation()}
             >
               {actions.map((act) => (
@@ -582,14 +601,16 @@ export const getVoucherTableHeaders = ({
                     setOpenDropdownId(null)
                     act.onClick()
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium transition-colors ${
+                  className={`w-full flex items-center justify-start text-left gap-2.5 px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                     act.danger
                       ? "text-red-600 hover:bg-red-50"
                       : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                   }`}
                 >
-                  {act.icon}
-                  <span>{act.label}</span>
+                  <span className="shrink-0">{act.icon}</span>
+                  <span className="whitespace-nowrap text-left">
+                    {act.label}
+                  </span>
                 </button>
               ))}
             </div>

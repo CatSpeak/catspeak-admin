@@ -19,6 +19,7 @@ import VoucherGeneralInfoIsland from "../components/detail/VoucherGeneralInfoIsl
 import VoucherQuickStatsIsland from "../components/detail/VoucherQuickStatsIsland"
 import VoucherUsageHistoryIsland from "../components/detail/VoucherUsageHistoryIsland"
 import VoucherDepositApprovalIsland from "../components/detail/VoucherDepositApprovalIsland"
+import { getScopeTypeLabel } from "../components/table/tableConfigs"
 
 export default function VoucherDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -193,7 +194,7 @@ export default function VoucherDetailPage() {
               <span>•</span>
               <span className="flex items-center gap-1">
                 <Layers size={13} className="text-gray-400" />
-                {voucher.scopeType}
+                {getScopeTypeLabel(voucher.scopeType, t.vouchers.scopeTypes)}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
@@ -209,7 +210,7 @@ export default function VoucherDetailPage() {
         <button
           type="button"
           onClick={() => navigate("/vouchers")}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shrink-0 shadow-xs"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors shrink-0 shadow-xs cursor-pointer"
         >
           <ArrowLeft size={16} /> Quay lại
         </button>
@@ -228,10 +229,11 @@ export default function VoucherDetailPage() {
         </div>
       </div>
 
-      {/* Bottom Island (full-width): Phê duyệt cọc nếu đang chờ duyệt, ngược lại hiển thị Lịch sử sử dụng */}
+      {/* Bottom Island (full-width): Phê duyệt cọc nếu đang chờ duyệt (chỉ dành cho voucher Giảng viên), ngược lại hiển thị Lịch sử sử dụng */}
       <div className="w-full">
-        {voucher.status === "PendingApproval" ||
-        voucher.status === "PendingDeposit" ? (
+        {voucher.sponsorType !== "CatSpeak" &&
+        (voucher.status === "PendingApproval" ||
+          voucher.status === "PendingDeposit") ? (
           <VoucherDepositApprovalIsland
             voucher={voucher}
             onRefresh={fetchDetail}

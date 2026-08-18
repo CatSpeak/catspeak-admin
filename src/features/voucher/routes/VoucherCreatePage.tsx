@@ -311,7 +311,11 @@ export default function VoucherCreatePage() {
       } catch (err: unknown) {
         console.error("Failed to submit voucher:", err)
         setFormError(
-          getApiErrorMessage(err, "Không thể tạo voucher. Vui lòng kiểm tra lại thông tin."),
+          getApiErrorMessage(
+            err,
+            t.vouchers.create.createGenericError ||
+              "Không thể tạo voucher. Vui lòng kiểm tra lại thông tin.",
+          ),
         )
       } finally {
         setIsSubmitting(false)
@@ -350,7 +354,7 @@ export default function VoucherCreatePage() {
       {/* ── Breadcrumbs ── */}
       <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium">
         <Link to="/" className="hover:text-primary transition-colors">
-          Bảng điều khiển
+          {t.nav.dashboard}
         </Link>
         <ChevronRight size={14} className="text-gray-400" />
         <Link to="/vouchers" className="hover:text-primary transition-colors">
@@ -494,7 +498,7 @@ export default function VoucherCreatePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div
                     className="flex items-center gap-3 p-3 rounded-lg border border-blue-500 bg-blue-50/50 text-blue-900 shadow-xs cursor-not-allowed hover:cursor-not-allowed opacity-90 select-none"
-                    title="Nguồn tài trợ cố định là CatSpeak"
+                    title={t.vouchers.create.sponsorFixedTooltip}
                   >
                     <input
                       type="radio"
@@ -509,7 +513,7 @@ export default function VoucherCreatePage() {
                         {t.vouchers.sponsorTypes.catspeak}
                       </p>
                       <p className="text-[11px] text-gray-500 font-normal">
-                        Nền tảng CatSpeak trực tiếp tài trợ ngân sách
+                        {t.vouchers.create.sponsorCatspeakDesc}
                       </p>
                     </div>
                   </div>
@@ -561,7 +565,7 @@ export default function VoucherCreatePage() {
                         {t.vouchers.discountTypes.percentage}
                       </p>
                       <p className="text-[11px] text-gray-500 font-normal">
-                        Giảm theo tỷ lệ phần trăm trên tổng giá trị
+                        {t.vouchers.create.percentageDesc}
                       </p>
                     </div>
                   </label>
@@ -586,7 +590,7 @@ export default function VoucherCreatePage() {
                         {t.vouchers.discountTypes.fixedAmount}
                       </p>
                       <p className="text-[11px] text-gray-500 font-normal">
-                        Giảm trừ trực tiếp số tiền cố định (VNĐ)
+                        {t.vouchers.create.fixedAmountDesc}
                       </p>
                     </div>
                   </label>
@@ -778,11 +782,11 @@ export default function VoucherCreatePage() {
                     {loadingItems ? (
                       <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                        Đang tải danh sách khóa học...
+                        {t.vouchers.create.loadingCourses}
                       </div>
                     ) : filteredCourses.length === 0 ? (
                       <div className="py-6 text-center text-gray-400 italic">
-                        Không tìm thấy khóa học phù hợp.
+                        {t.vouchers.create.noCoursesFound}
                       </div>
                     ) : (
                       filteredCourses.map((c) => {
@@ -805,7 +809,7 @@ export default function VoucherCreatePage() {
                             <div className="flex-1 truncate">
                               <span className="font-bold text-xs">{c.name}</span>
                               <span className="text-[11px] text-gray-400 ml-2">
-                                (ID: {c.id} · {c.language || "Ngôn ngữ"} · {c.classCount || 0} lớp)
+                                (ID: {c.id} · {c.language || t.vouchers.create.languageDefault} · {c.classCount || 0} {t.vouchers.create.classesCountSuffix})
                               </span>
                             </div>
                           </label>
@@ -853,11 +857,11 @@ export default function VoucherCreatePage() {
                     {loadingItems ? (
                       <div className="py-6 text-center text-gray-500 flex items-center justify-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                        Đang tải danh sách lớp học...
+                        {t.vouchers.create.loadingClasses}
                       </div>
                     ) : filteredClasses.length === 0 ? (
                       <div className="py-6 text-center text-gray-400 italic">
-                        Không tìm thấy lớp học phù hợp.
+                        {t.vouchers.create.noClassesFound}
                       </div>
                     ) : (
                       filteredClasses.map((cl) => {
@@ -880,7 +884,7 @@ export default function VoucherCreatePage() {
                             <div className="flex-1 truncate">
                               <span className="font-bold text-xs">{cl.name}</span>
                               <span className="text-[11px] text-gray-400 ml-2">
-                                (Mã: #{cl.id} · {cl.teacherName || "GV"} · {cl.price ? `${cl.price.toLocaleString("vi-VN")} đ` : "Miễn phí"})
+                                ({t.vouchers.create.codePrefix}: #{cl.id} · {cl.teacherName || t.vouchers.create.teacherDefault} · {cl.price ? `${cl.price.toLocaleString("vi-VN")} đ` : t.vouchers.create.freePrice})
                               </span>
                             </div>
                           </label>
@@ -1069,7 +1073,7 @@ export default function VoucherCreatePage() {
                 <input
                   type="number"
                   min={1}
-                  placeholder="Không giới hạn"
+                  placeholder={t.vouchers.create.unlimitedPlaceholder}
                   value={dailyLimit}
                   onChange={(e) => setDailyLimit(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -1086,7 +1090,7 @@ export default function VoucherCreatePage() {
                     type="number"
                     min={0}
                     step={10000}
-                    placeholder="Không giới hạn"
+                    placeholder={t.vouchers.create.unlimitedPlaceholder}
                     value={maxBudget}
                     onChange={(e) => setMaxBudget(e.target.value)}
                     className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"

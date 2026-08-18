@@ -1017,6 +1017,21 @@ const zh = {
       dateRangeInvalidError: "截止日期必须晚于开始日期。",
       selectCourseRequiredError: "请至少选择1门课程。",
       selectClassRequiredError: "请至少选择1个班级。",
+      sponsorFixedTooltip: "固定赞助方为 CatSpeak",
+      sponsorCatspeakDesc: "CatSpeak 平台直接提供预算资助",
+      percentageDesc: "按订单总额的百分比进行折扣",
+      fixedAmountDesc: "直接减免固定金额 (VND)",
+      loadingCourses: "正在加载课程列表...",
+      noCoursesFound: "未找到匹配的课程。",
+      loadingClasses: "正在加载班级列表...",
+      noClassesFound: "未找到匹配的班级。",
+      languageDefault: "语言",
+      classesCountSuffix: "个班级",
+      teacherDefault: "讲师",
+      freePrice: "免费",
+      codePrefix: "编号",
+      unlimitedPlaceholder: "不限制",
+      createGenericError: "无法创建优惠券，请检查输入信息。",
     },
     depositApprovalIsland: {
       title: "押金审核与优惠券激活",
@@ -1061,6 +1076,11 @@ const zh = {
     sponsorTypes: {
       catspeak: "CatSpeak",
       instructor: "讲师",
+    },
+    scopeTypes: {
+      all: "全部",
+      specificCourses: "指定课程",
+      specificClasses: "指定班级",
     },
     statuses: {
       draft: "草稿",
