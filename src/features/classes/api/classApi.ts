@@ -6,6 +6,7 @@ import type {
   ClassFilters,
   ClassStats,
   PagedResponse,
+  StudentCandidate,
 } from "../types";
 
 export const getClasses = async (
@@ -72,4 +73,15 @@ export const removeStudent = async (
   accountId: number,
 ): Promise<void> => {
   await axiosClient.delete(`/admin/classes/${classId}/students/${accountId}`);
+};
+
+export const searchStudents = async (
+  search: string,
+  limit: number = 20,
+): Promise<StudentCandidate[]> => {
+  return getResponseData(
+    axiosClient.get<StudentCandidate[]>("/admin/classes/students", {
+      params: { search, limit },
+    }),
+  );
 };
