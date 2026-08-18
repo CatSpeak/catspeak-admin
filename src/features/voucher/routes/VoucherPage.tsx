@@ -80,8 +80,9 @@ export default function VoucherPage() {
         <SummaryCard
           icon={<FileEdit size={20} />}
           color="#D97706"
-          label={t.vouchers.statuses.pendingApproval}
-          value={stats?.pendingApproval ?? 0}
+          label={t.vouchers.draftOrPending}
+          value={(stats?.pendingApproval ?? 0) + (stats?.draft ?? 0)}
+          subtitle={`${stats?.pendingApproval ?? 0} ${t.vouchers.statuses.pendingApproval.toLowerCase()} · ${stats?.draft ?? 0} ${t.vouchers.statuses.draft.toLowerCase()}`}
           loading={statsLoading}
         />
       </div>
