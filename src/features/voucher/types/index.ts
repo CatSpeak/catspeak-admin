@@ -275,7 +275,7 @@ export interface RejectVoucherRequest {
 }
 
 export interface ExtendVoucherRequest {
-  validTo: string
+  newValidTo: string
 }
 
 export interface IncreaseVoucherLimitRequest {

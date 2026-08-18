@@ -215,7 +215,7 @@ export default function VoucherTable({ onRefreshStats }: VoucherTableProps) {
         onClose={() => setShowExtendModal(false)}
         onConfirm={async (validTo: string) => {
           if (selectedVoucher) {
-            await extendVoucher(selectedVoucher.id, { validTo })
+            await extendVoucher(selectedVoucher.id, { newValidTo: validTo })
             refreshTableAndStats()
           }
         }}
