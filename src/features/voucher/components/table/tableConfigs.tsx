@@ -119,7 +119,7 @@ export const getRowActions = ({
 
   if (isCatSpeak) {
     if (row.status === "Active") {
-      return [
+      const actions: VoucherActionItem[] = [
         {
           key: "view",
           label: "Xem chi tiết",
@@ -132,20 +132,26 @@ export const getRowActions = ({
           icon: <Ban size={14} />,
           onClick: () => onOpenDisable(row),
         },
-        {
+      ]
+
+      if (!row.isNeverExpired) {
+        actions.push({
           key: "extend",
           label: "Gia hạn",
           icon: <Calendar size={14} />,
           onClick: () => onOpenExtend(row),
-        },
-        {
-          key: "delete",
-          label: "Xóa",
-          icon: <Trash2 size={14} />,
-          danger: true,
-          onClick: () => onOpenDelete(row),
-        },
-      ]
+        })
+      }
+
+      actions.push({
+        key: "delete",
+        label: "Xóa",
+        icon: <Trash2 size={14} />,
+        danger: true,
+        onClick: () => onOpenDelete(row),
+      })
+
+      return actions
     }
     if (row.status === "Disabled") {
       return [
@@ -200,27 +206,33 @@ export const getRowActions = ({
       ]
     }
     if (row.status === "Expired") {
-      return [
+      const actions: VoucherActionItem[] = [
         {
           key: "view",
           label: "Xem chi tiết",
           icon: <Eye size={14} />,
           onClick: () => navigate(`/voucher/${row.id}`),
         },
-        {
+      ]
+
+      if (!row.isNeverExpired) {
+        actions.push({
           key: "extend",
           label: "Gia hạn",
           icon: <Calendar size={14} />,
           onClick: () => onOpenExtend(row),
-        },
-        {
-          key: "delete",
-          label: "Xóa",
-          icon: <Trash2 size={14} />,
-          danger: true,
-          onClick: () => onOpenDelete(row),
-        },
-      ]
+        })
+      }
+
+      actions.push({
+        key: "delete",
+        label: "Xóa",
+        icon: <Trash2 size={14} />,
+        danger: true,
+        onClick: () => onOpenDelete(row),
+      })
+
+      return actions
     }
     if (row.status === "Exhausted") {
       return [
