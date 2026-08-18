@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useMemo } from "react"
+import { useCallback, useEffect, useState, useMemo, useRef } from "react"
 import { useNavigate, useLocation, useParams, Link } from "react-router-dom"
 import {
   Ticket,
@@ -34,6 +34,7 @@ export default function VoucherCreatePage() {
   const location = useLocation()
   const { id: paramId } = useParams<{ id?: string }>()
   const { t } = useLanguage()
+  const topRef = useRef<HTMLDivElement>(null)
 
   // Voucher passed via location.state (e.g. from table action "Sửa")
   const stateVoucher =
@@ -133,7 +134,7 @@ export default function VoucherCreatePage() {
       (stateVoucher as any)?.classes &&
       Array.isArray((stateVoucher as any).classes)
     ) {
-      return (stateVoucher as any).classes.map((c: any) => c.id)
+      return (stateVoucher as any).classes.map((cl: any) => cl.id)
     }
     if (
       (stateVoucher as any)?.classIds &&
@@ -228,6 +229,21 @@ export default function VoucherCreatePage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  // Scroll to top helper
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    document.body.scrollTo({ top: 0, left: 0, behavior: "smooth" })
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }, [])
+
+  // Automatically scroll to top whenever an error is displayed
+  useEffect(() => {
+    if (formError) {
+      scrollToTop()
+    }
+  }, [formError, scrollToTop])
 
   // Validation memo for Discount Value (real-time FE check)
   const discountValueError = useMemo(() => {
@@ -710,7 +726,7 @@ export default function VoucherCreatePage() {
   )
 
   return (
-    <div className="space-y-6 pb-16 animate-fade-in">
+    <div ref={topRef} className="space-y-6 pb-16 animate-fade-in">
       {/* ── Breadcrumbs ── */}
       <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium">
         <Link to="/" className="hover:text-primary transition-colors">
