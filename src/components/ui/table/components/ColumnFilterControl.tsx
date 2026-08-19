@@ -327,11 +327,13 @@ export function ColumnMultiSelectFilterInput<T>({
   column,
   label,
   options,
+  choiceMode = "multi",
   onFilterSubmit,
 }: {
   column: TanstackColumn<T, unknown>;
   label: string;
   options: { label: string; value: string | number | boolean }[];
+  choiceMode?: "single" | "multi";
   onFilterSubmit?: (
     attribute: string,
     value: unknown,
@@ -341,15 +343,29 @@ export function ColumnMultiSelectFilterInput<T>({
   const filterValue = column.getFilterValue();
   const selected: (string | number | boolean)[] = Array.isArray(filterValue)
     ? filterValue
-    : [];
+    : filterValue !== undefined && filterValue !== null && filterValue !== ""
+      ? [filterValue as string | number | boolean]
+      : [];
 
   const toggle = (value: string | number | boolean) => {
-    const next = selected.includes(value)
-      ? selected.filter((v) => v !== value)
-      : [...selected, value];
-    const val = next.length > 0 ? next : undefined;
-    column.setFilterValue(val);
-    onFilterSubmit?.(column.id, val);
+    if (choiceMode === "single") {
+      const isAlreadySelected = selected.some(
+        (v) => String(v) === String(value),
+      );
+      const nextVal = isAlreadySelected ? undefined : value;
+      column.setFilterValue(nextVal);
+      onFilterSubmit?.(column.id, nextVal);
+    } else {
+      const isAlreadySelected = selected.some(
+        (v) => String(v) === String(value),
+      );
+      const next = isAlreadySelected
+        ? selected.filter((v) => String(v) !== String(value))
+        : [...selected, value];
+      const nextVal = next.length > 0 ? next : undefined;
+      column.setFilterValue(nextVal);
+      onFilterSubmit?.(column.id, nextVal);
+    }
   };
 
   return (
@@ -357,20 +373,22 @@ export function ColumnMultiSelectFilterInput<T>({
       <label className="text-xs font-semibold text-gray-500">{label}</label>
       <div className="flex flex-wrap gap-1.5 w-full">
         {options.map((opt) => {
-          const active = selected.includes(opt.value);
+          const active = selected.some(
+            (v) => String(v) === String(opt.value),
+          );
           return (
             <button
               type="button"
               key={String(opt.value)}
               onClick={() => toggle(opt.value)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+              className={`inline-flex items-center justify-start text-left gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer ${
                 active
                   ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-xs"
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
               }`}
             >
-              {active && <Check size={12} className="stroke-[2.5]" />}
-              <span>{opt.label}</span>
+              {active && <Check size={12} className="stroke-[2.5] shrink-0" />}
+              <span className="whitespace-nowrap text-left">{opt.label}</span>
             </button>
           );
         })}
@@ -390,6 +408,7 @@ export default function ColumnFilterControl<T>({
       : column.id;
   const options = meta?.values;
   const isDuration = meta?.isDuration;
+  const choiceMode = meta?.choiceMode ?? "multi";
 
   if (isDuration) {
     return (
@@ -407,6 +426,7 @@ export default function ColumnFilterControl<T>({
         column={column}
         label={label}
         options={options}
+        choiceMode={choiceMode}
         onFilterSubmit={onFilterSubmit}
       />
     );
