@@ -31,12 +31,12 @@ export default function Table<T>({
   fetcher,
   sorter,
   filter,
+  filterer,
+  choiceMode = "multi",
   onClickRow,
   actions,
   loading = false,
-  loadingMessage,
   emptyMessage,
-  configErrorMessage,
   pageSizeOptions = [10, 20, 50, 100, 200],
   defaultPageSize = 10,
   stickyHeader = true,
@@ -48,11 +48,8 @@ export default function Table<T>({
   tableOptions,
 }: TableProps<T>) {
   const { t } = useLanguage();
-  const effectiveLoadingMessage = loadingMessage ?? t.common.loading;
-  const effectiveEmptyMessage = emptyMessage ?? t.common.noData;
-  const effectiveConfigErrorMessage =
-    configErrorMessage ?? t.table.configErrorMessage;
   const effectiveEntityName = entityName ?? t.table.row;
+  const effectiveFilter = filter ?? filterer;
 
   const [searchInputValue, setSearchInputValue] = useState("");
   const [openRowId, setOpenRowId] = useState<string | null>(null);
@@ -63,7 +60,6 @@ export default function Table<T>({
     effectiveLoading,
     fetchError,
     configValid,
-    usesServerPagination,
     pagination,
     setPagination,
     applyCustomResult,
@@ -72,12 +68,12 @@ export default function Table<T>({
     setFetchLoading,
   } = useTableDataSource<T>({
     fetcher,
-    filter,
+    filter: effectiveFilter,
     loading,
     defaultPageSize,
   });
 
-  const columns = useTableColumns<T>(headers);
+  const columns = useTableColumns<T>(headers, choiceMode);
 
   const {
     table,
@@ -90,7 +86,6 @@ export default function Table<T>({
     columns,
     pagination,
     setPagination,
-    usesServerPagination,
     effectiveTotal,
     sorter,
     applyCustomResult,
@@ -139,7 +134,7 @@ export default function Table<T>({
     return (
       <Card className="p-6 text-center text-sm text-red-600 border border-red-200 bg-red-50/60 rounded-lg">
         <strong className="font-semibold">{t.table.configError}</strong>{" "}
-        {effectiveConfigErrorMessage}
+        {t.table.configErrorMessage}
       </Card>
     );
   }
@@ -180,9 +175,8 @@ export default function Table<T>({
               setOpenRowId={setOpenRowId}
               totalColumns={totalColumns}
               effectiveLoading={effectiveLoading}
-              effectiveLoadingMessage={effectiveLoadingMessage}
               fetchError={fetchError}
-              effectiveEmptyMessage={effectiveEmptyMessage}
+              emptyMessage={emptyMessage}
             />
           </table>
         </div>
@@ -197,11 +191,7 @@ export default function Table<T>({
             table={table}
             pageSizeOptions={resolvedPageSizeOptions}
             entityName={effectiveEntityName}
-            totalCount={
-              usesServerPagination
-                ? effectiveTotal
-                : table.getFilteredRowModel().rows.length
-            }
+            totalCount={effectiveTotal}
           />
         )}
     </div>

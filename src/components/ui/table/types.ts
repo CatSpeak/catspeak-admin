@@ -1,5 +1,5 @@
 import type { ComponentType, ElementType, ReactNode } from "react";
-import type { FilterFn, TableOptions } from "@tanstack/react-table";
+import type { TableOptions } from "@tanstack/react-table";
 
 /* ────────────────────────────────────────────────────────────────────────
  * Type augmentation — lets us stash our own per-column config (icon,
@@ -12,22 +12,19 @@ declare module "@tanstack/react-table" {
     icon?: ReactNode;
     values?: FilterOption[];
     showFilter?: boolean;
+    choiceMode?: ChoiceMode;
     isDuration?: boolean;
     headerClassName?: string;
     cellClassName?: string;
     width?: number | string;
-  }
-
-  interface FilterFns {
-    multiSelect: FilterFn<unknown>;
-    approximateText: FilterFn<unknown>;
-    dateRange: FilterFn<unknown>;
   }
 }
 
 /* ────────────────────────────────────────────────────────────────────────
  * Public types
  * ──────────────────────────────────────────────────────────────────────── */
+
+export type ChoiceMode = "single" | "multi";
 
 export interface FilterOption {
   label: string;
@@ -86,10 +83,17 @@ export interface TableHeader<T> {
   mapTo?: keyof T & string;
   /**
    * Fixed set of selectable values for this column. When present, the
-   * filter control renders as a multi-select checkbox dropdown instead
+   * filter control renders as a selectable options control instead
    * of a free-text input. Accepts raw values or {label, value} pairs.
    */
   values?: (FilterOption | string | number)[];
+  /**
+   * Selection mode for column filter options when `values` is provided:
+   * - "single": Only 1 option can be selected at a time.
+   * - "multi": Multiple options can be selected simultaneously (default).
+   * If not specified, inherits the table-level `choiceMode` (default: "multi").
+   */
+  choiceMode?: ChoiceMode;
   /**
    * Optional display labels for `values`, matched by index (`valueLabels[i]`
    * corresponds to `values[i]`). When a label exists at a given index, it is
@@ -124,35 +128,20 @@ export interface TableAction<T> {
 
 /** Result shape a `fetcher` must resolve to. */
 export interface TableFetcherResult<T> {
-  /** Rows for the requested page (or the full dataset — see below) */
+  /** Rows for the requested page */
   data: T[];
-  /**
-   * Total row count across all pages. Only consulted when the fetcher
-   * accepts both `page` and `pageSize` (server-side pagination mode);
-   * ignored otherwise.
-   */
+  /** Total row count across all pages from BE */
   total: number;
 }
 
 /**
- * Data source for the table. `page` (1-indexed) and `pageSize` are
- * optional and drive which pagination mode is used:
- *
- * - Declare **both** params (e.g. `(page, pageSize) => ...`) to opt into
- *   server-side pagination — the table calls `fetcher(page, pageSize)`
- *   on every page/page-size change and expects only that page's rows
- *   back, alongside the grand `total`.
- * - Declare **fewer than two** params (e.g. `() => ...` or `(page) =>
- *   ...`) to have the table call `fetcher()` once, treat the result as
- *   the complete dataset, and paginate/sort/filter it entirely
- *   client-side.
- *
- * Should be a stable reference (e.g. wrapped in `useCallback`) to avoid
- * refetching on every render.
+ * Server-side data source for the table.
+ * Receives `page` (1-indexed) and `pageSize` and returns the page rows alongside grand `total`.
+ * Should be a stable reference (e.g. wrapped in `useCallback`) to avoid refetching on every render.
  */
 export type TableFetcher<T> = (
-  page?: number,
-  pageSize?: number,
+  page: number,
+  pageSize: number,
 ) => Promise<TableFetcherResult<T>> | TableFetcherResult<T>;
 
 export type SortOrder = "asc" | "desc" | undefined;
@@ -171,26 +160,43 @@ export type TableCustomResult<T> =
 export interface TableProps<T> {
   headers: TableHeader<T>[];
   /**
-   * Data source. See `TableFetcher` for how its arity (number of
-   * declared params) selects server-side vs. client-side pagination.
+   * Server-side data source fetcher: receives (page, pageSize) and calls BE API.
    */
   fetcher: TableFetcher<T>;
+  /**
+   * Server-side sorter: called when user clicks sort on a column.
+   */
   sorter?: (
     attribute: keyof T | string,
     sortOrder: SortOrder,
   ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
+  /**
+   * Server-side filter: called when user submits a filter or search.
+   */
   filter?: (
     attribute: keyof T | string,
     value: unknown,
     toDate?: string,
   ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
+  /**
+   * Alias for `filter`
+   */
+  filterer?: (
+    attribute: keyof T | string,
+    value: unknown,
+    toDate?: string,
+  ) => TableCustomResult<T> | Promise<TableCustomResult<T>>;
+  /**
+   * Default selection mode for column filters with fixed values:
+   * - "single": Only 1 value can be selected at a time.
+   * - "multi": Multiple values can be selected simultaneously (default: "multi").
+   * Can be overridden per column via `TableHeader.choiceMode`.
+   */
+  choiceMode?: ChoiceMode;
   onClickRow?: (row: T) => void;
   actions?: TableAction<T>[];
   loading?: boolean;
-  loadingMessage?: string;
   emptyMessage?: string;
-  /** Shown if `fetcher` is missing at runtime (e.g. non-TS callers) */
-  configErrorMessage?: string;
   pageSizeOptions?: number[];
   defaultPageSize?: number;
   stickyHeader?: boolean;

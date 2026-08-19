@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Save } from "lucide-react";
 import { usePlans } from "../hooks/usePlans";
 import Card from "../../../components/ui/Card";
-import Button from "../../../components/ui/Button";
 import type { Plan } from "../../../entities/types";
 import { useLanguage } from "../../../stores/languageStore";
 
 interface PlanGeneralTabProps {
   plan: Plan;
   onSave: (formData: FormData) => Promise<boolean>;
-  isSaving: boolean;
+  isSaving?: boolean;
   isCreateMode?: boolean;
 }
 
@@ -17,7 +15,6 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
   plan,
   onSave,
   isCreateMode,
-  isSaving,
 }) => {
   const { plans } = usePlans();
   const { t } = useLanguage();
@@ -469,29 +466,6 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
               </label>
             </div>
           </div>
-        </Card>
-      </div>
-
-      {/* Form Action Footer */}
-      <div className="lg:col-span-3">
-        <Card className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
-          <div className="text-sm text-gray-500">
-            {t.plans.saveHint}
-          </div>
-          <Button type="submit" variant="primary" disabled={isSaving}>
-            <Save className="w-4 h-4 mr-2" />
-            {isCreateMode
-              ? isSaving
-                ? t.plans.creating
-                : t.plans.createAndConfig
-              : plan.packageStatus === "Draft"
-                ? isSaving
-                  ? t.plans.saving
-                  : t.plans.saveDraft
-                : isSaving
-                  ? t.plans.saving
-                  : t.plans.saveChanges}
-          </Button>
         </Card>
       </div>
 

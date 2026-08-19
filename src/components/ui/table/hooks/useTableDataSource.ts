@@ -16,6 +16,38 @@ export interface UseTableDataSourceParams<T> {
   defaultPageSize?: number;
 }
 
+export function is404Error(err: unknown): boolean {
+  if (!err) return false;
+  if (typeof err === "object") {
+    const errorObj = err as Record<string, unknown>;
+    if (
+      errorObj.response &&
+      typeof errorObj.response === "object" &&
+      (errorObj.response as Record<string, unknown>).status === 404
+    ) {
+      return true;
+    }
+    if (errorObj.status === 404 || errorObj.statusCode === 404) {
+      return true;
+    }
+  }
+  if (err instanceof Error) {
+    if (
+      err.message.includes("404") ||
+      err.message.toLowerCase().includes("not found")
+    ) {
+      return true;
+    }
+  }
+  if (
+    typeof err === "string" &&
+    (err.includes("404") || err.toLowerCase().includes("not found"))
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export function useTableDataSource<T>({
   fetcher,
   filter,
@@ -29,26 +61,12 @@ export function useTableDataSource<T>({
     pageSize: defaultPageSize,
   });
 
-  // `fetcher` is a required prop per the TS types, but guard at runtime
-  // too (e.g. plain-JS callers that skip type checking).
   const configValid = typeof fetcher === "function";
-
-  // Arity-based mode switch: a fetcher declared with both `page` and
-  // `pageSize` params opts into server-side pagination (we call it with
-  // both on every page/page-size change and trust the returned `total`).
-  // A fetcher declared with fewer params is called once with no args,
-  // treated as returning the full dataset, and paginated client-side.
-  const usesServerPagination = configValid && fetcher.length >= 2;
 
   const [fetchedData, setFetchedData] = useState<T[]>([]);
   const [fetchedTotal, setFetchedTotal] = useState(0);
   const [fetchLoading, setFetchLoading] = useState(configValid);
   const [fetchError, setFetchError] = useState<string | null>(null);
-
-  // Collapsed to constants in client-pagination mode so the effect below
-  // doesn't refetch the whole dataset every time the user flips pages.
-  const depPageIndex = usesServerPagination ? pagination.pageIndex : 0;
-  const depPageSize = usesServerPagination ? pagination.pageSize : 0;
 
   useEffect(() => {
     if (typeof fetcher !== "function") return;
@@ -61,23 +79,27 @@ export function useTableDataSource<T>({
       }
     });
 
-    const result = usesServerPagination
-      ? fetcher(depPageIndex + 1, depPageSize)
-      : fetcher();
+    const result = fetcher(pagination.pageIndex + 1, pagination.pageSize);
 
     Promise.resolve(result)
       .then((res) => {
         if (cancelled) return;
         setFetchedData(res.data);
-        setFetchedTotal(usesServerPagination ? res.total : res.data.length);
+        setFetchedTotal(res.total);
+        setFetchError(null);
       })
       .catch((err: unknown) => {
         if (cancelled) return;
         setFetchedData([]);
         setFetchedTotal(0);
-        setFetchError(
-          err instanceof Error ? err.message : "Failed to load data.",
-        );
+        if (is404Error(err)) {
+          // 404 means no data found -> show Empty state, not Error state
+          setFetchError(null);
+        } else {
+          setFetchError(
+            err instanceof Error ? err.message : "Failed to load data.",
+          );
+        }
       })
       .finally(() => {
         if (!cancelled) setFetchLoading(false);
@@ -86,7 +108,7 @@ export function useTableDataSource<T>({
     return () => {
       cancelled = true;
     };
-  }, [fetcher, usesServerPagination, depPageIndex, depPageSize]);
+  }, [fetcher, pagination.pageIndex, pagination.pageSize]);
 
   const data = customData ?? fetchedData;
   const effectiveLoading = loading || fetchLoading;
@@ -99,14 +121,12 @@ export function useTableDataSource<T>({
         : fetchedTotal;
 
   // Pagination clamping during render
-  if (usesServerPagination) {
-    const maxPageIndex = Math.max(
-      0,
-      Math.ceil(effectiveTotal / pagination.pageSize) - 1,
-    );
-    if (pagination.pageIndex > maxPageIndex) {
-      setPagination((prev) => ({ ...prev, pageIndex: maxPageIndex }));
-    }
+  const maxPageIndex = Math.max(
+    0,
+    Math.ceil(effectiveTotal / pagination.pageSize) - 1,
+  );
+  if (pagination.pageIndex > maxPageIndex) {
+    setPagination((prev) => ({ ...prev, pageIndex: maxPageIndex }));
   }
 
   const applyCustomResult = (res: unknown) => {
@@ -153,12 +173,26 @@ export function useTableDataSource<T>({
   ) => {
     if (filter) {
       setFetchLoading(true);
+      setFetchError(null);
       Promise.resolve(filter(attribute, value, toDate))
         .then((res) => {
           applyCustomResult(res);
+          setFetchError(null);
         })
-        .catch((err) => {
-          console.error("Filter error:", err);
+        .catch((err: unknown) => {
+          if (is404Error(err)) {
+            setCustomData([]);
+            setCustomTotal(0);
+            setFetchError(null);
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          } else {
+            setCustomData([]);
+            setCustomTotal(0);
+            setFetchError(
+              err instanceof Error ? err.message : "Failed to filter data.",
+            );
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          }
         })
         .finally(() => {
           setFetchLoading(false);
@@ -169,6 +203,7 @@ export function useTableDataSource<T>({
   const clearCustomResult = () => {
     setCustomData(null);
     setCustomTotal(null);
+    setFetchError(null);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
@@ -178,7 +213,6 @@ export function useTableDataSource<T>({
     effectiveLoading,
     fetchError,
     configValid,
-    usesServerPagination,
     pagination,
     setPagination,
     applyCustomResult,
