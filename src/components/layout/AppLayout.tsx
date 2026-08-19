@@ -10,7 +10,7 @@ const LayoutContent: React.FC = () => {
   const { isExpanded, isMobileOpen } = useSidebar();
 
   return (
-    <div className="min-h-screen md:flex w-full overflow-x-hidden">
+    <div className="min-h-screen md:flex w-full overflow-x-clip">
       <ScrollRestoration />
       <ScrollToTop />
       <div>

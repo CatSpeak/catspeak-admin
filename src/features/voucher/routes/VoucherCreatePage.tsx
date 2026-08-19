@@ -863,7 +863,7 @@ export default function VoucherCreatePage() {
       </div>
 
       {/* ── Bottom Action Panel (Right-aligned) ── */}
-      <div className="sticky bottom-0 z-20 bg-white py-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky bottom-0 z-30 bg-white py-3.5 -mb-4 md:-mb-6 -mx-4 md:-mx-6 px-4 md:px-6 flex flex-wrap items-center justify-between gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
         <button
           type="button"
           disabled={isSubmitting}
