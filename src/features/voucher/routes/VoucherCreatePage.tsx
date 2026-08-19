@@ -715,7 +715,7 @@ export default function VoucherCreatePage() {
   )
 
   return (
-    <div ref={topRef} className="space-y-6 pb-16 animate-fade-in">
+    <div ref={topRef} className="space-y-6 animate-fade-in">
       {/* ── Breadcrumbs ── */}
       <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium">
         <Link to="/" className="hover:text-primary transition-colors">
@@ -863,7 +863,7 @@ export default function VoucherCreatePage() {
       </div>
 
       {/* ── Bottom Action Panel (Right-aligned) ── */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky bottom-0 z-20 bg-white py-4 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           disabled={isSubmitting}

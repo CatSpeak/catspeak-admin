@@ -139,7 +139,7 @@ export const DiscountConfigSection: React.FC<DiscountConfigSectionProps> = ({
           </div>
 
           {/* Max Discount Amount */}
-          {discountType === "FixedAmount" && (
+          {discountType === "Percentage" && (
             <div className="space-y-1.5">
               <label className="block font-semibold text-gray-700">
                 {t.vouchers.create.maxDiscountAmount}
