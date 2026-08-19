@@ -39,7 +39,9 @@ export default function VoucherGeneralInfoIsland({
             <Percent size={18} />
           </div>
           <div>
-            <h3 className="font-bold text-gray-900 text-base">Cấu hình Giảm giá</h3>
+            <h3 className="font-bold text-gray-900 text-base">
+              Cấu hình Giảm giá
+            </h3>
             <p className="text-xs text-gray-500">
               Chi tiết các thông số giảm trừ và điều kiện áp dụng
             </p>
@@ -93,16 +95,21 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Giảm tối đa (Max Discount):</span>
+            <span className="text-gray-500 font-medium">
+              Giảm tối đa (Max Discount):
+            </span>
             <div>
-              {voucher.maxDiscountAmount != null && voucher.maxDiscountAmount > 0
+              {voucher.maxDiscountAmount != null &&
+              voucher.maxDiscountAmount > 0
                 ? `${voucher.maxDiscountAmount.toLocaleString("vi-VN")} đ`
                 : renderValue(null)}
             </div>
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Đơn hàng tối thiểu (Min Order):</span>
+            <span className="text-gray-500 font-medium">
+              Đơn hàng tối thiểu (Min Order):
+            </span>
             <div>
               {voucher.minOrderAmount != null && voucher.minOrderAmount > 0
                 ? `${voucher.minOrderAmount.toLocaleString("vi-VN")} đ`
@@ -111,7 +118,9 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Số học viên tối thiểu:</span>
+            <span className="text-gray-500 font-medium">
+              Số học viên tối thiểu:
+            </span>
             <div>
               {voucher.minLearners != null
                 ? `${voucher.minLearners} học viên`
@@ -120,7 +129,9 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Thời hạn hiệu lực:</span>
+            <span className="text-gray-500 font-medium">
+              Thời hạn hiệu lực:
+            </span>
             <div className="font-semibold text-gray-900">
               {formatDateToDisplay(voucher.validFrom) || "—"} đến{" "}
               {voucher.isNeverExpired
@@ -149,7 +160,9 @@ export default function VoucherGeneralInfoIsland({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Tổng lượt sử dụng:</span>
+            <span className="text-gray-500 font-medium">
+              Tổng lượt sử dụng:
+            </span>
             <div>
               {voucher.isUnlimitedUsage
                 ? "Không giới hạn (Unlimited)"
@@ -160,7 +173,9 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Giới hạn mỗi tài khoản:</span>
+            <span className="text-gray-500 font-medium">
+              Giới hạn mỗi tài khoản:
+            </span>
             <div>
               {voucher.perUserLimit != null
                 ? `${voucher.perUserLimit} lượt / người dùng`
@@ -169,7 +184,9 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Giới hạn theo ngày (Daily):</span>
+            <span className="text-gray-500 font-medium">
+              Giới hạn theo ngày (Daily):
+            </span>
             <div>
               {voucher.dailyLimit != null
                 ? `${voucher.dailyLimit} lượt / ngày`
@@ -177,17 +194,19 @@ export default function VoucherGeneralInfoIsland({
             </div>
           </div>
 
-          <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
+          {/* <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
             <span className="text-gray-500 font-medium">Ngân sách tối đa (Max Budget):</span>
             <div>
               {voucher.maxBudget != null && voucher.maxBudget > 0
                 ? `${voucher.maxBudget.toLocaleString("vi-VN")} đ`
                 : renderValue(null)}
             </div>
-          </div>
+          </div> */}
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Chỉ cho người dùng mới:</span>
+            <span className="text-gray-500 font-medium">
+              Chỉ cho người dùng mới:
+            </span>
             <div>
               <Badge type={voucher.isOnlyNewUser ? "Green" : "Gray"}>
                 {voucher.isOnlyNewUser ? "Có (Chỉ New User)" : "Không áp dụng"}
@@ -196,10 +215,14 @@ export default function VoucherGeneralInfoIsland({
           </div>
 
           <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-            <span className="text-gray-500 font-medium">Không kết hợp ưu đãi khác:</span>
+            <span className="text-gray-500 font-medium">
+              Không kết hợp ưu đãi khác:
+            </span>
             <div>
               <Badge type={voucher.isNotCombineOther ? "Orange" : "Gray"}>
-                {voucher.isNotCombineOther ? "Có (Độc quyền)" : "Cho phép kết hợp"}
+                {voucher.isNotCombineOther
+                  ? "Có (Độc quyền)"
+                  : "Cho phép kết hợp"}
               </Badge>
             </div>
           </div>
@@ -378,7 +401,9 @@ export default function VoucherGeneralInfoIsland({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Tiền cọc yêu cầu:</span>
+              <span className="text-gray-500 font-medium">
+                Tiền cọc yêu cầu:
+              </span>
               <div>
                 {voucher.depositRequired != null && voucher.depositRequired > 0
                   ? `${voucher.depositRequired.toLocaleString("vi-VN")} đ`
@@ -387,7 +412,9 @@ export default function VoucherGeneralInfoIsland({
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Tiền cọc đã nạp:</span>
+              <span className="text-gray-500 font-medium">
+                Tiền cọc đã nạp:
+              </span>
               <div>
                 {voucher.depositAmount != null && voucher.depositAmount > 0
                   ? `${voucher.depositAmount.toLocaleString("vi-VN")} đ`
@@ -396,12 +423,16 @@ export default function VoucherGeneralInfoIsland({
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Nội dung chuyển khoản:</span>
+              <span className="text-gray-500 font-medium">
+                Nội dung chuyển khoản:
+              </span>
               <div>{renderValue(voucher.depositTransactionContent)}</div>
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Thời gian xác nhận cọc:</span>
+              <span className="text-gray-500 font-medium">
+                Thời gian xác nhận cọc:
+              </span>
               <div>
                 {voucher.depositConfirmedAt
                   ? formatDateTime(voucher.depositConfirmedAt)
@@ -410,22 +441,30 @@ export default function VoucherGeneralInfoIsland({
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Người xác nhận cọc:</span>
+              <span className="text-gray-500 font-medium">
+                Người xác nhận cọc:
+              </span>
               <div>{renderValue(voucher.depositConfirmedBy)}</div>
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
               <span className="text-gray-500 font-medium">Thời gian tạo:</span>
-              <div>{formatDateTime(voucher.createdAt) || renderValue(null)}</div>
+              <div>
+                {formatDateTime(voucher.createdAt) || renderValue(null)}
+              </div>
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Người tạo (User ID):</span>
+              <span className="text-gray-500 font-medium">
+                Người tạo (User ID):
+              </span>
               <div>{renderValue(voucher.createdBy)}</div>
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Thời gian từ chối:</span>
+              <span className="text-gray-500 font-medium">
+                Thời gian từ chối:
+              </span>
               <div>
                 {voucher.rejectedAt
                   ? formatDateTime(voucher.rejectedAt)
@@ -444,12 +483,16 @@ export default function VoucherGeneralInfoIsland({
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1 sm:col-span-2">
-              <span className="text-gray-500 font-medium">Ghi chú từ chối:</span>
+              <span className="text-gray-500 font-medium">
+                Ghi chú từ chối:
+              </span>
               <div>{renderValue(voucher.rejectionNote)}</div>
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Thời gian dừng sớm:</span>
+              <span className="text-gray-500 font-medium">
+                Thời gian dừng sớm:
+              </span>
               <div>
                 {voucher.stoppedAt
                   ? formatDateTime(voucher.stoppedAt)
@@ -458,7 +501,9 @@ export default function VoucherGeneralInfoIsland({
             </div>
 
             <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-100 space-y-1">
-              <span className="text-gray-500 font-medium">Người thực hiện dừng:</span>
+              <span className="text-gray-500 font-medium">
+                Người thực hiện dừng:
+              </span>
               <div>{renderValue(voucher.stoppedBy)}</div>
             </div>
           </div>

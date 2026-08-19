@@ -122,7 +122,7 @@ export interface VoucherListItem {
   status: VoucherStatus | string
   depositRequired?: number | null
   depositAmount?: number | null
-  maxBudget?: number | null
+  // maxBudget?: number | null
   rejectionReason?: string | null
   createdAt: string
 }
@@ -169,7 +169,7 @@ export interface VoucherDetailDto {
   rejectedBy?: number | null
   rejectionReason?: string | null
   rejectionNote?: string | null
-  maxBudget?: number | null
+  // maxBudget?: number | null
   stoppedAt?: string | null
   stoppedBy?: number | null
   instructors?: VoucherReferenceItem[]
@@ -259,7 +259,7 @@ export interface CreateVoucherRequest {
   totalUsageLimit?: number | null
   perUserLimit?: number | null
   dailyLimit?: number | null
-  maxBudget?: number | null
+  // maxBudget?: number | null
   instructorIds?: number[]
   courseIds?: number[]
   classIds?: number[]

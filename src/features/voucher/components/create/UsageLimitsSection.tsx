@@ -11,8 +11,8 @@ interface UsageLimitsSectionProps {
   setPerUserLimit: (val: string) => void
   dailyLimit: string
   setDailyLimit: (val: string) => void
-  maxBudget: string
-  setMaxBudget: (val: string) => void
+  // maxBudget: string
+  // setMaxBudget: (val: string) => void
 }
 
 export const UsageLimitsSection: React.FC<UsageLimitsSectionProps> = ({
@@ -24,8 +24,8 @@ export const UsageLimitsSection: React.FC<UsageLimitsSectionProps> = ({
   setPerUserLimit,
   dailyLimit,
   setDailyLimit,
-  maxBudget,
-  setMaxBudget,
+  // maxBudget,
+  // setMaxBudget,
 }) => {
   const { t } = useLanguage()
 
@@ -107,7 +107,7 @@ export const UsageLimitsSection: React.FC<UsageLimitsSectionProps> = ({
         </div>
 
         {/* Max Budget */}
-        <div className="space-y-1.5">
+        {/* <div className="space-y-1.5">
           <label className="block font-semibold text-gray-700">
             {t.vouchers.create.maxBudget}
           </label>
@@ -125,7 +125,7 @@ export const UsageLimitsSection: React.FC<UsageLimitsSectionProps> = ({
               đ
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )
