@@ -62,7 +62,7 @@ export interface TableHeader<T> {
   /** Optional icon rendered next to the label */
   icon?: ReactNode;
   /** Row property this column reads from (preferred over accessorFn) */
-  accessorKey?: keyof T & string;
+  accessorKey?: (keyof T & string) | string;
   /** Use when the cell value needs to be derived rather than read directly */
   accessorFn?: (row: T) => unknown;
   /** Custom cell renderer. Defaults to printing the raw value (or "—"). */
