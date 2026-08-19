@@ -212,11 +212,11 @@ export default function VoucherCreatePage() {
       ? String((stateVoucher as any).dailyLimit)
       : "",
   )
-  const [maxBudget, setMaxBudget] = useState<string>(() =>
-    stateVoucher?.maxBudget !== undefined && stateVoucher?.maxBudget !== null
-      ? String(stateVoucher.maxBudget)
-      : "",
-  )
+  // const [maxBudget, setMaxBudget] = useState<string>(() =>
+  //   stateVoucher?.maxBudget !== undefined && stateVoucher?.maxBudget !== null
+  //     ? String(stateVoucher.maxBudget)
+  //     : "",
+  // )
 
   // Data fetching states for courses/classes
   const [coursesList, setCoursesList] = useState<AdminCourse[]>([])
@@ -281,10 +281,7 @@ export default function VoucherCreatePage() {
       if (v.description !== undefined && v.description !== null)
         setDescription(v.description)
 
-      if (
-        v.discountType === "FixedAmount" ||
-        (v.discountType as any) === 2
-      ) {
+      if (v.discountType === "FixedAmount" || (v.discountType as any) === 2) {
         setDiscountType("FixedAmount")
       } else {
         setDiscountType("Percentage")
@@ -309,10 +306,7 @@ export default function VoucherCreatePage() {
         setMinLearners(Number(v.minLearners))
       }
 
-      if (
-        v.scopeType === "SpecificCourses" ||
-        (v.scopeType as any) === 2
-      ) {
+      if (v.scopeType === "SpecificCourses" || (v.scopeType as any) === 2) {
         setScopeType("SpecificCourses")
       } else if (
         v.scopeType === "SpecificClasses" ||
@@ -379,11 +373,11 @@ export default function VoucherCreatePage() {
       } else if (v.dailyLimit === null) {
         setDailyLimit("")
       }
-      if (v.maxBudget !== undefined && v.maxBudget !== null) {
-        setMaxBudget(String(v.maxBudget))
-      } else if (v.maxBudget === null) {
-        setMaxBudget("")
-      }
+      // if (v.maxBudget !== undefined && v.maxBudget !== null) {
+      //   setMaxBudget(String(v.maxBudget))
+      // } else if (v.maxBudget === null) {
+      //   setMaxBudget("")
+      // }
     },
     [],
   )
@@ -571,12 +565,7 @@ export default function VoucherCreatePage() {
         return
       }
 
-      if (
-        !isNeverExpired &&
-        validTo &&
-        validFrom &&
-        validTo < validFrom
-      ) {
+      if (!isNeverExpired && validTo && validFrom && validTo < validFrom) {
         setFormError(
           t.vouchers.create.dateRangeInvalidError ||
             "Ngày kết thúc không được nhỏ hơn ngày bắt đầu.",
@@ -642,8 +631,8 @@ export default function VoucherCreatePage() {
             : 1,
         dailyLimit:
           dailyLimit && !isNaN(Number(dailyLimit)) ? Number(dailyLimit) : null,
-        maxBudget:
-          maxBudget && !isNaN(Number(maxBudget)) ? Number(maxBudget) : null,
+        // maxBudget:
+        //   maxBudget && !isNaN(Number(maxBudget)) ? Number(maxBudget) : null,
         instructorIds: [],
         courseIds: scopeType === "SpecificCourses" ? courseIds : [],
         classIds: scopeType === "SpecificClasses" ? classIds : [],
@@ -719,14 +708,14 @@ export default function VoucherCreatePage() {
       totalUsageLimit,
       perUserLimit,
       dailyLimit,
-      maxBudget,
+      // maxBudget,
       t.vouchers.create,
       navigate,
     ],
   )
 
   return (
-    <div ref={topRef} className="space-y-6 pb-16 animate-fade-in">
+    <div ref={topRef} className="space-y-6 animate-fade-in">
       {/* ── Breadcrumbs ── */}
       <nav className="flex items-center gap-2 text-xs text-gray-500 font-medium">
         <Link to="/" className="hover:text-primary transition-colors">
@@ -867,14 +856,14 @@ export default function VoucherCreatePage() {
             setPerUserLimit={setPerUserLimit}
             dailyLimit={dailyLimit}
             setDailyLimit={setDailyLimit}
-            maxBudget={maxBudget}
-            setMaxBudget={setMaxBudget}
+            // maxBudget={maxBudget}
+            // setMaxBudget={setMaxBudget}
           />
         </div>
       </div>
 
       {/* ── Bottom Action Panel (Right-aligned) ── */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-xs flex flex-wrap items-center justify-between gap-3">
+      <div className="sticky bottom-0 z-20 bg-white py-4 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           disabled={isSubmitting}

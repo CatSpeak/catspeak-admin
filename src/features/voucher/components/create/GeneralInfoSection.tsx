@@ -102,36 +102,6 @@ export const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
             className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
-
-        {/* Sponsor Type */}
-        <div className="space-y-2 sm:col-span-2 pt-1">
-          <label className="block font-semibold text-gray-700">
-            {t.vouchers.create.sponsorType}
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div
-              className="flex items-center gap-3 p-3 rounded-lg border border-blue-500 bg-blue-50/50 text-blue-900 shadow-xs cursor-not-allowed hover:cursor-not-allowed opacity-90 select-none"
-              title={t.vouchers.create.sponsorFixedTooltip}
-            >
-              <input
-                type="radio"
-                name="sponsorType"
-                value="CatSpeak"
-                checked={true}
-                disabled
-                className="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-not-allowed hover:cursor-not-allowed"
-              />
-              <div>
-                <p className="text-xs font-semibold text-blue-900">
-                  {t.vouchers.sponsorTypes.catspeak}
-                </p>
-                <p className="text-[11px] text-gray-500 font-normal">
-                  {t.vouchers.create.sponsorCatspeakDesc}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
