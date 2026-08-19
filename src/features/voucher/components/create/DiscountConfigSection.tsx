@@ -47,7 +47,8 @@ export const DiscountConfigSection: React.FC<DiscountConfigSectionProps> = ({
         {/* Discount Type Radio */}
         <div className="space-y-2">
           <label className="block font-semibold text-gray-700">
-            {t.vouchers.create.discountType} <span className="text-red-500">*</span>
+            {t.vouchers.create.discountType}{" "}
+            <span className="text-red-500">*</span>
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <label
@@ -107,7 +108,8 @@ export const DiscountConfigSection: React.FC<DiscountConfigSectionProps> = ({
           {/* Discount Value */}
           <div className="space-y-1.5">
             <label className="block font-semibold text-gray-700">
-              {t.vouchers.create.discountValue} <span className="text-red-500">*</span>
+              {t.vouchers.create.discountValue}{" "}
+              <span className="text-red-500">*</span>
             </label>
             <div className="relative flex items-center">
               <input
@@ -137,25 +139,27 @@ export const DiscountConfigSection: React.FC<DiscountConfigSectionProps> = ({
           </div>
 
           {/* Max Discount Amount */}
-          <div className="space-y-1.5">
-            <label className="block font-semibold text-gray-700">
-              {t.vouchers.create.maxDiscountAmount}
-            </label>
-            <div className="relative flex items-center">
-              <input
-                type="number"
-                min={0}
-                step={5000}
-                placeholder="200000"
-                value={maxDiscountAmount}
-                onChange={(e) => setMaxDiscountAmount(e.target.value)}
-                className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-              />
-              <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
-                đ
-              </span>
+          {discountType === "FixedAmount" && (
+            <div className="space-y-1.5">
+              <label className="block font-semibold text-gray-700">
+                {t.vouchers.create.maxDiscountAmount}
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type="number"
+                  min={0}
+                  step={5000}
+                  placeholder="200000"
+                  value={maxDiscountAmount}
+                  onChange={(e) => setMaxDiscountAmount(e.target.value)}
+                  className="w-full pl-3 pr-8 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                />
+                <span className="absolute right-3 font-bold text-gray-400 text-xs pointer-events-none">
+                  đ
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Min Order Amount */}
           <div className="space-y-1.5">
