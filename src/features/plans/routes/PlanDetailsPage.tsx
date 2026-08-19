@@ -117,13 +117,6 @@ const PlanDetailsPage: React.FC = () => {
     setIsSaving(false)
   }
 
-  const triggerSave = () => {
-    const formSubmitButton = document.getElementById("submit-general-tab")
-    if (formSubmitButton) {
-      formSubmitButton.click()
-    }
-  }
-
   const handleDelete = async () => {
     if (
       window.confirm(
@@ -240,91 +233,71 @@ const PlanDetailsPage: React.FC = () => {
           )}
         </div>
 
-        {/* Bottom Action Bar */}
-        <div className="sticky bottom-6 z-10 py-5 mt-auto border border-gray-200 rounded-xl bg-white flex items-center justify-end gap-3 px-4 shadow-md">
-          {/* Right side: Primary actions */}
-          <div className="flex items-center gap-3">
-            {!isCreateMode &&
-              currentPlan &&
-              currentPlan.packageStatus !== "Published" && (
+        {/* Bottom Action Bar (Edit / Details mode only) */}
+        {!isCreateMode && (
+          <div className="sticky bottom-0 z-30 bg-white py-3.5 -mb-4 md:-mb-6 -mx-4 md:-mx-6 px-4 md:px-6 flex flex-wrap items-center justify-between gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] mt-auto">
+            {/* Left side: Destructive actions */}
+            <div>
+              {currentPlan && currentPlan.packageStatus !== "Published" && (
+                <Button
+                  variant="ghost"
+                  onClick={handleDelete}
+                  disabled={isSaving}
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.plans.deletePlan}
+                </Button>
+              )}
+            </div>
+
+            {/* Right side: Primary actions */}
+            <div className="flex items-center gap-3">
+              {currentPlan?.packageStatus === "Published" && (
                 <>
                   <Button
-                    variant="ghost"
-                    onClick={handleDelete}
+                    variant="outline"
+                    onClick={() => handleUpdateStatus("Hidden")}
                     disabled={isSaving}
-                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
                   >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    {t.plans.deletePlan}
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    {t.plans.hide}
                   </Button>
-                  <div className="w-px h-6 bg-gray-200 mx-1 hidden sm:block" />
+                  <Button
+                    variant="outline"
+                    onClick={() => handleUpdateStatus("Archived")}
+                    disabled={isSaving}
+                  >
+                    <Archive className="w-4 h-4 mr-2" />
+                    {t.plans.archive}
+                  </Button>
                 </>
               )}
-            {isCreateMode ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate("/plans")}
-                  disabled={isSubmitting}
-                >
-                  {t.common.cancel}
-                </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => setIsPreviewOpen(true)}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                {t.plans.preview}
+              </Button>
+
+              {currentPlan?.packageStatus !== "Published" && (
                 <Button
                   variant="primary"
-                  onClick={() => triggerSave()}
-                  disabled={isSubmitting}
+                  onClick={() => handleUpdateStatus("Published")}
+                  disabled={isSaving || isSubmitting}
+                  className="shadow-sm"
                 >
-                  {isSubmitting ? t.plans.creating : t.plans.createAndConfig}
+                  <Send className="w-4 h-4 mr-2" />
+                  {currentPlan?.packageStatus === "Draft"
+                    ? t.plans.publishPlan
+                    : t.plans.republishPlan}
                 </Button>
-              </>
-            ) : (
-              <>
-                {currentPlan?.packageStatus === "Published" && (
-                  <>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleUpdateStatus("Hidden")}
-                      disabled={isSaving}
-                    >
-                      <EyeOff className="w-4 h-4 mr-2" />
-                      {t.plans.hide}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleUpdateStatus("Archived")}
-                      disabled={isSaving}
-                    >
-                      <Archive className="w-4 h-4 mr-2" />
-                      {t.plans.archive}
-                    </Button>
-                  </>
-                )}
-
-                <Button
-                  variant="outline"
-                  onClick={() => setIsPreviewOpen(true)}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {t.plans.preview}
-                </Button>
-
-                {currentPlan?.packageStatus !== "Published" && (
-                  <Button
-                    variant="primary"
-                    onClick={() => handleUpdateStatus("Published")}
-                    disabled={isSaving || isSubmitting}
-                    className="shadow-sm"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {currentPlan?.packageStatus === "Draft"
-                      ? t.plans.publishPlan
-                      : t.plans.republishPlan}
-                  </Button>
-                )}
-              </>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {isPreviewOpen && currentPlan && (
