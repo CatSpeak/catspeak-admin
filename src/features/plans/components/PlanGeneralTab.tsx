@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Save, Loader2 } from "lucide-react";
 import { usePlans } from "../hooks/usePlans";
 import Card from "../../../components/ui/Card";
-import Button from "../../../components/ui/Button";
 import type { Plan } from "../../../entities/types";
 import { useLanguage } from "../../../stores/languageStore";
 
@@ -19,6 +19,7 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
   isCreateMode,
   isSaving,
 }) => {
+  const navigate = useNavigate();
   const { plans } = usePlans();
   const { t } = useLanguage();
   const [isPaid, setIsPaid] = useState(
@@ -473,26 +474,40 @@ const PlanGeneralTab: React.FC<PlanGeneralTabProps> = ({
       </div>
 
       {/* Form Action Footer */}
-      <div className="lg:col-span-3">
-        <Card className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50/50">
-          <div className="text-sm text-gray-500">
-            {t.plans.saveHint}
-          </div>
-          <Button type="submit" variant="primary" disabled={isSaving}>
-            <Save className="w-4 h-4 mr-2" />
+      <div className="lg:col-span-3 sticky bottom-0 z-30 bg-white py-3.5 -mb-4 md:-mb-6 -mx-4 md:-mx-6 px-4 md:px-6 flex flex-wrap items-center justify-between gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <button
+          type="button"
+          disabled={isSaving}
+          onClick={() => navigate("/plans")}
+          className="px-4 py-2 rounded-lg border border-gray-200 text-xs sm:text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          {t.common?.cancel || "Hủy"}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="flex items-center gap-2 px-6 py-2 rounded-lg bg-primary text-white text-xs sm:text-sm font-semibold hover:bg-primary-dark disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
             {isCreateMode
               ? isSaving
                 ? t.plans.creating
                 : t.plans.createAndConfig
               : plan.packageStatus === "Draft"
                 ? isSaving
-                  ? t.plans.saving
-                  : t.plans.saveDraft
+                  ? t.plans.saveDraft
+                  : t.plans.saveChanges
                 : isSaving
                   ? t.plans.saving
                   : t.plans.saveChanges}
-          </Button>
-        </Card>
+          </button>
+        </div>
       </div>
 
       {/* Hidden button so we can submit via ref or externally */}
