@@ -1,6 +1,6 @@
+import { useState } from "react"
 import Badge from "../../../components/ui/Badge"
-import { UsersRound } from "lucide-react"
-// import Button from "../../../components/ui/Button";
+import { UsersRound, UserPlus } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import {
@@ -16,10 +16,41 @@ import {
 } from "../../../lib/utils"
 import type { Account } from "../types"
 import { useLanguage } from "../../../stores/languageStore"
+import { useAuthStore } from "../../../stores/authStore"
+import { promoteUserToStaff } from "../../staffs/api/permissions"
+import { ConfirmModal } from "../../../components/ui/ConfirmModal"
+import { getApiErrorMessage } from "../../../lib/axios"
 
 export default function UsersPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
+  const currentUser = useAuthStore((state) => state.user)
+  const isPrimaryAdmin = currentUser?.roleId === 1
+
+  const [selectedUserForPromote, setSelectedUserForPromote] = useState<Account | null>(null)
+  const [showPromoteConfirm, setShowPromoteConfirm] = useState(false)
+  const [promoting, setPromoting] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  const executePromoteToStaff = async (targetUser: Account) => {
+    if (!isPrimaryAdmin) return
+    try {
+      setPromoting(true)
+      setActionError(null)
+      setActionSuccess(null)
+
+      await promoteUserToStaff(targetUser.accountId)
+      setActionSuccess(`Đã thăng cấp người dùng '${targetUser.username}' thành Staff thành công.`)
+      setRefreshKey((prev) => prev + 1)
+    } catch (err) {
+      setActionError(getApiErrorMessage(err, "Không thể thăng cấp người dùng thành Staff."))
+    } finally {
+      setPromoting(false)
+      setSelectedUserForPromote(null)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -30,7 +61,20 @@ export default function UsersPage() {
         desc={t.users.desc}
       />
 
+      {actionError && (
+        <div className="p-4 rounded-xl bg-error-50 border border-error-150 text-error-700 text-xs font-semibold">
+          {actionError}
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="p-4 rounded-xl bg-success-50 border border-success-150 text-success-700 text-xs font-semibold">
+          {actionSuccess}
+        </div>
+      )}
+
       <Table<Account>
+        key={refreshKey}
         fetcher={async (page, pageSize) => {
           const res = await getAccounts(page, pageSize)
 
@@ -166,7 +210,79 @@ export default function UsersPage() {
               </span>
             ),
           },
+          {
+            name: "Thao tác",
+            accessorKey: "actions",
+            render: (p) => {
+              const isStaff = p.roleId === 3 || p.roleName === "Staff"
+              const isAdmin = p.roleId === 1 || p.roleName === "Admin"
+
+              if (isAdmin) {
+                return (
+                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
+                    Primary Admin
+                  </span>
+                )
+              }
+
+              if (isStaff) {
+                return (
+                  <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg">
+                    Staff
+                  </span>
+                )
+              }
+
+              if (!isPrimaryAdmin) {
+                return <span className="text-gray-400">—</span>
+              }
+
+              return (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedUserForPromote(p)
+                    setShowPromoteConfirm(true)
+                  }}
+                  className="px-3 py-1.5 text-xs font-bold rounded-lg text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Thăng lên Staff</span>
+                </button>
+              )
+            },
+          },
         ]}
+      />
+
+      <ConfirmModal
+        isOpen={showPromoteConfirm}
+        onClose={() => {
+          setShowPromoteConfirm(false)
+          setSelectedUserForPromote(null)
+        }}
+        onConfirm={() => {
+          setShowPromoteConfirm(false)
+          if (selectedUserForPromote) {
+            executePromoteToStaff(selectedUserForPromote)
+          }
+        }}
+        title="Xác nhận thăng cấp người dùng"
+        description={
+          <span>
+            Bạn có chắc chắn muốn thăng cấp người dùng{" "}
+            <strong className="text-gray-900">
+              '{selectedUserForPromote?.username}'
+            </strong>{" "}
+            thành <strong>Staff</strong>?
+            <br />
+            Tài khoản này sẽ có quyền truy cập vào hệ thống Admin với các phân quyền cơ bản.
+          </span>
+        }
+        confirmText="Thăng cấp thành Staff"
+        variant="primary"
+        isLoading={promoting}
       />
     </div>
   )
