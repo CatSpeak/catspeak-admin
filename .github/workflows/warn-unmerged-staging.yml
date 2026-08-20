@@ -1,0 +1,91 @@
+name: "Warning - Tag có commit chưa vào staging"
+
+on:
+  push:
+    tags:
+      - "v**"
+
+jobs:
+  warn-unmerged:
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    env:
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    steps:
+      - name: Checkout code (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Fetch staging branch
+        run: git fetch origin staging
+
+      # Liệt kê các commit có trong tag được push nhưng CHƯA có trên
+      # staging. Đây CHỈ LÀ CẢNH BÁO cho người golive, không chặn gì.
+      # --no-merges: bỏ qua merge commit, chỉ list commit thật sự.
+      - name: Liệt kê commit chưa có trên staging
+        id: list
+        run: |
+          TAG="${{ github.ref_name }}"
+
+          git log "$TAG" --no-merges --not origin/staging \
+            --pretty="%h %s" > commit-list.txt
+
+          COUNT=$(wc -l < commit-list.txt | tr -d ' ')
+          echo "Tag: $TAG — $COUNT commit chưa có trên staging"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          head -10 commit-list.txt
+
+      # Chỉ gửi cảnh báo khi có commit thiếu. Sạch thì im lặng.
+      - name: Notify - Cảnh báo commit chưa vào staging
+        if: steps.list.outputs.count != '0'
+        env:
+          TAG: ${{ github.ref_name }}
+          COUNT: ${{ steps.list.outputs.count }}
+        run: |
+          # Hiện tối đa 10 commit, phần còn lại gộp thành 1 dòng
+          SHOWN=$(head -10 commit-list.txt | sed 's/^/`/; s/$/`/')
+          TOTAL=$(wc -l < commit-list.txt | tr -d ' ')
+          REMAINDER=$((TOTAL - 10))
+          if [ "$REMAINDER" -gt 0 ]; then
+            SHOWN="$(printf '%s\n…và %s commit khác' "$SHOWN" "$REMAINDER")"
+          fi
+
+          # Build payload JSON an toàn bằng jq (không lo ký tự đặc biệt
+          # trong commit message phá vỡ JSON)
+          PAYLOAD=$(jq -n \
+            --arg tag "$TAG" \
+            --arg count "$COUNT" \
+            --arg actor "${{ github.actor }}" \
+            --arg shown "$SHOWN" \
+            --arg run "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{embeds:[{
+              "title": ("⚠️ " + $tag + ": " + $count + " commit CHƯA vào staging"),
+              "color": 15158332,
+              "fields": [
+                {"name": "Tag", "value": $tag, "inline": true},
+                {"name": "Người push", "value": $actor, "inline": true},
+                {"name": "Số commit chưa test trên staging", "value": $count, "inline": true},
+                {"name": "Danh sách (tối đa 10)", "value": $shown, "inline": false},
+                {"name": "Xem chi tiết", "value": ("[Run Actions](" + $run + ")"), "inline": false}
+              ]
+            }]}')
+
+          curl -s -H "Content-Type: application/json" -X POST \
+            -d "$PAYLOAD" \
+            "${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+      # Đánh dấu job là FAILED khi còn commit chưa vào staging để:
+      #   - Dễ nhìn thấy trên Actions UI / status của tag.
+      #   - Có nút "Re-run" để chạy lại sau khi đã merge staging.
+      # (Lưu ý: đây KHÔNG chặn golive, production.yml mới là nơi quyết định.)
+      - name: Đánh dấu job failed khi còn commit chưa vào staging
+        if: steps.list.outputs.count != '0'
+        run: |
+          COUNT="${{ steps.list.outputs.count }}"
+          echo "❌ Tag ${{ github.ref_name }} có $COUNT commit chưa có trên staging."
+          echo "Merge lên staging rồi re-run job này nếu cần."
+          exit 1

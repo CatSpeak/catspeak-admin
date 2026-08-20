@@ -5,6 +5,8 @@ on:
 
 env:
   DEPLOYED_TAG_MARKER: deployed-production
+  # Danh sách người được phép golive (cập nhật khi tuyển/thay đổi)
+  ALLOWED_GOLIVE_ACTORS: "Nguyen-Hust"
 
 jobs:
   # ============================================================
@@ -21,6 +23,22 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+      
+      # ============================================================
+      # GATE 1: Chỉ những người trong danh sách mới được golive.
+      # Không phải ai cũng golive được. Ai đó có quyền push tag
+      # final tag cũng không thể golive nếu không được phép.
+      # ============================================================
+      - name: Gate - Chỉ người được phép mới golive
+        run: |
+          ALLOWED="${{ env.ALLOWED_GOLIVE_ACTORS }}"
+          ACTOR="${{ github.actor }}"
+          if ! echo "$ALLOWED" | tr ' ' '\n' | grep -qx "$ACTOR"; then
+            echo "❌ LỖI: '$ACTOR' không nằm trong danh sách được phép golive."
+            echo "reason=Không phải người được phép golive" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          echo "✅ OK: '$ACTOR' được phép golive."
 
       - name: Verify tag contains last deployed tag
         run: |
@@ -140,7 +158,7 @@ jobs:
         id: fail-info
         run: |
           if [ "${{ needs.check-tag.result }}" == "failure" ]; then
-            echo "job=check-tag (kiểm tra tag ancestor)" >> "$GITHUB_OUTPUT"
+            echo "job=check-tag (gates: người được phép golive + tag v* + ancestor)" >> "$GITHUB_OUTPUT"
           elif [ "${{ needs.deploy-production.result }}" == "failure" ]; then
             echo "job=deploy-production (build/deploy Vercel)" >> "$GITHUB_OUTPUT"
           else
