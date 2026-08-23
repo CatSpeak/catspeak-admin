@@ -13,6 +13,7 @@ export const ROOM_TYPES: { value: RoomType; label: string }[] = [
 export const LANGUAGE_TYPES: { value: NonNullable<LanguageType>; label: string; flag: string }[] = [
   { value: "Chinese", label: "Chinese", flag: "/flags/cn.svg" },
   { value: "English", label: "English", flag: "/flags/en.svg" },
+  { value: "Japanese", label: "Japanese", flag: "/flags/jp.svg" },
 ];
 
 export const REQUIRED_LEVELS: { value: RequiredLevel; label: string; group: string }[] = [

@@ -113,7 +113,7 @@ const SettingsSidebar = ({
                     : "text-gray-500 hover:text-gray-800 border border-transparent"
                 }`}
               >
-                {c === "All" ? t.common.all : c}
+                {c === "All" ? t.common.all : (t.room?.languages?.[c] || c)}
               </button>
             );
           })}

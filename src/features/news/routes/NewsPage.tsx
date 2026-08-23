@@ -236,6 +236,9 @@ export default function NewsPage() {
             name: t.news.community,
             accessorKey: "languageCommunity",
             values: [...COMMUNITIES],
+            valueLabels: COMMUNITIES.map((c) =>
+              c === "All" ? t.common.all : (t.room?.languages?.[c] || c),
+            ),
             choiceMode: "single",
             showFilter: true,
             render: (p) => (

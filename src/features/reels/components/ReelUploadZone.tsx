@@ -359,10 +359,10 @@ export default function ReelUploadZone({
                     }
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
                   >
-                    <option value="All">All</option>
-                    <option value="English">English</option>
-                    <option value="Chinese">Chinese</option>
-                    <option value="Japanese">Japanese</option>
+                    <option value="All">{t.common.all}</option>
+                    <option value="English">{t.room?.languages?.English || "English"}</option>
+                    <option value="Chinese">{t.room?.languages?.Chinese || "Chinese"}</option>
+                    <option value="Japanese">{t.room?.languages?.Japanese || "Japanese"}</option>
                   </select>
                 </div>
 
