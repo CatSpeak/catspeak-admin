@@ -36,4 +36,4 @@ export const MOCK_EDIT_HISTORY: EditHistoryEntry[] = [
   },
 ];
 
-export const COMMUNITIES = ["All", "English", "Chinese"] as const;
+export const COMMUNITIES = ["All", "English", "Chinese", "Japanese"] as const;

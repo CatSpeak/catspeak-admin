@@ -13,8 +13,8 @@ interface SettingsSidebarProps {
   publishTime: string;
   onPublishDateChange: (val: string) => void;
   onPublishTimeChange: (val: string) => void;
-  community: "All" | "English" | "Chinese";
-  onCommunityChange: (val: "All" | "English" | "Chinese") => void;
+  community: "All" | "English" | "Chinese" | "Japanese";
+  onCommunityChange: (val: "All" | "English" | "Chinese" | "Japanese") => void;
   tags: TagItem[];
   activeTagId: number | null;
   onTagToggle: (id: number) => void;

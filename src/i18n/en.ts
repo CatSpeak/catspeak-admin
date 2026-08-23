@@ -579,6 +579,7 @@ const en = {
     vietnamese: "🇻🇳 Vietnamese",
     english: "🇬🇧 English",
     chinese: "🇨🇳 Chinese",
+    japanese: "🇯🇵 Japanese",
     htmlCode: "HTML Code",
     visualPreview: "Visual Preview",
     insertVariable: "Insert Variable:",
@@ -599,6 +600,12 @@ const en = {
     contentZh: "Email Content (HTML Code - ZH)",
     contentZhPlaceholder:
       "<h2>Hello {{name}},</h2><p>We are proud to announce...</p>",
+    subjectJa: "Subject Line (JA)",
+    subjectJaPlaceholder:
+      "[CatSpeak] System Update & New Features Announcement...",
+    contentJa: "Email Content (HTML Code - JA)",
+    contentJaPlaceholder:
+      "<h2>こんにちは {{name}}、</h2><p>お知らせがあります...</p>",
     noPreviewContent: "No content to preview",
     targetAudience: "Target Recipients",
     allUsers: "All Active Users",

@@ -15,7 +15,7 @@ interface ReelUploadZoneProps {
     Title: string;
     Description: string;
     Privacy: ReelPrivacy;
-    LanguageCommunity: "All" | "English" | "Chinese";
+    LanguageCommunity: "All" | "English" | "Chinese" | "Japanese";
     VideoFile: File;
     CoverFile?: File | null;
     Tags: string[];
@@ -41,7 +41,7 @@ export default function ReelUploadZone({
   const [description, setDescription] = useState("");
   const [privacy, setPrivacy] = useState<ReelPrivacy>("Public");
   const [languageCommunity, setLanguageCommunity] = useState<
-    "All" | "English" | "Chinese"
+    "All" | "English" | "Chinese" | "Japanese"
   >("All");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -354,7 +354,7 @@ export default function ReelUploadZone({
                     value={languageCommunity}
                     onChange={(e) =>
                       setLanguageCommunity(
-                        e.target.value as "All" | "English" | "Chinese",
+                        e.target.value as "All" | "English" | "Chinese" | "Japanese",
                       )
                     }
                     className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer transition-all font-medium"
@@ -362,6 +362,7 @@ export default function ReelUploadZone({
                     <option value="All">All</option>
                     <option value="English">English</option>
                     <option value="Chinese">Chinese</option>
+                    <option value="Japanese">Japanese</option>
                   </select>
                 </div>
 

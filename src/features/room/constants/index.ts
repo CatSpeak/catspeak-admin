@@ -75,4 +75,5 @@ export const ROOM_TYPE_STYLES: Record<RoomType, { bg: string; text: string; dot:
 export const LANGUAGE_FLAGS: Record<NonNullable<LanguageType>, string> = {
   Chinese: "/flags/cn.svg",
   English: "/flags/en.svg",
+  Japanese: "/flags/jp.svg",
 };
