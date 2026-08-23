@@ -17,7 +17,12 @@ export type RequiredLevel =
   | "C2"
   | "Beginner"
   | "Intermediate"
-  | "Advanced";
+  | "Advanced"
+  | "N1"
+  | "N2"
+  | "N3"
+  | "N4"
+  | "N5";
 export type RoomCategory =
   | "Other"
   | "Knowledge"

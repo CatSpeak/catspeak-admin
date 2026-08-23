@@ -836,10 +836,16 @@ const vi = {
       Beginner: "Sơ cấp",
       Intermediate: "Trung cấp",
       Advanced: "Cao cấp",
+      N1: "N1",
+      N2: "N2",
+      N3: "N3",
+      N4: "N4",
+      N5: "N5",
     },
     levelGroups: {
       HSK: "Cấp độ HSK",
       CEFR: "Cấp độ CEFR",
+      JLPT: "Cấp độ JLPT",
       Other: "Cấp độ khác",
     },
     categories: {

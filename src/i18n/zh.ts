@@ -805,10 +805,16 @@ const zh = {
       Beginner: "初级",
       Intermediate: "中级",
       Advanced: "高级",
+      N1: "N1",
+      N2: "N2",
+      N3: "N3",
+      N4: "N4",
+      N5: "N5",
     },
     levelGroups: {
       HSK: "HSK 等级",
       CEFR: "CEFR 等级",
+      JLPT: "JLPT 等级",
       Other: "其他等级",
     },
     categories: {
