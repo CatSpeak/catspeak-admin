@@ -12,6 +12,7 @@ import {
   Ticket,
   RotateCcw,
   CreditCard,
+  Bug,
 } from "lucide-react"
 import CatSpeakLogo from "../../assets/catspeak_logo.svg"
 import CatSpeakIcon from "../../assets/catspeak_icon.svg"
@@ -126,6 +127,12 @@ const AppSidebar: React.FC = () => {
       },
       {
         section: t.nav.feedback,
+        name: t.nav.bugReports || "Báo cáo sự cố (Bugs)",
+        icon: <Bug size={20} />,
+        path: "/bug-reports",
+        permission: "bug_reports",
+      },
+      {
         name: t.nav.letterReports || "Báo cáo nội dung",
         icon: <FileWarning size={20} />,
         path: "/reports",
