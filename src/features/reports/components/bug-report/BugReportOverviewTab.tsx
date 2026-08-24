@@ -1,4 +1,3 @@
-import React from "react"
 import { Clock, Globe, User, Image as ImageIcon } from "lucide-react"
 import { formatDateTime } from "../../../../lib/utils"
 import type { BugReportDetail } from "../../api/bugReports"

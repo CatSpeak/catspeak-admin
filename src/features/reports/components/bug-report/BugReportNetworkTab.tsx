@@ -1,4 +1,3 @@
-import React from "react"
 import { formatDateTime } from "../../../../lib/utils"
 
 interface BugReportNetworkTabProps {
