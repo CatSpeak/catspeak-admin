@@ -215,7 +215,11 @@ export default function PostDetailPage() {
                 {t.news.languageCommunity}
               </span>
               <span className="inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
-                {post.languageCommunity || t.common.all}
+                {(t.room?.languages as Record<string, string> | undefined)?.[
+                  post.languageCommunity || ""
+                ] ||
+                  post.languageCommunity ||
+                  t.common.all}
               </span>
             </div>
 

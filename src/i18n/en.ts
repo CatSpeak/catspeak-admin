@@ -580,6 +580,7 @@ const en = {
     vietnamese: "🇻🇳 Vietnamese",
     english: "🇬🇧 English",
     chinese: "🇨🇳 Chinese",
+    japanese: "🇯🇵 Japanese",
     htmlCode: "HTML Code",
     visualPreview: "Visual Preview",
     insertVariable: "Insert Variable:",
@@ -600,6 +601,12 @@ const en = {
     contentZh: "Email Content (HTML Code - ZH)",
     contentZhPlaceholder:
       "<h2>Hello {{name}},</h2><p>We are proud to announce...</p>",
+    subjectJa: "Subject Line (JA)",
+    subjectJaPlaceholder:
+      "[CatSpeak] System Update & New Features Announcement...",
+    contentJa: "Email Content (HTML Code - JA)",
+    contentJaPlaceholder:
+      "<h2>こんにちは {{name}}、</h2><p>お知らせがあります...</p>",
     noPreviewContent: "No content to preview",
     targetAudience: "Target Recipients",
     allUsers: "All Active Users",
@@ -828,10 +835,16 @@ const en = {
       Beginner: "Beginner",
       Intermediate: "Intermediate",
       Advanced: "Advanced",
+      N1: "N1",
+      N2: "N2",
+      N3: "N3",
+      N4: "N4",
+      N5: "N5",
     },
     levelGroups: {
       HSK: "HSK Levels",
       CEFR: "CEFR Levels",
+      JLPT: "JLPT Levels",
       Other: "Other Levels",
     },
     categories: {

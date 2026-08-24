@@ -55,7 +55,7 @@ export default function PostFormView({
       }
       if (initialPost.languageCommunity) {
         setCommunity(
-          initialPost.languageCommunity as "All" | "English" | "Chinese",
+          initialPost.languageCommunity as "All" | "English" | "Chinese" | "Japanese",
         );
       }
     }
@@ -68,8 +68,8 @@ export default function PostFormView({
 
   const [publishDate, setPublishDate] = useState("");
   const [publishTime, setPublishTime] = useState("");
-  const [community, setCommunity] = useState<"All" | "English" | "Chinese">(
-    (initialPost?.languageCommunity as "All" | "English" | "Chinese") || "All",
+  const [community, setCommunity] = useState<"All" | "English" | "Chinese" | "Japanese">(
+    (initialPost?.languageCommunity as "All" | "English" | "Chinese" | "Japanese") || "All",
   );
 
   const [tags] = useState<TagItem[]>(MOCK_TAGS);

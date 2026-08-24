@@ -33,6 +33,8 @@ interface BroadcastItem {
   contentEn?: string;
   subjectZh?: string;
   contentZh?: string;
+  subjectJa?: string;
+  contentJa?: string;
   isMultiLanguage: boolean;
   targetRoleIds: number[];
   targetCountries: string[];
@@ -66,7 +68,7 @@ const BroadcastMailPage: React.FC = () => {
   // Form State
   const [title, setTitle] = useState("");
   const [isMultiLanguage, setIsMultiLanguage] = useState(false);
-  const [langTab, setLangTab] = useState<"vi" | "en" | "zh">("vi");
+  const [langTab, setLangTab] = useState<"vi" | "en" | "zh" | "ja">("vi");
   const [viewMode, setViewMode] = useState<"code" | "preview">("code");
 
   // Contents
@@ -76,6 +78,8 @@ const BroadcastMailPage: React.FC = () => {
   const [contentEn, setContentEn] = useState("");
   const [subjectZh, setSubjectZh] = useState("");
   const [contentZh, setContentZh] = useState("");
+  const [subjectJa, setSubjectJa] = useState("");
+  const [contentJa, setContentJa] = useState("");
 
   // Targets (Multi-choice Audience Selection)
   const [isAllUsers, setIsAllUsers] = useState(false);
@@ -230,6 +234,7 @@ const BroadcastMailPage: React.FC = () => {
   const editorViRef = useRef<BroadcastEmailEditorRef>(null);
   const editorEnRef = useRef<BroadcastEmailEditorRef>(null);
   const editorZhRef = useRef<BroadcastEmailEditorRef>(null);
+  const editorJaRef = useRef<BroadcastEmailEditorRef>(null);
 
   // Variable Helper Button
   const insertVariable = (variableStr: string) => {
@@ -250,6 +255,12 @@ const BroadcastMailPage: React.FC = () => {
         editorZhRef.current.insertText(variableStr);
       } else {
         setContentZh((prev) => prev + " " + variableStr);
+      }
+    } else if (langTab === "ja") {
+      if (editorJaRef.current) {
+        editorJaRef.current.insertText(variableStr);
+      } else {
+        setContentJa((prev) => prev + " " + variableStr);
       }
     }
   };
@@ -298,6 +309,8 @@ const BroadcastMailPage: React.FC = () => {
         contentEn: isMultiLanguage ? contentEn : null,
         subjectZh: isMultiLanguage ? subjectZh : null,
         contentZh: isMultiLanguage ? contentZh : null,
+        subjectJa: isMultiLanguage ? subjectJa : null,
+        contentJa: isMultiLanguage ? contentJa : null,
         isMultiLanguage,
         isAllUsers,
         targetRoleIds: isFilterRoles ? selectedRoles : null,
@@ -404,6 +417,9 @@ const BroadcastMailPage: React.FC = () => {
       } else if (langTab === "zh" && subjectZh) {
         subj = subjectZh;
         body = contentZh;
+      } else if (langTab === "ja" && subjectJa) {
+        subj = subjectJa;
+        body = contentJa;
       }
 
       await axiosClient.post("/Admin/broadcasts/test", {
@@ -430,6 +446,7 @@ const BroadcastMailPage: React.FC = () => {
     let body = contentVi;
     if (langTab === "en" && contentEn) body = contentEn;
     if (langTab === "zh" && contentZh) body = contentZh;
+    if (langTab === "ja" && contentJa) body = contentJa;
     return (
       body ||
       `<p style='color: #888; text-align: center;'>${t.broadcast.noPreviewContent}</p>`
@@ -565,6 +582,16 @@ const BroadcastMailPage: React.FC = () => {
                         }`}
                       >
                         {t.broadcast.chinese}
+                      </button>
+                      <button
+                        onClick={() => setLangTab("ja")}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg ${
+                          langTab === "ja"
+                            ? "bg-[#8f0d15] text-white"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        }`}
+                      >
+                        {t.broadcast.japanese}
                       </button>
                     </>
                   ) : (
@@ -709,6 +736,35 @@ const BroadcastMailPage: React.FC = () => {
                           value={contentZh}
                           onChange={setContentZh}
                           placeholder={t.broadcast.contentZhPlaceholder}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* JAPANESE */}
+                  {isMultiLanguage && langTab === "ja" && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                          {t.broadcast.subjectJa}
+                        </label>
+                        <input
+                          type="text"
+                          placeholder={t.broadcast.subjectJaPlaceholder}
+                          value={subjectJa}
+                          onChange={(e) => setSubjectJa(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#8f0d15]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">
+                          {t.broadcast.contentJa}
+                        </label>
+                        <BroadcastEmailEditor
+                          ref={editorJaRef}
+                          value={contentJa}
+                          onChange={setContentJa}
+                          placeholder={t.broadcast.contentJaPlaceholder}
                         />
                       </div>
                     </div>

@@ -148,6 +148,13 @@ const EditRoomModal: React.FC<EditRoomModalProps> = ({
                   </option>
                 ))}
               </optgroup>
+              <optgroup label={t.room.levelGroups?.JLPT || "JLPT Levels"}>
+                {REQUIRED_LEVELS.filter((l) => l.group === "JLPT").map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {t.room.levels?.[l.value as RequiredLevel] || l.label}
+                  </option>
+                ))}
+              </optgroup>
               <optgroup label={t.room.levelGroups?.Other || "Other Levels"}>
                 {REQUIRED_LEVELS.filter((l) => l.group === "Other").map((l) => (
                   <option key={l.value} value={l.value}>

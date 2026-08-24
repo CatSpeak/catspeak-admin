@@ -18,6 +18,7 @@ import { getApiErrorMessage } from "../../../lib/axios"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts"
+import { COMMUNITIES } from "../constants"
 import Badge from "../../../components/ui/Badge"
 import { useLanguage } from "../../../stores/languageStore"
 import Avatar from "../../../components/ui/Avatar"
@@ -160,6 +161,11 @@ export default function NewsPage() {
             const to = toDate || (Array.isArray(value) ? value[1] : undefined)
             params.FromDate = formatDateToUtcStartOfDay(from)
             params.ToDate = formatDateToUtcEndOfDay(to)
+          } else if (attribute === "languageCommunity") {
+            const community =
+              typeof value === "string" ? value : Array.isArray(value) ? value[0] : undefined
+            params.LanguageCommunities =
+              community && community !== "All" ? [community] : undefined
           }
           const res = await getPosts(params)
           return {
@@ -229,6 +235,12 @@ export default function NewsPage() {
           {
             name: t.news.community,
             accessorKey: "languageCommunity",
+            values: [...COMMUNITIES],
+            valueLabels: COMMUNITIES.map((c) =>
+              c === "All" ? t.common.all : (t.room?.languages?.[c] || c),
+            ),
+            choiceMode: "single",
+            showFilter: true,
             render: (p) => (
               <FlagBadge
                 languageType={

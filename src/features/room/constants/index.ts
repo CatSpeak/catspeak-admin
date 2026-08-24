@@ -13,6 +13,7 @@ export const ROOM_TYPES: { value: RoomType; label: string }[] = [
 export const LANGUAGE_TYPES: { value: NonNullable<LanguageType>; label: string; flag: string }[] = [
   { value: "Chinese", label: "Chinese", flag: "/flags/cn.svg" },
   { value: "English", label: "English", flag: "/flags/en.svg" },
+  { value: "Japanese", label: "Japanese", flag: "/flags/jp.svg" },
 ];
 
 export const REQUIRED_LEVELS: { value: RequiredLevel; label: string; group: string }[] = [
@@ -31,6 +32,11 @@ export const REQUIRED_LEVELS: { value: RequiredLevel; label: string; group: stri
   { value: "Beginner", label: "Beginner", group: "Other" },
   { value: "Intermediate", label: "Intermediate", group: "Other" },
   { value: "Advanced", label: "Advanced", group: "Other" },
+  { value: "N5", label: "N5", group: "JLPT" },
+  { value: "N4", label: "N4", group: "JLPT" },
+  { value: "N3", label: "N3", group: "JLPT" },
+  { value: "N2", label: "N2", group: "JLPT" },
+  { value: "N1", label: "N1", group: "JLPT" },
 ];
 
 export const ROOM_CATEGORIES: { value: RoomCategory; label: string; color: string }[] = [
@@ -75,4 +81,5 @@ export const ROOM_TYPE_STYLES: Record<RoomType, { bg: string; text: string; dot:
 export const LANGUAGE_FLAGS: Record<NonNullable<LanguageType>, string> = {
   Chinese: "/flags/cn.svg",
   English: "/flags/en.svg",
+  Japanese: "/flags/jp.svg",
 };

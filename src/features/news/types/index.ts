@@ -38,7 +38,7 @@ export interface CreatePostPayload {
   Content: string;
   Privacy: "Public" | "Private";
   Slug?: string;
-  LanguageCommunity: "All" | "English" | "Chinese";
+  LanguageCommunity: "All" | "English" | "Chinese" | "Japanese";
   Files?: File[];
 }
 
@@ -48,7 +48,7 @@ export interface UpdatePostPayload {
   Content: string;
   Privacy: "Public" | "Private";
   Slug?: string;
-  LanguageCommunity?: "All" | "English" | "Chinese";
+  LanguageCommunity?: "All" | "English" | "Chinese" | "Japanese";
   NewFiles?: File[];
   Files?: File[];
   RemovedMediaIds?: number[];

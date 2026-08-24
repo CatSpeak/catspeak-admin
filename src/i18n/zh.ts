@@ -563,6 +563,7 @@ const zh = {
     vietnamese: "🇻🇳 越南语",
     english: "🇬🇧 英语",
     chinese: "🇨🇳 中文",
+    japanese: "🇯🇵 日语",
     htmlCode: "HTML 代码",
     visualPreview: "实时预览",
     insertVariable: "插入变量：",
@@ -581,6 +582,11 @@ const zh = {
     contentZh: "邮件内容 (HTML Code - ZH)",
     contentZhPlaceholder:
       "<h2>尊敬的用户 您好：</h2><p>我们很荣幸向您宣布...</p>",
+    subjectJa: "邮件主题 (JA)",
+    subjectJaPlaceholder: "[CatSpeak] 系统更新与新功能通知...",
+    contentJa: "邮件内容 (HTML 代码 - JA)",
+    contentJaPlaceholder:
+      "<h2>こんにちは {{name}}、</h2><p>お知らせがあります...</p>",
     noPreviewContent: "暂无预览内容",
     targetAudience: "目标接收者",
     allUsers: "所有活跃用户",
@@ -801,10 +807,16 @@ const zh = {
       Beginner: "初级",
       Intermediate: "中级",
       Advanced: "高级",
+      N1: "N1",
+      N2: "N2",
+      N3: "N3",
+      N4: "N4",
+      N5: "N5",
     },
     levelGroups: {
       HSK: "HSK 等级",
       CEFR: "CEFR 等级",
+      JLPT: "JLPT 等级",
       Other: "其他等级",
     },
     categories: {
