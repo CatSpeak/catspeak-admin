@@ -94,7 +94,7 @@ export default function PaymentReportsPage() {
       {/* Breadcrumb Navigation */}
       <PageHeader
         icon={<DollarSign />}
-        title={t.reports.paymentReportsTitle}
+        title={t.reports.transactionManagementTitle}
         desc={t.reports.paymentReportsDesc}
       />
 

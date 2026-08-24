@@ -38,6 +38,28 @@ export interface GetLetterReportsParams {
   SortOrder?: SortOrder
 }
 
+export const getReportedLetters = async (
+  paramsOrPage: GetLetterReportsParams | number = 1,
+  pageSizeParam?: number,
+): Promise<LetterReportsResponse> => {
+  let params: GetLetterReportsParams
+
+  if (typeof paramsOrPage === "number") {
+    params = {
+      Page: paramsOrPage,
+      PageSize: pageSizeParam,
+    }
+  } else {
+    params = paramsOrPage
+  }
+
+  return getResponseData(
+    axiosClient.get<LetterReportsResponse>("/user-stories/reported", {
+      params,
+    }),
+  )
+}
+
 /**
  * Fetch paginated list of user stories (letter reports) for Admin.
  * Accepts either a GetLetterReportsParams object or legacy (page, pageSize) arguments.
