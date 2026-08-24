@@ -1245,6 +1245,8 @@ const vi = {
     statsResolved: "Đã giải quyết",
     statsClosed: "Đã đóng",
     filterAll: "Tất cả trạng thái",
+    allCategories: "Tất cả phân loại",
+    clearFilter: "Xóa lọc",
     statusPending: "Chờ xử lý",
     statusInProgress: "Đang xử lý",
     statusResolved: "Đã giải quyết",
