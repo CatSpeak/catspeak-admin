@@ -1,5 +1,6 @@
-import { useState } from "react"
-import { Bug, ExternalLink } from "lucide-react"
+import { useState, useCallback } from "react"
+import { useNavigate } from "react-router-dom"
+import { Bug, Search, X } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import Badge from "../../../components/ui/Badge"
@@ -9,15 +10,29 @@ import { useLanguage } from "../../../stores/languageStore"
 import {
   getBugReports,
   type BugReportItem,
-  type GetBugReportsParams,
 } from "../api/bugReports"
-import BugReportDetailDialog from "../components/BugReportDetailDialog"
+import { getCategoryLabel } from "../utils/bugReportUtils"
+import BugReportsSummaryCards from "../components/BugReportsSummaryCards"
 
 export default function BugReportsPage() {
   const { t } = useLanguage()
   const bugT = (t as any).bugReports || {}
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const navigate = useNavigate()
+
+  const [searchKeyword, setSearchKeyword] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("all")
+  const [selectedStatus, setSelectedStatus] = useState<string>("all")
+
+  const isFiltered =
+    selectedCategory !== "all" ||
+    selectedStatus !== "all" ||
+    searchKeyword.trim().length > 0
+
+  const handleClearFilters = useCallback(() => {
+    setSelectedCategory("all")
+    setSelectedStatus("all")
+    setSearchKeyword("")
+  }, [])
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -30,13 +45,96 @@ export default function BugReportsPage() {
         }
       />
 
+      {/* Summary Stats Cards - Loaded independently */}
+      <BugReportsSummaryCards />
+
+      {/* Modern Filter Toolbar with Search & 2 Dropdowns */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+        {/* Left: Search input */}
+        <div className="relative flex-1 min-w-[240px] max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder={bugT.searchPlaceholder || "Tìm theo tiêu đề, mô tả hoặc URL..."}
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            className="w-full pl-9 pr-9 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary/20 text-gray-800 shadow-2xs"
+          />
+          {searchKeyword && (
+            <button
+              onClick={() => setSearchKeyword("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Right: 2 Dropdown Selects + Clear Action */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Dropdown 1: Category */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-500 whitespace-nowrap">
+              {bugT.labelCategory || "Phân loại:"}
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3.5 py-2 text-xs font-semibold bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary/20 text-gray-800 cursor-pointer shadow-2xs"
+            >
+              <option value="all">{bugT.allCategories || "Tất cả phân loại"}</option>
+              <option value="ui_issue">{bugT.categoryUi || "Giao diện / Hiển thị"}</option>
+              <option value="api_error">{bugT.categoryApi || "Lỗi kết nối / Tải dữ liệu"}</option>
+              <option value="video_audio">{bugT.categoryVideo || "Video Call / Âm thanh"}</option>
+              <option value="payment">{bugT.categoryPayment || "Thanh toán / Giao dịch"}</option>
+              <option value="course_exam">{bugT.categoryCourse || "Khóa học / Bài tập"}</option>
+              <option value="other">{bugT.categoryOther || "Khác"}</option>
+            </select>
+          </div>
+
+          {/* Dropdown 2: Status */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold text-gray-500 whitespace-nowrap">
+              {bugT.columnStatus || "Trạng thái:"}
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="px-3.5 py-2 text-xs font-semibold bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary/20 text-gray-800 cursor-pointer shadow-2xs"
+            >
+              <option value="all">{bugT.filterAll || "Tất cả trạng thái"}</option>
+              <option value="pending">{bugT.statusPending || "Chờ xử lý"}</option>
+              <option value="in_progress">{bugT.statusInProgress || "Đang xử lý"}</option>
+              <option value="resolved">{bugT.statusResolved || "Đã giải quyết"}</option>
+              <option value="closed">{bugT.statusClosed || "Đã đóng"}</option>
+            </select>
+          </div>
+
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="text-xs text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+            >
+              {bugT.clearFilter || "Xóa lọc"}
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Bug Reports Table */}
       <Table<BugReportItem>
-        key={refreshKey}
+        key={`${selectedCategory}-${selectedStatus}-${searchKeyword}`}
+        showGlobalSearch={false}
         fetcher={async (page = 1, pageSize = 10) => {
           try {
             const response = await getBugReports({
               pageNumber: page,
               pageSize,
+              searchKeyword: searchKeyword.trim() || undefined,
+              category: selectedCategory !== "all" ? selectedCategory : undefined,
+              status: selectedStatus !== "all" ? selectedStatus : undefined,
             })
             return {
               data: response.data || [],
@@ -50,22 +148,7 @@ export default function BugReportsPage() {
             }
           }
         }}
-        filter={async (attribute, value) => {
-          const params: GetBugReportsParams = {}
-          if (attribute === "global") {
-            params.searchKeyword = value ? String(value) : undefined
-          } else if (attribute === "status" && value) {
-            params.status = Array.isArray(value) ? String(value[0]) : String(value)
-          } else if (attribute === "category" && value) {
-            params.category = Array.isArray(value) ? String(value[0]) : String(value)
-          }
-          const res = await getBugReports(params)
-          return {
-            data: res.data || [],
-            total: res.total || 0,
-          }
-        }}
-        onClickRow={(row) => setSelectedId(row.id)}
+        onClickRow={(row) => navigate(`/bug-reports/${row.id}`)}
         headers={[
           {
             name: "ID",
@@ -84,8 +167,8 @@ export default function BugReportsPage() {
                 <div className="text-sm font-semibold text-gray-900 line-clamp-1">
                   {r.title}
                 </div>
-                <div className="text-xs text-gray-400 capitalize mt-0.5">
-                  {r.category || "other"}
+                <div className="text-xs text-primary font-medium mt-0.5">
+                  {getCategoryLabel(r.category, bugT)}
                 </div>
               </div>
             ),
@@ -107,23 +190,6 @@ export default function BugReportsPage() {
             ),
           },
           {
-            name: bugT.columnUrl || "Trang gặp sự cố",
-            accessorKey: "url",
-            render: (r) => (
-              <a
-                href={r.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="text-xs text-primary underline max-w-[200px] truncate flex items-center gap-1"
-                title={r.url}
-              >
-                <span className="truncate">{r.url}</span>
-                <ExternalLink className="w-3 h-3 shrink-0" />
-              </a>
-            ),
-          },
-          {
             name: bugT.columnCreatedAt || "Thời gian",
             accessorKey: "createdAt",
             render: (r) => (
@@ -135,13 +201,6 @@ export default function BugReportsPage() {
           {
             name: bugT.columnStatus || "Trạng thái",
             accessorKey: "status",
-            showFilter: true,
-            values: [
-              { value: "pending", label: bugT.statusPending || "Chờ xử lý" },
-              { value: "in_progress", label: bugT.statusInProgress || "Đang xử lý" },
-              { value: "resolved", label: bugT.statusResolved || "Đã giải quyết" },
-              { value: "closed", label: bugT.statusClosed || "Đã đóng" },
-            ],
             render: (r) => {
               switch (r.status) {
                 case "pending":
@@ -166,7 +225,7 @@ export default function BugReportsPage() {
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation()
-                  setSelectedId(r.id)
+                  navigate(`/bug-reports/${r.id}`)
                 }}
               >
                 {bugT.viewDetails || "Xem chi tiết"}
@@ -175,17 +234,6 @@ export default function BugReportsPage() {
           },
         ]}
       />
-
-      {selectedId && (
-        <BugReportDetailDialog
-          id={selectedId}
-          onClose={() => setSelectedId(null)}
-          onUpdateSuccess={() => {
-            setRefreshKey((k) => k + 1)
-            setSelectedId(null)
-          }}
-        />
-      )}
     </div>
   )
 }
