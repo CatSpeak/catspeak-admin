@@ -70,6 +70,7 @@ const vi = {
     bugReports: "Báo cáo sự cố (Bugs)",
     finance: "Tài chính & Thanh toán",
     paymentReports: "Báo cáo thanh toán",
+    transactionManagement: "Quản lý giao dịch",
     refunds: "Yêu cầu hoàn tiền",
     analytics: "Thống kê",
     settings: "Cài đặt",
@@ -702,6 +703,7 @@ const vi = {
     totalWarningsCount: "Tổng cộng {count} cảnh báo",
     failedToLoadStats: "Tải thống kê báo cáo thất bại",
     paymentReportsTitle: "Báo cáo thanh toán",
+    transactionManagementTitle: "Quản lý giao dịch",
     paymentReportsDesc:
       "Theo dõi các giao dịch thành công, hoàn tiền và tóm tắt tài chính.",
     totalReports: "Tổng số báo cáo",
