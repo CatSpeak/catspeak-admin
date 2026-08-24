@@ -6,6 +6,7 @@ export type PaymentReportStatus = 0 | 1 | 2
 export interface PaymentReport {
   reportId: number
   paymentId: number
+  paymentType?: string
   userId: number
   username: string
   email: string
@@ -32,6 +33,7 @@ export interface GetPaymentReportsParams {
   UserEmail?: string
   MaxAmount?: number
   Statuses?: number[]
+  PaymentTypes?: string[]
   SortBy?: PaymentReportSortBy
   Reason?: string
   FromDate?: string
@@ -110,4 +112,50 @@ export const processPaymentReport = async (
       payload,
     ),
   )
+}
+
+export interface Payment {
+  paymentId: number
+  userId: number
+  username: string
+  email: string
+  amount: number
+  method: string
+  paymentType?: string
+  createDate: string
+  status: number
+  orderCode: number | null
+  adminNote: string | null
+}
+
+export interface GetPaymentsParams {
+  status?: number
+  fromDate?: string
+  toDate?: string
+  search?: string
+  userId?: number
+}
+
+export const getPayments = async (params: GetPaymentsParams = {}): Promise<Payment[]> => {
+  try {
+    const response = await getResponseData(
+      axiosClient.get<unknown>("/v1/Payments/admin/list", { params }),
+    )
+    if (Array.isArray(response)) {
+      return response as Payment[]
+    }
+    if (response && typeof response === "object") {
+      const responseData = response as Record<string, unknown>
+      if ("data" in responseData && Array.isArray(responseData.data)) {
+        return responseData.data as Payment[]
+      }
+      if ("items" in responseData && Array.isArray(responseData.items)) {
+        return responseData.items as Payment[]
+      }
+    }
+    return []
+  } catch (error) {
+    console.error("Error fetching payments:", error)
+    throw error
+  }
 }
