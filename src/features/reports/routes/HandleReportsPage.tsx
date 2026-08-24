@@ -36,7 +36,7 @@ export default function HandleReportsPage() {
       <Table<LetterReport>
         fetcher={async (page = 1, pageSize = 10) => {
           try {
-            const response = await getLetterReports(page, pageSize)
+            const response = await getLetterReports({ Page: page, PageSize: pageSize, Statuses: [2] })
             return {
               data: response.data || [],
               total: response.total_records || 0,
@@ -65,6 +65,7 @@ export default function HandleReportsPage() {
           const res = await getLetterReports({
             SortBy: sortBy,
             SortOrder: order,
+            Statuses: [2],
           })
           return {
             data: res.data || [],
@@ -72,7 +73,7 @@ export default function HandleReportsPage() {
           }
         }}
         filter={async (attribute, value, toDate) => {
-          const params: GetLetterReportsParams = {}
+          const params: GetLetterReportsParams = { Statuses: [2] }
           if (attribute === "global") {
             params.SearchKeyword = value ? String(value) : undefined
           } else if (
