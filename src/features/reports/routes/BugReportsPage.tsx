@@ -11,7 +11,7 @@ import {
   getBugReports,
   type BugReportItem,
 } from "../api/bugReports"
-import { getCategoryLabel } from "../utils/bugReportUtils"
+import { getCategoryLabel, getReporterName } from "../utils/bugReportUtils"
 import BugReportsSummaryCards from "../components/BugReportsSummaryCards"
 
 export default function BugReportsPage() {
@@ -83,6 +83,7 @@ export default function BugReportsPage() {
               className="px-3.5 py-2 text-xs font-semibold bg-white border border-gray-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary/20 text-gray-800 cursor-pointer shadow-2xs"
             >
               <option value="all">{bugT.allCategories || "Tất cả phân loại"}</option>
+              <option value="system_auto">{bugT.categorySystemAuto || "Hệ thống tự động phát hiện"}</option>
               <option value="ui_issue">{bugT.categoryUi || "Giao diện / Hiển thị"}</option>
               <option value="api_error">{bugT.categoryApi || "Lỗi kết nối / Tải dữ liệu"}</option>
               <option value="video_audio">{bugT.categoryVideo || "Video Call / Âm thanh"}</option>
@@ -179,12 +180,16 @@ export default function BugReportsPage() {
             render: (r) => (
               <div>
                 <div className="text-sm font-medium text-gray-900">
-                  {r.username || bugT.anonymousUser || "Khách"}
+                  {getReporterName(r, bugT)}
                 </div>
                 {r.email ? (
                   <div className="text-xs text-primary">{r.email}</div>
                 ) : (
-                  <div className="text-xs text-gray-400">—</div>
+                  <div className="text-xs text-gray-400">
+                    {r.category === "system_auto"
+                      ? bugT.systemReporterSub || "Tự động ghi nhận"
+                      : "—"}
+                  </div>
                 )}
               </div>
             ),
