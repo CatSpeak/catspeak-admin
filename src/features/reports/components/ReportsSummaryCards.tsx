@@ -52,11 +52,9 @@ export default function ReportsSummaryCards() {
         value: stats?.letterReports?.totalReports?.toLocaleString() ?? 0,
         subtitle: stats?.letterReports
           ? (
-              t.reports?.reportingAndReported ||
-              "{reporting} reporting, {reported} reported"
-            )
-              .replace("{reporting}", String(stats.letterReports.reportingUsers))
-              .replace("{reported}", String(stats.letterReports.reportedUsers))
+            t.reports?.reportedCount ||
+            "{count} reported"
+          ).replace("{count}", String(stats.letterReports.reportedUsers))
           : undefined,
         iconClassName: "text-rose-600",
         iconContainerClassName: "bg-rose-50",
@@ -69,8 +67,8 @@ export default function ReportsSummaryCards() {
         value: stats?.reportedUser?.totalReportedUsers?.toLocaleString() ?? 0,
         subtitle: stats?.reportedUser
           ? (
-              t.reports?.reportingUsersCount || "{count} reporting users"
-            ).replace("{count}", String(stats.reportedUser.reportingUsers))
+            t.reports?.reportingUsersCount || "{count} reporting users"
+          ).replace("{count}", String(stats.reportedUser.reportingUsers))
           : undefined,
         iconClassName: "text-amber-600",
         iconContainerClassName: "bg-amber-50",
@@ -86,9 +84,9 @@ export default function ReportsSummaryCards() {
           stats?.meetingIncidentReports?.totalReports?.toLocaleString() ?? 0,
         subtitle: stats?.meetingIncidentReports
           ? (t.reports?.totalReportsCount || "{count} total reports").replace(
-              "{count}",
-              String(stats.meetingIncidentReports.totalReports),
-            )
+            "{count}",
+            String(stats.meetingIncidentReports.totalReports),
+          )
           : undefined,
         iconClassName: "text-blue-600",
         iconContainerClassName: "bg-blue-50",
@@ -102,9 +100,9 @@ export default function ReportsSummaryCards() {
         subtitle:
           stats !== null
             ? (t.reports?.totalWarningsCount || "{count} total warnings").replace(
-                "{count}",
-                String(stats.totalUserWarning),
-              )
+              "{count}",
+              String(stats.totalUserWarning),
+            )
             : undefined,
         iconClassName: "text-purple-600",
         iconContainerClassName: "bg-purple-50",
@@ -124,7 +122,7 @@ export default function ReportsSummaryCards() {
       )}
 
       {/* Summary Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cardsData.map((card) => (
           <SummaryCard
             key={card.id}

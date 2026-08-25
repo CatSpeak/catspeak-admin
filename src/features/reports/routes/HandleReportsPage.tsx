@@ -13,6 +13,7 @@ import { PageHeader } from "../../../components/ui/PageHeader"
 import { FileText } from "lucide-react"
 import { useLanguage } from "../../../stores/languageStore"
 import FlagBadge from "../../../components/ui/FlagBadge"
+import Badge from "../../../components/ui/Badge"
 import {
   formatDateTime,
   formatDateToUtcStartOfDay,
@@ -145,6 +146,29 @@ export default function HandleReportsPage() {
                 {formatDateTime(p.createDate)}
               </span>
             ),
+          },
+          {
+            name: t.common.status,
+            accessorKey: "status",
+            allowSort: true,
+            render: (r) => {
+              if (r.status === 1) {
+                return (
+                  <Badge
+                    title={t.reports?.statusActive || "Đang hiển thị"}
+                    type="Green"
+                    showDot
+                  />
+                )
+              }
+              return (
+                <Badge
+                  title={t.reports?.statusDeleted || "Đã xoá"}
+                  type="Red"
+                  showDot
+                />
+              )
+            },
           },
         ]}
       />
