@@ -129,7 +129,7 @@ export default function ReportDialog({
       addToast(
         "error",
         t.reports?.deleteReportFailed ||
-          "Failed to delete the report. Please try again.",
+        "Failed to delete the report. Please try again.",
       );
       setIsDeleting(false);
     }
@@ -142,7 +142,7 @@ export default function ReportDialog({
       addToast(
         "success",
         t.reports?.dismissReportSuccess ||
-          "Report warning has been dismissed successfully.",
+        "Report warning has been dismissed successfully.",
       );
       onDeleteSuccess();
     } catch (err) {
@@ -150,7 +150,7 @@ export default function ReportDialog({
       addToast(
         "error",
         t.reports?.dismissReportFailed ||
-          "Failed to dismiss the report warning. Please try again.",
+        "Failed to dismiss the report warning. Please try again.",
       );
       setIsDismissing(false);
     }
@@ -335,15 +335,17 @@ export default function ReportDialog({
               >
                 {t.common.close}
               </Button>
-              <Button
-                size="sm"
-                onClick={() => setShowDeleteModal(true)}
-                disabled={isDeleting || isDismissing}
-                className="cursor-pointer"
-              >
-                <Trash2 className="w-4 h-4" />
-                {t.common.delete}
-              </Button>
+              {report?.status === 1 && (
+                <Button
+                  size="sm"
+                  onClick={() => setShowDeleteModal(true)}
+                  disabled={isDeleting || isDismissing}
+                  className="cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {t.common.delete}
+                </Button>
+              )}
             </div>
 
           </div>
