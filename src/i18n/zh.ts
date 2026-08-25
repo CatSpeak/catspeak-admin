@@ -715,6 +715,8 @@ const zh = {
     dismissReportFailed: "解除举报警告失败，请重试。",
     dismissing: "正在解除…",
     reportedWarning: "被举报",
+    statusActive: "显示中",
+    statusDeleted: "已删除",
     deleteReportTitle: "删除被举报的信件",
     deleteReportConfirm: "您确定要删除该信件吗？该信件将从系统中永久删除。",
     deleteReportSuccess: "已成功删除举报信件 #{id}。",

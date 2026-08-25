@@ -744,6 +744,8 @@ const vi = {
     dismissReportFailed: "Gỡ cảnh báo thất bại. Vui lòng thử lại.",
     dismissing: "Đang gỡ cảnh báo…",
     reportedWarning: "Bị báo cáo",
+    statusActive: "Đang hiển thị",
+    statusDeleted: "Đã xoá",
     deleteReportTitle: "Xóa thư báo cáo",
     deleteReportConfirm: "Bạn có chắc chắn muốn xóa thư này? Thư sẽ bị xóa vĩnh viễn khỏi hệ thống.",
     deleteReportSuccess: "Đã xóa báo cáo thư #{id} thành công.",

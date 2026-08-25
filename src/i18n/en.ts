@@ -743,6 +743,8 @@ const en = {
     dismissReportFailed: "Failed to dismiss the report warning. Please try again.",
     dismissing: "Dismissing…",
     reportedWarning: "Reported",
+    statusActive: "Active",
+    statusDeleted: "Deleted",
     deleteReportTitle: "Delete Reported Story",
     deleteReportConfirm: "Are you sure you want to delete this story? It will be permanently removed from the system.",
     deleteReportSuccess: "Report #{id} has been deleted successfully.",
