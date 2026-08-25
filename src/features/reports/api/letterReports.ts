@@ -10,6 +10,7 @@ export interface LetterReport {
   createDate?: string
   expiresAt?: string
   status?: number
+  isReported?: boolean
 }
 
 export interface LetterReportsResponse {
@@ -36,6 +37,28 @@ export interface GetLetterReportsParams {
   Page?: number
   PageSize?: number
   SortOrder?: SortOrder
+}
+
+export const getReportedLetters = async (
+  paramsOrPage: GetLetterReportsParams | number = 1,
+  pageSizeParam?: number,
+): Promise<LetterReportsResponse> => {
+  let params: GetLetterReportsParams
+
+  if (typeof paramsOrPage === "number") {
+    params = {
+      Page: paramsOrPage,
+      PageSize: pageSizeParam,
+    }
+  } else {
+    params = paramsOrPage
+  }
+
+  return getResponseData(
+    axiosClient.get<LetterReportsResponse>("/user-stories/reported", {
+      params,
+    }),
+  )
 }
 
 /**
@@ -80,6 +103,17 @@ export const deleteLetterReport = async (
   id: number | string,
 ): Promise<void> => {
   return getResponseData(axiosClient.delete(`/user-stories/${id}`))
+}
+
+/**
+ * Dismiss a report for a user story for Admin (removes reported warning).
+ */
+export const dismissLetterReport = async (
+  id: number | string,
+): Promise<void> => {
+  return getResponseData(
+    axiosClient.patch(`/user-stories/${id}/dismiss-report`),
+  )
 }
 
 /**

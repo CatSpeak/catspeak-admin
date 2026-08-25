@@ -425,7 +425,11 @@ export default function ReelDetailView({
                   {t.news.languageCommunity}
                 </span>
                 <span className="font-semibold text-gray-800">
-                  {reel.languageCommunity || "All"}
+                  {(t.room?.languages as Record<string, string> | undefined)?.[
+                    reel.languageCommunity || ""
+                  ] ||
+                    reel.languageCommunity ||
+                    t.common.all}
                 </span>
               </div>
               <div className="flex justify-between items-center py-0.5">

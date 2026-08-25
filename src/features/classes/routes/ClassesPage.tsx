@@ -24,7 +24,13 @@ const STATUS_OPTIONS = [
   "FINISHED",
 ] as const;
 
-const LANGUAGE_OPTIONS = ["ENGLISH", "CHINESE"] as const;
+const LANGUAGE_OPTIONS = ["ENGLISH", "CHINESE", "JAPANESE"] as const;
+
+const LANGUAGE_LABEL_KEYS = {
+  ENGLISH: "English",
+  CHINESE: "Chinese",
+  JAPANESE: "Japanese",
+} as const;
 
 const ClassesPage: React.FC = () => {
   const { t } = useLanguage();
@@ -88,9 +94,7 @@ const ClassesPage: React.FC = () => {
                   <option value="">{t.classes.allLanguages}</option>
                   {LANGUAGE_OPTIONS.map((language) => (
                     <option key={language} value={language}>
-                      {language === "ENGLISH"
-                        ? t.room.languages.English
-                        : t.room.languages.Chinese}
+                      {t.room.languages[LANGUAGE_LABEL_KEYS[language]]}
                     </option>
                   ))}
                 </select>

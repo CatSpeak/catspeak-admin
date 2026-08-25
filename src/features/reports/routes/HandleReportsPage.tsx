@@ -3,15 +3,17 @@ import ReportsSummaryCards from "../components/ReportsSummaryCards"
 import ReportDialog from "../components/ReportDialog"
 import Table from "../../../components/ui/table/Table"
 import {
-  getLetterReports,
+  // getLetterReports,
   type LetterReport,
   type LetterReportSortBy,
   type GetLetterReportsParams,
+  getReportedLetters,
 } from "../api/letterReports"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import { FileText } from "lucide-react"
 import { useLanguage } from "../../../stores/languageStore"
 import FlagBadge from "../../../components/ui/FlagBadge"
+import Badge from "../../../components/ui/Badge"
 import {
   formatDateTime,
   formatDateToUtcStartOfDay,
@@ -36,7 +38,7 @@ export default function HandleReportsPage() {
       <Table<LetterReport>
         fetcher={async (page = 1, pageSize = 10) => {
           try {
-            const response = await getLetterReports(page, pageSize)
+            const response = await getReportedLetters({ Page: page, PageSize: pageSize })
             return {
               data: response.data || [],
               total: response.total_records || 0,
@@ -62,7 +64,7 @@ export default function HandleReportsPage() {
               : sortOrder === "desc"
                 ? "Desc"
                 : undefined
-          const res = await getLetterReports({
+          const res = await getReportedLetters({
             SortBy: sortBy,
             SortOrder: order,
           })
@@ -90,7 +92,7 @@ export default function HandleReportsPage() {
             params.FromDate = formatDateToUtcStartOfDay(from)
             params.ToDate = formatDateToUtcEndOfDay(to)
           }
-          const res = await getLetterReports(params)
+          const res = await getReportedLetters(params)
           return {
             data: res.data || [],
             total: res.total_records || 0,
@@ -144,6 +146,29 @@ export default function HandleReportsPage() {
                 {formatDateTime(p.createDate)}
               </span>
             ),
+          },
+          {
+            name: t.common.status,
+            accessorKey: "status",
+            allowSort: true,
+            render: (r) => {
+              if (r.status === 1) {
+                return (
+                  <Badge
+                    title={t.reports?.statusActive || "Đang hiển thị"}
+                    type="Green"
+                    showDot
+                  />
+                )
+              }
+              return (
+                <Badge
+                  title={t.reports?.statusDeleted || "Đã xoá"}
+                  type="Red"
+                  showDot
+                />
+              )
+            },
           },
         ]}
       />

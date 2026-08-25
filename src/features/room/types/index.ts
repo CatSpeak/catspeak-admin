@@ -1,7 +1,7 @@
 // ── Room Types — matching real API response ──
 
 export type RoomType = "OneToOne" | "Group";
-export type LanguageType = "Chinese" | "English" | null;
+export type LanguageType = "Chinese" | "English" | "Japanese" | null;
 export type RequiredLevel =
   | "HSK1"
   | "HSK2"
@@ -17,7 +17,12 @@ export type RequiredLevel =
   | "C2"
   | "Beginner"
   | "Intermediate"
-  | "Advanced";
+  | "Advanced"
+  | "N1"
+  | "N2"
+  | "N3"
+  | "N4"
+  | "N5";
 export type RoomCategory =
   | "Other"
   | "Knowledge"

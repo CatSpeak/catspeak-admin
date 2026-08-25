@@ -6,7 +6,7 @@ export interface UploadReelApiPayload {
   Title: string;
   Description: string;
   Privacy: ReelPrivacy;
-  LanguageCommunity: "All" | "English" | "Chinese";
+  LanguageCommunity: "All" | "English" | "Chinese" | "Japanese";
   VideoFile: File;
   CoverFile?: File | null;
   Tags?: string[];

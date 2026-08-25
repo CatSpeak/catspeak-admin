@@ -10,7 +10,6 @@ import {
   GraduationCap,
   Package,
   Ticket,
-  RotateCcw,
   CreditCard,
   Bug,
 } from "lucide-react"
@@ -107,13 +106,19 @@ const AppSidebar: React.FC = () => {
       },
       {
         section: t.nav.finance || "Tài chính & Thanh toán",
-        name: t.nav.refunds || "Yêu cầu hoàn tiền",
-        icon: <RotateCcw size={20} />,
-        path: "/refunds",
+        name: t.nav.paymentReports || "Báo cáo & Hoàn tiền",
+        icon: <FileWarning size={20} />,
+        path: "/payment-reports",
         permission: "payment_reports",
       },
+      // {
+      //   name: t.nav.transactionManagement || "Báo cáo thanh toán",
+      //   icon: <CreditCard size={20} />,
+      //   path: "/payments",
+      //   permission: "payment_reports",
+      // },
       {
-        name: t.nav.paymentReports || "Báo cáo thanh toán",
+        name: t.nav.transactionManagement || "Quản lý giao dịch",
         icon: <CreditCard size={20} />,
         path: "/payments",
         permission: "payment_reports",
@@ -236,11 +241,10 @@ const AppSidebar: React.FC = () => {
                       aria-label={nav.name}
                       title={nav.name}
                       className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors group
-                        ${
-                          openSubmenu === index ||
+                        ${openSubmenu === index ||
                           nav.subItems.some((sub) => isActive(sub.path))
-                            ? "bg-primary/10 text-primary"
-                            : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-primary/10 text-primary"
+                          : "text-gray-700 hover:bg-gray-100"
                         }
                         ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                       `}
@@ -251,9 +255,8 @@ const AppSidebar: React.FC = () => {
                           <span className="flex-1 text-left">{nav.name}</span>
                           <ChevronDown
                             size={16}
-                            className={`transition-transform duration-200 ${
-                              openSubmenu === index ? "rotate-180" : ""
-                            }`}
+                            className={`transition-transform duration-200 ${openSubmenu === index ? "rotate-180" : ""
+                              }`}
                           />
                         </>
                       )}
@@ -277,9 +280,9 @@ const AppSidebar: React.FC = () => {
                                 style={
                                   isActive(subItem.path)
                                     ? {
-                                        color: "#F5A623",
-                                        background: "rgba(245, 166, 35, 0.1)",
-                                      }
+                                      color: "#F5A623",
+                                      background: "rgba(245, 166, 35, 0.1)",
+                                    }
                                     : {}
                                 }
                               >
@@ -301,10 +304,9 @@ const AppSidebar: React.FC = () => {
                     aria-label={nav.name}
                     title={nav.name}
                     className={`relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-sm transition-colors
-                      ${
-                        isActive(nav.path!)
-                          ? "bg-primary/10 text-primary"
-                          : "text-gray-700 hover:bg-gray-100"
+                      ${isActive(nav.path!)
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-700 hover:bg-gray-100"
                       }
                       ${!isExpanded && !isHovered && !isMobileOpen ? "justify-center" : "justify-start"}
                     `}
