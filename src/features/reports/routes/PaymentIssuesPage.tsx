@@ -157,11 +157,11 @@ export default function PaymentIssuesPage() {
   };
 
   // Xử lý Duyệt/Từ chối Hoàn tiền (PayOS Gateway)
-  const handleProcessRefund = async (action: "Approve" | "Reject", reason: string) => {
+  const handleProcessRefund = async (action: "Approve" | "Reject", reason: string, amount?: number) => {
     if (!selectedRefund) return;
     setIsProcessing(true);
     try {
-      const res = await processRefund(selectedRefund.refundId, { action, reason });
+      const res = await processRefund(selectedRefund.refundId, { action, reason, amount });
       addToast(
         "success",
         res.message ||
