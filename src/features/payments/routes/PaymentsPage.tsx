@@ -10,7 +10,8 @@ import {
   getPayments,
   type Payment,
   type GetPaymentsParams,
-} from "../../reports/api/paymentReports"
+  type PaymentSummary,
+} from "../api/paymentsApi"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import {
@@ -27,33 +28,41 @@ export default function PaymentsPage() {
   const { t } = useLanguage()
 
   // State
-  const [payments, setPayments] = useState<Payment[]>([])
+  const [, setPayments] = useState<Payment[]>([])
   const [statusFilter] = useState<number | null>(null)
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [summary, setSummary] = useState<PaymentSummary>({})
 
-  // Compute metrics in-memory from loaded payments
+  // Compute metrics directly from additionalData summary
   const metrics = useMemo(() => {
-    const counts = { total: 0, refunded: 0, success: 0, failed: 0 }
-    payments.forEach((curr) => {
-      counts.total++
-      if (curr.status === 4) counts.refunded++
-      else if (curr.status === 1) counts.success++
-      else if (curr.status === 2 || curr.status === 0) counts.failed++
-    })
-    return counts
-  }, [payments])
-
-  const fetcher = useCallback(async () => {
-    const data = await getPayments(
-      statusFilter !== null ? { status: statusFilter } : {},
-    )
-    setPayments(data)
     return {
-      data,
-      total: data.length,
+      total: summary.total ?? 0,
+      refunded: summary.refunded ?? 0,
+      success: summary.success ?? 0,
+      failed: summary.failed ?? 0,
     }
-  }, [statusFilter])
+  }, [summary])
+
+  const fetcher = useCallback(
+    async (page?: number, pageSize?: number) => {
+      const params: GetPaymentsParams = {
+        page,
+        pageSize,
+        status: statusFilter !== null ? statusFilter : undefined,
+      }
+      const res = await getPayments(params)
+      setPayments(res.data)
+      if (res.summary) {
+        setSummary(res.summary)
+      }
+      return {
+        data: res.data,
+        total: res.total,
+      }
+    },
+    [statusFilter],
+  )
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
@@ -65,62 +74,63 @@ export default function PaymentsPage() {
       />
 
       {/* Summary Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Summary Metrics Cards (Mobile: 2x2 | Desktop: 4x1) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
-            <FileText className="w-6 h-6" />
+        <div className="bg-white border border-gray-200 p-3.5 sm:p-5 rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4 transition-all hover:shadow-md">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
+          <div className="min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
               {t.reports.totalPayments}
             </span>
-            <span className="text-2xl font-bold text-gray-900 block mt-0.5">
+            <span className="text-xl sm:text-2xl font-bold text-gray-900 block mt-0.5">
               {metrics.total}
             </span>
           </div>
         </div>
 
         {/* Refunded Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-            <RefreshCcw className="w-6 h-6" />
+        <div className="bg-white border border-gray-200 p-3.5 sm:p-5 rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4 transition-all hover:shadow-md">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <RefreshCcw className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
+          <div className="min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
               {t.reports.statusRefunded}
             </span>
-            <span className="text-2xl font-bold text-blue-700 block mt-0.5">
+            <span className="text-xl sm:text-2xl font-bold text-blue-700 block mt-0.5">
               {metrics.refunded}
             </span>
           </div>
         </div>
 
         {/* Success Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-success-50 text-success-600 flex items-center justify-center shrink-0">
-            <CheckCircle className="w-6 h-6" />
+        <div className="bg-white border border-gray-200 p-3.5 sm:p-5 rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4 transition-all hover:shadow-md">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-success-50 text-success-600 flex items-center justify-center shrink-0">
+            <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
+          <div className="min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
               {t.reports.statusSuccess}
             </span>
-            <span className="text-2xl font-bold text-success-700 block mt-0.5">
+            <span className="text-xl sm:text-2xl font-bold text-success-700 block mt-0.5">
               {metrics.success}
             </span>
           </div>
         </div>
 
         {/* Failed Card */}
-        <div className="bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex items-center gap-4 transition-all hover:shadow-md">
-          <div className="w-12 h-12 rounded-xl bg-error-50 text-error-600 flex items-center justify-center shrink-0">
-            <Ban className="w-6 h-6" />
+        <div className="bg-white border border-gray-200 p-3.5 sm:p-5 rounded-2xl shadow-sm flex items-center gap-3 sm:gap-4 transition-all hover:shadow-md">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-error-50 text-error-600 flex items-center justify-center shrink-0">
+            <Ban className="w-5 h-5 sm:w-6 sm:h-6" />
           </div>
-          <div>
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">
+          <div className="min-w-0">
+            <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
               {t.reports.statusFailed}
             </span>
-            <span className="text-2xl font-bold text-error-700 block mt-0.5">
+            <span className="text-xl sm:text-2xl font-bold text-error-700 block mt-0.5">
               {metrics.failed}
             </span>
           </div>
@@ -135,19 +145,30 @@ export default function PaymentsPage() {
           setSelectedPayment(payment)
           setIsModalOpen(true)
         }}
-        sorter={async () => {
-          const res = await getPayments(
-            statusFilter !== null ? { status: statusFilter } : {},
-          )
+        sorter={async (attribute, sortOrder) => {
+          let sortBy: string = "createDate"
+          if (attribute === "amount") sortBy = "amount"
+          else if (attribute === "status") sortBy = "status"
+          else sortBy = "createDate"
+
+          const res = await getPayments({
+            status: statusFilter !== null ? statusFilter : undefined,
+            sortBy,
+            sortOrder: sortOrder === "asc" ? "Asc" : "Desc",
+          })
+          setPayments(res.data)
+          if (res.summary) setSummary(res.summary)
           return {
-            data: res,
-            total: res.length,
+            data: res.data,
+            total: res.total,
           }
         }}
         filter={async (attribute, value, toDate) => {
           const params: GetPaymentsParams = {}
           if (attribute === "global") {
             params.search = value ? String(value) : undefined
+          } else if (attribute === "paymentType") {
+            params.paymentType = value ? String(value) : undefined
           } else if (
             attribute === "createDate" ||
             attribute === "fromDate"
@@ -170,10 +191,11 @@ export default function PaymentsPage() {
             params.status = Number(arr[0])
           }
           const res = await getPayments(params)
-          setPayments(res)
+          setPayments(res.data)
+          if (res.summary) setSummary(res.summary)
           return {
-            data: res,
-            total: res.length,
+            data: res.data,
+            total: res.total,
           }
         }}
         headers={[
@@ -211,7 +233,7 @@ export default function PaymentsPage() {
                   {p.username || "?"}
                 </span>
                 {p.email && (
-                  <span className="text-[10px] text-gray-400 truncate max-w-[150px]">
+                  <span className="text-[10px] text-gray-400 truncate max-w-37.5">
                     {p.email}
                   </span>
                 )}
