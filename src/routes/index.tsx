@@ -15,6 +15,7 @@ const UserDetailPage = lazy(() => import("../features/users/routes/UserDetailPag
 const StaffsPage = lazy(() => import("../features/staffs/routes/StaffsPage"));
 const StaffDetailPage = lazy(() => import("../features/staffs/routes/StaffDetailPage"));
 const HandleReportsPage = lazy(() => import("../features/reports/routes/HandleReportsPage"));
+const BugReportsPage = lazy(() => import("../features/reports/routes/BugReportsPage"));
 // const PaymentReportsPage = lazy(() => import("../features/reports/routes/PaymentReportsPage"));
 const PaymentIssuesPage = lazy(() => import("../features/reports/routes/PaymentIssuesPage"));
 const PaymentsPage = lazy(() => import("../features/payments/routes/PaymentsPage"));
@@ -36,6 +37,7 @@ const VoucherPage = lazy(() => import("../features/voucher/routes/VoucherPage"))
 const VoucherCreatePage = lazy(() => import("../features/voucher/routes/VoucherCreatePage"));
 const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherDetailPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
+const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -78,6 +80,8 @@ export const router = createBrowserRouter([
           { path: "staffs", element: guard(StaffsPage, "staffs") },
           { path: "staffs/:id", element: guard(StaffDetailPage, "staffs") },
           { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
+          { path: "bug-reports", element: guard(BugReportsPage, "bug_reports") },
+          { path: "bug-reports/:id", element: guard(BugReportDetailPage, "bug_reports") },
           // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
           { path: "payments", element: guard(PaymentsPage, "payment_reports") },
           { path: "payment-reports", element: guard(PaymentIssuesPage, "payment_reports") },
