@@ -1,6 +1,7 @@
 import { Clock, Globe, User, Image as ImageIcon } from "lucide-react"
 import { formatDateTime } from "../../../../lib/utils"
 import type { BugReportDetail } from "../../api/bugReports"
+import { getReporterName } from "../../utils/bugReportUtils"
 
 interface BugReportOverviewTabProps {
   report: BugReportDetail
@@ -31,10 +32,12 @@ export default function BugReportOverviewTab({
             </div>
             <div>
               <div className="text-sm font-semibold text-gray-900">
-                {report.username || bugT.anonymousUser || "Khách"}
+                {getReporterName(report, bugT)}
               </div>
               <div className="text-xs text-gray-500">
-                {report.email || "Không có email"}
+                {report.category === "system_auto" && !report.email
+                  ? bugT.systemReporterSub || "Tự động ghi nhận bởi CatSpeak Client"
+                  : report.email || "Không có email"}
               </div>
             </div>
           </div>
@@ -121,27 +124,27 @@ export default function BugReportOverviewTab({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <span className="text-gray-400 block text-[11px]">Trình duyệt</span>
+              <span className="text-gray-400 block text-[11px]">{bugT.labelBrowser || "Trình duyệt"}</span>
               <span className="font-semibold text-gray-800">
                 {parsedDevice.browser || "Unknown"}
               </span>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <span className="text-gray-400 block text-[11px]">Hệ điều hành</span>
+              <span className="text-gray-400 block text-[11px]">{bugT.labelOs || "Hệ điều hành"}</span>
               <span className="font-semibold text-gray-800">
                 {parsedDevice.os || "Unknown"}
               </span>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <span className="text-gray-400 block text-[11px]">Độ phân giải</span>
+              <span className="text-gray-400 block text-[11px]">{bugT.labelResolution || "Độ phân giải"}</span>
               <span className="font-semibold text-gray-800">
                 {parsedDevice.screenResolution || "N/A"}
               </span>
             </div>
             <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-              <span className="text-gray-400 block text-[11px]">Múi giờ</span>
+              <span className="text-gray-400 block text-[11px]">{bugT.labelTimezone || "Múi giờ"}</span>
               <span className="font-semibold text-gray-800">
-                {parsedDevice.timezone || "N/A"}
+                {parsedDevice.timeZone || parsedDevice.timezone || "N/A"}
               </span>
             </div>
           </div>
