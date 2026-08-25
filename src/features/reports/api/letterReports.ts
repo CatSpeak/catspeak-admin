@@ -10,6 +10,7 @@ export interface LetterReport {
   createDate?: string
   expiresAt?: string
   status?: number
+  isReported?: boolean
 }
 
 export interface LetterReportsResponse {
@@ -102,6 +103,17 @@ export const deleteLetterReport = async (
   id: number | string,
 ): Promise<void> => {
   return getResponseData(axiosClient.delete(`/user-stories/${id}`))
+}
+
+/**
+ * Dismiss a report for a user story for Admin (removes reported warning).
+ */
+export const dismissLetterReport = async (
+  id: number | string,
+): Promise<void> => {
+  return getResponseData(
+    axiosClient.patch(`/user-stories/${id}/dismiss-report`),
+  )
 }
 
 /**
