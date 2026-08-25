@@ -67,7 +67,7 @@ const vi = {
     feedback: "Phản hồi & Báo cáo",
     handleReports: "Xử lý báo cáo",
     letterReports: "Báo cáo thư",
-    bugReports: "Báo cáo sự cố (Bugs)",
+    bugReports: "Báo cáo sự cố",
     finance: "Tài chính & Thanh toán",
     paymentReports: "Báo cáo thanh toán",
     refunds: "Yêu cầu hoàn tiền",

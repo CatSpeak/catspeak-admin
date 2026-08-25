@@ -127,7 +127,7 @@ const AppSidebar: React.FC = () => {
       },
       {
         section: t.nav.feedback,
-        name: t.nav.bugReports || "Báo cáo sự cố (Bugs)",
+        name: t.nav.bugReports || "Báo cáo sự cố",
         icon: <Bug size={20} />,
         path: "/bug-reports",
         permission: "bug_reports",
