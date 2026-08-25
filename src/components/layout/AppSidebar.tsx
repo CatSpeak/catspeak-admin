@@ -111,8 +111,14 @@ const AppSidebar: React.FC = () => {
         path: "/refunds",
         permission: "payment_reports",
       },
+      // {
+      //   name: t.nav.transactionManagement || "Báo cáo thanh toán",
+      //   icon: <CreditCard size={20} />,
+      //   path: "/payments",
+      //   permission: "payment_reports",
+      // },
       {
-        name: t.nav.transactionManagement || "Báo cáo thanh toán",
+        name: t.nav.transactionManagement || "Quản lý giao dịch",
         icon: <CreditCard size={20} />,
         path: "/payments",
         permission: "payment_reports",
