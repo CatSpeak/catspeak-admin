@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Ban,
 } from "lucide-react";
+import { useLanguage } from "../../../stores/languageStore";
 
 export interface PaymentIssuesMetrics {
   total: number;
@@ -18,11 +19,14 @@ export interface PaymentIssuesMetrics {
 
 interface PaymentIssuesSummaryCardsProps {
   metrics: PaymentIssuesMetrics;
+  loading?: boolean;
 }
 
 export default function PaymentIssuesSummaryCards({
   metrics,
 }: PaymentIssuesSummaryCardsProps) {
+  const { t } = useLanguage();
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
       {/* Tổng số yêu cầu */}
@@ -32,7 +36,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Tổng yêu cầu
+            {t.reports?.totalClaims || "Tổng yêu cầu"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-gray-900 block mt-0.5">
             {metrics.total}
@@ -47,7 +51,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Báo cáo sự cố
+            {t.reports?.issueReport || "Báo cáo sự cố"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-purple-700 block mt-0.5">
             {metrics.reports}
@@ -62,7 +66,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Yêu cầu hoàn tiền
+            {t.reports?.refundRequest || "Yêu cầu hoàn tiền"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-orange-600 block mt-0.5">
             {metrics.refunds}
@@ -77,7 +81,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Chờ xử lý
+            {t.reports?.pendingAction || "Chờ xử lý"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-amber-600 block mt-0.5 animate-pulse">
             {metrics.pending}
@@ -92,7 +96,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Đã duyệt / Chấp nhận
+            {t.reports?.approvedOrAccepted || "Đã duyệt / Chấp nhận"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-emerald-700 block mt-0.5">
             {metrics.approved}
@@ -107,7 +111,7 @@ export default function PaymentIssuesSummaryCards({
         </div>
         <div className="min-w-0">
           <span className="text-[11px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider block truncate">
-            Từ chối / Thất bại
+            {t.reports?.deniedOrFailed || "Từ chối / Thất bại"}
           </span>
           <span className="text-xl sm:text-2xl font-bold text-rose-700 block mt-0.5">
             {metrics.rejected}

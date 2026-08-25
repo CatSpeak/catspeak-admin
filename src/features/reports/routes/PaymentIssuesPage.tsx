@@ -146,7 +146,9 @@ export default function PaymentIssuesPage() {
       await processPaymentReport(selectedReport.reportId, { action, reason });
       addToast(
         "success",
-        `Báo cáo sự cố #${selectedReport.reportId} đã được ${action === "Accept" ? "chấp nhận" : "từ chối"} thành công.`,
+        action === "Accept"
+          ? (t.reports?.reportAcceptedSuccess || `Báo cáo sự cố #${selectedReport.reportId} đã được chấp nhận thành công.`).replace("{id}", String(selectedReport.reportId))
+          : (t.reports?.reportDeniedSuccess || `Báo cáo sự cố #${selectedReport.reportId} đã bị từ chối.`).replace("{id}", String(selectedReport.reportId)),
       );
       setRefreshTrigger((prev) => prev + 1);
     } finally {
@@ -163,8 +165,9 @@ export default function PaymentIssuesPage() {
       addToast(
         "success",
         res.message ||
-        `Yêu cầu hoàn tiền #${selectedRefund.refundId} đã được ${action === "Approve" ? "phê duyệt và chuyển khoản" : "từ chối"
-        } thành công.`,
+        (action === "Approve"
+          ? (t.reports?.refundApprovedSuccess || `Yêu cầu hoàn tiền #${selectedRefund.refundId} đã được phê duyệt và chuyển khoản thành công.`).replace("{id}", String(selectedRefund.refundId))
+          : (t.reports?.refundRejectedSuccess || `Yêu cầu hoàn tiền #${selectedRefund.refundId} đã bị từ chối.`).replace("{id}", String(selectedRefund.refundId))),
       );
       setRefreshTrigger((prev) => prev + 1);
     } finally {
@@ -177,14 +180,14 @@ export default function PaymentIssuesPage() {
       {/* Header */}
       <PageHeader
         icon={<DollarSign />}
-        title={t.reports?.paymentReportsTitle || "Quản Lý Báo Cáo & Hoàn Tiền"}
+        title={t.reports?.paymentIssuesTitle || "Quản Lý Báo Cáo & Hoàn Tiền"}
         desc={
-          t.reports?.paymentReportsDesc ||
-          "Xử lý tập trung các khiếu nại báo cáo giao dịch và phê duyệt hoàn tiền tự động qua PayOS Gateway."
+          t.reports?.paymentIssuesDesc ||
+          "Xử lý các khiếu nại báo cáo giao dịch và phê duyệt hoàn tiền tự động qua PayOS Gateway."
         }
       />
 
-      {/* PayOS Payout Balance Widget */}
+      {/* PayOS Payout Balance Widget (Từ /refunds) */}
       <PayoutBalanceWidget key={refreshTrigger} />
 
       {/* Summary Metrics Cards */}
@@ -244,7 +247,7 @@ export default function PaymentIssuesPage() {
         headers={[
           {
             id: "paymentId",
-            name: "Mã giao dịch",
+            name: t.reports?.transactionId || "Mã giao dịch",
             accessorKey: "paymentId",
             render: (r) => (
               <div className="flex flex-col">
@@ -259,17 +262,21 @@ export default function PaymentIssuesPage() {
           },
           {
             id: "type",
-            name: "Loại yêu cầu",
+            name: t.reports?.requestType || "Loại yêu cầu",
             accessorKey: "type",
             showFilter: true,
             values: ["ALL", "REPORT", "REFUND"],
-            valueLabels: ["Tất cả", "Báo cáo sự cố", "Yêu cầu hoàn tiền"],
+            valueLabels: [
+              t.common?.all || "Tất cả",
+              t.reports?.issueReport || "Báo cáo sự cố",
+              t.reports?.refundRequest || "Yêu cầu hoàn tiền",
+            ],
             render: (r) => (
               <div>
                 {r.type === "REPORT" ? (
-                  <Badge title="Báo cáo" type="Purple" showDot />
+                  <Badge title={t.reports?.issueReport || "Báo cáo"} type="Purple" showDot />
                 ) : (
-                  <Badge title="Hoàn tiền" type="Orange" showDot />
+                  <Badge title={t.reports?.refundRequest || "Hoàn tiền"} type="Orange" showDot />
                 )}
               </div>
             ),
@@ -303,14 +310,14 @@ export default function PaymentIssuesPage() {
                     <span className="font-bold text-gray-950 text-xs">
                       {formatAmount(r.amountVnd)}
                     </span>
-                    <span className="text-[10px] text-gray-400">Giá trị đơn</span>
+                    <span className="text-[10px] text-gray-400">{t.reports?.orderValue || "Giá trị đơn"}</span>
                   </>
                 ) : (
                   <>
                     <span className="font-extrabold text-orange-600 text-xs">
                       -{formatAmount(r.amountVnd)}
                     </span>
-                    <span className="text-[10px] text-orange-400 font-medium">Tiền hoàn</span>
+                    <span className="text-[10px] text-orange-400 font-medium">{t.reports?.refundAmount || "Tiền hoàn"}</span>
                   </>
                 )}
               </div>
@@ -319,7 +326,7 @@ export default function PaymentIssuesPage() {
           },
           {
             id: "reason",
-            name: "Lý do hoàn tiền",
+            name: t.reports?.reasonReported || "Lý do hoàn tiền",
             accessorKey: "reason",
             render: (r) => (
               <div className="max-w-xs md:max-w-md space-y-1">
@@ -328,7 +335,7 @@ export default function PaymentIssuesPage() {
                 </p>
                 {r.type === "REPORT" && r.proofUrl && (
                   <span className="inline-flex items-center gap-1 text-[11px] text-primary font-medium">
-                    <ImageIcon className="w-3 h-3" /> Có ảnh hóa đơn
+                    <ImageIcon className="w-3 h-3" /> {t.reports?.hasProof || "Có ảnh hóa đơn"}
                   </span>
                 )}
               </div>
@@ -354,29 +361,34 @@ export default function PaymentIssuesPage() {
             accessorKey: "status",
             showFilter: true,
             values: [0, 1, 2, 3],
-            valueLabels: ["Chờ xử lý", "Đã chấp nhận / Hoàn tiền", "Từ chối", "Thất bại"],
+            valueLabels: [
+              t.reports?.statusPending || "Chờ xử lý",
+              t.reports?.approvedOrAccepted || "Đã chấp nhận / Hoàn tiền",
+              t.common?.rejected || "Từ chối",
+              t.reports?.statusTransferFailed || "Thất bại",
+            ],
             render: (r) => {
               if (r.type === "REPORT") {
                 switch (r.status) {
                   case 0:
-                    return <Badge title="Chờ xem xét" type="Yellow" showDot />;
+                    return <Badge title={t.reports?.statusPendingReview || "Chờ xem xét"} type="Yellow" showDot />;
                   case 1:
-                    return <Badge title="Đã chấp nhận" type="Green" showDot />;
+                    return <Badge title={t.reports?.statusAccepted || "Đã chấp nhận"} type="Green" showDot />;
                   case 2:
-                    return <Badge title="Từ chối" type="Red" showDot />;
+                    return <Badge title={t.common?.rejected || "Từ chối"} type="Red" showDot />;
                   default:
                     return <Badge title={`#${r.status}`} type="Gray" />;
                 }
               } else {
                 switch (r.status) {
                   case 0:
-                    return <Badge title="Chờ hoàn tiền" type="Yellow" showDot />;
+                    return <Badge title={t.reports?.statusPendingRefund || "Chờ hoàn tiền"} type="Yellow" showDot />;
                   case 1:
-                    return <Badge title="Đã chuyển tiền" type="Green" showDot />;
+                    return <Badge title={t.reports?.statusRefundTransferred || "Đã chuyển tiền"} type="Green" showDot />;
                   case 2:
-                    return <Badge title="Từ chối" type="Red" showDot />;
+                    return <Badge title={t.common?.rejected || "Từ chối"} type="Red" showDot />;
                   case 3:
-                    return <Badge title="Lỗi chuyển tiền" type="Orange" showDot />;
+                    return <Badge title={t.reports?.statusTransferFailed || "Lỗi chuyển tiền"} type="Orange" showDot />;
                   default:
                     return <Badge title={`#${r.status}`} type="Gray" />;
                 }
@@ -385,7 +397,7 @@ export default function PaymentIssuesPage() {
           },
           {
             id: "actions",
-            name: "Hành động",
+            name: t.common?.actions || "Hành động",
             allowSort: false,
             render: (r) => (
               <Button
@@ -397,7 +409,7 @@ export default function PaymentIssuesPage() {
                 }}
                 className="text-xs cursor-pointer shadow-none font-semibold"
               >
-                {r.status === 0 ? "Xử lý ngay" : "Xem chi tiết"}
+                {r.status === 0 ? (t.reports?.processNow || "Xử lý ngay") : (t.reports?.viewDetails || t.common?.detail || "Xem chi tiết")}
               </Button>
             ),
           },
