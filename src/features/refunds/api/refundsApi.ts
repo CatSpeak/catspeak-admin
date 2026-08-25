@@ -59,6 +59,7 @@ export interface GetRefundsResponse {
 export interface ProcessRefundPayload {
   action: "Approve" | "Reject";
   reason: string;
+  amount?: number;
 }
 
 export interface ProcessRefundResponse {

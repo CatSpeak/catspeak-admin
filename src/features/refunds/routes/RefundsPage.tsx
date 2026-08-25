@@ -56,6 +56,7 @@ export default function RefundsPage() {
   const handleProcessRefund = async (
     action: "Approve" | "Reject",
     reason: string,
+    amount?: number,
   ) => {
     if (!selectedRefund) return
     setIsProcessing(true)
@@ -63,6 +64,7 @@ export default function RefundsPage() {
       const res = await processRefund(selectedRefund.refundId, {
         action,
         reason,
+        amount,
       })
       addToast(
         "success",
