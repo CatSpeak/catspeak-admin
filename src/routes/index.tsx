@@ -15,8 +15,10 @@ const UserDetailPage = lazy(() => import("../features/users/routes/UserDetailPag
 const StaffsPage = lazy(() => import("../features/staffs/routes/StaffsPage"));
 const StaffDetailPage = lazy(() => import("../features/staffs/routes/StaffDetailPage"));
 const HandleReportsPage = lazy(() => import("../features/reports/routes/HandleReportsPage"));
-const PaymentReportsPage = lazy(() => import("../features/reports/routes/PaymentReportsPage"));
-const RefundsPage = lazy(() => import("../features/refunds/routes/RefundsPage"));
+// const PaymentReportsPage = lazy(() => import("../features/reports/routes/PaymentReportsPage"));
+const PaymentIssuesPage = lazy(() => import("../features/reports/routes/PaymentIssuesPage"));
+const PaymentsPage = lazy(() => import("../features/payments/routes/PaymentsPage"));
+// const RefundsPage = lazy(() => import("../features/refunds/routes/RefundsPage"));
 const LiveChatPage = lazy(() => import("../features/chat/routes/LiveChatPage"));
 const NewsPage = lazy(() => import("../features/news/routes/NewsPage"));
 const CalendarPage = lazy(() => import("../features/calendar/routes/CalendarPage"));
@@ -76,8 +78,10 @@ export const router = createBrowserRouter([
           { path: "staffs", element: guard(StaffsPage, "staffs") },
           { path: "staffs/:id", element: guard(StaffDetailPage, "staffs") },
           { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
-          { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
-          { path: "refunds", element: guard(RefundsPage, "payment_reports") },
+          // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
+          { path: "payments", element: guard(PaymentsPage, "payment_reports") },
+          { path: "payment-reports", element: guard(PaymentIssuesPage, "payment_reports") },
+          // { path: "refunds", element: guard(RefundsPage, "payment_reports") },
           { path: "live-chat", element: wrap(LiveChatPage) },
           { path: "news", element: guard(NewsPage, "news") },
           { path: "calendar", element: guard(CalendarPage, "calendar") },
