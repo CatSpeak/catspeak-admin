@@ -973,6 +973,7 @@ const zh = {
     },
   },
   common: {
+    note: "注意",
     refresh: "刷新",
     error: "错误",
     search: "搜索",
