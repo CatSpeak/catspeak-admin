@@ -1017,6 +1017,7 @@ const vi = {
     },
   },
   common: {
+    note: "Chú ý",
     refresh: "Làm mới",
     error: "Lỗi",
     search: "Tìm kiếm",
