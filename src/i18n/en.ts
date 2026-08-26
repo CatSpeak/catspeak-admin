@@ -1014,6 +1014,7 @@ const en = {
     },
   },
   common: {
+    note: "Note",
     refresh: "Refresh",
     error: "Error",
     search: "Search",
