@@ -71,11 +71,13 @@ export default function ReportDialog({
     };
   }, [id]);
 
-  // Focus trap & Escape key listener
+  // Focus initial element on mount
   useEffect(() => {
-    const previouslyActive = document.activeElement as HTMLElement;
     closeButtonRef.current?.focus();
+  }, []);
 
+  // Escape key listener & focus trap
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (showDeleteModal) {
@@ -107,7 +109,6 @@ export default function ReportDialog({
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      previouslyActive?.focus();
     };
   }, [onClose, showDeleteModal]);
 
@@ -165,7 +166,7 @@ export default function ReportDialog({
       >
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 animate-[fadeIn_150ms_ease-out]"
+          className="absolute -inset-10 bg-black/40 backdrop-blur-xs transition-opacity duration-300 animate-[fadeIn_150ms_ease-out]"
           onClick={onClose}
         />
 

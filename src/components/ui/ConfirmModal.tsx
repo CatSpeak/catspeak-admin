@@ -90,13 +90,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-70 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-[fadeIn_150ms_ease-out]"
+        className="fixed -inset-10 bg-black/35 backdrop-blur-xs transition-opacity animate-[fadeIn_150ms_ease-out]"
         onClick={() => !isLoading && onClose()}
       />
 
