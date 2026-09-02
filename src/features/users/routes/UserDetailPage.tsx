@@ -29,7 +29,11 @@ import { formatDateTime } from "../../../lib/utils";
 import { useAuthStore } from "../../../stores/authStore";
 import { promoteUserToStaff } from "../../staffs/api/permissions";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
-import { UserPlus } from "lucide-react";
+import { UserPlus, LockOpen, ShieldCheck, ChevronDown } from "lucide-react";
+import { Dropdown } from "../../../components/ui/dropdown/Dropdown";
+import { DropdownItem } from "../../../components/ui/dropdown/DropdownItem";
+import { unlockUser } from "../api/unlockUser";
+import { activateUser } from "../api/activateUser";
 
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -60,6 +64,15 @@ export default function UserDetailPage() {
     text: string;
   } | null>(null);
 
+  const [isActionsOpen, setIsActionsOpen] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [showUnlockConfirm, setShowUnlockConfirm] = useState(false);
+  const [showActivateConfirm, setShowActivateConfirm] = useState(false);
+  const [unlockReason, setUnlockReason] = useState("");
+  const [activateReason, setActivateReason] = useState("");
+  const [actionMsg, setActionMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const executePromoteToStaff = async () => {
     if (!user || !isPrimaryAdmin) return;
     try {
@@ -73,6 +86,40 @@ export default function UserDetailPage() {
       setPromoteMsg({ type: "error", text: getApiErrorMessage(err, "Không thể thăng cấp người dùng thành Staff.") });
     } finally {
       setPromoting(false);
+    }
+  };
+
+  const executeUnlock = async () => {
+    if (!user) return;
+    try {
+      setUnlocking(true);
+      setActionMsg(null);
+      const res = await unlockUser(user.accountId, unlockReason || undefined);
+      setActionMsg({ type: "success", text: res.message });
+      setUnlockReason("");
+      setShowUnlockConfirm(false);
+      if (refetch) await refetch();
+    } catch (err) {
+      setActionMsg({ type: "error", text: getApiErrorMessage(err, t.users.unlockFailed) });
+    } finally {
+      setUnlocking(false);
+    }
+  };
+
+  const executeActivate = async () => {
+    if (!user) return;
+    try {
+      setActivating(true);
+      setActionMsg(null);
+      const res = await activateUser(user.accountId, activateReason || undefined);
+      setActionMsg({ type: "success", text: res.message });
+      setActivateReason("");
+      setShowActivateConfirm(false);
+      if (refetch) await refetch();
+    } catch (err) {
+      setActionMsg({ type: "error", text: getApiErrorMessage(err, t.users.activateFailed) });
+    } finally {
+      setActivating(false);
     }
   };
 
@@ -315,16 +362,40 @@ export default function UserDetailPage() {
           </h1>
 
           <div className="flex items-center gap-3">
-            {isPrimaryAdmin && user.roleId === 2 && (
+            <div className="relative">
               <button
-                onClick={() => setShowPromoteConfirm(true)}
-                disabled={promoting}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 shadow-xs hover:shadow transition-all shrink-0 cursor-pointer disabled:opacity-50"
+                type="button"
+                onClick={() => setIsActionsOpen((o) => !o)}
+                className="dropdown-toggle inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
               >
-                <UserPlus className="w-4 h-4" />
-                <span>{promoting ? "Đang thăng cấp..." : "Thăng Cấp Thành Staff"}</span>
+                <span>{t.users.actions}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform ${isActionsOpen ? "rotate-180" : ""}`} />
               </button>
-            )}
+              <Dropdown isOpen={isActionsOpen} onClose={() => setIsActionsOpen(false)} className="absolute right-0 mt-2 w-64 p-1.5">
+                {user.isLocked && (
+                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowUnlockConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                    <LockOpen className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-semibold">{t.users.unlockAccount}</span>
+                    {user.remainingMinutes && <span className="ml-auto text-xs text-amber-600">{t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}</span>}
+                  </DropdownItem>
+                )}
+                {user.isPendingActivation && (
+                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowActivateConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span className="text-sm font-semibold">{t.users.activateManual}</span>
+                  </DropdownItem>
+                )}
+                {isPrimaryAdmin && user.roleId === 2 && (
+                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowPromoteConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                    <UserPlus className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold">{t.users.promoteToStaff}</span>
+                  </DropdownItem>
+                )}
+                {!user.isLocked && !user.isPendingActivation && !(isPrimaryAdmin && user.roleId === 2) && (
+                  <div className="px-3 py-2.5 text-sm text-gray-400 text-center">{t.users.noAvailableActions}</div>
+                )}
+              </Dropdown>
+            </div>
 
             <ConfirmModal
               isOpen={showPromoteConfirm}
@@ -344,6 +415,56 @@ export default function UserDetailPage() {
               confirmText="Thăng cấp thành Staff"
               variant="primary"
               isLoading={promoting}
+            />
+
+            <ConfirmModal
+              isOpen={showUnlockConfirm}
+              onClose={() => { if (!unlocking) setShowUnlockConfirm(false); }}
+              onConfirm={executeUnlock}
+              title={t.users.confirmUnlockTitle}
+              description={
+                <span>
+                  {t.users.confirmUnlockDesc.replace("{username}", user.username)}
+                  <div className="mt-3 text-left">
+                    <label className="text-xs font-bold text-gray-600">{t.users.reasonLabel}</label>
+                    <input
+                      type="text"
+                      value={unlockReason}
+                      onChange={(e) => setUnlockReason(e.target.value)}
+                      placeholder={t.users.reasonUnlockPlaceholder}
+                      className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </span>
+              }
+              confirmText={t.users.unlock}
+              variant="warning"
+              isLoading={unlocking}
+            />
+
+            <ConfirmModal
+              isOpen={showActivateConfirm}
+              onClose={() => { if (!activating) setShowActivateConfirm(false); }}
+              onConfirm={executeActivate}
+              title={t.users.confirmActivateTitle}
+              description={
+                <span>
+                  {t.users.confirmActivateDesc.replace("{username}", user.username)}
+                  <div className="mt-3 text-left">
+                    <label className="text-xs font-bold text-gray-600">{t.users.reasonLabel}</label>
+                    <input
+                      type="text"
+                      value={activateReason}
+                      onChange={(e) => setActivateReason(e.target.value)}
+                      placeholder={t.users.reasonActivatePlaceholder}
+                      className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </span>
+              }
+              confirmText={t.users.activate}
+              variant="primary"
+              isLoading={activating}
             />
 
             <button
@@ -374,6 +495,23 @@ export default function UserDetailPage() {
         </div>
       )}
 
+      {actionMsg && (
+        <div
+          className={`p-4 rounded-2xl border text-sm font-semibold flex items-center gap-2 ${
+            actionMsg.type === "success"
+              ? "bg-success-50 text-success-700 border-success-100"
+              : "bg-error-50 text-error-700 border-error-100"
+          }`}
+        >
+          {actionMsg.type === "success" ? (
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          ) : (
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+          )}
+          <span>{actionMsg.text}</span>
+        </div>
+      )}
+
       {/* Profile Banner */}
       <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-6 transition-all hover:shadow-md">
         {/* Avatar Frame with Gradient */}
@@ -398,6 +536,16 @@ export default function UserDetailPage() {
             >
               {user.status !== 0 ? t.common.active : t.users.banned}
             </span>
+            {user.isLocked && (
+              <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">
+                {t.users.lockedBadge}{user.remainingMinutes ? ` • ${t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}` : ""}
+              </span>
+            )}
+            {user.isPendingActivation && (
+              <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-blue-50 text-blue-700 border-blue-200">
+                {t.users.pendingActivationBadge}
+              </span>
+            )}
           </div>
 
           <p className="text-sm text-gray-500 font-medium flex items-center justify-center md:justify-start gap-1.5">
