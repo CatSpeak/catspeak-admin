@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MoreVertical } from "lucide-react";
 import { useLanguage } from "../../../../stores/languageStore";
@@ -50,6 +50,17 @@ export default function ActionsMenu<T>({
       zIndex: 9999,
     };
   };
+
+  // If headers memo depends on openMenuId, the menu instance remounts when
+  // isOpen flips. Sync toggle alone would lose stylePos on the new instance,
+  // so also compute position whenever isOpen becomes true.
+  useLayoutEffect(() => {
+    if (isOpen) {
+      setStylePos(calculatePosition());
+    } else {
+      setStylePos(null);
+    }
+  }, [isOpen]);
 
   // Position is computed synchronously on toggle; keep it fresh on resize.
   // Scroll no longer auto-closes the menu (was causing flicker on table scroll).
