@@ -73,7 +73,7 @@ export default function UsersPage() {
       setShowUnlockConfirm(false)
       setSelectedForUnlock(null)
     } catch (err) {
-      setActionError(getApiErrorMessage(err, "Không thể mở khóa tài khoản."))
+      setActionError(getApiErrorMessage(err, t.users.unlockFailed))
     } finally {
       setUnlocking(false)
     }
@@ -91,7 +91,7 @@ export default function UsersPage() {
       setShowActivateConfirm(false)
       setSelectedForActivate(null)
     } catch (err) {
-      setActionError(getApiErrorMessage(err, "Không thể kích hoạt tài khoản."))
+      setActionError(getApiErrorMessage(err, t.users.activateFailed))
     } finally {
       setActivating(false)
     }
@@ -256,7 +256,7 @@ export default function UsersPage() {
             ),
           },
           {
-            name: "Thao tác",
+            name: t.users.actions,
             accessorKey: "actions",
             render: (p) => {
               const isStaff = p.roleId === 3 || p.roleName === "Staff"
@@ -287,11 +287,11 @@ export default function UsersPage() {
                         setSelectedForUnlock(p)
                         setShowUnlockConfirm(true)
                       }}
-                      title={p.remainingMinutes ? `Còn ${p.remainingMinutes} phút` : "Đang bị khóa"}
+                      title={p.remainingMinutes ? t.users.remainingMinutes.replace("{minutes}", String(p.remainingMinutes)) : t.users.lockedBadge}
                       className="px-2.5 py-1.5 text-xs font-bold rounded-lg text-amber-700 border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <LockOpen className="w-3.5 h-3.5" />
-                      <span>Mở khóa</span>
+                      <span>{t.users.unlock}</span>
                     </button>
                   )}
                   {p.isPendingActivation && (
@@ -304,7 +304,7 @@ export default function UsersPage() {
                       className="px-2.5 py-1.5 text-xs font-bold rounded-lg text-emerald-700 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition-colors flex items-center gap-1 cursor-pointer"
                     >
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Kích hoạt</span>
+                      <span>{t.users.activate}</span>
                     </button>
                   )}
                   {isPrimaryAdmin && (
@@ -317,7 +317,7 @@ export default function UsersPage() {
                       className="px-3 py-1.5 text-xs font-bold rounded-lg text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center gap-1.5 cursor-pointer"
                     >
                       <UserPlus className="w-3.5 h-3.5" />
-                      <span>Thăng lên Staff</span>
+                      <span>{t.users.promoteToStaffShort}</span>
                     </button>
                   )}
                   {!p.isLocked && !p.isPendingActivation && !isPrimaryAdmin && (
@@ -368,13 +368,13 @@ export default function UsersPage() {
           }
         }}
         onConfirm={executeUnlock}
-        title="Xác nhận mở khóa tài khoản"
+        title={t.users.confirmUnlockTitle}
         description={
           <span>
-            Bạn có chắc chắn muốn mở khóa tài khoản <strong className="text-gray-900">'{selectedForUnlock?.username}'</strong>?
+            {selectedForUnlock ? t.users.confirmUnlockDesc.replace("{username}", selectedForUnlock.username) : ""}
           </span>
         }
-        confirmText="Mở khóa"
+        confirmText={t.users.unlock}
         variant="warning"
         isLoading={unlocking}
       />
@@ -388,13 +388,13 @@ export default function UsersPage() {
           }
         }}
         onConfirm={executeActivate}
-        title="Xác nhận kích hoạt thủ công"
+        title={t.users.confirmActivateTitle}
         description={
           <span>
-            Bạn có chắc chắn muốn kích hoạt thủ công tài khoản <strong className="text-gray-900">'{selectedForActivate?.username}'</strong>?
+            {selectedForActivate ? t.users.confirmActivateDesc.replace("{username}", selectedForActivate.username) : ""}
           </span>
         }
-        confirmText="Kích hoạt"
+        confirmText={t.users.activate}
         variant="primary"
         isLoading={activating}
       />

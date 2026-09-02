@@ -100,7 +100,7 @@ export default function UserDetailPage() {
       setShowUnlockConfirm(false);
       if (refetch) await refetch();
     } catch (err) {
-      setActionMsg({ type: "error", text: getApiErrorMessage(err, "Không thể mở khóa tài khoản.") });
+      setActionMsg({ type: "error", text: getApiErrorMessage(err, t.users.unlockFailed) });
     } finally {
       setUnlocking(false);
     }
@@ -117,7 +117,7 @@ export default function UserDetailPage() {
       setShowActivateConfirm(false);
       if (refetch) await refetch();
     } catch (err) {
-      setActionMsg({ type: "error", text: getApiErrorMessage(err, "Không thể kích hoạt tài khoản.") });
+      setActionMsg({ type: "error", text: getApiErrorMessage(err, t.users.activateFailed) });
     } finally {
       setActivating(false);
     }
@@ -368,31 +368,31 @@ export default function UserDetailPage() {
                 onClick={() => setIsActionsOpen((o) => !o)}
                 className="dropdown-toggle inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
               >
-                <span>Thao tác</span>
+                <span>{t.users.actions}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isActionsOpen ? "rotate-180" : ""}`} />
               </button>
               <Dropdown isOpen={isActionsOpen} onClose={() => setIsActionsOpen(false)} className="absolute right-0 mt-2 w-64 p-1.5">
                 {user.isLocked && (
                   <DropdownItem onClick={() => { setIsActionsOpen(false); setShowUnlockConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
                     <LockOpen className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-semibold">Mở khóa tài khoản</span>
-                    {user.remainingMinutes && <span className="ml-auto text-xs text-amber-600">còn {user.remainingMinutes} phút</span>}
+                    <span className="text-sm font-semibold">{t.users.unlockAccount}</span>
+                    {user.remainingMinutes && <span className="ml-auto text-xs text-amber-600">{t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}</span>}
                   </DropdownItem>
                 )}
                 {user.isPendingActivation && (
                   <DropdownItem onClick={() => { setIsActionsOpen(false); setShowActivateConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
                     <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="text-sm font-semibold">Kích hoạt thủ công</span>
+                    <span className="text-sm font-semibold">{t.users.activateManual}</span>
                   </DropdownItem>
                 )}
                 {isPrimaryAdmin && user.roleId === 2 && (
                   <DropdownItem onClick={() => { setIsActionsOpen(false); setShowPromoteConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
                     <UserPlus className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-semibold">Thăng Cấp Thành Staff</span>
+                    <span className="text-sm font-semibold">{t.users.promoteToStaff}</span>
                   </DropdownItem>
                 )}
                 {!user.isLocked && !user.isPendingActivation && !(isPrimaryAdmin && user.roleId === 2) && (
-                  <div className="px-3 py-2.5 text-sm text-gray-400 text-center">Không có thao tác khả dụng</div>
+                  <div className="px-3 py-2.5 text-sm text-gray-400 text-center">{t.users.noAvailableActions}</div>
                 )}
               </Dropdown>
             </div>
@@ -421,23 +421,23 @@ export default function UserDetailPage() {
               isOpen={showUnlockConfirm}
               onClose={() => { if (!unlocking) setShowUnlockConfirm(false); }}
               onConfirm={executeUnlock}
-              title="Xác nhận mở khóa tài khoản"
+              title={t.users.confirmUnlockTitle}
               description={
                 <span>
-                  Bạn có chắc chắn muốn mở khóa tài khoản <strong className="text-gray-900">'{user.username}'</strong> đang bị khóa do đăng nhập sai nhiều lần?
+                  {t.users.confirmUnlockDesc.replace("{username}", user.username)}
                   <div className="mt-3 text-left">
-                    <label className="text-xs font-bold text-gray-600">Lý do (không bắt buộc)</label>
+                    <label className="text-xs font-bold text-gray-600">{t.users.reasonLabel}</label>
                     <input
                       type="text"
                       value={unlockReason}
                       onChange={(e) => setUnlockReason(e.target.value)}
-                      placeholder="Nhập lý do mở khóa..."
+                      placeholder={t.users.reasonUnlockPlaceholder}
                       className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </span>
               }
-              confirmText="Mở khóa"
+              confirmText={t.users.unlock}
               variant="warning"
               isLoading={unlocking}
             />
@@ -446,23 +446,23 @@ export default function UserDetailPage() {
               isOpen={showActivateConfirm}
               onClose={() => { if (!activating) setShowActivateConfirm(false); }}
               onConfirm={executeActivate}
-              title="Xác nhận kích hoạt thủ công"
+              title={t.users.confirmActivateTitle}
               description={
                 <span>
-                  Bạn có chắc chắn muốn kích hoạt thủ công tài khoản <strong className="text-gray-900">'{user.username}'</strong> đang chờ xác thực email?
+                  {t.users.confirmActivateDesc.replace("{username}", user.username)}
                   <div className="mt-3 text-left">
-                    <label className="text-xs font-bold text-gray-600">Lý do (không bắt buộc)</label>
+                    <label className="text-xs font-bold text-gray-600">{t.users.reasonLabel}</label>
                     <input
                       type="text"
                       value={activateReason}
                       onChange={(e) => setActivateReason(e.target.value)}
-                      placeholder="Nhập lý do kích hoạt..."
+                      placeholder={t.users.reasonActivatePlaceholder}
                       className="mt-1 w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                   </div>
                 </span>
               }
-              confirmText="Kích hoạt"
+              confirmText={t.users.activate}
               variant="primary"
               isLoading={activating}
             />
@@ -538,12 +538,12 @@ export default function UserDetailPage() {
             </span>
             {user.isLocked && (
               <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">
-                Đang bị khóa{user.remainingMinutes ? ` • còn ${user.remainingMinutes} phút` : ""}
+                {t.users.lockedBadge}{user.remainingMinutes ? ` • ${t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}` : ""}
               </span>
             )}
             {user.isPendingActivation && (
               <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-blue-50 text-blue-700 border-blue-200">
-                Chờ kích hoạt
+                {t.users.pendingActivationBadge}
               </span>
             )}
           </div>
