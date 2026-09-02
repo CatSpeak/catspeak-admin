@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useCallback, useMemo } from "react"
 import Badge from "../../../components/ui/Badge"
 import { UsersRound, UserPlus, LockOpen, ShieldCheck } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
@@ -23,6 +23,7 @@ import { useAuthStore } from "../../../stores/authStore"
 import { promoteUserToStaff } from "../../staffs/api/permissions"
 import { ConfirmModal } from "../../../components/ui/ConfirmModal"
 import { getApiErrorMessage } from "../../../lib/axios"
+import type { TableHeader } from "../../../components/ui/table/types"
 
 export default function UsersPage() {
   const navigate = useNavigate()
@@ -99,91 +100,70 @@ export default function UsersPage() {
     }
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <PageHeader
-        icon={<UsersRound />}
-        title={t.users.title}
-        desc={t.users.desc}
-      />
+  const fetcher = useCallback(async (page: number, pageSize: number) => {
+    const res = await getAccounts(page, pageSize)
+    return {
+      data: res.data,
+      total: res.additionalData?.totalCount ?? res.total_records ?? 0,
+    }
+  }, [])
 
-      {actionError && (
-        <div className="p-4 rounded-xl bg-error-50 border border-error-150 text-error-700 text-xs font-semibold">
-          {actionError}
-        </div>
-      )}
+  const sorter = useCallback(async (attribute: string, sortOrder: string | undefined) => {
+    let sortBy: UserSortBy | undefined = undefined
+    if (attribute === "username") sortBy = "Username"
+    else if (attribute === "createDate") sortBy = "CreateDate"
 
-      {actionSuccess && (
-        <div className="p-4 rounded-xl bg-success-50 border border-success-150 text-success-700 text-xs font-semibold">
-          {actionSuccess}
-        </div>
-      )}
+    const order =
+      sortOrder === "asc"
+        ? "Asc"
+        : sortOrder === "desc"
+          ? "Desc"
+          : undefined
+    const res = await getAccounts({ SortBy: sortBy, SortOrder: order as UserSortBy extends string ? "Asc" | "Desc" | undefined : never })
+    return {
+      data: res.data,
+      total: res.additionalData?.totalCount ?? res.total_records ?? 0,
+    }
+  }, [])
 
-      <Table<Account>
-        key={refreshKey}
-        fetcher={async (page, pageSize) => {
-          const res = await getAccounts(page, pageSize)
+  const filter = useCallback(async (attribute: string, value: unknown, toDate?: string) => {
+    const params: GetUsersParams = {}
+    if (attribute === "global") {
+      params.SearchKeyword = value ? String(value) : undefined
+    } else if (attribute === "phoneNumber") {
+      params.PhoneNumber = value ? String(value) : undefined
+    } else if (attribute === "country" && value) {
+      params.Countries = Array.isArray(value)
+        ? value.map(String)
+        : [String(value)]
+    } else if (attribute === "level" && value) {
+      params.Levels = Array.isArray(value)
+        ? value.map(String)
+        : [String(value)]
+    } else if (
+      attribute === "createDate" ||
+      attribute === "dateJoined" ||
+      attribute === "fromDate"
+    ) {
+      const from =
+        typeof value === "string"
+          ? value
+          : Array.isArray(value)
+            ? value[0]
+            : undefined
+      const to = toDate || (Array.isArray(value) ? value[1] : undefined)
+      params.FromDate = formatDateToUtcStartOfDay(from)
+      params.ToDate = formatDateToUtcEndOfDay(to)
+    }
+    const res = await getAccounts(params)
+    return {
+      data: res.data,
+      total: res.additionalData?.totalCount ?? res.total_records ?? 0,
+    }
+  }, [])
 
-          return {
-            data: res.data,
-            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
-          }
-        }}
-        sorter={async (attribute, sortOrder) => {
-          let sortBy: UserSortBy | undefined = undefined
-          if (attribute === "username") sortBy = "Username"
-          else if (attribute === "createDate") sortBy = "CreateDate"
-
-          const order =
-            sortOrder === "asc"
-              ? "Asc"
-              : sortOrder === "desc"
-                ? "Desc"
-                : undefined
-          const res = await getAccounts({ SortBy: sortBy, SortOrder: order })
-          return {
-            data: res.data,
-            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
-          }
-        }}
-        filter={async (attribute, value, toDate) => {
-          const params: GetUsersParams = {}
-          if (attribute === "global") {
-            params.SearchKeyword = value ? String(value) : undefined
-          } else if (attribute === "phoneNumber") {
-            params.PhoneNumber = value ? String(value) : undefined
-          } else if (attribute === "country" && value) {
-            params.Countries = Array.isArray(value)
-              ? value.map(String)
-              : [String(value)]
-          } else if (attribute === "level" && value) {
-            params.Levels = Array.isArray(value)
-              ? value.map(String)
-              : [String(value)]
-          } else if (
-            attribute === "createDate" ||
-            attribute === "dateJoined" ||
-            attribute === "fromDate"
-          ) {
-            const from =
-              typeof value === "string"
-                ? value
-                : Array.isArray(value)
-                  ? value[0]
-                  : undefined
-            const to = toDate || (Array.isArray(value) ? value[1] : undefined)
-            params.FromDate = formatDateToUtcStartOfDay(from)
-            params.ToDate = formatDateToUtcEndOfDay(to)
-          }
-          const res = await getAccounts(params)
-          return {
-            data: res.data,
-            total: res.additionalData?.totalCount ?? res.total_records ?? 0,
-          }
-        }}
-        onClickRow={(r) => navigate(`/users/${r.accountId}`)}
-        headers={[
+  const headers: TableHeader<Account>[] = useMemo(
+    () => [
           {
             name: t.users.id,
             accessorKey: "accountId",
@@ -294,6 +274,10 @@ export default function UsersPage() {
           {
             name: t.users.actions,
             accessorKey: "actions",
+            pinned: "right",
+            width: 88,
+            headerClassName: "px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap",
+            cellClassName: "px-4 py-3 text-center",
             render: (p) => {
               const isAdmin = p.roleId === 1 || p.roleName === "Admin"
 
@@ -349,7 +333,38 @@ export default function UsersPage() {
               )
             },
           },
-        ]}
+    ],
+    [t, isPrimaryAdmin, openMenuId],
+  )
+
+  return (
+    <div className="space-y-6">
+      {/* Page Header */}
+      <PageHeader
+        icon={<UsersRound />}
+        title={t.users.title}
+        desc={t.users.desc}
+      />
+
+      {actionError && (
+        <div className="p-4 rounded-xl bg-error-50 border border-error-150 text-error-700 text-xs font-semibold">
+          {actionError}
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="p-4 rounded-xl bg-success-50 border border-success-150 text-success-700 text-xs font-semibold">
+          {actionSuccess}
+        </div>
+      )}
+
+      <Table<Account>
+        key={refreshKey}
+        fetcher={fetcher}
+        sorter={sorter as never}
+        filter={filter as never}
+        onClickRow={(r) => navigate(`/users/${r.accountId}`)}
+        headers={headers}
       />
 
       <ConfirmModal

@@ -45,6 +45,7 @@ export function useTableColumns<T>(
             headerClassName: h.headerClassName,
             cellClassName: h.cellClassName,
             width: h.width,
+            pinned: h.pinned,
           },
         } satisfies ColumnDef<T, unknown>;
       }),

@@ -28,14 +28,21 @@ export default function TableHeaderRow<T>({
             const meta = header.column.columnDef.meta
             const canSort = header.column.getCanSort()
             const sortDir = header.column.getIsSorted()
+            const isPinnedRight = meta?.pinned === "right"
+            const isPinnedLeft = meta?.pinned === "left"
+            const pinnedHeaderExtra = isPinnedRight
+              ? " sticky right-0 z-20 bg-primary shadow-[-2px_0_6px_rgba(0,0,0,0.08)] border-l border-white/15"
+              : isPinnedLeft
+                ? " sticky left-0 z-20 bg-primary shadow-[2px_0_6px_rgba(0,0,0,0.08)] border-r border-white/15"
+                : ""
+            const baseHeaderClass =
+              meta?.headerClassName ??
+              "px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
             return (
               <th
                 key={header.id}
                 style={meta?.width ? { width: meta.width } : undefined}
-                className={
-                  meta?.headerClassName ??
-                  "px-4 py-3 text-left text-sm font-bold tracking-wider whitespace-nowrap"
-                }
+                className={`${baseHeaderClass}${pinnedHeaderExtra}`}
               >
                 {canSort ? (
                   <button
@@ -75,7 +82,7 @@ export default function TableHeaderRow<T>({
           {hasActions && (
             <th
               key="actions-header"
-              className="px-4 py-3 text-center text-xs font-bold w-12"
+              className="px-4 py-3 text-center text-xs font-bold w-12 sticky right-0 z-20 bg-primary shadow-[-2px_0_6px_rgba(0,0,0,0.08)] border-l border-white/15"
             >
               <span className="sr-only">{t.common.actions}</span>
             </th>
