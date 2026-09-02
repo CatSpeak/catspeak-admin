@@ -17,6 +17,7 @@ declare module "@tanstack/react-table" {
     headerClassName?: string;
     cellClassName?: string;
     width?: number | string;
+    pinned?: "left" | "right";
   }
 }
 
@@ -115,6 +116,8 @@ export interface TableHeader<T> {
   width?: number | string;
   headerClassName?: string;
   cellClassName?: string;
+  /** Pin column to left or right (sticky). Used for actions column. */
+  pinned?: "left" | "right";
 }
 
 export interface TableAction<T> {
