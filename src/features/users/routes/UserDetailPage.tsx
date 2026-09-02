@@ -362,40 +362,43 @@ export default function UserDetailPage() {
           </h1>
 
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsActionsOpen((o) => !o)}
-                className="dropdown-toggle inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
-              >
-                <span>{t.users.actions}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isActionsOpen ? "rotate-180" : ""}`} />
-              </button>
-              <Dropdown isOpen={isActionsOpen} onClose={() => setIsActionsOpen(false)} className="absolute right-0 mt-2 w-64 p-1.5">
-                {user.isLocked && (
-                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowUnlockConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
-                    <LockOpen className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-semibold">{t.users.unlockAccount}</span>
-                    {user.remainingMinutes && <span className="ml-auto text-xs text-amber-600">{t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}</span>}
-                  </DropdownItem>
-                )}
-                {user.isPendingActivation && (
-                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowActivateConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span className="text-sm font-semibold">{t.users.activateManual}</span>
-                  </DropdownItem>
-                )}
-                {isPrimaryAdmin && user.roleId === 2 && (
-                  <DropdownItem onClick={() => { setIsActionsOpen(false); setShowPromoteConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
-                    <UserPlus className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-semibold">{t.users.promoteToStaff}</span>
-                  </DropdownItem>
-                )}
-                {!user.isLocked && !user.isPendingActivation && !(isPrimaryAdmin && user.roleId === 2) && (
-                  <div className="px-3 py-2.5 text-sm text-gray-400 text-center">{t.users.noAvailableActions}</div>
-                )}
-              </Dropdown>
-            </div>
+            {(() => {
+              const hasAnyAction = Boolean(user.isLocked || user.isPendingActivation || (isPrimaryAdmin && user.roleId === 2));
+              if (!hasAnyAction) return null;
+              return (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsActionsOpen((o) => !o)}
+                    className="dropdown-toggle inline-flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-xl text-white bg-primary hover:bg-primary-dark shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
+                  >
+                    <span>{t.users.actions}</span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isActionsOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  <Dropdown isOpen={isActionsOpen} onClose={() => setIsActionsOpen(false)} className="absolute right-0 mt-2 w-64 p-1.5">
+                    {user.isLocked && (
+                      <DropdownItem onClick={() => { setIsActionsOpen(false); setShowUnlockConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                        <LockOpen className="w-4 h-4 text-amber-600" />
+                        <span className="text-sm font-semibold">{t.users.unlockAccount}</span>
+                        {user.remainingMinutes && <span className="ml-auto text-xs text-amber-600">{t.users.remainingMinutes.replace("{minutes}", String(user.remainingMinutes))}</span>}
+                      </DropdownItem>
+                    )}
+                    {user.isPendingActivation && (
+                      <DropdownItem onClick={() => { setIsActionsOpen(false); setShowActivateConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        <span className="text-sm font-semibold">{t.users.activateManual}</span>
+                      </DropdownItem>
+                    )}
+                    {isPrimaryAdmin && user.roleId === 2 && (
+                      <DropdownItem onClick={() => { setIsActionsOpen(false); setShowPromoteConfirm(true); }} className="flex items-center gap-2 px-3 py-2.5 rounded-lg">
+                        <UserPlus className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold">{t.users.promoteToStaff}</span>
+                      </DropdownItem>
+                    )}
+                  </Dropdown>
+                </div>
+              );
+            })()}
 
             <ConfirmModal
               isOpen={showPromoteConfirm}

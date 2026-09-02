@@ -3,6 +3,7 @@ import Badge from "../../../components/ui/Badge"
 import { UsersRound, UserPlus, LockOpen, ShieldCheck } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
+import ActionsMenu from "../../../components/ui/table/components/ActionsMenu"
 import { unlockUser } from "../api/unlockUser"
 import { activateUser } from "../api/activateUser"
 import {
@@ -42,6 +43,7 @@ export default function UsersPage() {
   const [selectedForActivate, setSelectedForActivate] = useState<Account | null>(null)
   const [showActivateConfirm, setShowActivateConfirm] = useState(false)
   const [activating, setActivating] = useState(false)
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null)
 
   const executePromoteToStaff = async (targetUser: Account) => {
     if (!isPrimaryAdmin) return
@@ -230,6 +232,40 @@ export default function UsersPage() {
             accessorKey: "roleName",
           },
           {
+            name: t.common.status,
+            accessorKey: "status",
+            render: (p) => {
+              if (p.isLocked) {
+                return (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200 whitespace-nowrap">
+                    <LockOpen className="w-3 h-3" />
+                    {t.users.lockedBadge}
+                    {p.remainingMinutes ? ` • ${t.users.remainingMinutes.replace("{minutes}", String(p.remainingMinutes))}` : ""}
+                  </span>
+                )
+              }
+              if (p.isPendingActivation) {
+                return (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-blue-50 text-blue-700 border-blue-200">
+                    {t.users.pendingActivationBadge}
+                  </span>
+                )
+              }
+              if (p.status === 0 || p.status === 3) {
+                return (
+                  <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-error-50 text-error-700 border-error-100">
+                    {t.users.banned}
+                  </span>
+                )
+              }
+              return (
+                <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-success-50 text-success-700 border-success-100">
+                  {t.common.active}
+                </span>
+              )
+            },
+          },
+          {
             name: t.users.isTeacher,
             accessorKey: "isInstructor",
             render: (p) => {
@@ -278,52 +314,47 @@ export default function UsersPage() {
                 )
               }
 
+              const actions = [
+                {
+                  label: t.users.unlock,
+                  icon: <LockOpen className="w-4 h-4" />,
+                  handler: (row: Account) => {
+                    setSelectedForUnlock(row)
+                    setShowUnlockConfirm(true)
+                  },
+                  hidden: (row: Account) => !row.isLocked,
+                },
+                {
+                  label: t.users.activate,
+                  icon: <ShieldCheck className="w-4 h-4" />,
+                  handler: (row: Account) => {
+                    setSelectedForActivate(row)
+                    setShowActivateConfirm(true)
+                  },
+                  hidden: (row: Account) => !row.isPendingActivation,
+                },
+                {
+                  label: t.users.promoteToStaffShort,
+                  icon: <UserPlus className="w-4 h-4" />,
+                  handler: (row: Account) => {
+                    setSelectedUserForPromote(row)
+                    setShowPromoteConfirm(true)
+                  },
+                  hidden: (row: Account) => !isPrimaryAdmin || row.roleId !== 2,
+                },
+              ]
+
+              const hasAny = actions.some((a) => !a.hidden?.(p))
+              if (!hasAny) return <span className="text-gray-400 text-xs">—</span>
+
               return (
-                <div className="flex items-center gap-1.5 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                  {p.isLocked && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedForUnlock(p)
-                        setShowUnlockConfirm(true)
-                      }}
-                      title={p.remainingMinutes ? t.users.remainingMinutes.replace("{minutes}", String(p.remainingMinutes)) : t.users.lockedBadge}
-                      className="px-2.5 py-1.5 text-xs font-bold rounded-lg text-amber-700 border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                      <LockOpen className="w-3.5 h-3.5" />
-                      <span>{t.users.unlock}</span>
-                    </button>
-                  )}
-                  {p.isPendingActivation && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedForActivate(p)
-                        setShowActivateConfirm(true)
-                      }}
-                      className="px-2.5 py-1.5 text-xs font-bold rounded-lg text-emerald-700 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 transition-colors flex items-center gap-1 cursor-pointer"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>{t.users.activate}</span>
-                    </button>
-                  )}
-                  {isPrimaryAdmin && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedUserForPromote(p)
-                        setShowPromoteConfirm(true)
-                      }}
-                      className="px-3 py-1.5 text-xs font-bold rounded-lg text-primary border border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      <span>{t.users.promoteToStaffShort}</span>
-                    </button>
-                  )}
-                  {!p.isLocked && !p.isPendingActivation && !isPrimaryAdmin && (
-                    <span className="text-gray-400 text-xs">—</span>
-                  )}
-                </div>
+                <ActionsMenu
+                  row={p}
+                  actions={actions}
+                  isOpen={openMenuId === p.accountId}
+                  onToggle={() => setOpenMenuId(openMenuId === p.accountId ? null : p.accountId)}
+                  onClose={() => setOpenMenuId(null)}
+                />
               )
             },
           },
