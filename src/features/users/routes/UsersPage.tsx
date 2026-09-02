@@ -295,21 +295,12 @@ export default function UsersPage() {
             name: t.users.actions,
             accessorKey: "actions",
             render: (p) => {
-              const isStaff = p.roleId === 3 || p.roleName === "Staff"
               const isAdmin = p.roleId === 1 || p.roleName === "Admin"
 
               if (isAdmin) {
                 return (
                   <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
                     Primary Admin
-                  </span>
-                )
-              }
-
-              if (isStaff) {
-                return (
-                  <span className="text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg">
-                    Staff
                   </span>
                 )
               }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MoreVertical } from "lucide-react";
 import { useLanguage } from "../../../../stores/languageStore";
@@ -51,14 +51,8 @@ export default function ActionsMenu<T>({
     };
   };
 
-  useLayoutEffect(() => {
-    if (isOpen) {
-      setStylePos(calculatePosition());
-    } else {
-      setStylePos(null);
-    }
-  }, [isOpen]);
-
+  // Position is computed synchronously on toggle; keep it fresh on resize.
+  // Scroll no longer auto-closes the menu (was causing flicker on table scroll).
   useEffect(() => {
     if (!isOpen) return;
 
@@ -80,23 +74,18 @@ export default function ActionsMenu<T>({
       }
     };
 
-    const handleScrollOrResize = (e: Event) => {
-      if (menuRef.current && menuRef.current.contains(e.target as Node)) {
-        return;
-      }
-      onClose();
+    const handleResize = () => {
+      setStylePos(calculatePosition());
     };
 
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resize", handleScrollOrResize);
-    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("resize", handleScrollOrResize);
-      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleResize);
     };
   }, [isOpen, onClose]);
 
@@ -104,6 +93,8 @@ export default function ActionsMenu<T>({
     e.stopPropagation();
     if (!isOpen) {
       setStylePos(calculatePosition());
+    } else {
+      setStylePos(null);
     }
     onToggle();
   };
