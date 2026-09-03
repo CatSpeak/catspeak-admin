@@ -27,6 +27,10 @@ export interface Account {
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;
+  isLocked?: boolean;
+  remainingMinutes?: number | null;
+  lockedUntil?: string | null;
+  isPendingActivation?: boolean;
 }
 
 export interface SubscriptionFeature {

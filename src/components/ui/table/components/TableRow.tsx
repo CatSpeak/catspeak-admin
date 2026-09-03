@@ -40,21 +40,33 @@ export default function TableRow<T>({
         onClickRow ? "cursor-pointer" : ""
       } ${idx % 2 === 0 ? "bg-gray-50/50" : "bg-white"}`}
     >
-      {row.getVisibleCells().map((cell) => (
-        <td
-          key={cell.id}
-          className={
-            cell.column.columnDef.meta?.cellClassName ??
-            "px-4 py-3 text-sm text-gray-700"
-          }
-        >
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </td>
-      ))}
+      {row.getVisibleCells().map((cell) => {
+        const meta = cell.column.columnDef.meta
+        const isPinnedRight = meta?.pinned === "right"
+        const isPinnedLeft = meta?.pinned === "left"
+        const baseCellClass =
+          meta?.cellClassName ?? "px-4 py-3 text-sm text-gray-700"
+        // Sticky cells need explicit bg to cover scrolled content
+        const rowBg = idx % 2 === 0 ? "bg-gray-50" : "bg-white"
+        // For custom cellClassName that already sets bg, preserve it but ensure sticky covers
+        const pinnedExtra = isPinnedRight
+          ? ` sticky right-0 z-10 ${rowBg} shadow-[-2px_0_6px_rgba(0,0,0,0.06)] border-l border-gray-200`
+          : isPinnedLeft
+            ? ` sticky left-0 z-10 ${rowBg} shadow-[2px_0_6px_rgba(0,0,0,0.06)] border-r border-gray-200`
+            : ""
+        return (
+          <td
+            key={cell.id}
+            className={`${baseCellClass}${pinnedExtra}`}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        )
+      })}
       {hasActions && (
         <td
           key="actions"
-          className="px-4 py-3 text-center"
+          className={`px-4 py-3 text-center sticky right-0 z-10 ${idx % 2 === 0 ? "bg-gray-50" : "bg-white"} shadow-[-2px_0_6px_rgba(0,0,0,0.06)] border-l border-gray-200`}
           onClick={(e) => e.stopPropagation()}
         >
           <ActionsMenu
