@@ -1,31 +1,31 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
 import type { BanDuration } from "../types";
 
-export const approveApplication = async (id: number): Promise<void> => {
+export const approveRevision = async (id: number): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/approve`),
+    axiosClient.post<void>(`/Admin/instructor-revisions/${id}/approve`),
   );
 };
 
-export const rejectApplication = async (
+export const rejectRevision = async (
   id: number,
   reason: string,
   banDuration: BanDuration,
 ): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/reject`, {
+    axiosClient.post<void>(`/Admin/instructor-revisions/${id}/reject`, {
       reason,
       banDuration,
     }),
   );
 };
 
-export const requestEditApplication = async (
+export const requestEditRevision = async (
   id: number,
   editNote: string,
 ): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(`/Admin/instructor-profiles/${id}/request-edit`, {
+    axiosClient.post<void>(`/Admin/instructor-revisions/${id}/request-edit`, {
       editNote,
     }),
   );

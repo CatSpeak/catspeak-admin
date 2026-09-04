@@ -10,6 +10,8 @@ interface ReviewModalProps {
   action: ReviewAction;
   applicantName: string;
   isLoading: boolean;
+  /** Hide the ban picker for Update revisions — rejecting an update never bans. */
+  showBanPicker?: boolean;
   onConfirm: (opts: ReviewModalResult) => void;
   onClose: () => void;
 }
@@ -25,6 +27,7 @@ export default function ReviewModal({
   action,
   applicantName,
   isLoading,
+  showBanPicker = true,
   onConfirm,
   onClose,
 }: ReviewModalProps) {
@@ -72,7 +75,8 @@ export default function ReviewModal({
   const handleSubmit = () => {
     onConfirm({
       action,
-      ...(action === "reject" ? { reason, banDuration } : {}),
+      ...(action === "reject" ? { reason } : {}),
+      ...(action === "reject" && showBanPicker ? { banDuration } : {}),
       ...(action === "requestEdit" ? { editNote } : {}),
     });
   };
@@ -129,25 +133,34 @@ export default function ReviewModal({
                   className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent resize-none"
                 />
               </div>
-              <div className="space-y-1.5">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t.instructorApplications.banDuration}
-                </label>
-                <select
-                  value={banDuration}
-                  onChange={(e) => setBanDuration(e.target.value as BanDuration)}
-                  className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
-                >
-                  {banDurationOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+              {showBanPicker && (
+                <>
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t.instructorApplications.banDuration}
+                    </label>
+                    <select
+                      value={banDuration}
+                      onChange={(e) => setBanDuration(e.target.value as BanDuration)}
+                      className="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    >
+                      {banDurationOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-400">
+                      {t.instructorApplications.banHelpText}
+                    </p>
+                  </div>
+                </>
+              )}
+              {!showBanPicker && (
                 <p className="text-xs text-gray-400">
-                  {t.instructorApplications.banHelpText}
+                  {t.instructorApplications.updateRejectNoBan}
                 </p>
-              </div>
+              )}
             </>
           )}
 

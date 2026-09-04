@@ -349,6 +349,14 @@ const zh = {
     rejectSuccess: "申请已被拒绝。",
     requestEditSuccess: "修改要求已发送给申请人。",
     actionFailed: "操作失败。请重试。",
+    requestType: "申请类型",
+    initialType: "初次申请",
+    updateType: "更新",
+    teachingDiff: "教学内容变更",
+    currentLive: "当前生效资料",
+    pendingChange: "待审核变更",
+    updateRejectNoBan:
+      "拒绝更新会丢弃草稿并保留当前资料 — 不施加封禁。",
   },
   news: {
     title: "新闻",

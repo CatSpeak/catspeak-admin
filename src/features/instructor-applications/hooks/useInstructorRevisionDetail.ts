@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { getApiErrorMessage } from "../../../lib/axios";
-import { getInstructorApplicationDetail } from "../api/getInstructorApplicationDetail";
-import type { InstructorApplicationDetail } from "../types";
+import { getInstructorRevisionDetail } from "../api/getInstructorRevisionDetail";
+import type { InstructorRevisionDetail } from "../types";
 
-export function useInstructorApplicationDetail(profileId?: string) {
+export function useInstructorRevisionDetail(revisionId?: string) {
   const [application, setApplication] =
-    useState<InstructorApplicationDetail | null>(null);
+    useState<InstructorRevisionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    const id = Number(profileId);
-    if (!profileId || Number.isNaN(id) || id <= 0) {
+    const id = Number(revisionId);
+    if (!revisionId || Number.isNaN(id) || id <= 0) {
       setApplication(null);
-      setError("Invalid application id.");
+      setError("Invalid revision id.");
       setLoading(false);
       return;
     }
@@ -23,13 +23,13 @@ export function useInstructorApplicationDetail(profileId?: string) {
       setLoading(true);
       setError(null);
       try {
-        const data = await getInstructorApplicationDetail(id);
+        const data = await getInstructorRevisionDetail(id);
         if (cancelled) return;
         setApplication(data);
       } catch (err: unknown) {
         if (cancelled) return;
         setApplication(null);
-        setError(getApiErrorMessage(err, "Failed to fetch application details."));
+        setError(getApiErrorMessage(err, "Failed to fetch revision details."));
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -41,7 +41,7 @@ export function useInstructorApplicationDetail(profileId?: string) {
     return () => {
       cancelled = true;
     };
-  }, [profileId]);
+  }, [revisionId]);
 
   return { application, loading, error };
 }

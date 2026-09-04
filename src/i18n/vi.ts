@@ -361,6 +361,14 @@ const vi = {
     rejectSuccess: "Đã từ chối đơn đăng ký.",
     requestEditSuccess: "Đã gửi yêu cầu chỉnh sửa cho ứng viên.",
     actionFailed: "Thao tác thất bại. Vui lòng thử lại.",
+    requestType: "Loại đơn",
+    initialType: "Đăng ký mới",
+    updateType: "Cập nhật",
+    teachingDiff: "Thay đổi nội dung giảng dạy",
+    currentLive: "Hồ sơ đang hiển thị",
+    pendingChange: "Thay đổi chờ duyệt",
+    updateRejectNoBan:
+      "Từ chối đơn cập nhật sẽ bỏ bản nháp và giữ nguyên hồ sơ hiện tại — không áp dụng ban.",
   },
   news: {
     title: "Bản tin",

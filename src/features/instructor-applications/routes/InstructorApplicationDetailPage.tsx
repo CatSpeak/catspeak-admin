@@ -1,12 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useInstructorApplicationDetail } from "../hooks/useInstructorApplicationDetail";
+import { useInstructorRevisionDetail } from "../hooks/useInstructorRevisionDetail";
 import ApplicationDetailPanel from "../components/ApplicationDetailPanel";
 import { useLanguage } from "../../../stores/languageStore";
 
 export default function InstructorApplicationDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { application, loading, error } = useInstructorApplicationDetail(id);
+  const { application, loading, error } = useInstructorRevisionDetail(id);
   const { t } = useLanguage();
 
   if (loading) {

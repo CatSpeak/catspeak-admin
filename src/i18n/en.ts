@@ -357,6 +357,14 @@ const en = {
     rejectSuccess: "Application rejected.",
     requestEditSuccess: "Edit request sent to applicant.",
     actionFailed: "Action failed. Please try again.",
+    requestType: "Request Type",
+    initialType: "Initial",
+    updateType: "Update",
+    teachingDiff: "Teaching Diff",
+    currentLive: "Current live profile",
+    pendingChange: "Pending change",
+    updateRejectNoBan:
+      "Rejecting an update discards the draft and keeps the current profile — no ban is applied.",
   },
   news: {
     title: "News",
