@@ -20,6 +20,7 @@ import {
   type BugReportDetail,
 } from "../api/bugReports"
 import { getCategoryLabel } from "../utils/bugReportUtils"
+import { parseBugReportMedia } from "../utils/bugReportMedia"
 import BugReportOverviewTab from "../components/bug-report/BugReportOverviewTab"
 import BugReportNetworkTab from "../components/bug-report/BugReportNetworkTab"
 import BugReportConsoleTab from "../components/bug-report/BugReportConsoleTab"
@@ -45,6 +46,7 @@ export default function BugReportDetailPage() {
   const [adminNotes, setAdminNotes] = useState<string>("")
   const [isSaving, setIsSaving] = useState(false)
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
+  const [previewMediaUrl, setPreviewMediaUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -97,41 +99,30 @@ export default function BugReportDetailPage() {
     }
   }
 
-  // Parse JSON telemetry payloads safely
+  // Parse JSON telemetry payloads safely.
+  // Screenshots payload may hold images and/or videos (JSON array string,
+  // single URL, or already-decoded array from the jsonb column).
   let parsedDevice: any = null
   let parsedNetwork: any = null
   let parsedConsole: any = null
   let parsedScreenshots: string[] = []
+  let reportImages: string[] = []
+  let reportVideos: string[] = []
 
   if (report) {
     try {
-      if (report.deviceInfo) parsedDevice = JSON.parse(report.deviceInfo)
+      if (report.deviceInfo) parsedDevice = JSON.parse(report.deviceInfo as string)
     } catch {}
     try {
-      if (report.networkLogs) parsedNetwork = JSON.parse(report.networkLogs)
+      if (report.networkLogs) parsedNetwork = JSON.parse(report.networkLogs as string)
     } catch {}
     try {
-      if (report.consoleLogs) parsedConsole = JSON.parse(report.consoleLogs)
+      if (report.consoleLogs) parsedConsole = JSON.parse(report.consoleLogs as string)
     } catch {}
-    try {
-      if (report.screenshots) {
-        const parsed = JSON.parse(report.screenshots)
-        if (Array.isArray(parsed)) {
-          parsedScreenshots = parsed.filter(
-            (s): s is string => typeof s === "string" && s.trim().length > 0
-          )
-        } else if (typeof parsed === "string" && parsed.trim().length > 0) {
-          parsedScreenshots = [parsed]
-        }
-      }
-    } catch {
-      if (
-        typeof report.screenshots === "string" &&
-        report.screenshots.startsWith("http")
-      ) {
-        parsedScreenshots = [report.screenshots]
-      }
-    }
+    const media = parseBugReportMedia(report.screenshots)
+    reportImages = media.images
+    reportVideos = media.videos
+    parsedScreenshots = media.all
   }
 
   const failedRequests = parsedNetwork?.failedRequests || []
@@ -275,7 +266,11 @@ export default function BugReportDetailPage() {
             <span>{bugT.tabOverview || "Tổng quan & Mô tả"}</span>
             {parsedScreenshots.length > 0 && (
               <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-[11px] font-bold">
-                {parsedScreenshots.length} ảnh
+                {reportImages.length > 0 && reportVideos.length > 0
+                  ? `${reportImages.length} ảnh + ${reportVideos.length} video`
+                  : reportVideos.length > 0
+                    ? `${reportVideos.length} video`
+                    : `${reportImages.length} ảnh`}
               </span>
             )}
           </button>
@@ -334,8 +329,11 @@ export default function BugReportDetailPage() {
               report={report}
               parsedDevice={parsedDevice}
               parsedScreenshots={parsedScreenshots}
+              images={reportImages}
+              videos={reportVideos}
               bugT={bugT}
               onPreviewImage={(url) => setPreviewImageUrl(url)}
+              onPreviewVideo={(url) => setPreviewMediaUrl(url)}
             />
           )}
 
@@ -362,10 +360,14 @@ export default function BugReportDetailPage() {
         </div>
       </div>
 
-      {/* Lightbox Image Preview Modal */}
+      {/* Lightbox Media Preview Modal (images + videos) */}
       <BugReportImageLightbox
         imageUrl={previewImageUrl}
-        onClose={() => setPreviewImageUrl(null)}
+        mediaUrl={previewMediaUrl ?? previewImageUrl}
+        onClose={() => {
+          setPreviewImageUrl(null)
+          setPreviewMediaUrl(null)
+        }}
       />
     </div>
   )

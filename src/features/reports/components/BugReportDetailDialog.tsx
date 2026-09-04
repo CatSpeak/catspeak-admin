@@ -23,6 +23,7 @@ import BugReportNetworkTab from "./bug-report/BugReportNetworkTab"
 import BugReportConsoleTab from "./bug-report/BugReportConsoleTab"
 import BugReportBreadcrumbsTab from "./bug-report/BugReportBreadcrumbsTab"
 import BugReportImageLightbox from "./bug-report/BugReportImageLightbox"
+import { parseBugReportMedia } from "../utils/bugReportMedia"
 
 interface BugReportDetailDialogProps {
   id: string
@@ -49,6 +50,7 @@ export default function BugReportDetailDialog({
   const [adminNotes, setAdminNotes] = useState<string>("")
   const [isSaving, setIsSaving] = useState(false)
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null)
+  const [previewMediaUrl, setPreviewMediaUrl] = useState<string | null>(null)
 
   useEffect(() => {
     let isMounted = true
@@ -99,36 +101,30 @@ export default function BugReportDetailDialog({
     }
   }
 
-  // Parse JSON payloads safely
+  // Parse JSON payloads safely.
+  // Screenshots payload may hold images and/or videos (JSON array string,
+  // single URL, or already-decoded array from the jsonb column).
   let parsedDevice: any = null
   let parsedNetwork: any = null
   let parsedConsole: any = null
   let parsedScreenshots: string[] = []
+  let reportImages: string[] = []
+  let reportVideos: string[] = []
 
   if (report) {
     try {
-      if (report.deviceInfo) parsedDevice = JSON.parse(report.deviceInfo)
+      if (report.deviceInfo) parsedDevice = JSON.parse(report.deviceInfo as string)
     } catch {}
     try {
-      if (report.networkLogs) parsedNetwork = JSON.parse(report.networkLogs)
+      if (report.networkLogs) parsedNetwork = JSON.parse(report.networkLogs as string)
     } catch {}
     try {
-      if (report.consoleLogs) parsedConsole = JSON.parse(report.consoleLogs)
+      if (report.consoleLogs) parsedConsole = JSON.parse(report.consoleLogs as string)
     } catch {}
-    try {
-      if (report.screenshots) {
-        const parsed = JSON.parse(report.screenshots)
-        if (Array.isArray(parsed)) {
-          parsedScreenshots = parsed.filter((s): s is string => typeof s === "string" && s.trim().length > 0)
-        } else if (typeof parsed === "string" && parsed.trim().length > 0) {
-          parsedScreenshots = [parsed]
-        }
-      }
-    } catch {
-      if (typeof report.screenshots === "string" && report.screenshots.startsWith("http")) {
-        parsedScreenshots = [report.screenshots]
-      }
-    }
+    const media = parseBugReportMedia(report.screenshots)
+    reportImages = media.images
+    reportVideos = media.videos
+    parsedScreenshots = media.all
   }
 
   const failedRequests = parsedNetwork?.failedRequests || []
@@ -272,8 +268,11 @@ export default function BugReportDetailDialog({
                   report={report}
                   parsedDevice={parsedDevice}
                   parsedScreenshots={parsedScreenshots}
+                  images={reportImages}
+                  videos={reportVideos}
                   bugT={bugT}
                   onPreviewImage={(url) => setPreviewImageUrl(url)}
+                  onPreviewVideo={(url) => setPreviewMediaUrl(url)}
                 />
               )}
 
@@ -357,10 +356,14 @@ export default function BugReportDetailDialog({
         )}
       </div>
 
-      {/* Lightbox Image Preview Modal */}
+      {/* Lightbox Media Preview Modal (images + videos) */}
       <BugReportImageLightbox
         imageUrl={previewImageUrl}
-        onClose={() => setPreviewImageUrl(null)}
+        mediaUrl={previewMediaUrl ?? previewImageUrl}
+        onClose={() => {
+          setPreviewImageUrl(null)
+          setPreviewMediaUrl(null)
+        }}
       />
     </div>
   )

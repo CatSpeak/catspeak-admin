@@ -22,7 +22,7 @@ export interface BugReportDetail extends BugReportItem {
   deviceInfo?: string // JSON string
   consoleLogs?: string // JSON string
   networkLogs?: string // JSON string
-  screenshots?: string // JSON string array of URLs
+  screenshots?: string | string[] // JSON string array of URLs, single URL, or decoded array (may include videos)
   adminNotes?: string
 }
 

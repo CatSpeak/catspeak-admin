@@ -1,23 +1,45 @@
-import { Clock, Globe, User, Image as ImageIcon } from "lucide-react"
+import { useMemo } from "react"
+import {
+  Clock,
+  Globe,
+  User,
+  Image as ImageIcon,
+  Film,
+  ExternalLink,
+} from "lucide-react"
 import { formatDateTime } from "../../../../lib/utils"
 import type { BugReportDetail } from "../../api/bugReports"
 import { getReporterName } from "../../utils/bugReportUtils"
+import { parseBugReportMedia } from "../../utils/bugReportMedia"
 
 interface BugReportOverviewTabProps {
   report: BugReportDetail
   parsedDevice: any
-  parsedScreenshots: string[]
+  /** Legacy prop: all attachment URLs (images and/or videos). */
+  parsedScreenshots?: string[]
+  images?: string[]
+  videos?: string[]
   bugT: any
   onPreviewImage: (url: string) => void
+  onPreviewVideo?: (url: string) => void
 }
 
 export default function BugReportOverviewTab({
   report,
   parsedDevice,
   parsedScreenshots,
+  images: imagesProp,
+  videos: videosProp,
   bugT,
   onPreviewImage,
+  onPreviewVideo,
 }: BugReportOverviewTabProps) {
+  const { images, videos } = useMemo(() => {
+    if (imagesProp || videosProp) {
+      return { images: imagesProp ?? [], videos: videosProp ?? [] }
+    }
+    return parseBugReportMedia(parsedScreenshots ?? report.screenshots)
+  }, [imagesProp, videosProp, parsedScreenshots, report.screenshots])
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Grid Metadata Cards */}
@@ -77,15 +99,15 @@ export default function BugReportOverviewTab({
         </div>
       </div>
 
-      {/* Screenshots Section */}
-      {parsedScreenshots.length > 0 && (
+      {/* Attachments: screenshots + videos uploaded by the user */}
+      {images.length > 0 && (
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <div className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
               <ImageIcon className="w-3.5 h-3.5 text-primary" />
               <span>{bugT.labelScreenshots || "Ảnh chụp màn hình sự cố"}</span>
               <span className="px-1.5 py-0.5 bg-primary/10 text-primary font-bold rounded-full text-[10px]">
-                {parsedScreenshots.length}
+                {images.length}
               </span>
             </div>
             <span className="text-[11px] text-gray-400">
@@ -93,9 +115,9 @@ export default function BugReportOverviewTab({
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {parsedScreenshots.map((url, index) => (
+            {images.map((url, index) => (
               <div
-                key={index}
+                key={`img-${index}`}
                 className="group relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-video cursor-pointer hover:shadow-md transition-all"
                 onClick={() => onPreviewImage(url)}
               >
@@ -104,12 +126,61 @@ export default function BugReportOverviewTab({
                   alt={`Screenshot ${index + 1}`}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
+                  onError={(e) => {
+                    // Broken storage URL: hide the tile but keep the
+                    // "open original" link below usable for diagnosis.
+                    ;(e.currentTarget.closest("div.group") as HTMLElement | null)?.classList.add("hidden")
+                  }}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 text-gray-800 text-[11px] font-semibold px-2 py-1 rounded-md shadow-sm">
                     Phóng to
                   </span>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Videos Section */}
+      {videos.length > 0 && (
+        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Film className="w-3.5 h-3.5 text-primary" />
+              <span>{bugT.labelVideos || "Video sự cố người dùng tải lên"}</span>
+              <span className="px-1.5 py-0.5 bg-primary/10 text-primary font-bold rounded-full text-[10px]">
+                {videos.length}
+              </span>
+            </div>
+            <span className="text-[11px] text-gray-400">
+              Bấm play để xem trực tiếp
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {videos.map((url, index) => (
+              <div
+                key={`vid-${index}`}
+                className="rounded-xl border border-gray-200 overflow-hidden bg-black shadow-xs"
+              >
+                <video
+                  src={url}
+                  controls
+                  preload="metadata"
+                  playsInline
+                  className="w-full aspect-video bg-black cursor-pointer"
+                  onClick={() => (onPreviewVideo ?? onPreviewImage)(url)}
+                />
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-semibold text-primary hover:underline bg-white"
+                >
+                  <ExternalLink className="w-3 h-3" />
+                  Mở video gốc #{index + 1} trong tab mới
+                </a>
               </div>
             ))}
           </div>
