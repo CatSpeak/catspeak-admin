@@ -1,11 +1,11 @@
 import { IdCardLanyard } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
-import type { ApplicationStatus, InstructorApplication } from "../types"
+import type { InstructorRevisionListItem, RevisionStatus } from "../types"
 import {
-  getInstructorApplications,
-  type GetInstructorApplicationsParams,
-} from "../api/getInstructorApplications"
+  getInstructorRevisions,
+  type GetInstructorRevisionsParams,
+} from "../api/getInstructorRevisions"
 import { useNavigate } from "react-router-dom"
 import { formatDateTime } from "../../../lib/utils"
 import Badge from "../../../components/ui/Badge"
@@ -23,67 +23,83 @@ export default function InstructorApplicationsPage() {
         desc={t.instructorApplications.desc}
       />
 
-      <Table<InstructorApplication>
+      <Table<InstructorRevisionListItem>
         fetcher={async (page, pageSize) => {
-          const data = await getInstructorApplications({ page, pageSize })
+          const data = await getInstructorRevisions({ page, pageSize })
           return {
             data: data.items,
             total: data.totalCount,
           }
         }}
         filter={async (attribute, value) => {
-          const params: GetInstructorApplicationsParams = {}
+          const params: GetInstructorRevisionsParams = {}
           if (attribute === "global") {
             params.SearchKeyword = value ? String(value) : undefined
           } else if (attribute === "status" && value) {
             params.status = (
               Array.isArray(value) ? value[0] : value
-            ) as ApplicationStatus
+            ) as RevisionStatus
           }
-          const data = await getInstructorApplications(params)
+          const data = await getInstructorRevisions(params)
           return {
             data: data.items,
             total: data.totalCount,
           }
         }}
-        onClickRow={(app) =>
-          navigate(`/instructor-applications/${app.profileId}`)
+        onClickRow={(rev) =>
+          navigate(`/instructor-applications/${rev.revisionId}`)
         }
         headers={[
           {
             name: t.users.id,
-            accessorKey: "profileId",
+            accessorKey: "revisionId",
           },
           {
             name: t.users.username,
             accessorKey: "fullName",
-            render: (app) => (
+            render: (rev) => (
               <div>
                 <div className="text-sm font-medium text-gray-900">
-                  {app.fullName}
+                  {rev.fullName}
                 </div>
-                <div className="text-xs text-gray-500">{app.username}</div>
+                <div className="text-xs text-gray-500">{rev.username}</div>
               </div>
             ),
           },
           {
             name: t.users.email,
             accessorKey: "accountEmail",
-            render: (app) => (
-              <span className="text-primary underline">{app.accountEmail}</span>
+            render: (rev) => (
+              <span className="text-primary underline">{rev.accountEmail}</span>
             ),
           },
           {
             name: t.users.phone,
             accessorKey: "phoneNumber",
-            render: (app) => <>{app.phoneNumber || "—"}</>,
+            render: (rev) => <>{rev.phoneNumber || "—"}</>,
+          },
+          {
+            name: t.instructorApplications.requestType,
+            accessorKey: "requestType",
+            render: (rev) =>
+              rev.requestType === 1 ? (
+                <Badge
+                  title={t.instructorApplications.initialType}
+                  type="Blue"
+                />
+              ) : (
+                <Badge
+                  title={t.instructorApplications.updateType}
+                  type="Orange"
+                />
+              ),
           },
           {
             name: t.common.createdDate,
-            accessorKey: "submittedAt",
-            render: (app) => (
+            accessorKey: "createdAt",
+            render: (rev) => (
               <span className="whitespace-nowrap text-gray-600">
-                {formatDateTime(app.submittedAt)}
+                {formatDateTime(rev.createdAt)}
               </span>
             ),
           },
@@ -94,20 +110,23 @@ export default function InstructorApplicationsPage() {
               { value: "Pending", label: t.common.pending },
               { value: "Approved", label: t.common.approved },
               { value: "Rejected", label: t.common.rejected },
+              { value: "Cancelled", label: t.common.cancelled },
               {
                 value: "RequestEdit",
                 label: t.instructorApplications.requestEdit,
               },
             ],
             showFilter: true,
-            render: (p) => {
-              switch (p.status) {
+            render: (rev) => {
+              switch (rev.status) {
                 case "Pending":
                   return <Badge title={t.common.pending} type="Blue" />
                 case "Approved":
                   return <Badge title={t.common.approved} type="Green" />
                 case "Rejected":
                   return <Badge title={t.common.rejected} type="Red" />
+                case "Cancelled":
+                  return <Badge title={t.common.cancelled} type="Gray" />
                 case "RequestEdit":
                   return (
                     <Badge
@@ -116,7 +135,7 @@ export default function InstructorApplicationsPage() {
                     />
                   )
                 default:
-                  return <Badge title={p.status || "?"} type="Gray" />
+                  return <Badge title={rev.status || "?"} type="Gray" />
               }
             },
           },

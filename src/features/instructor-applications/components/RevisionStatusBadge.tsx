@@ -1,11 +1,11 @@
-import type { ApplicationStatus } from "../types";
+import type { RevisionStatus } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
 
 interface StatusStyle {
   className: string;
 }
 
-const STATUS_STYLE: Record<ApplicationStatus, StatusStyle> = {
+const STATUS_STYLE: Record<RevisionStatus, StatusStyle> = {
   Pending: {
     className: "bg-amber-100 text-amber-700 border border-amber-200",
   },
@@ -15,24 +15,26 @@ const STATUS_STYLE: Record<ApplicationStatus, StatusStyle> = {
   Rejected: {
     className: "bg-red-100 text-red-700 border border-red-200",
   },
+  Cancelled: {
+    className: "bg-gray-100 text-gray-600 border border-gray-200",
+  },
   RequestEdit: {
     className: "bg-blue-100 text-blue-700 border border-blue-200",
   },
 };
 
-interface ApplicationStatusBadgeProps {
-  status: ApplicationStatus;
+interface RevisionStatusBadgeProps {
+  status: RevisionStatus;
 }
 
-export default function ApplicationStatusBadge({
-  status,
-}: ApplicationStatusBadgeProps) {
+export default function RevisionStatusBadge({ status }: RevisionStatusBadgeProps) {
   const { t } = useLanguage();
 
-  const STATUS_LABELS: Record<ApplicationStatus, string> = {
+  const STATUS_LABELS: Record<RevisionStatus, string> = {
     Pending: t.common.pending,
     Approved: t.common.approved,
     Rejected: t.common.rejected,
+    Cancelled: t.common.cancelled,
     RequestEdit: t.instructorApplications.requestEdit,
   };
 

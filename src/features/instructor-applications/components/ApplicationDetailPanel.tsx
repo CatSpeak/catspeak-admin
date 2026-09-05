@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   Clock,
 } from "lucide-react";
-import ApplicationStatusBadge from "./ApplicationStatusBadge";
+import RevisionStatusBadge from "./RevisionStatusBadge";
 import ReviewModal, {
   type ReviewAction,
   type ReviewModalResult,
@@ -26,16 +26,16 @@ import ReviewModal, {
 import Button from "../../../components/ui/Button";
 import { useToastStore } from "../../../stores/toastStore";
 import {
-  approveApplication,
-  rejectApplication,
-  requestEditApplication,
-} from "../api/reviewInstructorApplication";
-import type { InstructorApplicationDetail } from "../types";
+  approveRevision,
+  rejectRevision,
+  requestEditRevision,
+} from "../api/reviewInstructorRevision";
+import type { InstructorRevisionDetail } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
 import { formatDateTime } from "../../../lib/utils";
 
 interface ApplicationDetailPanelProps {
-  application: InstructorApplicationDetail;
+  application: InstructorRevisionDetail;
   onReviewed: () => void;
 }
 
@@ -164,21 +164,31 @@ export default function ApplicationDetailPanel({
     application.status,
   );
 
+  // Revision-aware fields (the panel is only ever fed revision payloads).
+  const isUpdate = application.requestType === 0;
+  const revisionId = application.revisionId;
+
+  // Whole-revision decision: request-edit is first-applications only.
+  const showRequestEdit = canReview && !isUpdate;
+
+  // Update rejections never ban — the ban picker stays hidden for those.
+  const showBanPicker = !isUpdate;
+
   const handleConfirm = async (result: ReviewModalResult) => {
     setIsSubmitting(true);
     try {
       if (result.action === "approve") {
-        await approveApplication(application.profileId);
+        await approveRevision(revisionId ?? application.profileId);
         addToast("success", t.instructorApplications.approveSuccess);
       } else if (result.action === "reject") {
-        await rejectApplication(
-          application.profileId,
+        await rejectRevision(
+          revisionId ?? application.profileId,
           result.reason!,
           result.banDuration!,
         );
         addToast("success", t.instructorApplications.rejectSuccess);
       } else if (result.action === "requestEdit") {
-        await requestEditApplication(application.profileId, result.editNote!);
+        await requestEditRevision(revisionId ?? application.profileId, result.editNote!);
         addToast("info", t.instructorApplications.requestEditSuccess);
       }
       setModalAction(null);
@@ -227,7 +237,12 @@ export default function ApplicationDetailPanel({
             <h2 className="text-lg font-bold text-gray-900">
               {application.fullName}
             </h2>
-            <ApplicationStatusBadge status={application.status} />
+            <RevisionStatusBadge status={application.status} />
+            <span className="text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">
+              {isUpdate
+                ? t.instructorApplications.updateType
+                : t.instructorApplications.initialType}
+            </span>
           </div>
           <p className="text-sm text-gray-500 mt-0.5">
             @{application.username} ·{" "}
@@ -249,14 +264,16 @@ export default function ApplicationDetailPanel({
             >
               {t.instructorApplications.approve}
             </Button>
-            <Button
-              size="sm"
-              className="!bg-blue-600 hover:!bg-blue-700 text-white"
-              leftIcon={<Edit3 className="w-4 h-4" />}
-              onClick={() => setModalAction("requestEdit")}
-            >
-              {t.instructorApplications.requestEdit}
-            </Button>
+            {showRequestEdit && (
+              <Button
+                size="sm"
+                className="!bg-blue-600 hover:!bg-blue-700 text-white"
+                leftIcon={<Edit3 className="w-4 h-4" />}
+                onClick={() => setModalAction("requestEdit")}
+              >
+                {t.instructorApplications.requestEdit}
+              </Button>
+            )}
             <Button
               variant="danger"
               size="sm"
@@ -272,6 +289,126 @@ export default function ApplicationDetailPanel({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
+          {/* Teaching diff for Update revisions */}
+          {application.liveSnapshot && (
+            <SectionCard title={t.instructorApplications.teachingDiff}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.currentLive}
+                    </p>
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      {application.liveSnapshot.introduction || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.pendingChange}
+                    </p>
+                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      {application.introduction || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.languagesTeach}
+                    </p>
+                    <p className="text-sm text-gray-800 leading-relaxed">
+                      {safeParseJsonArray(application.liveSnapshot.languagesTeach).length > 0
+                        ? safeParseJsonArray(application.liveSnapshot.languagesTeach)
+                            .map(formatLanguageLabel)
+                            .join(", ")
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.pendingChange}
+                    </p>
+                    <p className="text-sm text-gray-800 leading-relaxed">
+                      {safeParseJsonArray(application.languagesTeach).length > 0
+                        ? safeParseJsonArray(application.languagesTeach)
+                            .map(formatLanguageLabel)
+                            .join(", ")
+                        : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.nativeLanguage}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.liveSnapshot.nativeLanguage || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.pendingChange}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.nativeLanguage || "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.credentials}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.liveSnapshot.credentialUrls
+                        ? t.instructorApplications.credentialItem.replace(
+                            "{index}",
+                            String(safeParseStringArray(application.liveSnapshot.credentialUrls).length),
+                          )
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.pendingChange}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.credentialUrls
+                        ? t.instructorApplications.credentialItem.replace(
+                            "{index}",
+                            String(safeParseStringArray(application.credentialUrls).length),
+                          )
+                        : "—"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.introVideo}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.liveSnapshot.introVideoUrl ? "✓" : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                      {t.instructorApplications.pendingChange}
+                    </p>
+                    <p className="text-sm text-gray-800">
+                      {application.introVideoUrl ? "✓" : "—"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </SectionCard>
+          )}
+
           {/* Personal Info */}
           <SectionCard title={t.common.personalInformation}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -563,6 +700,7 @@ export default function ApplicationDetailPanel({
           action={modalAction}
           applicantName={application.fullName}
           isLoading={isSubmitting}
+          showBanPicker={showBanPicker}
           onConfirm={handleConfirm}
           onClose={() => !isSubmitting && setModalAction(null)}
         />
