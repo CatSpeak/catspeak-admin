@@ -307,6 +307,7 @@ const vi = {
     requestEdit: "Đã yêu cầu chỉnh sửa",
     reject: "Từ chối",
     accountEmail: "Email tài khoản",
+    fullName: "Họ tên",
     profileEmail: "Email hồ sơ",
     nationality: "Quốc tịch",
     address: "Địa chỉ",
@@ -364,7 +365,7 @@ const vi = {
     requestType: "Loại đơn",
     initialType: "Đăng ký mới",
     updateType: "Cập nhật",
-    teachingDiff: "Thay đổi nội dung giảng dạy",
+    noTeachingChanges: "Không có thay đổi nào trong nội dung giảng dạy.",
     currentLive: "Hồ sơ đang hiển thị",
     pendingChange: "Thay đổi chờ duyệt",
     updateRejectNoBan:
