@@ -35,6 +35,29 @@ describe("bugReportMedia feedback loop", () => {
     expect(isVideoUrl("data:image/png;base64,AAAA")).toBe(false);
   });
 
+  it("recovers object-shaped entries (legacy contract bug) so user images still show", () => {
+    // The old /bug-reports/upload-screenshot contract returned the whole
+    // FileUploadResult object, so the client stored {url,objectName,bucket}
+    // entries in the screenshots column. Admin must still surface the URLs.
+    const raw = JSON.stringify([
+      { url: IMG_1, objectName: "bug-reports/a1.png", bucket: "catspeak" },
+      { url: VID_1, objectName: "bug-reports/v1.mp4", bucket: "catspeak" },
+      IMG_2,
+    ]);
+    const { images, videos } = parseBugReportMedia(raw);
+    expect(images).toEqual([IMG_1, IMG_2]);
+    expect(videos).toEqual([VID_1]);
+  });
+
+  it("recovers a decoded array of objects and a bare object payload", () => {
+    const entries = [
+      { url: IMG_1, objectName: "bug-reports/a1.png", bucket: "catspeak" },
+    ] as unknown[];
+    expect(parseBugReportMedia(entries).images).toEqual([IMG_1]);
+    expect(parseBugReportMedia(entries[0]).images).toEqual([IMG_1]);
+    expect(parseBugReportMedia(entries[0]).all).toEqual([IMG_1]);
+  });
+
   it("tolerates single URL, already-array payloads, and trims/dedups", () => {
     expect(parseBugReportMedia(VID_1).videos).toEqual([VID_1]);
     expect(
