@@ -256,6 +256,22 @@ export default function ApplicationDetailPanel({
   const revisionId = application.revisionId;
   const live = application.liveSnapshot ?? null;
 
+  // Update revisions store only teaching fields; personal/identity fields may
+  // be null/"" on the revision row (old builds skip BackfillPersonalFields).
+  // Fall back to live so admin still sees the full current values.
+  const displayFullName =
+    application.fullName || live?.fullName || application.username || "";
+  const displayEmail = application.email || live?.email || "";
+  const displayAddress = application.address || live?.address || "";
+  const displayPhoneNumber =
+    application.phoneNumber || live?.phoneNumber || "";
+  const displayNationality =
+    application.nationality || live?.nationality || "";
+  const displayIdCardFrontUrl =
+    application.idCardFrontUrl || live?.idCardFrontUrl || null;
+  const displayIdCardBackUrl =
+    application.idCardBackUrl || live?.idCardBackUrl || null;
+
   // Per-field diffs — only fields that actually changed render as old→new.
   const languagesChanged =
     isUpdate && live !== null &&
@@ -319,7 +335,7 @@ export default function ApplicationDetailPanel({
           </button>
           <span>/</span>
           <span className="text-gray-800 font-medium">
-            {application.fullName}
+            {displayFullName || "—"}
           </span>
         </nav>
         <Button
@@ -341,7 +357,7 @@ export default function ApplicationDetailPanel({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-bold text-gray-900">
-              {application.fullName}
+              {displayFullName || "—"}
             </h2>
             <RevisionStatusBadge status={application.status} />
             <span className="text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">
@@ -402,7 +418,7 @@ export default function ApplicationDetailPanel({
               <InfoRow
                 icon={<User className="w-4 h-4" />}
                 label={t.instructorApplications.fullName}
-                value={application.fullName || "—"}
+                value={displayFullName || "—"}
               />
               <InfoRow
                 icon={<User className="w-4 h-4" />}
@@ -424,22 +440,22 @@ export default function ApplicationDetailPanel({
               <InfoRow
                 icon={<Mail className="w-4 h-4" />}
                 label={t.instructorApplications.profileEmail}
-                value={application.email || "—"}
+                value={displayEmail || "—"}
               />
               <InfoRow
                 icon={<Phone className="w-4 h-4" />}
                 label={t.users.phone}
-                value={application.phoneNumber || "—"}
+                value={displayPhoneNumber || "—"}
               />
               <InfoRow
                 icon={<Globe className="w-4 h-4" />}
                 label={t.instructorApplications.nationality}
-                value={application.nationality || "—"}
+                value={displayNationality || "—"}
               />
               <InfoRow
                 icon={<MapPin className="w-4 h-4" />}
                 label={t.instructorApplications.address}
-                value={application.address || "—"}
+                value={displayAddress || "—"}
               />
               <InfoRow
                 icon={<Languages className="w-4 h-4" />}
@@ -600,9 +616,9 @@ export default function ApplicationDetailPanel({
           {/* ID Cards */}
           <SectionCard title={t.instructorApplications.identityVerification}>
             <div className="space-y-3">
-              {application.idCardFrontUrl ? (
+              {displayIdCardFrontUrl ? (
                 <ImagePreview
-                  src={application.idCardFrontUrl}
+                  src={displayIdCardFrontUrl}
                   label={t.instructorApplications.idCardFront}
                 />
               ) : (
@@ -610,9 +626,9 @@ export default function ApplicationDetailPanel({
                   {t.instructorApplications.noFrontId}
                 </p>
               )}
-              {application.idCardBackUrl ? (
+              {displayIdCardBackUrl ? (
                 <ImagePreview
-                  src={application.idCardBackUrl}
+                  src={displayIdCardBackUrl}
                   label={t.instructorApplications.idCardBack}
                 />
               ) : (
@@ -624,17 +640,17 @@ export default function ApplicationDetailPanel({
                 <InfoRow
                   icon={<User className="w-4 h-4" />}
                   label={t.instructorApplications.fullName}
-                  value={application.fullName || "—"}
+                  value={displayFullName || "—"}
                 />
                 <InfoRow
                   icon={<Globe className="w-4 h-4" />}
                   label={t.instructorApplications.nationality}
-                  value={application.nationality || "—"}
+                  value={displayNationality || "—"}
                 />
                 <InfoRow
                   icon={<MapPin className="w-4 h-4" />}
                   label={t.instructorApplications.address}
-                  value={application.address || "—"}
+                  value={displayAddress || "—"}
                 />
               </div>
             </div>
@@ -776,7 +792,7 @@ export default function ApplicationDetailPanel({
       {modalAction && (
         <ReviewModal
           action={modalAction}
-          applicantName={application.fullName}
+          applicantName={displayFullName}
           isLoading={isSubmitting}
           showBanPicker={showBanPicker}
           onConfirm={handleConfirm}
