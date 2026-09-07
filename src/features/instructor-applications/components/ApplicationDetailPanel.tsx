@@ -67,6 +67,93 @@ function formatLanguageLabel(value: JsonArrayValue): string {
   return level ? `${language} (${level})` : language;
 }
 
+function languagesToString(raw: string | null | undefined): string {
+  return safeParseJsonArray(raw)
+    .map((lang) => {
+      if (typeof lang === "string") return lang;
+      const years =
+        typeof lang.yearsExperience === "number"
+          ? String(lang.yearsExperience)
+          : "";
+      return `${formatLanguageLabel(lang)}#${years}`;
+    })
+    .sort()
+    .join(" | ");
+}
+
+function credentialsToString(raw: string | null | undefined): string {
+  return safeParseStringArray(raw).sort().join(" | ");
+}
+
+/** Two-column "current → pending" diff shown inline inside a card. */
+function DiffRow({
+  label,
+  oldNode,
+  newNode,
+}: {
+  label: string;
+  oldNode: React.ReactNode;
+  newNode: React.ReactNode;
+}) {
+  const { t } = useLanguage();
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        {label}
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <p className="text-[11px] text-gray-400 mb-1">
+            {t.instructorApplications.currentLive}
+          </p>
+          <div className="text-sm text-gray-800 bg-gray-50 rounded-lg p-2.5 border border-gray-100">
+            {oldNode}
+          </div>
+        </div>
+        <div>
+          <p className="text-[11px] text-gray-400 mb-1">
+            {t.instructorApplications.pendingChange}
+          </p>
+          <div className="text-sm text-gray-800 bg-blue-50 rounded-lg p-2.5 border border-blue-100">
+            {newNode}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LanguagesValue({ raw }: { raw: string | null | undefined }) {
+  const langs = safeParseJsonArray(raw);
+  if (langs.length === 0) return <span className="text-gray-400">—</span>;
+  return <span>{langs.map(formatLanguageLabel).join(", ")}</span>;
+}
+
+function CredentialList({ urls }: { urls: string[] }) {
+  const { t } = useLanguage();
+  if (urls.length === 0) return <span className="text-gray-400">—</span>;
+  return (
+    <ul className="space-y-1">
+      {urls.map((url, i) => (
+        <li key={url}>
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-primary hover:underline"
+          >
+            <FileText className="w-3.5 h-3.5 shrink-0" />
+            {t.instructorApplications.credentialItem.replace(
+              "{index}",
+              String(i + 1),
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function InfoRow({
   icon,
   label,
@@ -167,6 +254,25 @@ export default function ApplicationDetailPanel({
   // Revision-aware fields (the panel is only ever fed revision payloads).
   const isUpdate = application.requestType === 0;
   const revisionId = application.revisionId;
+  const live = application.liveSnapshot ?? null;
+
+  // Per-field diffs — only fields that actually changed render as old→new.
+  const languagesChanged =
+    isUpdate && live !== null &&
+    languagesToString(live.languagesTeach) !== languagesToString(application.languagesTeach);
+  const nativeChanged =
+    isUpdate && live !== null &&
+    (live.nativeLanguage || "") !== (application.nativeLanguage || "");
+  const introChanged =
+    isUpdate && live !== null &&
+    (live.introduction || "") !== (application.introduction || "");
+  const credsChanged =
+    isUpdate && live !== null &&
+    credentialsToString(live.credentialUrls) !== credentialsToString(application.credentialUrls);
+  const videoChanged =
+    isUpdate && live !== null &&
+    (live.introVideoUrl || "") !== (application.introVideoUrl || "");
+  const teachingChanged = languagesChanged || nativeChanged || introChanged;
 
   // Whole-revision decision: request-edit is first-applications only.
   const showRequestEdit = canReview && !isUpdate;
@@ -289,129 +395,20 @@ export default function ApplicationDetailPanel({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Teaching diff for Update revisions */}
-          {application.liveSnapshot && (
-            <SectionCard title={t.instructorApplications.teachingDiff}>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.currentLive}
-                    </p>
-                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
-                      {application.liveSnapshot.introduction || "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.pendingChange}
-                    </p>
-                    <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed bg-blue-50 rounded-lg p-3 border border-blue-100">
-                      {application.introduction || "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.languagesTeach}
-                    </p>
-                    <p className="text-sm text-gray-800 leading-relaxed">
-                      {safeParseJsonArray(application.liveSnapshot.languagesTeach).length > 0
-                        ? safeParseJsonArray(application.liveSnapshot.languagesTeach)
-                            .map(formatLanguageLabel)
-                            .join(", ")
-                        : "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.pendingChange}
-                    </p>
-                    <p className="text-sm text-gray-800 leading-relaxed">
-                      {safeParseJsonArray(application.languagesTeach).length > 0
-                        ? safeParseJsonArray(application.languagesTeach)
-                            .map(formatLanguageLabel)
-                            .join(", ")
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.nativeLanguage}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.liveSnapshot.nativeLanguage || "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.pendingChange}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.nativeLanguage || "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.credentials}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.liveSnapshot.credentialUrls
-                        ? t.instructorApplications.credentialItem.replace(
-                            "{index}",
-                            String(safeParseStringArray(application.liveSnapshot.credentialUrls).length),
-                          )
-                        : "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.pendingChange}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.credentialUrls
-                        ? t.instructorApplications.credentialItem.replace(
-                            "{index}",
-                            String(safeParseStringArray(application.credentialUrls).length),
-                          )
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.introVideo}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.liveSnapshot.introVideoUrl ? "✓" : "—"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                      {t.instructorApplications.pendingChange}
-                    </p>
-                    <p className="text-sm text-gray-800">
-                      {application.introVideoUrl ? "✓" : "—"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </SectionCard>
-          )}
-
-          {/* Personal Info */}
+          {/* Personal Info — full current data, no diff (contact fields are not
+              updated by the teaching flow; Update revisions backfill from live) */}
           <SectionCard title={t.common.personalInformation}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InfoRow
+                icon={<User className="w-4 h-4" />}
+                label={t.instructorApplications.fullName}
+                value={application.fullName || "—"}
+              />
+              <InfoRow
+                icon={<User className="w-4 h-4" />}
+                label={t.users.username}
+                value={application.username ? `@${application.username}` : "—"}
+              />
               <InfoRow
                 icon={<Mail className="w-4 h-4" />}
                 label={t.instructorApplications.accountEmail}
@@ -452,65 +449,93 @@ export default function ApplicationDetailPanel({
             </div>
           </SectionCard>
 
-          {/* Teaching Info */}
+          {/* Teaching Info — changed fields render as inline old→new diff */}
           <SectionCard title={t.instructorApplications.teachingProfile}>
             <div className="space-y-4">
-              <InfoRow
-                icon={<BookOpen className="w-4 h-4" />}
-                label={t.instructorApplications.languagesTeach}
-                value={
-                  languages.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5 mt-1">
-                      {languages.map((lang, index) => {
-                        const text = formatLanguageLabel(lang);
-                        return (
-                          <span
-                            key={index}
-                            className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium"
-                          >
-                            {text}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    "—"
-                  )
-                }
-              />
-              <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                  {t.instructorApplications.introduction}
+              {languagesChanged ? (
+                <DiffRow
+                  label={t.instructorApplications.languagesTeach}
+                  oldNode={<LanguagesValue raw={live!.languagesTeach} />}
+                  newNode={<LanguagesValue raw={application.languagesTeach} />}
+                />
+              ) : (
+                <InfoRow
+                  icon={<BookOpen className="w-4 h-4" />}
+                  label={t.instructorApplications.languagesTeach}
+                  value={
+                    languages.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {languages.map((lang, index) => {
+                          const text = formatLanguageLabel(lang);
+                          return (
+                            <span
+                              key={index}
+                              className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium"
+                            >
+                              {text}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
+              )}
+
+              {nativeChanged && (
+                <DiffRow
+                  label={t.instructorApplications.nativeLanguage}
+                  oldNode={live!.nativeLanguage || "—"}
+                  newNode={application.nativeLanguage || "—"}
+                />
+              )}
+
+              {introChanged ? (
+                <DiffRow
+                  label={t.instructorApplications.introduction}
+                  oldNode={
+                    <span className="whitespace-pre-wrap">
+                      {live!.introduction || "—"}
+                    </span>
+                  }
+                  newNode={
+                    <span className="whitespace-pre-wrap">
+                      {application.introduction || "—"}
+                    </span>
+                  }
+                />
+              ) : (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                    {t.instructorApplications.introduction}
+                  </p>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    {application.introduction ||
+                      t.instructorApplications.noIntroduction}
+                  </p>
+                </div>
+              )}
+
+              {isUpdate && !teachingChanged && (
+                <p className="text-sm text-gray-500">
+                  {t.instructorApplications.noTeachingChanges}
                 </p>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  {application.introduction ||
-                    t.instructorApplications.noIntroduction}
-                </p>
-              </div>
+              )}
             </div>
           </SectionCard>
 
-          {/* Credentials */}
+          {/* Credentials — old vs new when the list changed */}
           <SectionCard title={t.instructorApplications.credentials}>
-            {credentials.length > 0 ? (
-              <ul className="space-y-2">
-                {credentials.map((url, i) => (
-                  <li key={url}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    >
-                      <FileText className="w-4 h-4 shrink-0" />
-                      {t.instructorApplications.credentialItem.replace(
-                        "{index}",
-                        String(i + 1),
-                      )}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+            {credsChanged ? (
+              <DiffRow
+                label={t.instructorApplications.credentials}
+                oldNode={<CredentialList urls={safeParseStringArray(live!.credentialUrls)} />}
+                newNode={<CredentialList urls={credentials} />}
+              />
+            ) : credentials.length > 0 ? (
+              <CredentialList urls={credentials} />
             ) : (
               <p className="text-sm text-gray-500">
                 {t.instructorApplications.noCredentials}
@@ -518,18 +543,54 @@ export default function ApplicationDetailPanel({
             )}
           </SectionCard>
 
-          {/* Intro Video */}
-          {application.introVideoUrl && (
+          {/* Intro Video — old vs new when the video changed */}
+          {(videoChanged || application.introVideoUrl) && (
             <SectionCard title={t.instructorApplications.introVideo}>
-              <a
-                href={application.introVideoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-primary hover:underline"
-              >
-                <Video className="w-4 h-4 shrink-0" />
-                {t.instructorApplications.watchIntroVideo}
-              </a>
+              {videoChanged ? (
+                <DiffRow
+                  label={t.instructorApplications.introVideo}
+                  oldNode={
+                    live!.introVideoUrl ? (
+                      <a
+                        href={live!.introVideoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <Video className="w-4 h-4 shrink-0" />
+                        {t.instructorApplications.watchIntroVideo}
+                      </a>
+                    ) : (
+                      "—"
+                    )
+                  }
+                  newNode={
+                    application.introVideoUrl ? (
+                      <a
+                        href={application.introVideoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <Video className="w-4 h-4 shrink-0" />
+                        {t.instructorApplications.watchIntroVideo}
+                      </a>
+                    ) : (
+                      "—"
+                    )
+                  }
+                />
+              ) : application.introVideoUrl ? (
+                <a
+                  href={application.introVideoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  <Video className="w-4 h-4 shrink-0" />
+                  {t.instructorApplications.watchIntroVideo}
+                </a>
+              ) : null}
             </SectionCard>
           )}
         </div>
@@ -559,6 +620,23 @@ export default function ApplicationDetailPanel({
                   {t.instructorApplications.noBackId}
                 </p>
               )}
+              <div className="border-t border-gray-100 pt-3 space-y-3">
+                <InfoRow
+                  icon={<User className="w-4 h-4" />}
+                  label={t.instructorApplications.fullName}
+                  value={application.fullName || "—"}
+                />
+                <InfoRow
+                  icon={<Globe className="w-4 h-4" />}
+                  label={t.instructorApplications.nationality}
+                  value={application.nationality || "—"}
+                />
+                <InfoRow
+                  icon={<MapPin className="w-4 h-4" />}
+                  label={t.instructorApplications.address}
+                  value={application.address || "—"}
+                />
+              </div>
             </div>
           </SectionCard>
 

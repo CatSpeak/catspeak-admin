@@ -35,6 +35,20 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0
 
 /**
+ * Extract a URL from a raw attachment entry. Historically the
+ * `/bug-reports/upload-screenshot` contract returned the whole
+ * `FileUploadResult` object, so stored entries may be `{ url, objectName,
+ * bucket }` instead of plain URL strings — accept both.
+ */
+const toUrl = (value: unknown): string | null => {
+  if (isNonEmptyString(value)) return value.trim()
+  if (value && typeof value === "object" && isNonEmptyString((value as { url?: unknown }).url)) {
+    return ((value as { url: string }).url).trim()
+  }
+  return null
+}
+
+/**
  * True when the URL points to a video attachment.
  * Handles query strings / hashes (`clip.mp4?token=...`), case-insensitive
  * extensions, and `data:video/...` URIs.
@@ -48,10 +62,11 @@ export const isVideoUrl = (url: unknown): boolean => {
   return VIDEO_EXTENSIONS.some((ext) => withoutQuery.endsWith(ext))
 }
 
-const dedupe = (urls: string[]): string[] => {
+const dedupe = (urls: Array<string | null>): string[] => {
   const seen = new Set<string>()
   const out: string[] = []
   for (const url of urls) {
+    if (!url) continue
     const trimmed = url.trim()
     if (trimmed.length === 0 || seen.has(trimmed)) continue
     seen.add(trimmed)
@@ -62,20 +77,25 @@ const dedupe = (urls: string[]): string[] => {
 
 const toStringList = (value: unknown): string[] => {
   if (Array.isArray(value)) {
-    return value.filter(isNonEmptyString)
+    return dedupe(value.map(toUrl))
   }
-  if (!isNonEmptyString(value)) return []
-  const trimmed = value.trim()
-  try {
-    const parsed: unknown = JSON.parse(trimmed)
-    if (Array.isArray(parsed)) return parsed.filter(isNonEmptyString)
-    if (isNonEmptyString(parsed)) return [parsed.trim()]
-    return []
-  } catch {
-    // Not JSON: accept a bare URL / data URI, reject anything else.
-    if (/^(https?:\/\/|blob:|data:)/i.test(trimmed)) return [trimmed]
-    return []
+  if (typeof value === "string") {
+    const trimmed = value.trim()
+    if (!trimmed) return []
+    try {
+      const parsed: unknown = JSON.parse(trimmed)
+      if (Array.isArray(parsed)) return dedupe(parsed.map(toUrl))
+      const parsedUrl = toUrl(parsed)
+      if (parsedUrl) return [parsedUrl]
+      return []
+    } catch {
+      // Not JSON: accept a bare URL / data URI, reject anything else.
+      if (/^(https?:\/\/|blob:|data:)/i.test(trimmed)) return [trimmed]
+      return []
+    }
   }
+  const url = toUrl(value)
+  return url ? [url] : []
 }
 
 /**

@@ -300,6 +300,7 @@ const zh = {
     requestEdit: "要求修改",
     reject: "拒绝",
     accountEmail: "账户邮箱",
+    fullName: "全名",
     profileEmail: "个人资料邮箱",
     nationality: "国籍",
     address: "地址",
@@ -352,7 +353,7 @@ const zh = {
     requestType: "申请类型",
     initialType: "初次申请",
     updateType: "更新",
-    teachingDiff: "教学内容变更",
+    noTeachingChanges: "没有教学内容更改。",
     currentLive: "当前生效资料",
     pendingChange: "待审核变更",
     updateRejectNoBan:

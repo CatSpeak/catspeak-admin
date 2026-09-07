@@ -304,6 +304,7 @@ const en = {
     requestEdit: "Request Edit",
     reject: "Reject",
     accountEmail: "Account Email",
+    fullName: "Full Name",
     profileEmail: "Profile Email",
     nationality: "Nationality",
     address: "Address",
@@ -360,7 +361,7 @@ const en = {
     requestType: "Request Type",
     initialType: "Initial",
     updateType: "Update",
-    teachingDiff: "Teaching Diff",
+    noTeachingChanges: "No teaching content changes.",
     currentLive: "Current live profile",
     pendingChange: "Pending change",
     updateRejectNoBan:
