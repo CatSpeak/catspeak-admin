@@ -85,6 +85,24 @@ function credentialsToString(raw: string | null | undefined): string {
   return safeParseStringArray(raw).sort().join(" | ");
 }
 
+/** Map ISO country code ("vn"/"VN") to localized region name ("Việt Nam"). */
+function formatNationality(
+  raw: string | null | undefined,
+  lang: string,
+): string {
+  if (!raw) return "";
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  // Already a display name (e.g. "Việt Nam", "Vietnam") — keep as-is.
+  if (trimmed.length > 3 || /[^a-zA-Z]/.test(trimmed)) return trimmed;
+  try {
+    const names = new Intl.DisplayNames([lang], { type: "region" });
+    return names.of(trimmed.toUpperCase()) ?? trimmed;
+  } catch {
+    return trimmed;
+  }
+}
+
 /** Two-column "current → pending" diff shown inline inside a card. */
 function DiffRow({
   label,
@@ -239,7 +257,7 @@ export default function ApplicationDetailPanel({
   application,
   onReviewed,
 }: ApplicationDetailPanelProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const addToast = useToastStore((s) => s.addToast);
   const [modalAction, setModalAction] = useState<ReviewAction | null>(null);
@@ -450,7 +468,7 @@ export default function ApplicationDetailPanel({
               <InfoRow
                 icon={<Globe className="w-4 h-4" />}
                 label={t.instructorApplications.nationality}
-                value={displayNationality || "—"}
+                value={formatNationality(displayNationality, language) || "—"}
               />
               <InfoRow
                 icon={<MapPin className="w-4 h-4" />}
@@ -636,23 +654,6 @@ export default function ApplicationDetailPanel({
                   {t.instructorApplications.noBackId}
                 </p>
               )}
-              <div className="border-t border-gray-100 pt-3 space-y-3">
-                <InfoRow
-                  icon={<User className="w-4 h-4" />}
-                  label={t.instructorApplications.fullName}
-                  value={displayFullName || "—"}
-                />
-                <InfoRow
-                  icon={<Globe className="w-4 h-4" />}
-                  label={t.instructorApplications.nationality}
-                  value={displayNationality || "—"}
-                />
-                <InfoRow
-                  icon={<MapPin className="w-4 h-4" />}
-                  label={t.instructorApplications.address}
-                  value={displayAddress || "—"}
-                />
-              </div>
             </div>
           </SectionCard>
 
