@@ -56,7 +56,7 @@ const en = {
     vouchers: "Voucher Management",
     catSpeak: "Cat Speak",
     news: "News",
-    calendar: "Calendar",
+    calendar: "Events",
     room: "Rooms",
     classes: "Classes",
     reels: "Reels",

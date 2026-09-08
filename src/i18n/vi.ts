@@ -57,7 +57,7 @@ const vi = {
     vouchers: "Quản lý voucher",
     catSpeak: "Cat Speak",
     news: "Bản tin",
-    calendar: "Lịch",
+    calendar: "Sự kiện",
     room: "Room",
     classes: "Lớp học",
     reels: "Reels",

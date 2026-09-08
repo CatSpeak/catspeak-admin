@@ -53,7 +53,7 @@ const zh = {
     vouchers: "优惠券管理",
     catSpeak: "Cat Speak",
     news: "新闻",
-    calendar: "日历",
+    calendar: "活动",
     room: "房间",
     classes: "课程",
     reels: "Reels",
