@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 export const addPlanFeature = async (
   planId: number,
@@ -6,7 +6,7 @@ export const addPlanFeature = async (
 ): Promise<boolean> => {
   try {
     await getResponseData(
-      axiosClient.post(`/v1/Plans/${planId}/features`, featureData),
+      gatewayClient.post(`/api/v1/Plans/${planId}/features`, featureData),
     );
     return true;
   } catch (error) {

@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 export interface DailyRevenueItem {
   date: string;
@@ -27,7 +27,7 @@ export interface DashboardStats {
 export const getDashboardStats = async (): Promise<DashboardStats> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/dashboard")
+      gatewayClient.get<unknown>("/payment/admin/dashboard")
     );
 
     if (response && typeof response === "object") {

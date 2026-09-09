@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 export const deletePlanFeature = async (
   planId: number,
@@ -6,7 +6,7 @@ export const deletePlanFeature = async (
 ): Promise<boolean> => {
   try {
     await getResponseData(
-      axiosClient.delete(`/v1/Plans/${planId}/features/${featureId}`),
+      gatewayClient.delete(`/api/v1/Plans/${planId}/features/${featureId}`),
     );
     return true;
   } catch (error) {

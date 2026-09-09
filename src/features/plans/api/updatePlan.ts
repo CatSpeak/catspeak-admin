@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 import type { Plan } from "../../../entities/types";
 
 export const updatePlan = async (
@@ -6,7 +6,7 @@ export const updatePlan = async (
   formData: FormData,
 ): Promise<Plan> => {
   return getResponseData(
-    axiosClient.put<Plan>(`/v1/Plans/${id}`, formData, {
+    gatewayClient.put<Plan>(`/api/v1/Plans/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

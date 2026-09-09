@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 export type PaymentStatus = 0 | 1 | 2 | 3 | 4 | number;
 
@@ -90,7 +90,7 @@ export const getPayments = async (
     if (sortOrder) queryParams.SortOrder = sortOrder;
 
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/list", { params: queryParams }),
+      gatewayClient.get<unknown>("/payment/admin/list", { params: queryParams }),
     );
 
     if (Array.isArray(response)) {

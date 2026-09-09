@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios"
+import { gatewayClient, getResponseData } from "../../../lib/axios"
 
 // 0: Pending, 1: Accepted, 2: Denied (based on backend enum)
 export type PaymentReportStatus = 0 | 1 | 2
@@ -76,7 +76,7 @@ export const getPaymentReports = async (
 
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/reports", { params }),
+      gatewayClient.get<unknown>("/payment/admin/reports", { params }),
     )
 
     // Defensive parsing for various backend payload patterns:
@@ -107,8 +107,8 @@ export const processPaymentReport = async (
   payload: ProcessReportPayload,
 ): Promise<void> => {
   await getResponseData(
-    axiosClient.post<void>(
-      `/v1/Payments/admin/reports/${reportId}/process`,
+    gatewayClient.post<void>(
+      `/payment/admin/reports/${reportId}/process`,
       payload,
     ),
   )
@@ -139,7 +139,7 @@ export interface GetPaymentsParams {
 export const getPayments = async (params: GetPaymentsParams = {}): Promise<Payment[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/list", { params }),
+      gatewayClient.get<unknown>("/payment/admin/list", { params }),
     )
     if (Array.isArray(response)) {
       return response as Payment[]

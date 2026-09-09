@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 // 0: Pending, 1: Approved, 2: Rejected, 3: Failed
 export type RefundStatus = 0 | 1 | 2 | 3;
@@ -110,7 +110,7 @@ export const getRefunds = async (
 
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/admin/refunds", { params: queryParams })
+      gatewayClient.get<unknown>("/payment/admin/refunds/list", { params: queryParams })
     );
 
     // Defensive parsing for backend response shapes
@@ -167,8 +167,8 @@ export const processRefund = async (
   payload: ProcessRefundPayload
 ): Promise<ProcessRefundResponse> => {
   const response = await getResponseData(
-    axiosClient.post<ProcessRefundResponse>(
-      `/v1/admin/refunds/${refundId}/process`,
+    gatewayClient.post<ProcessRefundResponse>(
+      `/payment/admin/refunds/${refundId}/process`,
       payload
     )
   );
@@ -180,7 +180,7 @@ export const processRefund = async (
  */
 export const getPayoutBalance = async (): Promise<PayoutBalanceResponse> => {
   const response = await getResponseData(
-    axiosClient.get<PayoutBalanceResponse>("/v1/admin/refunds/payout-balance")
+    gatewayClient.get<PayoutBalanceResponse>("/payment/admin/refunds/payout-balance")
   );
   return response;
 };

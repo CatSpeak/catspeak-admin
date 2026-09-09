@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios"
+import { gatewayClient, getResponseData } from "../../../lib/axios"
 import type { Plan } from "../../../entities/types"
 
 export type PlanSortBy = "PlanName" | "Price" | "CreateDate"
@@ -28,6 +28,6 @@ export const getPlans = async (
   params: GetPlansParams = {},
 ): Promise<PlanResponse> => {
   return getResponseData(
-    axiosClient.get<PlanResponse>("/v1/Plans/admin/all", { params }),
+    gatewayClient.get<PlanResponse>("/api/v1/Plans/admin/all", { params }),
   )
 }

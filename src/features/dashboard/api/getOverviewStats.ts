@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { axiosClient, gatewayClient, getResponseData } from "../../../lib/axios";
 
 export const mockupColors = [
   "#3B82F6", // Blue
@@ -306,7 +306,7 @@ export interface MonthlyTargetProgress {
 export const getMonthlyTargetProgress = async (): Promise<MonthlyTargetProgress> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/monthly-target-progress"),
+      gatewayClient.get<unknown>("/payment/admin/monthly-target-progress"),
     );
 
     if (response && typeof response === "object") {

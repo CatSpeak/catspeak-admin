@@ -14,6 +14,23 @@ export const axiosClient = axios.create({
   },
 });
 
+// Gateway client. The gateway routes /payment/* to the payment service and
+// /api/v1/Plans* to the main product API. Non-payment admin stays on
+// axiosClient (admin API). Defaults to the gateway origin (same-origin when the
+// admin web is served behind the gateway), so /payment/* and /api/v1/Plans*
+// resolve to gateway-root paths. Override per env with VITE_GATEWAY_API_BASE_URL.
+const GATEWAY_BASE_URL = import.meta.env.VITE_GATEWAY_API_BASE_URL || "";
+
+export const gatewayClient = axios.create({
+  baseURL: GATEWAY_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  paramsSerializer: {
+    indexes: null,
+  },
+});
+
 axiosClient.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
 
@@ -24,7 +41,24 @@ axiosClient.interceptors.request.use((config) => {
   return config;
 });
 
+gatewayClient.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 axiosClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+gatewayClient.interceptors.response.use(
   (response) => response,
   (error) => {
     return Promise.reject(error);

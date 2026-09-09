@@ -1,4 +1,4 @@
-import { axiosClient, getResponseData } from "../../../lib/axios";
+import { gatewayClient, getResponseData } from "../../../lib/axios";
 
 export interface UserPayment {
   paymentId: number;
@@ -22,7 +22,7 @@ export const getUserPayments = async (
 ): Promise<UserPayment[]> => {
   try {
     const response = await getResponseData(
-      axiosClient.get<unknown>("/v1/Payments/admin/list", {
+      gatewayClient.get<unknown>("/payment/admin/list", {
         params: { userId },
       }),
     );
