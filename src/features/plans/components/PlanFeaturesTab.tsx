@@ -51,6 +51,25 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
     });
   };
 
+  const handleToggleActive = (feature: SubscriptionFeature) => {
+    onUpdateFeature(feature.id, {
+      featureName: feature.featureName,
+      limitValue: feature.limitValue,
+      isActive: !feature.isActive,
+      displayOrder: feature.displayOrder
+    });
+  };
+
+  const handleToggleBooleanLimit = (feature: SubscriptionFeature) => {
+    const nextValue = String(feature.limitValue).toLowerCase() === "true" ? "false" : "true";
+    onUpdateFeature(feature.id, {
+      featureName: feature.featureName,
+      limitValue: nextValue,
+      isActive: feature.isActive,
+      displayOrder: feature.displayOrder
+    });
+  };
+
   const configuredFeatures = plan.subscriptionFeatures || [];
 
   return (
@@ -117,13 +136,14 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.feature}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.code}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32">{t.plans.limit}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.active}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right">{t.common.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {configuredFeatures.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                       {t.plans.noConfiguredFeatures}
                     </td>
                   </tr>
@@ -134,7 +154,16 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                       <td className="px-4 py-3 text-gray-500 text-xs">{feature.featureCode}</td>
                       <td className="px-4 py-3">
                         {feature.valueType === 'boolean' ? (
-                          <span className="text-gray-400 italic">N/A</span>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleBooleanLimit(feature)}
+                            title={t.plans.toggleActive}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${String(feature.limitValue).toLowerCase() === "true" ? 'bg-primary' : 'bg-gray-200'}`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${String(feature.limitValue).toLowerCase() === "true" ? 'translate-x-6' : 'translate-x-1'}`}
+                            />
+                          </button>
                         ) : (
                           <input 
                             type="text" 
@@ -147,6 +176,20 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                             className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                           />
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={!!feature.isActive}
+                          onClick={() => handleToggleActive(feature)}
+                          title={t.plans.toggleActive}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${feature.isActive ? 'bg-primary' : 'bg-gray-200'}`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${feature.isActive ? 'translate-x-6' : 'translate-x-1'}`}
+                          />
+                        </button>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end">
