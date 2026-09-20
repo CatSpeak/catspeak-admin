@@ -8,6 +8,7 @@ import {
   ChevronDown,
   FileWarning,
   GraduationCap,
+  Languages,
   Package,
   Ticket,
   CreditCard,
@@ -129,6 +130,13 @@ const AppSidebar: React.FC = () => {
         icon: <GraduationCap size={20} />,
         path: "/instructor-applications",
         permission: "instructor_applications",
+      },
+      {
+        section: t.nav.applications,
+        name: t.nav.languageRequests,
+        icon: <Languages size={20} />,
+        path: "/language-requests",
+        permission: "language_requests",
       },
       {
         section: t.nav.feedback,
