@@ -29,6 +29,8 @@ const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
+const LanguageRequestsPage = lazy(() => import("../features/language-requests/routes/LanguageRequestsPage"));
+const LanguageRequestDetailPage = lazy(() => import("../features/language-requests/routes/LanguageRequestDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
 const PlansPage = lazy(() => import("../features/plans/PlansPage"));
@@ -106,6 +108,8 @@ export const router = createBrowserRouter([
           { path: "news/:slug", element: guard(PostDetailPage, "news") },
           { path: "instructor-applications", element: guard(InstructorApplicationsPage, "instructor_applications") },
           { path: "instructor-applications/:id", element: guard(InstructorApplicationDetailPage, "instructor_applications") },
+          { path: "language-requests", element: guard(LanguageRequestsPage, "language_requests") },
+          { path: "language-requests/:id", element: guard(LanguageRequestDetailPage, "language_requests") },
           { path: "reels", element: guard(ReelsPage, "reels") },
           { path: "broadcast-mail", element: guard(BroadcastMailPage, "broadcast_mail") },
           ...secondaryRoutes.map((route) => ({
