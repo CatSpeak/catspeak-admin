@@ -18,6 +18,7 @@ import { getApiErrorMessage } from "../../../lib/axios"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import { getPosts, type PostSortBy, type GetPostsParams } from "../api/getPosts"
+import { getTopics } from "../api/getTopics"
 import { COMMUNITIES } from "../constants"
 import Badge from "../../../components/ui/Badge"
 import { useLanguage } from "../../../stores/languageStore"
@@ -162,10 +163,34 @@ export default function NewsPage() {
             params.FromDate = formatDateToUtcStartOfDay(from)
             params.ToDate = formatDateToUtcEndOfDay(to)
           } else if (attribute === "languageCommunity") {
-            const community =
-              typeof value === "string" ? value : Array.isArray(value) ? value[0] : undefined
-            params.LanguageCommunities =
-              community && community !== "All" ? [community] : undefined
+            if (Array.isArray(value)) {
+              const filtered = value.filter((c) => c && c !== "All")
+              params.LanguageCommunities =
+                filtered.length > 0 ? (filtered as string[]) : undefined
+            } else if (typeof value === "string") {
+              params.LanguageCommunities =
+                value && value !== "All" ? [value] : undefined
+            }
+          } else if (attribute === "topics") {
+            if (value && typeof value === "string" && value.trim()) {
+              const keyword = value.trim()
+              try {
+                const topicRes = await getTopics({ keyword })
+                if (topicRes && topicRes.data && topicRes.data.length > 0) {
+                  params.TopicIds = topicRes.data.map((tp) => tp.topicId)
+                } else {
+                  return {
+                    data: [],
+                    total: 0,
+                  }
+                }
+              } catch {
+                return {
+                  data: [],
+                  total: 0,
+                }
+              }
+            }
           }
           const res = await getPosts(params)
           return {
@@ -191,6 +216,47 @@ export default function NewsPage() {
                 </span>
               </div>
             ),
+          },
+          {
+            name: t.news.postTitle,
+            accessorKey: "title",
+            allowSort: true,
+            render: (p) => (
+              <span
+                className="text-gray-900 font-semibold max-w-xs truncate block"
+                title={p.Title || p.title || ""}
+              >
+                {p.Title || p.title || "—"}
+              </span>
+            ),
+          },
+          {
+            name: t.news.topics,
+            accessorKey: "topics",
+            showFilter: true,
+            width: 210,
+            headerClassName: "w-[210px] min-w-[210px] max-w-[210px]",
+            cellClassName: "w-[210px] min-w-[210px] max-w-[210px]",
+            render: (p) => {
+              if (!p.topics || p.topics.length === 0) {
+                return <span className="text-gray-400">—</span>
+              }
+              return (
+                <div
+                  className="flex items-center gap-1.5 overflow-x-auto w-[200px] max-w-[200px] py-1 [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {p.topics.map((tp) => (
+                    <Badge
+                      key={tp.topicId}
+                      type="Red"
+                      title={`#${tp.title}`}
+                      className="shrink-0"
+                    />
+                  ))}
+                </div>
+              )
+            },
           },
           {
             name: t.news.preview,
@@ -239,7 +305,7 @@ export default function NewsPage() {
             valueLabels: COMMUNITIES.map((c) =>
               c === "All" ? t.common.all : (t.room?.languages?.[c] || c),
             ),
-            choiceMode: "single",
+            choiceMode: "multi",
             showFilter: true,
             render: (p) => (
               <FlagBadge
