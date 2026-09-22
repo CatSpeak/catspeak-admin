@@ -3,7 +3,6 @@ import type { GetPostResponse, CreatePostPayload } from "../types";
 
 /**
  * Create a new news post.
- * Replace the endpoint URL with the actual backend route when available.
  */
 export const createPost = async (
   payload: CreatePostPayload,
@@ -16,6 +15,13 @@ export const createPost = async (
 
   if (payload.Slug) {
     formData.append("Slug", payload.Slug);
+  }
+
+  const topicIds = payload.TopicIds || payload.topicIds;
+  if (topicIds && topicIds.length > 0) {
+    topicIds.forEach((id) => {
+      formData.append("TopicIds", String(id));
+    });
   }
 
   if (payload.Files && payload.Files.length > 0) {
