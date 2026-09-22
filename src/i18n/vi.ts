@@ -557,6 +557,8 @@ const vi = {
     limit: "Giới hạn",
     noConfiguredFeatures:
       "Gói này chưa bao gồm tính năng nào. Hãy thêm từ danh sách tính năng bên trái.",
+    active: "Kích hoạt",
+    toggleActive: "Bật/tắt tính năng",
     removeFeature: "Gỡ bỏ tính năng",
     unitPrice: "Đơn giá",
     quantity: "Số lượng",

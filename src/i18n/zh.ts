@@ -539,6 +539,8 @@ const zh = {
     limit: "限制",
     noConfiguredFeatures:
       "该套餐尚未包含任何功能。请从左侧的可用功能列表中添加。",
+    active: "启用",
+    toggleActive: "启用/禁用功能",
     removeFeature: "移除功能",
     unitPrice: "单价",
     quantity: "数量",

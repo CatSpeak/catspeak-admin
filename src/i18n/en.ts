@@ -552,6 +552,8 @@ const en = {
     limit: "Limit",
     noConfiguredFeatures:
       "This plan does not include any features yet. Add them from the available features list on the left.",
+    active: "Active",
+    toggleActive: "Toggle feature",
     removeFeature: "Remove Feature",
     unitPrice: "Unit price",
     quantity: "Quantity",
