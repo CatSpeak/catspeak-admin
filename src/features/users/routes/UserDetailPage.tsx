@@ -18,6 +18,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Package,
+  Crown,
 } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
 import { getActivePlans } from "../../plans/api/getActivePlans";
@@ -549,6 +550,11 @@ export default function UserDetailPage() {
                 {t.users.pendingActivationBadge}
               </span>
             )}
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-primary/5 text-primary border-primary/20">
+              <Package className="w-3 h-3" />
+              {user.currentSubscriptionName || "Free"}
+              {user.currentSubscriptionEndDate ? ` • ${new Date(user.currentSubscriptionEndDate).toLocaleDateString("vi-VN")}` : ""}
+            </span>
           </div>
 
           <p className="text-sm text-gray-500 font-medium flex items-center justify-center md:justify-start gap-1.5">
@@ -660,6 +666,91 @@ export default function UserDetailPage() {
           </div>
         )}
 
+        {/* Current Plan Overview Card */}
+        {(() => {
+          const currentPlanName = user.currentSubscriptionName || "Free";
+          const endDate = user.currentSubscriptionEndDate ? new Date(user.currentSubscriptionEndDate) : null;
+          const now = new Date();
+          const isExpired = endDate ? endDate.getTime() < now.getTime() : false;
+          const diffDays = endDate ? Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null;
+
+          return (
+            <div className="mb-6 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-primary/[0.02] to-transparent p-5 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center shrink-0 shadow-xs">
+                    <Crown className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                        {t.plans.currentPlan}:
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full text-xs font-extrabold bg-primary text-white shadow-xs">
+                        {currentPlanName}
+                      </span>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                          isExpired
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isExpired ? "bg-red-500" : "bg-emerald-500 animate-pulse"
+                          }`}
+                        />
+                        {isExpired ? "Hết hạn" : t.plans.activeSubscription}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-gray-600 font-medium">
+                      {user.currentSubscriptionStartDate && (
+                        <span className="flex items-center gap-1.5 text-gray-500">
+                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                          {t.plans.startDate}:{" "}
+                          <strong className="text-gray-700 font-semibold">
+                            {formatDateTime(user.currentSubscriptionStartDate)}
+                          </strong>
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-gray-400" />
+                        {t.plans.expiresAt}:{" "}
+                        {user.currentSubscriptionEndDate ? (
+                          <>
+                            <strong className="text-gray-900 font-bold">
+                              {formatDateTime(user.currentSubscriptionEndDate)}
+                            </strong>
+                            {diffDays != null && diffDays > 0 ? (
+                              <span className="ml-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 font-bold text-[10px]">
+                                {t.plans.daysRemaining.replace("{days}", String(diffDays))}
+                              </span>
+                            ) : (
+                              <span className="ml-1 px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200/60 font-bold text-[10px]">
+                                Đã hết hạn
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-gray-700 font-semibold italic">
+                            {t.plans.unlimitedDuration} ({t.plans.defaultPlan})
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+          {t.plans.changePlan}
+        </p>
+
         {plansLoading ? (
           <div className="flex items-center justify-center py-8 gap-2 text-sm text-gray-500 font-semibold">
             <svg
@@ -695,14 +786,19 @@ export default function UserDetailPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {plans.map((plan) => {
+              const currentPlanName = user?.currentSubscriptionName || "Free";
+              const currentPlanId = user?.currentSubscriptionId;
+              const isFreeUser = !currentPlanId || currentPlanName.trim().toLowerCase() === "free";
+              const isFreePlan = plan.planName?.trim().toLowerCase() === "free" || plan.priceVnd === 0;
+
               const isSubscribed = Boolean(
                 user &&
-                ((user.currentSubscriptionId != null &&
-                  user.currentSubscriptionId === plan.planId) ||
-                  (user.currentSubscriptionName &&
+                ((currentPlanId != null && currentPlanId === plan.planId) ||
+                  (currentPlanName &&
                     plan.planName &&
-                    user.currentSubscriptionName.trim().toLowerCase() ===
-                      plan.planName.trim().toLowerCase())),
+                    currentPlanName.trim().toLowerCase() ===
+                      plan.planName.trim().toLowerCase()) ||
+                  (isFreeUser && isFreePlan)),
               );
 
               return (
@@ -710,7 +806,7 @@ export default function UserDetailPage() {
                   key={plan.planId}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
                     isSubscribed
-                      ? "border-success-300 bg-success-50/60 text-success-900"
+                      ? "border-success-300 bg-success-50/60 text-success-900 shadow-xs"
                       : "border-gray-150 bg-gray-50/30 hover:bg-gray-50"
                   }`}
                 >
@@ -724,18 +820,27 @@ export default function UserDetailPage() {
                     >
                       #{plan.planId}
                     </span>
-                    <span
-                      className={`text-sm font-bold ${
-                        isSubscribed ? "text-success-900" : "text-gray-900"
-                      }`}
-                    >
-                      {plan.planName}
-                    </span>
+                    <div>
+                      <span
+                        className={`text-sm font-bold block ${
+                          isSubscribed ? "text-success-900" : "text-gray-900"
+                        }`}
+                      >
+                        {plan.planName}
+                      </span>
+                      {plan.priceVnd != null && (
+                        <span className="text-xs text-gray-400 font-medium">
+                          {plan.priceVnd === 0
+                            ? t.plans.free
+                            : `${plan.priceVnd.toLocaleString("vi-VN")} đ${plan.billingCycle ? ` / ${plan.billingCycle}` : ""}`}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   {isSubscribed ? (
                     <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl text-success-700 bg-success-100 border border-success-200 shrink-0">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      {t.plans.subscribed}
+                      {t.plans.currentActive || t.plans.subscribed}
                     </span>
                   ) : (
                     <button
@@ -768,7 +873,7 @@ export default function UserDetailPage() {
                           <span>{t.plans.upgrading}</span>
                         </>
                       ) : (
-                        <span>{t.plans.upgrade}</span>
+                        <span>{isFreePlan ? t.plans.switchPlan : t.plans.upgrade}</span>
                       )}
                     </button>
                   )}
