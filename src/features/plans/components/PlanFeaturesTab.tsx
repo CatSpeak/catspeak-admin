@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../../../components/ui/Card';
 import type { Plan, SubscriptionFeature } from '../../../entities/types';
-import { Search, Plus, Trash2 } from 'lucide-react';
+import { Search, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../stores/languageStore';
 
 interface PlanFeaturesTabProps {
@@ -20,6 +20,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
   onRemoveFeature
 }) => {
   const [search, setSearch] = useState('');
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const { t } = useLanguage();
 
   const safeAvailableFeatures = Array.isArray(availableFeatures) ? availableFeatures : [];
@@ -68,6 +69,15 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
       isActive: feature.isActive,
       displayOrder: feature.displayOrder
     });
+  };
+
+  const handleRemove = async (featureId: number) => {
+    setDeletingId(featureId);
+    try {
+      await onRemoveFeature(featureId);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const configuredFeatures = plan.subscriptionFeatures || [];
@@ -130,14 +140,14 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm whitespace-nowrap">
+            <table className="w-full text-left text-sm">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.feature}</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.code}</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32">{t.plans.limit}</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs">{t.plans.active}</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right">{t.common.actions}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs min-w-[200px]">{t.plans.feature}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs whitespace-nowrap">{t.plans.code}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32 whitespace-nowrap">{t.plans.limit}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs whitespace-nowrap text-center">{t.plans.active}</th>
+                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right whitespace-nowrap">{t.common.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -149,10 +159,13 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                   </tr>
                 ) : (
                   configuredFeatures.map(feature => (
-                    <tr key={feature.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900">{feature.featureName}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">{feature.featureCode}</td>
-                      <td className="px-4 py-3">
+                    <tr 
+                      key={feature.id} 
+                      className={`hover:bg-gray-50 transition-colors ${deletingId === feature.id ? 'opacity-50 pointer-events-none' : ''}`}
+                    >
+                      <td className="px-4 py-3 font-medium text-gray-900 whitespace-normal break-words leading-snug">{feature.featureName}</td>
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">{feature.featureCode}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {feature.valueType === 'boolean' ? (
                           <button
                             type="button"
@@ -177,7 +190,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap text-center">
                         <button
                           type="button"
                           role="switch"
@@ -191,14 +204,20 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                           />
                         </button>
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end">
                           <button 
-                            onClick={() => onRemoveFeature(feature.id)}
-                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50"
+                            type="button"
+                            disabled={deletingId === feature.id}
+                            onClick={() => handleRemove(feature.id)}
+                            className="p-1.5 text-gray-400 hover:text-red-500 transition-colors rounded hover:bg-red-50 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                             title={t.plans.removeFeature}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            {deletingId === feature.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-red-500" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </td>
