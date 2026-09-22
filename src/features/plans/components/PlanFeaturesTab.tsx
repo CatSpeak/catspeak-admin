@@ -47,16 +47,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
     onUpdateFeature(feature.id, {
       featureName: feature.featureName,
       limitValue: newValue,
-      isActive: feature.isActive,
-      displayOrder: feature.displayOrder
-    });
-  };
-
-  const handleToggleActive = (feature: SubscriptionFeature) => {
-    onUpdateFeature(feature.id, {
-      featureName: feature.featureName,
-      limitValue: feature.limitValue,
-      isActive: !feature.isActive,
+      isActive: true,
       displayOrder: feature.displayOrder
     });
   };
@@ -66,7 +57,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
     onUpdateFeature(feature.id, {
       featureName: feature.featureName,
       limitValue: nextValue,
-      isActive: feature.isActive,
+      isActive: true,
       displayOrder: feature.displayOrder
     });
   };
@@ -80,7 +71,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
     }
   };
 
-  const configuredFeatures = plan.subscriptionFeatures || [];
+  const configuredFeatures = (plan.subscriptionFeatures || []).filter(f => f.isActive !== false);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -146,14 +137,13 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs min-w-[200px]">{t.plans.feature}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs whitespace-nowrap">{t.plans.code}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs w-32 whitespace-nowrap">{t.plans.limit}</th>
-                  <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs whitespace-nowrap text-center">{t.plans.active}</th>
                   <th className="px-4 py-3 font-medium text-gray-500 uppercase text-xs text-right whitespace-nowrap">{t.common.actions}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {configuredFeatures.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
                       {t.plans.noConfiguredFeatures}
                     </td>
                   </tr>
@@ -189,20 +179,6 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                             className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                           />
                         )}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <button
-                          type="button"
-                          role="switch"
-                          aria-checked={!!feature.isActive}
-                          onClick={() => handleToggleActive(feature)}
-                          title={t.plans.toggleActive}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${feature.isActive ? 'bg-primary' : 'bg-gray-200'}`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${feature.isActive ? 'translate-x-6' : 'translate-x-1'}`}
-                          />
-                        </button>
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end">
