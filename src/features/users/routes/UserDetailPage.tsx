@@ -18,6 +18,7 @@ import {
   ChevronRight,
   AlertTriangle,
   Package,
+  Landmark,
   Crown,
 } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
@@ -640,6 +641,75 @@ export default function UserDetailPage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* Bank Accounts (read-only, configured by the user on the client) */}
+      <div className="bg-white border border-gray-200 rounded-3xl p-6 shadow-sm">
+        <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-2 tracking-tight">
+          <Landmark className="w-5 h-5 text-primary" />
+          {t.users.bankAccountsTitle}
+        </h3>
+
+        {!user.bankAccounts || user.bankAccounts.length === 0 ? (
+          <div className="py-6 text-center text-sm font-medium text-gray-500">
+            {t.users.noBankAccounts}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[...user.bankAccounts]
+              .sort((a, b) => Number(b.isDefault ?? false) - Number(a.isDefault ?? false) || a.id - b.id)
+              .map((acc) => (
+                <div
+                  key={acc.id}
+                  className={`p-4 rounded-2xl border transition-all ${
+                    acc.isDefault
+                      ? "border-emerald-200 bg-emerald-50/60"
+                      : "border-gray-150 bg-gray-50/30"
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-gray-900">
+                      {acc.bankShortName || acc.bankFullName || acc.bankBin || `#${acc.id}`}
+                    </span>
+                    {acc.bankFullName && acc.bankShortName && acc.bankFullName !== acc.bankShortName && (
+                      <span className="text-xs text-gray-400 font-medium truncate">
+                        {acc.bankFullName}
+                      </span>
+                    )}
+                    {acc.isDefault && (
+                      <span className="inline-flex px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-100 text-emerald-800 border-emerald-200">
+                        {t.users.defaultAccountBadge}
+                      </span>
+                    )}
+                    <span
+                      className={`inline-flex px-2 py-0.5 rounded-full border text-[10px] font-bold ${
+                        acc.isVerified
+                          ? "bg-success-50 text-success-700 border-success-100"
+                          : "bg-gray-100 text-gray-500 border-gray-200"
+                      }`}
+                    >
+                      {acc.isVerified ? t.users.verifiedBadge : t.users.unverifiedBadge}
+                    </span>
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    <DetailItem
+                      icon={<Landmark className="w-4 h-4" />}
+                      label={t.users.bankAccountNumber}
+                      value={String(acc.accountNumber ?? "").replace(/(.{4})/g, "$1 ").trim()}
+                      copyable
+                    />
+                    {acc.accountHolderName && (
+                      <DetailItem
+                        icon={<User className="w-4 h-4" />}
+                        label={t.users.bankAccountHolder}
+                        value={acc.accountHolderName}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
 
       {/* Plans Section */}
