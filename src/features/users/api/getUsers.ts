@@ -18,7 +18,6 @@ export interface GetUsersParams {
   AmountSpentMinVnd?: number;
   AmountSpentMaxVnd?: number;
   VisitDurationPeriod?: string;
-  IsInstructor?: boolean;
   SortBy?: UserSortBy;
   Page?: number;
   PageSize?: number;
