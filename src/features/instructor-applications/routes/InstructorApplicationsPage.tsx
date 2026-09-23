@@ -79,22 +79,6 @@ export default function InstructorApplicationsPage() {
             render: (rev) => <>{rev.phoneNumber || "—"}</>,
           },
           {
-            name: t.instructorApplications.requestType,
-            accessorKey: "requestType",
-            render: (rev) =>
-              rev.requestType === 1 ? (
-                <Badge
-                  title={t.instructorApplications.initialType}
-                  type="Blue"
-                />
-              ) : (
-                <Badge
-                  title={t.instructorApplications.updateType}
-                  type="Orange"
-                />
-              ),
-          },
-          {
             name: t.common.createdDate,
             accessorKey: "createdAt",
             render: (rev) => (
@@ -108,13 +92,12 @@ export default function InstructorApplicationsPage() {
             accessorKey: "status",
             values: [
               { value: "Pending", label: t.common.pending },
-              { value: "Approved", label: t.common.approved },
-              { value: "Rejected", label: t.common.rejected },
-              { value: "Cancelled", label: t.common.cancelled },
               {
                 value: "RequestEdit",
                 label: t.instructorApplications.requestEdit,
               },
+              { value: "Approved", label: t.common.approved },
+              { value: "Rejected", label: t.common.rejected },
             ],
             showFilter: true,
             render: (rev) => {

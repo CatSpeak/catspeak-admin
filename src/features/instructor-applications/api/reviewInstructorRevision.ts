@@ -30,3 +30,22 @@ export const requestEditRevision = async (
     }),
   );
 };
+
+export const verifyInstructorIdCard = async (
+  profileId: number,
+): Promise<void> => {
+  await getResponseData(
+    axiosClient.put<void>(`/Admin/InstructorProfile/${profileId}/verify-id-card`),
+  );
+};
+
+export const removeInstructorIntroVideo = async (
+  profileId: number,
+  reason?: string,
+): Promise<void> => {
+  await getResponseData(
+    axiosClient.delete<void>(`/Admin/InstructorProfile/${profileId}/intro-video`, {
+      params: reason ? { reason } : undefined,
+    }),
+  );
+};
