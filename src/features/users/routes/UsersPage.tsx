@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from "react"
-import Badge from "../../../components/ui/Badge"
-import { UsersRound, UserPlus, LockOpen, ShieldCheck } from "lucide-react"
+import { UsersRound, UserPlus, LockOpen, ShieldCheck, GraduationCap } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
 import ActionsMenu from "../../../components/ui/table/components/ActionsMenu"
@@ -45,6 +44,7 @@ export default function UsersPage() {
   const [showActivateConfirm, setShowActivateConfirm] = useState(false)
   const [activating, setActivating] = useState(false)
   const [openMenuId, setOpenMenuId] = useState<number | null>(null)
+  const [showInstructorsOnly, setShowInstructorsOnly] = useState(false)
 
   const executePromoteToStaff = async (targetUser: Account) => {
     if (!isPrimaryAdmin) return
@@ -101,12 +101,17 @@ export default function UsersPage() {
   }
 
   const fetcher = useCallback(async (page: number, pageSize: number) => {
-    const res = await getAccounts(page, pageSize)
+    const res = await getAccounts(
+      showInstructorsOnly
+        ? { Page: page, PageSize: pageSize, IsInstructor: true }
+        : page,
+      pageSize,
+    )
     return {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [])
+  }, [showInstructorsOnly])
 
   const sorter = useCallback(async (attribute: string, sortOrder: string | undefined) => {
     let sortBy: UserSortBy | undefined = undefined
@@ -119,15 +124,15 @@ export default function UsersPage() {
         : sortOrder === "desc"
           ? "Desc"
           : undefined
-    const res = await getAccounts({ SortBy: sortBy, SortOrder: order as UserSortBy extends string ? "Asc" | "Desc" | undefined : never })
+    const res = await getAccounts({ SortBy: sortBy, SortOrder: order as UserSortBy extends string ? "Asc" | "Desc" | undefined : never, ...(showInstructorsOnly ? { IsInstructor: true } : {}) })
     return {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [])
+  }, [showInstructorsOnly])
 
   const filter = useCallback(async (attribute: string, value: unknown, toDate?: string) => {
-    const params: GetUsersParams = {}
+    const params: GetUsersParams = showInstructorsOnly ? { IsInstructor: true } : {}
     if (attribute === "global") {
       params.SearchKeyword = value ? String(value) : undefined
     } else if (attribute === "phoneNumber") {
@@ -160,7 +165,7 @@ export default function UsersPage() {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [])
+  }, [showInstructorsOnly])
 
   const headers: TableHeader<Account>[] = useMemo(
     () => [
@@ -173,6 +178,32 @@ export default function UsersPage() {
             accessorKey: "username",
             cellClassName: "font-bold",
             allowSort: true,
+            render: (r) => {
+              const isTeacherActive =
+                r.activeProfileType === 1 || r.activeProfileName === "Teacher"
+              const hasInstructorProfile =
+                r.isInstructor || r.teacherAccountId != null
+              return (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={isTeacherActive ? "text-emerald-700" : undefined}>
+                    {r.username}
+                  </span>
+                  {isTeacherActive ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">
+                      <GraduationCap className="w-3 h-3" />
+                      {t.users.teacherBadge}
+                    </span>
+                  ) : hasInstructorProfile ? (
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-gray-50 text-gray-500 border-gray-200 whitespace-nowrap"
+                      title={t.users.instructorProfileBadge}
+                    >
+                      <GraduationCap className="w-3 h-3" />
+                    </span>
+                  ) : null}
+                </span>
+              )
+            },
           },
           {
             name: t.users.email,
@@ -242,23 +273,6 @@ export default function UsersPage() {
                 <span className="inline-flex px-2.5 py-0.5 rounded-full border text-[10px] font-bold bg-success-50 text-success-700 border-success-100">
                   {t.common.active}
                 </span>
-              )
-            },
-          },
-          {
-            name: t.users.isTeacher,
-            accessorKey: "isInstructor",
-            render: (p) => {
-              const isTeacher =
-                p.isInstructor ||
-                p.roleName === "Teacher" ||
-                p.roleName === "Instructor"
-              return isTeacher ? (
-                <Badge type="Green" showDot>
-                  Giảng viên
-                </Badge>
-              ) : (
-                <span className="text-gray-400">—</span>
               )
             },
           },
@@ -357,6 +371,22 @@ export default function UsersPage() {
           {actionSuccess}
         </div>
       )}
+
+      <div className="flex items-center justify-end">
+        <button
+          type="button"
+          onClick={() => setShowInstructorsOnly((v) => !v)}
+          aria-pressed={showInstructorsOnly}
+          className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+            showInstructorsOnly
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+          }`}
+        >
+          <GraduationCap className="w-4 h-4" />
+          {t.users.instructorsOnly}
+        </button>
+      </div>
 
       <Table<Account>
         key={refreshKey}

@@ -24,6 +24,11 @@ export interface Account {
   visitDurationSeconds: number;
   isInstructor?: boolean;
   teacherAccountId?: number | null;
+  /** 0 = User (Student), 1 = Instructor (Teacher). Mirrors client user.accountType. */
+  activeProfileType?: number | null;
+  activeProfileName?: string | null;
+  /** Payout bank accounts configured by the user on the client (embedded detail only). */
+  bankAccounts?: BankAccount[];
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;
@@ -31,6 +36,17 @@ export interface Account {
   remainingMinutes?: number | null;
   lockedUntil?: string | null;
   isPendingActivation?: boolean;
+}
+
+export interface BankAccount {
+  id: number;
+  bankBin?: string | null;
+  bankShortName?: string | null;
+  bankFullName?: string | null;
+  accountNumber: string;
+  accountHolderName?: string | null;
+  isVerified?: boolean;
+  isDefault?: boolean;
 }
 
 export interface SubscriptionFeature {
