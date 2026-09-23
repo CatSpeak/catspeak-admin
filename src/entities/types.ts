@@ -24,9 +24,8 @@ export interface Account {
   visitDurationSeconds: number;
   isInstructor?: boolean;
   teacherAccountId?: number | null;
-  /** 0 = User (Student), 1 = Instructor (Teacher). Mirrors client user.accountType. */
-  activeProfileType?: number | null;
-  activeProfileName?: string | null;
+  /** True when this row is the dedicated teacher account of the user (canonical teacher marker). */
+  isTeacherAccount?: boolean;
   /** Payout bank accounts configured by the user on the client (embedded detail only). */
   bankAccounts?: BankAccount[];
   phoneNumber?: string;

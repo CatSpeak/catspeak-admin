@@ -1,10 +1,7 @@
-import { useState, useCallback, useMemo } from "react"
-import { UsersRound, UserPlus, LockOpen, ShieldCheck, GraduationCap } from "lucide-react"
+import { useCallback, useMemo } from "react"
+import { UsersRound, LockOpen } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Table from "../../../components/ui/table/Table"
-import ActionsMenu from "../../../components/ui/table/components/ActionsMenu"
-import { unlockUser } from "../api/unlockUser"
-import { activateUser } from "../api/activateUser"
 import {
   getAccounts,
   type GetUsersParams,
@@ -18,100 +15,19 @@ import {
 } from "../../../lib/utils"
 import type { Account } from "../types"
 import { useLanguage } from "../../../stores/languageStore"
-import { useAuthStore } from "../../../stores/authStore"
-import { promoteUserToStaff } from "../../staffs/api/permissions"
-import { ConfirmModal } from "../../../components/ui/ConfirmModal"
-import { getApiErrorMessage } from "../../../lib/axios"
 import type { TableHeader } from "../../../components/ui/table/types"
 
 export default function UsersPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const currentUser = useAuthStore((state) => state.user)
-  const isPrimaryAdmin = currentUser?.roleId === 1
-
-  const [selectedUserForPromote, setSelectedUserForPromote] = useState<Account | null>(null)
-  const [showPromoteConfirm, setShowPromoteConfirm] = useState(false)
-  const [promoting, setPromoting] = useState(false)
-  const [actionError, setActionError] = useState<string | null>(null)
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null)
-  const [refreshKey, setRefreshKey] = useState(0)
-
-  const [selectedForUnlock, setSelectedForUnlock] = useState<Account | null>(null)
-  const [showUnlockConfirm, setShowUnlockConfirm] = useState(false)
-  const [unlocking, setUnlocking] = useState(false)
-  const [selectedForActivate, setSelectedForActivate] = useState<Account | null>(null)
-  const [showActivateConfirm, setShowActivateConfirm] = useState(false)
-  const [activating, setActivating] = useState(false)
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null)
-  const [showInstructorsOnly, setShowInstructorsOnly] = useState(false)
-
-  const executePromoteToStaff = async (targetUser: Account) => {
-    if (!isPrimaryAdmin) return
-    try {
-      setPromoting(true)
-      setActionError(null)
-      setActionSuccess(null)
-
-      await promoteUserToStaff(targetUser.accountId)
-      setActionSuccess(`Đã thăng cấp người dùng '${targetUser.username}' thành Staff thành công.`)
-      setRefreshKey((prev) => prev + 1)
-    } catch (err) {
-      setActionError(getApiErrorMessage(err, "Không thể thăng cấp người dùng thành Staff."))
-    } finally {
-      setPromoting(false)
-      setSelectedUserForPromote(null)
-    }
-  }
-
-  const executeUnlock = async () => {
-    if (!selectedForUnlock) return
-    try {
-      setUnlocking(true)
-      setActionError(null)
-      setActionSuccess(null)
-      const res = await unlockUser(selectedForUnlock.accountId)
-      setActionSuccess(res.message)
-      setRefreshKey((p) => p + 1)
-      setShowUnlockConfirm(false)
-      setSelectedForUnlock(null)
-    } catch (err) {
-      setActionError(getApiErrorMessage(err, t.users.unlockFailed))
-    } finally {
-      setUnlocking(false)
-    }
-  }
-
-  const executeActivate = async () => {
-    if (!selectedForActivate) return
-    try {
-      setActivating(true)
-      setActionError(null)
-      setActionSuccess(null)
-      const res = await activateUser(selectedForActivate.accountId)
-      setActionSuccess(res.message)
-      setRefreshKey((p) => p + 1)
-      setShowActivateConfirm(false)
-      setSelectedForActivate(null)
-    } catch (err) {
-      setActionError(getApiErrorMessage(err, t.users.activateFailed))
-    } finally {
-      setActivating(false)
-    }
-  }
 
   const fetcher = useCallback(async (page: number, pageSize: number) => {
-    const res = await getAccounts(
-      showInstructorsOnly
-        ? { Page: page, PageSize: pageSize, IsInstructor: true }
-        : page,
-      pageSize,
-    )
+    const res = await getAccounts(page, pageSize)
     return {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [showInstructorsOnly])
+  }, [])
 
   const sorter = useCallback(async (attribute: string, sortOrder: string | undefined) => {
     let sortBy: UserSortBy | undefined = undefined
@@ -124,15 +40,15 @@ export default function UsersPage() {
         : sortOrder === "desc"
           ? "Desc"
           : undefined
-    const res = await getAccounts({ SortBy: sortBy, SortOrder: order as UserSortBy extends string ? "Asc" | "Desc" | undefined : never, ...(showInstructorsOnly ? { IsInstructor: true } : {}) })
+    const res = await getAccounts({ SortBy: sortBy, SortOrder: order })
     return {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [showInstructorsOnly])
+  }, [])
 
   const filter = useCallback(async (attribute: string, value: unknown, toDate?: string) => {
-    const params: GetUsersParams = showInstructorsOnly ? { IsInstructor: true } : {}
+    const params: GetUsersParams = {}
     if (attribute === "global") {
       params.SearchKeyword = value ? String(value) : undefined
     } else if (attribute === "phoneNumber") {
@@ -165,46 +81,41 @@ export default function UsersPage() {
       data: res.data,
       total: res.additionalData?.totalCount ?? res.total_records ?? 0,
     }
-  }, [showInstructorsOnly])
+  }, [])
 
   const headers: TableHeader<Account>[] = useMemo(
     () => [
-          {
-            name: t.users.id,
-            accessorKey: "accountId",
-          },
-          {
-            name: t.users.username,
-            accessorKey: "username",
-            cellClassName: "font-bold",
-            allowSort: true,
-            render: (r) => {
-              const isTeacherActive =
-                r.activeProfileType === 1 || r.activeProfileName === "Teacher"
-              const hasInstructorProfile =
-                r.isInstructor || r.teacherAccountId != null
-              return (
-                <span className="inline-flex items-center gap-1.5">
-                  <span className={isTeacherActive ? "text-emerald-700" : undefined}>
-                    {r.username}
-                  </span>
-                  {isTeacherActive ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap">
-                      <GraduationCap className="w-3 h-3" />
-                      {t.users.teacherBadge}
-                    </span>
-                  ) : hasInstructorProfile ? (
-                    <span
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-gray-50 text-gray-500 border-gray-200 whitespace-nowrap"
-                      title={t.users.instructorProfileBadge}
-                    >
-                      <GraduationCap className="w-3 h-3" />
-                    </span>
-                  ) : null}
-                </span>
-              )
-            },
-          },
+      {
+        name: t.users.id,
+        accessorKey: "accountId",
+      },
+      {
+        name: t.users.username,
+        accessorKey: "username",
+        cellClassName: "font-bold",
+        allowSort: true,
+        render: (r) => (
+          <span className="inline-flex items-center gap-1.5">
+            <span className={r.isTeacherAccount ? "text-emerald-700" : undefined}>
+              {r.username}
+            </span>
+            <span
+              className={
+                r.isTeacherAccount
+                  ? "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 whitespace-nowrap"
+                  : "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-gray-50 text-gray-500 border-gray-200 whitespace-nowrap"
+              }
+            >
+              {r.isTeacherAccount ? t.users.teacherBadge : t.users.studentBadge}
+            </span>
+            {!r.isTeacherAccount && r.teacherAccountId != null && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold bg-blue-50 text-blue-700 border-blue-200 whitespace-nowrap">
+                {t.users.hasTeacherAccountBadge}
+              </span>
+            )}
+          </span>
+        ),
+      },
           {
             name: t.users.email,
             accessorKey: "email",
@@ -285,70 +196,8 @@ export default function UsersPage() {
               </span>
             ),
           },
-          {
-            name: t.users.actions,
-            accessorKey: "actions",
-            pinned: "right",
-            width: 88,
-            headerClassName: "px-4 py-3 text-center text-sm font-bold tracking-wider whitespace-nowrap",
-            cellClassName: "px-4 py-3 text-center",
-            render: (p) => {
-              const isAdmin = p.roleId === 1 || p.roleName === "Admin"
-
-              if (isAdmin) {
-                return (
-                  <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg">
-                    Primary Admin
-                  </span>
-                )
-              }
-
-              const actions = [
-                {
-                  label: t.users.unlock,
-                  icon: <LockOpen className="w-4 h-4" />,
-                  handler: (row: Account) => {
-                    setSelectedForUnlock(row)
-                    setShowUnlockConfirm(true)
-                  },
-                  hidden: (row: Account) => !row.isLocked,
-                },
-                {
-                  label: t.users.activate,
-                  icon: <ShieldCheck className="w-4 h-4" />,
-                  handler: (row: Account) => {
-                    setSelectedForActivate(row)
-                    setShowActivateConfirm(true)
-                  },
-                  hidden: (row: Account) => !row.isPendingActivation,
-                },
-                {
-                  label: t.users.promoteToStaffShort,
-                  icon: <UserPlus className="w-4 h-4" />,
-                  handler: (row: Account) => {
-                    setSelectedUserForPromote(row)
-                    setShowPromoteConfirm(true)
-                  },
-                  hidden: (row: Account) => !isPrimaryAdmin || row.roleId !== 2,
-                },
-              ]
-
-              const hasAny = actions.some((a) => !a.hidden?.(p))
-              if (!hasAny) return <span className="text-gray-400 text-xs">—</span>
-
-              return (
-                <ActionsMenu
-                  row={p}
-                  actions={actions}
-                  isOpen={openMenuId === p.accountId}
-                  onToggle={() => setOpenMenuId(openMenuId === p.accountId ? null : p.accountId)}
-                  onClose={() => setOpenMenuId(null)}
-                />
-              )
-            },
-          },
     ],
-    [t, isPrimaryAdmin, openMenuId],
+    [t],
   )
 
   return (
@@ -360,110 +209,12 @@ export default function UsersPage() {
         desc={t.users.desc}
       />
 
-      {actionError && (
-        <div className="p-4 rounded-xl bg-error-50 border border-error-150 text-error-700 text-xs font-semibold">
-          {actionError}
-        </div>
-      )}
-
-      {actionSuccess && (
-        <div className="p-4 rounded-xl bg-success-50 border border-success-150 text-success-700 text-xs font-semibold">
-          {actionSuccess}
-        </div>
-      )}
-
-      <div className="flex items-center justify-end">
-        <button
-          type="button"
-          onClick={() => setShowInstructorsOnly((v) => !v)}
-          aria-pressed={showInstructorsOnly}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-            showInstructorsOnly
-              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-          }`}
-        >
-          <GraduationCap className="w-4 h-4" />
-          {t.users.instructorsOnly}
-        </button>
-      </div>
-
       <Table<Account>
-        key={refreshKey}
         fetcher={fetcher}
         sorter={sorter as never}
         filter={filter as never}
         onClickRow={(r) => navigate(`/users/${r.accountId}`)}
         headers={headers}
-      />
-
-      <ConfirmModal
-        isOpen={showPromoteConfirm}
-        onClose={() => {
-          setShowPromoteConfirm(false)
-          setSelectedUserForPromote(null)
-        }}
-        onConfirm={() => {
-          setShowPromoteConfirm(false)
-          if (selectedUserForPromote) {
-            executePromoteToStaff(selectedUserForPromote)
-          }
-        }}
-        title="Xác nhận thăng cấp người dùng"
-        description={
-          <span>
-            Bạn có chắc chắn muốn thăng cấp người dùng{" "}
-            <strong className="text-gray-900">
-              '{selectedUserForPromote?.username}'
-            </strong>{" "}
-            thành <strong>Staff</strong>?
-            <br />
-            Tài khoản này sẽ có quyền truy cập vào hệ thống Admin với các phân quyền cơ bản.
-          </span>
-        }
-        confirmText="Thăng cấp thành Staff"
-        variant="primary"
-        isLoading={promoting}
-      />
-
-      <ConfirmModal
-        isOpen={showUnlockConfirm}
-        onClose={() => {
-          if (!unlocking) {
-            setShowUnlockConfirm(false)
-            setSelectedForUnlock(null)
-          }
-        }}
-        onConfirm={executeUnlock}
-        title={t.users.confirmUnlockTitle}
-        description={
-          <span>
-            {selectedForUnlock ? t.users.confirmUnlockDesc.replace("{username}", selectedForUnlock.username) : ""}
-          </span>
-        }
-        confirmText={t.users.unlock}
-        variant="warning"
-        isLoading={unlocking}
-      />
-
-      <ConfirmModal
-        isOpen={showActivateConfirm}
-        onClose={() => {
-          if (!activating) {
-            setShowActivateConfirm(false)
-            setSelectedForActivate(null)
-          }
-        }}
-        onConfirm={executeActivate}
-        title={t.users.confirmActivateTitle}
-        description={
-          <span>
-            {selectedForActivate ? t.users.confirmActivateDesc.replace("{username}", selectedForActivate.username) : ""}
-          </span>
-        }
-        confirmText={t.users.activate}
-        variant="primary"
-        isLoading={activating}
       />
     </div>
   )
