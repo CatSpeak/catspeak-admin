@@ -40,6 +40,7 @@ const VoucherCreatePage = lazy(() => import("../features/voucher/routes/VoucherC
 const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherDetailPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
+const ContentModerationPage = lazy(() => import("../features/content-moderation/routes/ContentModerationPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -84,6 +85,7 @@ export const router = createBrowserRouter([
           { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
           { path: "bug-reports", element: guard(BugReportsPage, "bug_reports") },
           { path: "bug-reports/:id", element: guard(BugReportDetailPage, "bug_reports") },
+          { path: "content-moderation", element: guard(ContentModerationPage, "content_moderation") },
           // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
           { path: "payments", element: guard(PaymentsPage, "payment_reports") },
           { path: "payment-reports", element: guard(PaymentIssuesPage, "payment_reports") },
