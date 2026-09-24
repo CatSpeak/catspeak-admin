@@ -26,6 +26,8 @@ export interface FlagBadgeProps {
   imgClassName?: string;
   /** Whether to show the text label alongside the flag (default: true) */
   showLabel?: boolean;
+  /** Style variant (default: "default") */
+  variant?: "default" | "pill";
 }
 
 const GLOBE_FLAG =
@@ -42,6 +44,7 @@ export const FlagBadge: React.FC<FlagBadgeProps> = ({
   className = "",
   imgClassName = "",
   showLabel = true,
+  variant = "default",
 }) => {
   const { t } = useLanguage();
 
@@ -77,15 +80,32 @@ export const FlagBadge: React.FC<FlagBadgeProps> = ({
     }
   }
 
+  let containerClass = "inline-flex items-center whitespace-nowrap";
+  let finalImgClass = `rounded-sm shadow-sm object-cover ${imgClassName}`.trim();
+  
+  if (variant === "pill") {
+    let colorClass = "bg-gray-100 text-gray-700";
+    if (normalized === "english" || normalized === "en") {
+      colorClass = "bg-blue-50 text-blue-600";
+    } else if (normalized === "chinese" || normalized === "zh") {
+      colorClass = "bg-red-50 text-red-600";
+    } else if (normalized === "japanese" || normalized === "ja") {
+      colorClass = "bg-orange-50 text-orange-600";
+    }
+    containerClass = `${containerClass} ${colorClass} px-3 py-1.5 rounded-full text-xs font-medium gap-2`;
+    finalImgClass = `w-5 h-3.5 ${finalImgClass}`;
+  } else {
+    containerClass = `${containerClass} gap-1.5 ${className}`.trim();
+    finalImgClass = `w-4 h-3.5 ${finalImgClass}`;
+  }
+
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 whitespace-nowrap ${className}`.trim()}
-    >
+    <span className={containerClass}>
       {flag && (
         <img
           src={flag}
           alt={label}
-          className={`w-4 h-3.5 rounded-sm shadow-sm object-cover ${imgClassName}`.trim()}
+          className={finalImgClass}
         />
       )}
       {showLabel && <span>{label}</span>}
