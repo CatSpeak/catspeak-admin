@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Monitor, Smartphone, Type, Globe, Shuffle, Languages, ChevronDown } from "lucide-react";
+import { Monitor, Smartphone, Globe, Shuffle, Languages, ChevronDown } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
 
 interface ScriptLivePreviewProps {
@@ -157,7 +157,7 @@ export default function ScriptLivePreview({
 
                 <button
                   className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-transparent  border-[1.5px] border-solid border-[#990011] text-[#990011] transition-colors"
-                  title={t.widget?.shuffleTopic || "Đổi chủ đề ngẫu nhiên"}
+                  title={(t as any).widget?.shuffleTopic || "Đổi chủ đề ngẫu nhiên"}
                 >
                   <Shuffle className="w-4 h-4" />
                 </button>
@@ -167,7 +167,7 @@ export default function ScriptLivePreview({
                     onClick={onTranslate}
                     disabled={isTranslating}
                     className={`inline-flex items-center justify-center w-8 h-8 rounded-full border-[1.5px] border-solid border-[#990011] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${translatedContent ? "bg-[#990011] text-white hover:bg-[#80000e]" : "bg-transparent text-[#990011] hover:bg-gray-100"}`}
-                    title={t.widget?.translateFull || "Dịch cả đoạn văn"}
+                    title={(t as any).widget?.translateFull || "Dịch cả đoạn văn"}
                   >
                     <Languages className="w-4 h-4" />
                   </button>
