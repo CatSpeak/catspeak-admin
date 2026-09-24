@@ -13,6 +13,7 @@ import {
   Ticket,
   CreditCard,
   Bug,
+  ShieldAlert,
 } from "lucide-react"
 import CatSpeakLogo from "../../assets/catspeak_logo.svg"
 import CatSpeakIcon from "../../assets/catspeak_icon.svg"
@@ -150,6 +151,12 @@ const AppSidebar: React.FC = () => {
         icon: <FileWarning size={20} />,
         path: "/reports",
         permission: "letter_reports",
+      },
+      {
+        name: "Báo cáo Giảng viên",
+        icon: <ShieldAlert size={20} />,
+        path: "/teacher-reports",
+        permission: "users",
       },
     ]
 
