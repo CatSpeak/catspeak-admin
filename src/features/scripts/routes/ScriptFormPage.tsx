@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Save, FileText } from "lucide-react";
 import Breadcrumb from "../../../components/ui/Breadcrumb";
 import Button from "../../../components/ui/Button";
@@ -23,11 +23,14 @@ import ScriptSidebar from "../components/ScriptSidebar";
 export default function ScriptFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
+  const cloneId = searchParams.get("cloneId");
   const addToast = useToastStore((s) => s.addToast);
   const { t } = useLanguage();
 
   const isEdit = !!id;
-  const [loading, setLoading] = useState(isEdit);
+  const isClone = !!cloneId;
+  const [loading, setLoading] = useState(isEdit || isClone);
   const [isSaving, setIsSaving] = useState(false);
 
   // Form State
@@ -125,9 +128,11 @@ export default function ScriptFormPage() {
   
   useEffect(() => {
     if (isEdit) {
-      loadData();
+      loadData(id!);
+    } else if (isClone) {
+      loadData(cloneId!);
     }
-  }, [id]);
+  }, [id, cloneId]);
 
   useEffect(() => {
     // Autosave logic
@@ -146,17 +151,17 @@ export default function ScriptFormPage() {
     return () => clearTimeout(timer);
   }, [title, content, isSaving, lastSavedTitle, lastSavedContent]);
 
-  const loadData = async () => {
+  const loadData = async (scriptId: string) => {
     try {
       setLoading(true);
-      const res = await getScriptById(id!);
-      setTitle(res.title);
+      const res = await getScriptById(scriptId);
+      setTitle(isClone ? `${res.title} (Bản sao)` : res.title);
       setTopic(res.topic ?? "");
       setContent(res.content);
       setHighlightPhrase(res.highlightPhrase ?? "");
       setHighlights(res.highlights ?? []);
       setCommunities(res.communities || ["English"]);
-      setPublishStatus(res.status);
+      setPublishStatus(isClone ? "Draft" : res.status);
       setShowOnHome(res.showOnHome ?? true);
       setAutoIpa(res.autoIpa ?? true);
       setDisplayOrder(res.displayOrder ?? 1);
@@ -166,7 +171,7 @@ export default function ScriptFormPage() {
       setTranslateHighlightPhrase(res.translateHighlightPhrase ?? true);
       setAllowTranslationErrorReports(res.allowTranslationErrorReports ?? true);
 
-      setLastSavedTitle(res.title);
+      setLastSavedTitle(isClone ? `${res.title} (Bản sao)` : res.title);
       setLastSavedContent(res.content);
     } catch (error) {
       addToast("error", t.scripts?.loadError || "Failed to load script.");

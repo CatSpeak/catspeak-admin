@@ -8,9 +8,10 @@ interface ScriptActionsCellProps {
   navigate: (path: string) => void;
   handleBulkStatus: (status: "Published" | "Draft", ids: number[]) => void;
   setDeleteIds: (ids: number[]) => void;
+  onPreview: (script: any) => void;
 }
 
-export default function ScriptActionsCell({ s, navigate, handleBulkStatus, setDeleteIds }: ScriptActionsCellProps) {
+export default function ScriptActionsCell({ s, navigate, handleBulkStatus, setDeleteIds, onPreview }: ScriptActionsCellProps) {
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   
@@ -35,7 +36,7 @@ export default function ScriptActionsCell({ s, navigate, handleBulkStatus, setDe
           {
             label: t.scripts?.actionPreview || "Xem trước",
             icon: <Eye className="w-4 h-4 text-gray-400" />,
-            handler: (s) => navigate(`/scripts/${s.id}`),
+            handler: (s) => onPreview(s),
           },
           {
             label: t.scripts?.actionPublish || "Xuất bản",
