@@ -8,6 +8,8 @@ export interface Account {
   createdByUsername: string | null;
   currentSubscriptionId: number | null;
   currentSubscriptionName: string | null;
+  currentSubscriptionStartDate?: string | null;
+  currentSubscriptionEndDate?: string | null;
   department: string | null;
   email: string;
   isEmailVerified: boolean;
