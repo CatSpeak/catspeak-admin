@@ -26,6 +26,10 @@ export interface Account {
   visitDurationSeconds: number;
   isInstructor?: boolean;
   teacherAccountId?: number | null;
+  /** True when this row is the dedicated teacher account of the user (canonical teacher marker). */
+  isTeacherAccount?: boolean;
+  /** Payout bank accounts configured by the user on the client (embedded detail only). */
+  bankAccounts?: BankAccount[];
   phoneNumber?: string;
   totalSpent?: number;
   avgSessionDuration?: number;
@@ -33,6 +37,17 @@ export interface Account {
   remainingMinutes?: number | null;
   lockedUntil?: string | null;
   isPendingActivation?: boolean;
+}
+
+export interface BankAccount {
+  id: number;
+  bankBin?: string | null;
+  bankShortName?: string | null;
+  bankFullName?: string | null;
+  accountNumber: string;
+  accountHolderName?: string | null;
+  isVerified?: boolean;
+  isDefault?: boolean;
 }
 
 export interface SubscriptionFeature {
