@@ -1,4 +1,4 @@
-import { AlertCircle, Check, Users, Home, Settings, List } from "lucide-react";
+import {  Check, Users, Home, Settings, List } from "lucide-react";
 import Button from "../../../components/ui/Button";
 import Card from "../../../components/ui/Card";
 import { useLanguage } from "../../../stores/languageStore";
