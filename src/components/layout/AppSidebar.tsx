@@ -13,6 +13,8 @@ import {
   Ticket,
   CreditCard,
   Bug,
+  Gift,
+  Coins,
 } from "lucide-react"
 import CatSpeakLogo from "../../assets/catspeak_logo.svg"
 import CatSpeakIcon from "../../assets/catspeak_icon.svg"
@@ -23,6 +25,7 @@ interface NavSubItem {
   name: string
   path: string
   permission?: string
+  icon?: React.ReactNode
 }
 
 interface NavItem {
@@ -36,6 +39,7 @@ interface NavItem {
 
 const isPathActive = (pathname: string, path: string) => {
   if (path === "/") return pathname === "/"
+  if (path === "/vouchers" && (pathname === "/vouchers" || pathname.startsWith("/voucher"))) return true
   return pathname === path || pathname.startsWith(`${path}/`)
 }
 
@@ -54,7 +58,12 @@ const AppSidebar: React.FC = () => {
   const isPermitted = React.useCallback(
     (code?: string) => {
       if (!currentUser) return false
-      if (currentUser.roleId === 1) return true // Primary Admin full access
+      if (
+        currentUser.roleId === 1 ||
+        currentUser.roleId === 3 ||
+        currentUser.roleName === "Admin"
+      )
+        return true // Admin full access
       if (!code) return true
       return currentUser.permissions?.includes(code) ?? false
     },
@@ -84,10 +93,22 @@ const AppSidebar: React.FC = () => {
         permission: "plans",
       },
       {
-        name: t.nav.vouchers || "Quản lý voucher",
-        icon: <Ticket size={20} />,
-        path: "/vouchers",
-        permission: "vouchers",
+        name: t.nav.voucherAndRewards || "Quản lý Voucher và Điểm thưởng",
+        icon: <Gift size={20} />,
+        subItems: [
+          {
+            name: t.nav.vouchers || "Quản lý voucher",
+            path: "/vouchers",
+            permission: "vouchers",
+            icon: <Ticket size={17} />,
+          },
+          {
+            name: t.nav.pointRewards || "Quản lý điểm thưởng",
+            path: "/point-rewards",
+            permission: "vouchers",
+            icon: <Coins size={17} />,
+          },
+        ],
       },
       {
         name: t.nav.catSpeak,
@@ -284,17 +305,24 @@ const AppSidebar: React.FC = () => {
                                   setSubmenuOverride("auto")
                                   if (isMobileOpen) toggleMobileSidebar()
                                 }}
-                                className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(subItem.path) ? "shadow-sm" : "text-gray-600 hover:bg-gray-50"}`}
-                                style={
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${
                                   isActive(subItem.path)
-                                    ? {
-                                      color: "#F5A623",
-                                      background: "rgba(245, 166, 35, 0.1)",
-                                    }
-                                    : {}
-                                }
+                                    ? "bg-primary/10 text-primary font-semibold shadow-xs"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                }`}
                               >
-                                {subItem.name}
+                                {subItem.icon && (
+                                  <span
+                                    className={`shrink-0 transition-colors ${
+                                      isActive(subItem.path)
+                                        ? "text-primary"
+                                        : "text-gray-400 group-hover:text-gray-600"
+                                    }`}
+                                  >
+                                    {subItem.icon}
+                                  </span>
+                                )}
+                                <span className="truncate">{subItem.name}</span>
                               </Link>
                             </li>
                           ))}
