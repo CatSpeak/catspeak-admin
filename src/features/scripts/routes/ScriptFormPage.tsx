@@ -451,10 +451,7 @@ export default function ScriptFormPage() {
                       )}
                     </span>
                   </div>
-                  <span>
-                    {t.scripts?.markdownSupport ||
-                      "Hỗ trợ định dạng Markdown nhẹ"}
-                  </span>
+                  
                 </div>
               </div>
 

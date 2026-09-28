@@ -44,6 +44,8 @@ const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes
 
 const ScriptsPage = lazy(() => import("../features/scripts/routes/ScriptsPage"));
 const ScriptFormPage = lazy(() => import("../features/scripts/routes/ScriptFormPage"));
+
+
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
     <Component />
