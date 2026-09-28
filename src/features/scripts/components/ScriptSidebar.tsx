@@ -148,12 +148,7 @@ export default function ScriptSidebar({
             </Button>
           </div>
 
-          <div className="mt-3 bg-orange-50/50 p-3 rounded-lg flex items-start gap-2 border border-orange-100">
-            <AlertCircle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-orange-700 leading-relaxed">
-              {t.scripts?.communityWarning || "1 script chỉ áp dụng cho 1 cộng đồng. Ngôn ngữ dịch sẽ được tự động điều chỉnh theo cộng đồng này."}
-            </p>
-          </div>
+          
         </div>
       </Card>
 
