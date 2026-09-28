@@ -95,6 +95,7 @@ const AppSidebar: React.FC = () => {
         icon: <img src={CatSpeakIcon} alt="Logo" className="w-5 h-5" />,
         subItems: [
           { name: t.nav.news, path: "/news", permission: "news" },
+          { name: "Script", path: "/scripts", permission: "scripts" },
           { name: t.nav.calendar, path: "/calendar", permission: "calendar" },
           { name: t.nav.room, path: "/room", permission: "room" },
           { name: t.nav.classes, path: "/classes", permission: "classes" },

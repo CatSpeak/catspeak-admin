@@ -40,6 +40,8 @@ const VoucherCreatePage = lazy(() => import("../features/voucher/routes/VoucherC
 const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherDetailPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
+const ScriptsPage = lazy(() => import("../features/scripts/routes/ScriptsPage"));
+const ScriptFormPage = lazy(() => import("../features/scripts/routes/ScriptFormPage"));
 const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes/TeacherReportsPage"));
 
 const wrap = (Component: React.ComponentType) => (
@@ -114,6 +116,9 @@ export const router = createBrowserRouter([
           { path: "language-requests/:id", element: guard(LanguageRequestDetailPage, "language_requests") },
           { path: "reels", element: guard(ReelsPage, "reels") },
           { path: "broadcast-mail", element: guard(BroadcastMailPage, "broadcast_mail") },
+          { path: "scripts", element: guard(ScriptsPage, "scripts") },
+          { path: "scripts/create", element: guard(ScriptFormPage, "scripts") },
+          { path: "scripts/:id", element: guard(ScriptFormPage, "scripts") },
           ...secondaryRoutes.map((route) => ({
             path: route.path,
             element: <ComingSoonPage title={route.title} />,
