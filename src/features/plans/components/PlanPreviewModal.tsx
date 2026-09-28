@@ -100,17 +100,34 @@ const PlanPreviewModal: React.FC<PlanPreviewModalProps> = ({ plan, onClose }) =>
             {plan.subscriptionFeatures && plan.subscriptionFeatures.length > 0 ? (
               plan.subscriptionFeatures
                 .sort((a, b) => a.displayOrder - b.displayOrder)
-                .map((feature) => (
-                  <div key={feature.id || feature.featureCode} className="flex items-start gap-3">
-                    <div className="mt-0.5 shrink-0 rounded-full p-0.5 bg-green-100 text-green-600">
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                .map((feature) => {
+                  // Same availability rule as /pricing on catspeak-client:
+                  // inactive, boolean false, or numeric 0 renders struck-through.
+                  const isBoolean = feature.valueType === "boolean";
+                  const numericLimit =
+                    feature.limitValue !== undefined && feature.limitValue !== null && feature.limitValue !== ""
+                      ? Number(feature.limitValue)
+                      : NaN;
+                  const isUnavailable =
+                    !feature.isActive ||
+                    (isBoolean && String(feature.limitValue).toLowerCase() === "false") ||
+                    (!isBoolean && !Number.isNaN(numericLimit) && numericLimit === 0);
+                  return (
+                    <div key={feature.id || feature.featureCode} className="flex items-start gap-3">
+                      <div className={`mt-0.5 shrink-0 rounded-full p-0.5 ${isUnavailable ? "bg-gray-100 text-gray-400" : "bg-green-100 text-green-600"}`}>
+                        {isUnavailable ? (
+                          <X className="w-3.5 h-3.5 stroke-[3]" />
+                        ) : (
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        )}
+                      </div>
+                      <span className={`text-sm font-medium ${isUnavailable ? "text-gray-400 line-through" : "text-gray-700"}`}>
+                        {feature.featureName}
+                        {feature.valueType !== "boolean" && feature.limitValue ? `: ${feature.limitValue}` : ""}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {feature.featureName}
-                      {feature.valueType !== "boolean" && feature.limitValue ? `: ${feature.limitValue}` : ""}
-                    </span>
-                  </div>
-                ))
+                  );
+                })
             ) : (
               <div className="text-sm text-gray-400 italic">{t.plans.noFeaturesAdded}</div>
             )}

@@ -14,13 +14,15 @@ export const usePlanDetails = (id: number | undefined) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPlanDetails = useCallback(async () => {
+  const fetchPlanDetails = useCallback(async (isSilent = false) => {
     if (!id) {
       setLoading(false);
       return;
     }
     try {
-      setLoading(true);
+      if (!isSilent) {
+        setLoading(true);
+      }
       const [fetchedPlan, fetchedFeatures] = await Promise.all([
         getPlanById(id),
         getAvailableFeatures()
@@ -30,12 +32,14 @@ export const usePlanDetails = (id: number | undefined) => {
     } catch (err: any) {
       setError(err.message || 'Failed to fetch plan details');
     } finally {
-      setLoading(false);
+      if (!isSilent) {
+        setLoading(false);
+      }
     }
   }, [id]);
 
   useEffect(() => {
-    fetchPlanDetails();
+    fetchPlanDetails(false);
   }, [fetchPlanDetails]);
 
   const updateGeneralInfo = async (formData: FormData): Promise<boolean> => {
@@ -43,7 +47,7 @@ export const usePlanDetails = (id: number | undefined) => {
     try {
       const success = await updatePlanApi(id, formData);
       if (success) {
-        await fetchPlanDetails();
+        await fetchPlanDetails(true);
       }
       return !!success;
     } catch (e) {
@@ -56,7 +60,7 @@ export const usePlanDetails = (id: number | undefined) => {
     try {
       const success = await updatePlanStatusApi(id, status);
       if (success) {
-        await fetchPlanDetails();
+        await fetchPlanDetails(true);
       }
       return !!success;
     } catch (e) {
@@ -67,21 +71,33 @@ export const usePlanDetails = (id: number | undefined) => {
   const addFeature = async (featureData: any): Promise<boolean> => {
     if (!id) return false;
     const success = await addPlanFeature(id, featureData);
-    if (success) await fetchPlanDetails();
+    if (success) await fetchPlanDetails(true);
     return success;
   };
 
   const updateFeature = async (featureId: number, featureData: any): Promise<boolean> => {
     if (!id) return false;
     const success = await updatePlanFeature(id, featureId, featureData);
-    if (success) await fetchPlanDetails();
+    if (success) await fetchPlanDetails(true);
     return success;
   };
 
   const removeFeature = async (featureId: number): Promise<boolean> => {
     if (!id) return false;
     const success = await deletePlanFeature(id, featureId);
-    if (success) await fetchPlanDetails();
+    if (success) {
+      setPlan((prev) =>
+        prev
+          ? {
+              ...prev,
+              subscriptionFeatures: (prev.subscriptionFeatures || []).filter(
+                (f) => f.id !== featureId
+              ),
+            }
+          : null
+      );
+      await fetchPlanDetails(true);
+    }
     return success;
   };
 

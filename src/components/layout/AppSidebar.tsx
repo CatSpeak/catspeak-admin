@@ -8,10 +8,12 @@ import {
   ChevronDown,
   FileWarning,
   GraduationCap,
+  Languages,
   Package,
   Ticket,
   CreditCard,
   Bug,
+  ShieldAlert,
 } from "lucide-react"
 import CatSpeakLogo from "../../assets/catspeak_logo.svg"
 import CatSpeakIcon from "../../assets/catspeak_icon.svg"
@@ -132,6 +134,13 @@ const AppSidebar: React.FC = () => {
         permission: "instructor_applications",
       },
       {
+        section: t.nav.applications,
+        name: t.nav.languageRequests,
+        icon: <Languages size={20} />,
+        path: "/language-requests",
+        permission: "language_requests",
+      },
+      {
         section: t.nav.feedback,
         name: t.nav.bugReports || "Báo cáo sự cố",
         icon: <Bug size={20} />,
@@ -143,6 +152,12 @@ const AppSidebar: React.FC = () => {
         icon: <FileWarning size={20} />,
         path: "/reports",
         permission: "letter_reports",
+      },
+      {
+        name: "Báo cáo Giảng viên",
+        icon: <ShieldAlert size={20} />,
+        path: "/teacher-reports",
+        permission: "users",
       },
     ]
 

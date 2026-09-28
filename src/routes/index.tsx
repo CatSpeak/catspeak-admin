@@ -29,6 +29,8 @@ const PostCreatePage = lazy(() => import("../features/news/routes/PostCreatePage
 const PostDetailPage = lazy(() => import("../features/news/routes/PostDetailPage"));
 const InstructorApplicationsPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationsPage"));
 const InstructorApplicationDetailPage = lazy(() => import("../features/instructor-applications/routes/InstructorApplicationDetailPage"));
+const LanguageRequestsPage = lazy(() => import("../features/language-requests/routes/LanguageRequestsPage"));
+const LanguageRequestDetailPage = lazy(() => import("../features/language-requests/routes/LanguageRequestDetailPage"));
 const ReelsPage = lazy(() => import("../features/reels/routes/ReelsPage"));
 const AnalyticsPage = lazy(() => import("../features/analytics/routes/AnalyticsPage"));
 const PlansPage = lazy(() => import("../features/plans/PlansPage"));
@@ -40,6 +42,8 @@ const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/Broadc
 const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
 const ScriptsPage = lazy(() => import("../features/scripts/routes/ScriptsPage"));
 const ScriptFormPage = lazy(() => import("../features/scripts/routes/ScriptFormPage"));
+const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes/TeacherReportsPage"));
+
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
     <Component />
@@ -81,6 +85,7 @@ export const router = createBrowserRouter([
           { path: "staffs", element: guard(StaffsPage, "staffs") },
           { path: "staffs/:id", element: guard(StaffDetailPage, "staffs") },
           { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
+          { path: "teacher-reports", element: guard(TeacherReportsPage, "users") },
           { path: "bug-reports", element: guard(BugReportsPage, "bug_reports") },
           { path: "bug-reports/:id", element: guard(BugReportDetailPage, "bug_reports") },
           // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
@@ -107,6 +112,8 @@ export const router = createBrowserRouter([
           { path: "news/:slug", element: guard(PostDetailPage, "news") },
           { path: "instructor-applications", element: guard(InstructorApplicationsPage, "instructor_applications") },
           { path: "instructor-applications/:id", element: guard(InstructorApplicationDetailPage, "instructor_applications") },
+          { path: "language-requests", element: guard(LanguageRequestsPage, "language_requests") },
+          { path: "language-requests/:id", element: guard(LanguageRequestDetailPage, "language_requests") },
           { path: "reels", element: guard(ReelsPage, "reels") },
           { path: "broadcast-mail", element: guard(BroadcastMailPage, "broadcast_mail") },
           { path: "scripts", element: guard(ScriptsPage, "scripts") },
