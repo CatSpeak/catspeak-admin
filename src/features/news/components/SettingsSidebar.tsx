@@ -1,7 +1,11 @@
-import { Globe, Lock } from "lucide-react";
+import { useState } from "react";
+import { Globe, Lock, X } from "lucide-react";
 import { COMMUNITIES } from "../constants";
-import type { TagItem } from "../types";
+import type { TagItem, Topic } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
+import Badge from "../../../components/ui/Badge";
+import TopicAdder from "./TopicAdder";
+import CreateTopicModal from "./CreateTopicModal";
 
 const PRIVACY_OPTIONS = ["Public", "Private"] as const;
 
@@ -15,9 +19,12 @@ interface SettingsSidebarProps {
   onPublishTimeChange: (val: string) => void;
   community: "All" | "English" | "Chinese" | "Japanese";
   onCommunityChange: (val: "All" | "English" | "Chinese" | "Japanese") => void;
-  tags: TagItem[];
-  activeTagId: number | null;
-  onTagToggle: (id: number) => void;
+  tags?: TagItem[];
+  activeTagId?: number | null;
+  onTagToggle?: (id: number) => void;
+  topics?: Topic[];
+  onAddTopic?: (topic: Topic) => void;
+  onRemoveTopic?: (topicId: number) => void;
   onPublish: () => void;
   isSubmitting?: boolean;
 }
@@ -28,10 +35,14 @@ const SettingsSidebar = ({
   onPrivacyChange,
   community,
   onCommunityChange,
+  topics = [],
+  onAddTopic,
+  onRemoveTopic,
   onPublish,
   isSubmitting,
 }: SettingsSidebarProps) => {
   const { t } = useLanguage();
+  const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState(false);
 
   const privacyDetails = {
     Public: { label: t.news.publicLabel, icon: Globe, desc: t.news.publicDesc },
@@ -40,6 +51,12 @@ const SettingsSidebar = ({
       icon: Lock,
       desc: t.news.privateDesc,
     },
+  };
+
+  const handleSelectTopic = (topic: Topic) => {
+    if (!topics.some((tp) => tp.topicId === topic.topicId)) {
+      onAddTopic?.(topic);
+    }
   };
 
   return (
@@ -118,6 +135,58 @@ const SettingsSidebar = ({
             );
           })}
         </div>
+      </div>
+
+      <div className="h-px bg-gray-100" />
+
+      {/* Topics / Hashtags Section */}
+      <div className="space-y-3">
+        <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
+          {t.news.topics}
+        </label>
+
+        {/* Selected Topics Badges with X button */}
+        {topics.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pb-1">
+            {topics.map((tp) => (
+              <Badge
+                key={tp.topicId}
+                type="Red"
+                className="pl-2.5 pr-1.5 py-0.5 inline-flex items-center gap-1"
+              >
+                <span>#{tp.title}</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveTopic?.(tp.topicId);
+                  }}
+                  className="hover:bg-red-200/70 p-0.5 rounded-full transition-colors cursor-pointer text-red-600 hover:text-red-900"
+                  aria-label={`Xóa chủ đề ${tp.title}`}
+                >
+                  <X size={11} className="stroke-[2.5]" />
+                </button>
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {/* Topic Adder component */}
+        <TopicAdder
+          selectedTopics={topics}
+          onSelectTopic={handleSelectTopic}
+          onOpenCreateModal={() => setIsCreateTopicModalOpen(true)}
+        />
+
+        {/* Modal Create Topic */}
+        <CreateTopicModal
+          isOpen={isCreateTopicModalOpen}
+          onClose={() => setIsCreateTopicModalOpen(false)}
+          onCreated={(newTopic) => {
+            handleSelectTopic(newTopic);
+            setIsCreateTopicModalOpen(false);
+          }}
+        />
       </div>
 
       <div className="h-px bg-gray-100" />

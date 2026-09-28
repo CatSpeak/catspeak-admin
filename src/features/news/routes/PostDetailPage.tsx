@@ -13,6 +13,7 @@ import {
 import Button from "../../../components/ui/Button";
 import { useLanguage } from "../../../stores/languageStore";
 import Avatar from "../../../components/ui/Avatar";
+import Badge from "../../../components/ui/Badge";
 import { formatDateTime } from "../../../lib/utils";
 
 export default function PostDetailPage() {
@@ -221,6 +222,26 @@ export default function PostDetailPage() {
                   post.languageCommunity ||
                   t.common.all}
               </span>
+            </div>
+
+            {/* Topics Section */}
+            <div className="space-y-2 pb-4 border-b border-gray-100">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
+                {t.news.topics}
+              </span>
+              {post.topics && post.topics.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {post.topics.map((tp) => (
+                    <Badge
+                      key={tp.topicId}
+                      type="Red"
+                      title={`#${tp.title}`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <span className="text-xs text-gray-400">—</span>
+              )}
             </div>
 
             {/* Engagement Stats Grid */}

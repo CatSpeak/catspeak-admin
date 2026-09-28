@@ -5,6 +5,7 @@ import { getApiErrorMessage } from "../../../lib/axios";
 import type {
   Post,
   TagItem,
+  Topic,
   CreatePostPayload,
   UpdatePostPayload,
   ThumbnailImage,
@@ -58,8 +59,15 @@ export default function PostFormView({
           initialPost.languageCommunity as "All" | "English" | "Chinese" | "Japanese",
         );
       }
+      if (initialPost.topics) {
+        setSelectedTopics(initialPost.topics);
+      }
     }
   }, [mode, initialPost]);
+
+  const [selectedTopics, setSelectedTopics] = useState<Topic[]>(
+    initialPost?.topics || [],
+  );
 
   const [content, setContent] = useState(initialPost?.content || "");
   const [privacy, setPrivacy] = useState<"Public" | "Private">(
@@ -192,6 +200,8 @@ export default function PostFormView({
         .map((t) => t.file)
         .filter((f): f is File => f !== undefined);
 
+      const topicIds = selectedTopics.map((t) => t.topicId);
+
       if (mode === "create" && onSubmitCreate) {
         const payload = {
           Title: title,
@@ -200,11 +210,14 @@ export default function PostFormView({
           Slug: slug || undefined,
           LanguageCommunity: community,
           Files: newFiles,
+          TopicIds: topicIds,
+          topicIds: topicIds,
         };
         console.log("[PostFormView] Create payload:", {
           Title: payload.Title,
           Slug: payload.Slug,
           SlugLength: payload.Slug?.length,
+          TopicIds: payload.TopicIds,
         });
         await onSubmitCreate(payload);
       } else if (mode === "edit" && onSubmitEdit) {
@@ -217,6 +230,8 @@ export default function PostFormView({
           NewFiles: newFiles.length > 0 ? newFiles : undefined,
           RemovedMediaIds:
             removedMediaIds.length > 0 ? removedMediaIds : undefined,
+          TopicIds: topicIds,
+          topicIds: topicIds,
         });
       }
     } catch (err) {
@@ -352,6 +367,15 @@ export default function PostFormView({
           onPublishTimeChange={setPublishTime}
           community={community}
           onCommunityChange={setCommunity}
+          topics={selectedTopics}
+          onAddTopic={(topic) => {
+            if (!selectedTopics.some((t) => t.topicId === topic.topicId)) {
+              setSelectedTopics((prev) => [...prev, topic]);
+            }
+          }}
+          onRemoveTopic={(topicId) => {
+            setSelectedTopics((prev) => prev.filter((t) => t.topicId !== topicId));
+          }}
           tags={tags}
           activeTagId={activeTagId}
           onTagToggle={(id) =>
