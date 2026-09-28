@@ -67,6 +67,8 @@ export interface InstructorApplicationDetail {
   introduction: string | null;
   credentialUrls: string; // JSON string array of URLs
   introVideoUrl: string | null;
+  dateOfBirth?: string | null;
+  isIdCardVerified?: boolean;
   submittedAt: string;
   reviewedAt: string | null;
   rejectionReason: string | null;
@@ -105,6 +107,8 @@ export interface InstructorRevisionDetail {
   introduction: string | null;
   credentialUrls: string; // JSON string array of URLs
   introVideoUrl: string | null;
+  dateOfBirth?: string | null;
+  isIdCardVerified?: boolean;
   submittedAt: string;
   reviewedAt: string | null;
   rejectionReason: string | null;

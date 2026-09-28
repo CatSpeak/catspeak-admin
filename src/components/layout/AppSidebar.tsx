@@ -13,6 +13,7 @@ import {
   Ticket,
   CreditCard,
   Bug,
+  ShieldAlert,
   Gift,
   Coins,
 } from "lucide-react"
@@ -171,6 +172,12 @@ const AppSidebar: React.FC = () => {
         icon: <FileWarning size={20} />,
         path: "/reports",
         permission: "letter_reports",
+      },
+      {
+        name: "Báo cáo Giảng viên",
+        icon: <ShieldAlert size={20} />,
+        path: "/teacher-reports",
+        permission: "users",
       },
     ]
 

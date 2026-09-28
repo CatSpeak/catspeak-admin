@@ -12,11 +12,12 @@ import {
   Globe,
   MapPin,
   Languages,
-  BookOpen,
   FileText,
   Video,
   ShieldCheck,
   Clock,
+  Calendar,
+  Trash2,
 } from "lucide-react";
 import RevisionStatusBadge from "./RevisionStatusBadge";
 import ReviewModal, {
@@ -24,11 +25,15 @@ import ReviewModal, {
   type ReviewModalResult,
 } from "./ReviewModal";
 import Button from "../../../components/ui/Button";
+import Badge from "../../../components/ui/Badge";
+import { ConfirmModal } from "../../../components/ui/ConfirmModal";
 import { useToastStore } from "../../../stores/toastStore";
 import {
   approveRevision,
   rejectRevision,
   requestEditRevision,
+  verifyInstructorIdCard,
+  removeInstructorIntroVideo,
 } from "../api/reviewInstructorRevision";
 import type { InstructorRevisionDetail } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
@@ -67,24 +72,6 @@ function formatLanguageLabel(value: JsonArrayValue): string {
   return level ? `${language} (${level})` : language;
 }
 
-function languagesToString(raw: string | null | undefined): string {
-  return safeParseJsonArray(raw)
-    .map((lang) => {
-      if (typeof lang === "string") return lang;
-      const years =
-        typeof lang.yearsExperience === "number"
-          ? String(lang.yearsExperience)
-          : "";
-      return `${formatLanguageLabel(lang)}#${years}`;
-    })
-    .sort()
-    .join(" | ");
-}
-
-function credentialsToString(raw: string | null | undefined): string {
-  return safeParseStringArray(raw).sort().join(" | ");
-}
-
 /** Map ISO country code ("vn"/"VN") to localized region name ("Việt Nam"). */
 function formatNationality(
   raw: string | null | undefined,
@@ -93,7 +80,6 @@ function formatNationality(
   if (!raw) return "";
   const trimmed = raw.trim();
   if (!trimmed) return "";
-  // Already a display name (e.g. "Việt Nam", "Vietnam") — keep as-is.
   if (trimmed.length > 3 || /[^a-zA-Z]/.test(trimmed)) return trimmed;
   try {
     const names = new Intl.DisplayNames([lang], { type: "region" });
@@ -101,50 +87,6 @@ function formatNationality(
   } catch {
     return trimmed;
   }
-}
-
-/** Two-column "current → pending" diff shown inline inside a card. */
-function DiffRow({
-  label,
-  oldNode,
-  newNode,
-}: {
-  label: string;
-  oldNode: React.ReactNode;
-  newNode: React.ReactNode;
-}) {
-  const { t } = useLanguage();
-  return (
-    <div className="space-y-1.5">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        {label}
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <div>
-          <p className="text-[11px] text-gray-400 mb-1">
-            {t.instructorApplications.currentLive}
-          </p>
-          <div className="text-sm text-gray-800 bg-gray-50 rounded-lg p-2.5 border border-gray-100">
-            {oldNode}
-          </div>
-        </div>
-        <div>
-          <p className="text-[11px] text-gray-400 mb-1">
-            {t.instructorApplications.pendingChange}
-          </p>
-          <div className="text-sm text-gray-800 bg-blue-50 rounded-lg p-2.5 border border-blue-100">
-            {newNode}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LanguagesValue({ raw }: { raw: string | null | undefined }) {
-  const langs = safeParseJsonArray(raw);
-  if (langs.length === 0) return <span className="text-gray-400">—</span>;
-  return <span>{langs.map(formatLanguageLabel).join(", ")}</span>;
 }
 
 function CredentialList({ urls }: { urls: string[] }) {
@@ -196,17 +138,20 @@ function InfoRow({
 
 function SectionCard({
   title,
+  headerRight,
   children,
 }: {
   title: string;
+  headerRight?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/80">
+      <div className="px-5 py-3 border-b border-gray-100 bg-gray-50/80 flex items-center justify-between gap-3">
         <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
           {title}
         </h3>
+        {headerRight}
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -228,7 +173,7 @@ function ImagePreview({ src, label }: { src: string; label: string }) {
           <img
             src={src}
             alt={label}
-            className="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-200"
+            className="w-full h-44 object-cover group-hover:scale-105 transition-transform duration-200"
           />
         </button>
       </div>
@@ -263,20 +208,22 @@ export default function ApplicationDetailPanel({
   const [modalAction, setModalAction] = useState<ReviewAction | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Verification & Post-moderation state
+  const [isVerifyingIdCard, setIsVerifyingIdCard] = useState(false);
+  const [showRemoveVideoModal, setShowRemoveVideoModal] = useState(false);
+  const [isRemovingVideo, setIsRemovingVideo] = useState(false);
+  const [removeVideoReason, setRemoveVideoReason] = useState("");
+
   const languages = safeParseJsonArray(application.languagesTeach);
   const credentials = safeParseStringArray(application.credentialUrls);
   const canReview = (REVIEWABLE_STATUSES as readonly string[]).includes(
     application.status,
   );
 
-  // Revision-aware fields (the panel is only ever fed revision payloads).
-  const isUpdate = application.requestType === 0;
   const revisionId = application.revisionId;
   const live = application.liveSnapshot ?? null;
+  const targetProfileId = application.profileId || live?.profileId || 0;
 
-  // Update revisions store only teaching fields; personal/identity fields may
-  // be null/"" on the revision row (old builds skip BackfillPersonalFields).
-  // Fall back to live so admin still sees the full current values.
   const displayFullName =
     application.fullName || live?.fullName || application.username || "";
   const displayEmail = application.email || live?.email || "";
@@ -285,34 +232,14 @@ export default function ApplicationDetailPanel({
     application.phoneNumber || live?.phoneNumber || "";
   const displayNationality =
     application.nationality || live?.nationality || "";
+  const displayDob =
+    application.dateOfBirth || live?.dateOfBirth || "";
   const displayIdCardFrontUrl =
     application.idCardFrontUrl || live?.idCardFrontUrl || null;
   const displayIdCardBackUrl =
     application.idCardBackUrl || live?.idCardBackUrl || null;
-
-  // Per-field diffs — only fields that actually changed render as old→new.
-  const languagesChanged =
-    isUpdate && live !== null &&
-    languagesToString(live.languagesTeach) !== languagesToString(application.languagesTeach);
-  const nativeChanged =
-    isUpdate && live !== null &&
-    (live.nativeLanguage || "") !== (application.nativeLanguage || "");
-  const introChanged =
-    isUpdate && live !== null &&
-    (live.introduction || "") !== (application.introduction || "");
-  const credsChanged =
-    isUpdate && live !== null &&
-    credentialsToString(live.credentialUrls) !== credentialsToString(application.credentialUrls);
-  const videoChanged =
-    isUpdate && live !== null &&
-    (live.introVideoUrl || "") !== (application.introVideoUrl || "");
-  const teachingChanged = languagesChanged || nativeChanged || introChanged;
-
-  // Whole-revision decision: request-edit is first-applications only.
-  const showRequestEdit = canReview && !isUpdate;
-
-  // Update rejections never ban — the ban picker stays hidden for those.
-  const showBanPicker = !isUpdate;
+  const isIdCardVerified =
+    application.isIdCardVerified ?? live?.isIdCardVerified ?? false;
 
   const handleConfirm = async (result: ReviewModalResult) => {
     setIsSubmitting(true);
@@ -337,6 +264,36 @@ export default function ApplicationDetailPanel({
       addToast("error", t.instructorApplications.actionFailed);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyIdCard = async () => {
+    if (!targetProfileId) return;
+    setIsVerifyingIdCard(true);
+    try {
+      await verifyInstructorIdCard(targetProfileId);
+      addToast("success", "Xác minh CCCD thành công!");
+      onReviewed();
+    } catch {
+      addToast("error", "Không thể xác minh CCCD.");
+    } finally {
+      setIsVerifyingIdCard(false);
+    }
+  };
+
+  const handleRemoveVideo = async () => {
+    if (!targetProfileId) return;
+    setIsRemovingVideo(true);
+    try {
+      await removeInstructorIntroVideo(targetProfileId, removeVideoReason || undefined);
+      addToast("success", "Đã gỡ video giới thiệu vi phạm!");
+      setShowRemoveVideoModal(false);
+      setRemoveVideoReason("");
+      onReviewed();
+    } catch {
+      addToast("error", "Không thể gỡ video.");
+    } finally {
+      setIsRemovingVideo(false);
     }
   };
 
@@ -378,11 +335,6 @@ export default function ApplicationDetailPanel({
               {displayFullName || "—"}
             </h2>
             <RevisionStatusBadge status={application.status} />
-            <span className="text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5">
-              {isUpdate
-                ? t.instructorApplications.updateType
-                : t.instructorApplications.initialType}
-            </span>
           </div>
           <p className="text-sm text-gray-500 mt-0.5">
             @{application.username} ·{" "}
@@ -404,16 +356,14 @@ export default function ApplicationDetailPanel({
             >
               {t.instructorApplications.approve}
             </Button>
-            {showRequestEdit && (
-              <Button
-                size="sm"
-                className="!bg-blue-600 hover:!bg-blue-700 text-white"
-                leftIcon={<Edit3 className="w-4 h-4" />}
-                onClick={() => setModalAction("requestEdit")}
-              >
-                {t.instructorApplications.requestEdit}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              className="!bg-blue-600 hover:!bg-blue-700 text-white"
+              leftIcon={<Edit3 className="w-4 h-4" />}
+              onClick={() => setModalAction("requestEdit")}
+            >
+              {t.instructorApplications.requestEdit}
+            </Button>
             <Button
               variant="danger"
               size="sm"
@@ -429,14 +379,18 @@ export default function ApplicationDetailPanel({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Personal Info — full current data, no diff (contact fields are not
-              updated by the teaching flow; Update revisions backfill from live) */}
+          {/* Personal Info */}
           <SectionCard title={t.common.personalInformation}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InfoRow
                 icon={<User className="w-4 h-4" />}
                 label={t.instructorApplications.fullName}
                 value={displayFullName || "—"}
+              />
+              <InfoRow
+                icon={<Calendar className="w-4 h-4" />}
+                label="Ngày sinh"
+                value={displayDob ? (displayDob.includes("T") ? displayDob.split("T")[0] : displayDob) : "—"}
               />
               <InfoRow
                 icon={<User className="w-4 h-4" />}
@@ -471,169 +425,44 @@ export default function ApplicationDetailPanel({
                 value={formatNationality(displayNationality, language) || "—"}
               />
               <InfoRow
-                icon={<MapPin className="w-4 h-4" />}
-                label={t.instructorApplications.address}
-                value={displayAddress || "—"}
-              />
-              <InfoRow
                 icon={<Languages className="w-4 h-4" />}
                 label={t.instructorApplications.nativeLanguage}
                 value={application.nativeLanguage || "—"}
               />
-            </div>
-          </SectionCard>
-
-          {/* Teaching Info — changed fields render as inline old→new diff */}
-          <SectionCard title={t.instructorApplications.teachingProfile}>
-            <div className="space-y-4">
-              {languagesChanged ? (
-                <DiffRow
-                  label={t.instructorApplications.languagesTeach}
-                  oldNode={<LanguagesValue raw={live!.languagesTeach} />}
-                  newNode={<LanguagesValue raw={application.languagesTeach} />}
-                />
-              ) : (
-                <InfoRow
-                  icon={<BookOpen className="w-4 h-4" />}
-                  label={t.instructorApplications.languagesTeach}
-                  value={
-                    languages.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {languages.map((lang, index) => {
-                          const text = formatLanguageLabel(lang);
-                          return (
-                            <span
-                              key={index}
-                              className="px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium"
-                            >
-                              {text}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      "—"
-                    )
-                  }
-                />
-              )}
-
-              {nativeChanged && (
-                <DiffRow
-                  label={t.instructorApplications.nativeLanguage}
-                  oldNode={live!.nativeLanguage || "—"}
-                  newNode={application.nativeLanguage || "—"}
-                />
-              )}
-
-              {introChanged ? (
-                <DiffRow
-                  label={t.instructorApplications.introduction}
-                  oldNode={
-                    <span className="whitespace-pre-wrap">
-                      {live!.introduction || "—"}
-                    </span>
-                  }
-                  newNode={
-                    <span className="whitespace-pre-wrap">
-                      {application.introduction || "—"}
-                    </span>
-                  }
-                />
-              ) : (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                    {t.instructorApplications.introduction}
-                  </p>
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    {application.introduction ||
-                      t.instructorApplications.noIntroduction}
-                  </p>
-                </div>
-              )}
-
-              {isUpdate && !teachingChanged && (
-                <p className="text-sm text-gray-500">
-                  {t.instructorApplications.noTeachingChanges}
-                </p>
-              )}
-            </div>
-          </SectionCard>
-
-          {/* Credentials — old vs new when the list changed */}
-          <SectionCard title={t.instructorApplications.credentials}>
-            {credsChanged ? (
-              <DiffRow
-                label={t.instructorApplications.credentials}
-                oldNode={<CredentialList urls={safeParseStringArray(live!.credentialUrls)} />}
-                newNode={<CredentialList urls={credentials} />}
+              <InfoRow
+                icon={<MapPin className="w-4 h-4" />}
+                label={t.instructorApplications.address}
+                value={displayAddress || "—"}
               />
-            ) : credentials.length > 0 ? (
-              <CredentialList urls={credentials} />
-            ) : (
-              <p className="text-sm text-gray-500">
-                {t.instructorApplications.noCredentials}
-              </p>
-            )}
+            </div>
           </SectionCard>
 
-          {/* Intro Video — old vs new when the video changed */}
-          {(videoChanged || application.introVideoUrl) && (
-            <SectionCard title={t.instructorApplications.introVideo}>
-              {videoChanged ? (
-                <DiffRow
-                  label={t.instructorApplications.introVideo}
-                  oldNode={
-                    live!.introVideoUrl ? (
-                      <a
-                        href={live!.introVideoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-primary hover:underline"
-                      >
-                        <Video className="w-4 h-4 shrink-0" />
-                        {t.instructorApplications.watchIntroVideo}
-                      </a>
-                    ) : (
-                      "—"
-                    )
-                  }
-                  newNode={
-                    application.introVideoUrl ? (
-                      <a
-                        href={application.introVideoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-primary hover:underline"
-                      >
-                        <Video className="w-4 h-4 shrink-0" />
-                        {t.instructorApplications.watchIntroVideo}
-                      </a>
-                    ) : (
-                      "—"
-                    )
-                  }
-                />
-              ) : application.introVideoUrl ? (
-                <a
-                  href={application.introVideoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-primary hover:underline"
-                >
-                  <Video className="w-4 h-4 shrink-0" />
-                  {t.instructorApplications.watchIntroVideo}
-                </a>
-              ) : null}
-            </SectionCard>
-          )}
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-4">
-          {/* ID Cards */}
-          <SectionCard title={t.instructorApplications.identityVerification}>
-            <div className="space-y-3">
+          {/* ID Cards with verification */}
+          <SectionCard
+            title={t.instructorApplications.identityVerification}
+            headerRight={
+              <div className="flex items-center gap-2">
+                {isIdCardVerified ? (
+                  <Badge title="Đã xác minh" type="Green" />
+                ) : (
+                  <Badge title="Chờ xác minh" type="Orange" />
+                )}
+                {targetProfileId > 0 && !isIdCardVerified && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="!text-emerald-700 !border-emerald-600 hover:!bg-emerald-50 cursor-pointer"
+                    leftIcon={<ShieldCheck className="w-4 h-4 text-emerald-600" />}
+                    onClick={handleVerifyIdCard}
+                    isLoading={isVerifyingIdCard}
+                  >
+                    Xác minh CCCD
+                  </Button>
+                )}
+              </div>
+            }
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {displayIdCardFrontUrl ? (
                 <ImagePreview
                   src={displayIdCardFrontUrl}
@@ -657,6 +486,93 @@ export default function ApplicationDetailPanel({
             </div>
           </SectionCard>
 
+          {/* Teaching Profile */}
+          <SectionCard title={t.instructorApplications.teachingProfile}>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                {t.instructorApplications.languagesTeach}
+              </p>
+              {languages.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {languages.map((lang, index) => {
+                    const text = formatLanguageLabel(lang);
+                    return (
+                      <span
+                        key={index}
+                        className="px-3 py-1 text-sm rounded-lg bg-primary/10 text-primary font-medium border border-primary/20"
+                      >
+                        {text}
+                      </span>
+                    );
+                  })}
+                </div>
+              ) : (
+                <span className="text-gray-400">—</span>
+              )}
+            </div>
+          </SectionCard>
+
+          {/* Credentials */}
+          <SectionCard title={t.instructorApplications.credentials}>
+            {credentials.length > 0 ? (
+              <CredentialList urls={credentials} />
+            ) : (
+              <p className="text-sm text-gray-500">
+                {t.instructorApplications.noCredentials}
+              </p>
+            )}
+          </SectionCard>
+
+          {/* Intro Video & Introduction */}
+          <SectionCard title={t.instructorApplications.introVideo}>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  {t.instructorApplications.introduction}
+                </p>
+                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  {application.introduction ||
+                    t.instructorApplications.noIntroduction}
+                </p>
+              </div>
+
+              {application.introVideoUrl ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Video tự giới thiệu
+                  </p>
+                  <div className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <a
+                      href={application.introVideoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
+                    >
+                      <Video className="w-4 h-4 shrink-0" />
+                      {t.instructorApplications.watchIntroVideo}
+                    </a>
+                    {targetProfileId > 0 && (
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+                        onClick={() => setShowRemoveVideoModal(true)}
+                        className="cursor-pointer"
+                      >
+                        Gỡ video vi phạm
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">Chưa có video giới thiệu.</p>
+              )}
+            </div>
+          </SectionCard>
+        </div>
+
+        {/* Right column */}
+        <div className="space-y-4">
           {/* Linked Account */}
           <SectionCard title={t.instructorApplications.linkedAccount}>
             <div className="space-y-3 text-sm">
@@ -795,11 +711,25 @@ export default function ApplicationDetailPanel({
           action={modalAction}
           applicantName={displayFullName}
           isLoading={isSubmitting}
-          showBanPicker={showBanPicker}
+          showBanPicker={true}
           onConfirm={handleConfirm}
           onClose={() => !isSubmitting && setModalAction(null)}
         />
       )}
+
+      {/* Remove Intro Video Confirm Modal */}
+      <ConfirmModal
+        isOpen={showRemoveVideoModal}
+        onClose={() => !isRemovingVideo && setShowRemoveVideoModal(false)}
+        onConfirm={handleRemoveVideo}
+        title="Gỡ video giới thiệu"
+        description="Bạn có chắc chắn muốn gỡ video giới thiệu của giảng viên này? Video sẽ bị xóa khỏi hồ sơ và hệ thống sẽ gửi thông báo cảnh cáo cho giảng viên."
+        confirmText="Gỡ video"
+        cancelText={t.common.cancel}
+        variant="danger"
+        isLoading={isRemovingVideo}
+        icon={<Trash2 className="w-6 h-6 text-red-600" />}
+      />
     </>
   );
 }

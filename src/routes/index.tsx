@@ -41,6 +41,7 @@ const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherD
 const PointRewardsPage = lazy(() => import("../features/point-rewards/routes/PointRewardsPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
+const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes/TeacherReportsPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -83,6 +84,7 @@ export const router = createBrowserRouter([
           { path: "staffs", element: guard(StaffsPage, "staffs") },
           { path: "staffs/:id", element: guard(StaffDetailPage, "staffs") },
           { path: "reports", element: guard(HandleReportsPage, "letter_reports") },
+          { path: "teacher-reports", element: guard(TeacherReportsPage, "users") },
           { path: "bug-reports", element: guard(BugReportsPage, "bug_reports") },
           { path: "bug-reports/:id", element: guard(BugReportDetailPage, "bug_reports") },
           // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
