@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { X, User } from "lucide-react"
+import { X } from "lucide-react"
 import { useLanguage } from "../../../stores/languageStore"
 import { formatDateTime } from "../../../lib/utils"
 import Avatar from "../../../components/ui/Avatar"
