@@ -3,20 +3,10 @@ import { Coins, Plus } from "lucide-react"
 import { PageHeader } from "../../../components/ui/PageHeader"
 import Button from "../../../components/ui/Button"
 import Tabs, { type Tab } from "../../../components/ui/Tabs"
-import { useToastStore } from "../../../stores/toastStore"
-import {
-  INITIAL_CATALOG_STATS,
-  INITIAL_EXCHANGE_ITEMS,
-  INITIAL_TRANSACTIONS,
-  INITIAL_REPORT_STATS,
-  INITIAL_REWARD_PERFORMANCE,
-} from "../api/mockData"
+import { useLanguage } from "../../../stores/languageStore"
 import type {
-  ExchangeItem,
-  ExchangeTransaction,
-  CatalogStats,
-  ReportStats,
-  RewardPerformance,
+  PointRedemptionItemDto,
+  PointRedemptionHistoryDto,
 } from "../types"
 import CatalogTab from "../components/tabs/CatalogTab"
 import HistoryTab from "../components/tabs/HistoryTab"
@@ -25,101 +15,65 @@ import CreateExchangeItemModal from "../components/CreateExchangeItemModal"
 import TransactionDetailModal from "../components/TransactionDetailModal"
 
 export default function PointRewardsPage() {
-  const { addToast } = useToastStore()
+  const { t } = useLanguage()
 
   // Tabs state
   const [activeTab, setActiveTab] = useState<string>("catalog")
 
-  // State for Catalog
-  const [items, setItems] = useState<ExchangeItem[]>(INITIAL_EXCHANGE_ITEMS)
-  const [catalogStats, setCatalogStats] = useState<CatalogStats>(INITIAL_CATALOG_STATS)
-
-  // State for History
-  const [transactions] = useState<ExchangeTransaction[]>(INITIAL_TRANSACTIONS)
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<ExchangeTransaction | null>(null)
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
-
-  // State for Reports
-  const [reportStats] = useState<ReportStats>(INITIAL_REPORT_STATS)
-  const [performances] = useState<RewardPerformance[]>(INITIAL_REWARD_PERFORMANCE)
-
-  // Create Modal state
+  // Catalog signals & editing state
+  const [catalogRefreshSignal, setCatalogRefreshSignal] = useState(0)
+  const [editingItem, setEditingItem] = useState<PointRedemptionItemDto | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+  // History detail state
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<PointRedemptionHistoryDto | null>(null)
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
   // Tab definitions
   const tabs: Tab[] = [
-    { id: "catalog", label: "Danh mục đổi điểm" },
-    { id: "history", label: "Lịch sử đổi điểm" },
-    { id: "reports", label: "Báo cáo" },
+    { id: "catalog", label: t.pointRewards.tabs.catalog },
+    { id: "history", label: t.pointRewards.tabs.history },
+    { id: "reports", label: t.pointRewards.tabs.reports },
   ]
 
   // Handlers
-  const handleToggleStatus = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          const nextStatus = item.status === "active" ? "paused" : "active"
-          addToast(
-            "info",
-            `Đã chuyển trạng thái mục sang "${nextStatus === "active" ? "Hoạt động" : "Tạm dừng"}"`,
-          )
-          return { ...item, status: nextStatus }
-        }
-        return item
-      }),
-    )
-
-    setCatalogStats((prev) => {
-      const target = items.find((i) => i.id === id)
-      if (!target) return prev
-      if (target.status === "active") {
-        return {
-          ...prev,
-          activeItems: Math.max(0, prev.activeItems - 1),
-          pausedItems: prev.pausedItems + 1,
-        }
-      } else {
-        return {
-          ...prev,
-          activeItems: prev.activeItems + 1,
-          pausedItems: Math.max(0, prev.pausedItems - 1),
-        }
-      }
-    })
+  const handleOpenCreateModal = () => {
+    setEditingItem(null)
+    setIsCreateModalOpen(true)
   }
 
-  const handleCreatedItem = (newItem: ExchangeItem) => {
-    setItems((prev) => [newItem, ...prev])
-    setCatalogStats((prev) => ({
-      ...prev,
-      totalItems: prev.totalItems + 1,
-      activeItems: prev.activeItems + 1,
-    }))
+  const handleEditItem = (item: PointRedemptionItemDto) => {
+    setEditingItem(item)
+    setIsCreateModalOpen(true)
   }
 
-  const handleViewTransaction = (tx: ExchangeTransaction) => {
+  const handleSavedSuccess = () => {
+    setCatalogRefreshSignal((prev) => prev + 1)
+  }
+
+  const handleViewTransaction = (tx: PointRedemptionHistoryDto) => {
     setSelectedTransaction(tx)
     setIsDetailModalOpen(true)
   }
 
   return (
     <div className="space-y-6">
-      {/* ── Page Header matching Figma ── */}
+      {/* ── Page Header ── */}
       <PageHeader
         icon={<Coins className="size-5" />}
-        title="Quản lý Đổi điểm"
-        desc="Quản lý, tạo và cấu hình điểm thưởng"
+        title={t.pointRewards.pageTitle}
+        desc={t.pointRewards.pageDesc}
         rightButtons={[
           <Button
             key="create-exchange-item"
             variant="primary"
             size="sm"
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={handleOpenCreateModal}
             className="cursor-pointer"
           >
             <Plus className="size-4 mr-1" />
-            Tạo mục đổi điểm mới
+            {t.pointRewards.btnCreate}
           </Button>,
         ]}
       />
@@ -134,35 +88,28 @@ export default function PointRewardsPage() {
       {/* ── Tab Content ── */}
       {activeTab === "catalog" && (
         <CatalogTab
-          items={items}
-          stats={catalogStats}
-          onToggleStatus={handleToggleStatus}
-          onEditItem={() => {
-            setIsCreateModalOpen(true)
-          }}
+          onEditItem={handleEditItem}
+          refreshSignal={catalogRefreshSignal}
         />
       )}
 
       {activeTab === "history" && (
-        <HistoryTab
-          transactions={transactions}
-          onViewTransaction={handleViewTransaction}
-        />
+        <HistoryTab onViewTransaction={handleViewTransaction} />
       )}
 
       {activeTab === "reports" && (
-        <ReportsTab
-          stats={reportStats}
-          performances={performances}
-          onViewAll={() => setActiveTab("catalog")}
-        />
+        <ReportsTab onViewAll={() => setActiveTab("catalog")} />
       )}
 
       {/* ── Modals ── */}
       <CreateExchangeItemModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreated={handleCreatedItem}
+        onClose={() => {
+          setIsCreateModalOpen(false)
+          setEditingItem(null)
+        }}
+        editingItem={editingItem}
+        onSuccess={handleSavedSuccess}
       />
 
       <TransactionDetailModal

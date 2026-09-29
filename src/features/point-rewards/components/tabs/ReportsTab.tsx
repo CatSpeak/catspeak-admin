@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react"
+import React, { useState, useMemo, useRef, useEffect, useCallback } from "react"
 import {
   Repeat,
   Coins,
@@ -14,26 +14,34 @@ import Chart from "react-apexcharts"
 import type { ApexOptions } from "apexcharts"
 import SummaryCard from "../../../../components/ui/SummaryCard"
 import { TrendBadge } from "../common/StatusBadge"
-import type { ReportStats, RewardPerformance } from "../../types"
-import {
-  TIMELINE_EXCHANGE_DATA,
-  POPULAR_REWARDS_SEGMENTS,
-} from "../../api/mockData"
 import { useToastStore } from "../../../../stores/toastStore"
+import { useLanguage } from "../../../../stores/languageStore"
+import { getApiErrorMessage } from "../../../../lib/axios"
+import {
+  getPointRedemptionReports,
+  exportPointRedemptionReportsPdf,
+} from "../../api"
+import type {
+  PointRedemptionReportsDto,
+  ReportPeriod,
+} from "../../types"
 
 interface ReportsTabProps {
-  stats: ReportStats
-  performances: RewardPerformance[]
   onViewAll?: () => void
 }
 
+const DONUT_COLORS = ["#EA580C", "#F59E0B", "#910B09", "#475569", "#2563EB", "#059669"]
+
 export const ReportsTab: React.FC<ReportsTabProps> = ({
-  stats,
-  performances,
   onViewAll,
 }) => {
+  const { t } = useLanguage()
   const { addToast } = useToastStore()
-  const [reportPeriod, setReportPeriod] = useState("this-month")
+
+  const [period, setPeriod] = useState<ReportPeriod>("ThisMonth")
+  const [reportsData, setReportsData] = useState<PointRedemptionReportsDto | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isExporting, setIsExporting] = useState(false)
 
   // Dropdown states for charts
   const [openChartDropdown, setOpenChartDropdown] = useState<"line" | "donut" | null>(null)
@@ -50,11 +58,46 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleExportPDF = () => {
-    addToast("info", "Đang khởi tạo bản in báo cáo PDF...")
-    setTimeout(() => {
-      addToast("success", "Xuất báo cáo PDF thành công!")
-    }, 800)
+  // Fetch reports data
+  const fetchReports = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const data = await getPointRedemptionReports({ period })
+      setReportsData(data)
+    } catch (err) {
+      console.error("Failed to load reports data:", err)
+      addToast("error", t.pointRewards.toasts.loadDataError)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [period, addToast, t])
+
+  useEffect(() => {
+    fetchReports()
+  }, [fetchReports])
+
+  // Export PDF handler
+  const handleExportPDF = async () => {
+    setIsExporting(true)
+    addToast("info", t.pointRewards.reports.exportingPdf)
+    try {
+      const blob = await exportPointRedemptionReportsPdf({ period })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `BaoCaoDoiDiem_${period}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+
+      addToast("success", t.pointRewards.reports.exportPdfSuccess)
+    } catch (err: unknown) {
+      const errorMsg = getApiErrorMessage(err, t.pointRewards.toasts.actionError)
+      addToast("error", errorMsg)
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   const handleChartAction = (chartName: string, action: string) => {
@@ -69,14 +112,23 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
   }
 
   // ApexCharts Config for Line/Area Chart
+  const lineCategories = useMemo(
+    () => reportsData?.redemptionsOverTime?.map((d) => d.label) || [],
+    [reportsData],
+  )
+  const lineSeriesData = useMemo(
+    () => reportsData?.redemptionsOverTime?.map((d) => d.value) || [],
+    [reportsData],
+  )
+
   const lineSeries = useMemo(
     () => [
       {
-        name: "Lượt đổi",
-        data: TIMELINE_EXCHANGE_DATA.map((d) => d.value),
+        name: t.pointRewards.reports.statsTotalRedemptions,
+        data: lineSeriesData,
       },
     ],
-    [],
+    [lineSeriesData, t],
   )
 
   const lineOptions: ApexOptions = useMemo(
@@ -116,7 +168,7 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
         hover: { size: 6 },
       },
       xaxis: {
-        categories: TIMELINE_EXCHANGE_DATA.map((d) => d.label),
+        categories: lineCategories,
         axisBorder: { show: false },
         axisTicks: { show: false },
         labels: {
@@ -128,14 +180,13 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
       },
       yaxis: {
         min: 0,
-        max: 50,
         tickAmount: 5,
         labels: {
           style: {
             colors: "#9CA3AF",
             fontSize: "12px",
           },
-          formatter: (v) => `${v}`,
+          formatter: (v) => `${Math.round(v)}`,
         },
       },
       grid: {
@@ -146,25 +197,34 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
       tooltip: {
         theme: "light",
         y: {
-          formatter: (val) => `${val} lượt đổi`,
+          formatter: (val) => `${val} lượt`,
         },
       },
     }),
-    [],
+    [lineCategories],
   )
 
   // ApexCharts Config for Donut Chart
+  const popularRewards = reportsData?.popularRewards || []
   const donutSeries = useMemo(
-    () => POPULAR_REWARDS_SEGMENTS.map((s) => s.value),
-    [],
+    () => popularRewards.map((s) => s.value),
+    [popularRewards],
   )
   const donutLabels = useMemo(
-    () => POPULAR_REWARDS_SEGMENTS.map((s) => s.label),
-    [],
+    () => popularRewards.map((s) => s.label),
+    [popularRewards],
   )
   const donutColors = useMemo(
-    () => POPULAR_REWARDS_SEGMENTS.map((s) => s.color),
-    [],
+    () =>
+      popularRewards.map(
+        (_, idx) => DONUT_COLORS[idx % DONUT_COLORS.length],
+      ),
+    [popularRewards],
+  )
+
+  const totalDonutValue = useMemo(
+    () => donutSeries.reduce((a, b) => a + b, 0),
+    [donutSeries],
   )
 
   const donutOptions: ApexOptions = useMemo(
@@ -191,12 +251,12 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
                 fontSize: "18px",
                 fontWeight: 700,
                 color: "#111827",
-                formatter: () => "342 Lượt",
+                formatter: () => `${totalDonutValue} Lượt`,
               },
               total: {
                 show: true,
                 label: "",
-                formatter: () => "342 Lượt",
+                formatter: () => `${totalDonutValue} Lượt`,
               },
             },
           },
@@ -205,74 +265,125 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
       tooltip: {
         theme: "light",
         y: {
-          formatter: (val) => `${val}%`,
+          formatter: (val) => `${val} lượt`,
         },
       },
     }),
-    [donutLabels, donutColors],
+    [donutLabels, donutColors, totalDonutValue],
   )
+
+  // Helper for trend badge
+  const mapTrendToBadge = (trendStr: string) => {
+    const lower = trendStr.toLowerCase()
+    if (lower.includes("tăng") || lower.includes("up")) return "up"
+    if (lower.includes("giảm") || lower.includes("down")) return "down"
+    return "stable"
+  }
 
   return (
     <div className="space-y-6">
       {/* ── Sub-header with Filter and Export PDF ── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-gray-500">Kỳ báo cáo:</span>
+          <span className="text-xs font-semibold text-gray-500">
+            {t.pointRewards.reports.periodLabel}
+          </span>
           <select
-            value={reportPeriod}
-            onChange={(e) => setReportPeriod(e.target.value)}
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
             className="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:bg-gray-100 transition-colors"
           >
-            <option value="today">Hôm nay</option>
-            <option value="last-7-days">7 ngày qua</option>
-            <option value="this-month">Tháng này</option>
-            <option value="this-quarter">Quý này</option>
-            <option value="this-year">Năm nay</option>
+            <option value="ThisWeek">{t.pointRewards.reports.periodThisWeek}</option>
+            <option value="ThisMonth">{t.pointRewards.reports.periodThisMonth}</option>
+            <option value="LastMonth">{t.pointRewards.reports.periodLastMonth}</option>
+            <option value="Custom">{t.pointRewards.reports.periodCustom}</option>
           </select>
         </div>
 
         <button
           type="button"
+          disabled={isExporting}
           onClick={handleExportPDF}
-          className="flex items-center gap-1.5 px-3.5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-primary hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs cursor-pointer self-end sm:self-auto"
+          className="flex items-center gap-1.5 px-3.5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:text-primary hover:bg-gray-50 hover:border-gray-300 transition-colors shadow-2xs cursor-pointer self-end sm:self-auto disabled:opacity-50"
         >
           <Download size={16} />
-          <span>Xuất báo cáo PDF</span>
+          <span>{t.pointRewards.reports.btnExportPdf}</span>
         </button>
       </div>
 
       {/* ── 4 KPI Stats Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total redemptions */}
         <SummaryCard
           icon={<Repeat size={20} />}
           color="#2563EB"
-          label="Tổng lượt đổi"
-          value={`${stats.totalExchanges} lượt`}
-          trend={{ value: `+${stats.exchangesGrowth}% so với tháng trước`, up: true }}
+          label={t.pointRewards.reports.statsTotalRedemptions}
+          value={
+            isLoading
+              ? "..."
+              : `${reportsData?.totalRedemptions || 0} lượt`
+          }
+          trend={
+            reportsData?.totalRedemptionsChangePercent !== undefined
+              ? {
+                  value: `${reportsData.totalRedemptionsChangePercent > 0 ? "+" : ""}${reportsData.totalRedemptionsChangePercent}% ${t.pointRewards.reports.comparedToPrev}`,
+                  up: reportsData.totalRedemptionsChangePercent >= 0,
+                }
+              : undefined
+          }
         />
+
+        {/* Total points spent */}
         <SummaryCard
           icon={<Coins size={20} />}
           color="#910B09"
-          label="Tổng điểm đã tiêu"
-          value={`${stats.totalPointsSpent.toLocaleString()} pts`}
-          trend={{ value: `+${stats.pointsGrowth}% so với tháng trước`, up: true }}
+          label={t.pointRewards.reports.statsTotalPointsSpent}
+          value={
+            isLoading
+              ? "..."
+              : `${(reportsData?.totalPointsSpent || 0).toLocaleString()}`
+          }
+          trend={
+            reportsData?.totalPointsSpentChangePercent !== undefined
+              ? {
+                  value: `${reportsData.totalPointsSpentChangePercent > 0 ? "+" : ""}${reportsData.totalPointsSpentChangePercent}% ${t.pointRewards.reports.comparedToPrev}`,
+                  up: reportsData.totalPointsSpentChangePercent >= 0,
+                }
+              : undefined
+          }
         />
+
+        {/* Unique users */}
         <SummaryCard
           icon={<Users size={20} />}
           color="#059669"
-          label="Học viên tham gia"
-          value={`${stats.participatingStudents} người`}
-          subtitle={`Trung bình ${stats.avgPerStudent} lượt/người`}
+          label={t.pointRewards.reports.statsUniqueUsers}
+          value={
+            isLoading
+              ? "..."
+              : `${reportsData?.uniqueUsersCount || 0} người`
+          }
         />
+
+        {/* Remaining rewards */}
         <SummaryCard
           icon={<Package size={20} />}
           color="#D97706"
-          label="Phần thưởng còn lại"
-          value={`${stats.remainingRewards.toLocaleString()} mục`}
+          label={t.pointRewards.reports.statsRemainingInventory}
+          value={
+            isLoading
+              ? "..."
+              : `${(reportsData?.remainingInventory || 0).toLocaleString()} mục`
+          }
           subtitle={
-            <span className="text-amber-600 font-medium">
-              {stats.lowStockCount} mục sắp hết hàng
-            </span>
+            reportsData?.lowStockItemsCount ? (
+              <span className="text-amber-600 font-medium">
+                {t.pointRewards.reports.statsLowStockWarning.replace(
+                  "{count}",
+                  String(reportsData.lowStockItemsCount),
+                )}
+              </span>
+            ) : undefined
           }
         />
       </div>
@@ -283,7 +394,7 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-2xs relative">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900 text-base">
-              Lượt đổi theo thời gian
+              {t.pointRewards.reports.chartTimelineTitle}
             </h3>
 
             {/* Dropdown 3 dots */}
@@ -302,27 +413,42 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
                 <div className="absolute right-0 top-8 z-30 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 text-xs text-gray-700 animate-in fade-in zoom-in-95 duration-150">
                   <button
                     type="button"
-                    onClick={() => handleChartAction("Lượt đổi theo thời gian", "table")}
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    onClick={() =>
+                      handleChartAction(
+                        t.pointRewards.reports.chartTimelineTitle,
+                        "table",
+                      )
+                    }
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <TableIcon size={14} className="text-gray-400" />
-                    <span>Xem dạng bảng</span>
+                    <span>{t.pointRewards.reports.menuTableView}</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleChartAction("Lượt đổi theo thời gian", "png")}
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    onClick={() =>
+                      handleChartAction(
+                        t.pointRewards.reports.chartTimelineTitle,
+                        "png",
+                      )
+                    }
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <ImageIcon size={14} className="text-gray-400" />
-                    <span>Tải ảnh biểu đồ (PNG)</span>
+                    <span>{t.pointRewards.reports.menuDownloadPng}</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleChartAction("Lượt đổi theo thời gian", "excel")}
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    onClick={() =>
+                      handleChartAction(
+                        t.pointRewards.reports.chartTimelineTitle,
+                        "excel",
+                      )
+                    }
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <FileSpreadsheet size={14} className="text-gray-400" />
-                    <span>Xuất dữ liệu Excel</span>
+                    <span>{t.pointRewards.reports.menuExportExcel}</span>
                   </button>
                 </div>
               )}
@@ -330,13 +456,19 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
           </div>
 
           <div className="w-full h-[250px]">
-            <Chart
-              options={lineOptions}
-              series={lineSeries}
-              type="area"
-              height={250}
-              width="100%"
-            />
+            {lineSeriesData.length > 0 ? (
+              <Chart
+                options={lineOptions}
+                series={lineSeries}
+                type="area"
+                height={250}
+                width="100%"
+              />
+            ) : (
+              <div className="h-full flex items-center justify-center text-sm text-gray-400">
+                {isLoading ? "Đang tải biểu đồ..." : "Chưa có dữ liệu xu hướng"}
+              </div>
+            )}
           </div>
         </div>
 
@@ -344,7 +476,7 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
         <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-2xs relative">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-gray-900 text-base">
-              Phần thưởng phổ biến nhất
+              {t.pointRewards.reports.chartPopularTitle}
             </h3>
 
             {/* Dropdown 3 dots */}
@@ -364,32 +496,41 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
                   <button
                     type="button"
                     onClick={() =>
-                      handleChartAction("Phần thưởng phổ biến", "table")
+                      handleChartAction(
+                        t.pointRewards.reports.chartPopularTitle,
+                        "table",
+                      )
                     }
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <TableIcon size={14} className="text-gray-400" />
-                    <span>Xem dạng bảng</span>
+                    <span>{t.pointRewards.reports.menuTableView}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() =>
-                      handleChartAction("Phần thưởng phổ biến", "png")
+                      handleChartAction(
+                        t.pointRewards.reports.chartPopularTitle,
+                        "png",
+                      )
                     }
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <ImageIcon size={14} className="text-gray-400" />
-                    <span>Tải ảnh biểu đồ (PNG)</span>
+                    <span>{t.pointRewards.reports.menuDownloadPng}</span>
                   </button>
                   <button
                     type="button"
                     onClick={() =>
-                      handleChartAction("Phần thưởng phổ biến", "excel")
+                      handleChartAction(
+                        t.pointRewards.reports.chartPopularTitle,
+                        "excel",
+                      )
                     }
-                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors"
+                    className="w-full flex items-center gap-2 px-3.5 py-2 hover:bg-gray-50 text-left transition-colors cursor-pointer"
                   >
                     <FileSpreadsheet size={14} className="text-gray-400" />
-                    <span>Xuất dữ liệu Excel</span>
+                    <span>{t.pointRewards.reports.menuExportExcel}</span>
                   </button>
                 </div>
               )}
@@ -397,37 +538,48 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-[250px]">
-            <div className="relative shrink-0 w-48 h-48 flex justify-center items-center">
-              <Chart
-                options={donutOptions}
-                series={donutSeries}
-                type="donut"
-                width={190}
-              />
-            </div>
-
-            {/* Custom Legend */}
-            <div className="w-full sm:w-auto flex-1 space-y-2.5 text-xs">
-              {POPULAR_REWARDS_SEGMENTS.map((seg) => (
-                <div
-                  key={seg.label}
-                  className="flex items-center justify-between text-gray-700"
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: seg.color }}
-                    />
-                    <span className="font-medium truncate max-w-[150px]">
-                      {seg.label}
-                    </span>
-                  </div>
-                  <span className="font-bold text-gray-900 ml-2">
-                    ({seg.value}%)
-                  </span>
+            {popularRewards.length > 0 ? (
+              <>
+                <div className="relative shrink-0 w-48 h-48 flex justify-center items-center">
+                  <Chart
+                    options={donutOptions}
+                    series={donutSeries}
+                    type="donut"
+                    width={190}
+                  />
                 </div>
-              ))}
-            </div>
+
+                {/* Custom Legend */}
+                <div className="w-full sm:w-auto flex-1 space-y-2.5 text-xs max-h-48 overflow-y-auto pr-1">
+                  {popularRewards.map((seg, idx) => (
+                    <div
+                      key={seg.label}
+                      className="flex items-center justify-between text-gray-700"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{
+                            backgroundColor:
+                              DONUT_COLORS[idx % DONUT_COLORS.length],
+                          }}
+                        />
+                        <span className="font-medium truncate max-w-[140px]">
+                          {seg.label}
+                        </span>
+                      </div>
+                      <span className="font-bold text-gray-900 ml-2">
+                        {seg.value} lượt
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-sm text-gray-400">
+                {isLoading ? "Đang tải biểu đồ..." : "Chưa có dữ liệu phần thưởng"}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -437,14 +589,14 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
         {/* Table Title Bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-            Chi tiết theo từng phần thưởng
+            {t.pointRewards.reports.tableTitle}
           </h3>
           <button
             type="button"
             onClick={onViewAll}
             className="text-primary hover:text-primary-dark font-semibold text-xs sm:text-sm flex items-center gap-1 transition-colors cursor-pointer"
           >
-            <span>Xem tất cả</span>
+            <span>{t.pointRewards.reports.btnViewAll}</span>
             <span>→</span>
           </button>
         </div>
@@ -453,55 +605,71 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#910B09] text-white text-xs font-bold tracking-wider uppercase">
-                <th className="px-5 py-3.5">PHẦN THƯỞNG</th>
-                <th className="px-5 py-3.5">ĐIỂM CẦN</th>
-                <th className="px-5 py-3.5">LƯỢT ĐỔI (KỲ NÀY)</th>
-                <th className="px-5 py-3.5">TỔNG ĐIỂM TIÊU</th>
-                <th className="px-5 py-3.5">TỒN KHO CÒN</th>
-                <th className="px-5 py-3.5 text-center">XU HƯỚNG</th>
+                <th className="px-5 py-3.5">{t.pointRewards.reports.colReward}</th>
+                <th className="px-5 py-3.5">{t.pointRewards.reports.colPointsCost}</th>
+                <th className="px-5 py-3.5">{t.pointRewards.reports.colExchangeCount}</th>
+                <th className="px-5 py-3.5">{t.pointRewards.reports.colTotalPointsSpent}</th>
+                <th className="px-5 py-3.5">{t.pointRewards.reports.colRemainingStock}</th>
+                <th className="px-5 py-3.5 text-center">{t.pointRewards.reports.colTrend}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
-              {performances.map((p) => (
-                <tr key={p.id} className="hover:bg-gray-50/70 transition-colors">
-                  {/* Phần thưởng */}
-                  <td className="px-5 py-4 font-semibold text-gray-900">
-                    {p.title}
-                  </td>
-
-                  {/* Điểm cần */}
-                  <td className="px-5 py-4 font-bold text-gray-800">
-                    {p.pointsCost.toLocaleString()}
-                  </td>
-
-                  {/* Lượt đổi kỳ này */}
-                  <td className="px-5 py-4 font-semibold text-gray-800">
-                    {p.exchangeCount}
-                  </td>
-
-                  {/* Tổng điểm tiêu */}
-                  <td className="px-5 py-4 font-semibold text-gray-800">
-                    {p.totalPointsSpent.toLocaleString()}
-                  </td>
-
-                  {/* Tồn kho còn */}
-                  <td className="px-5 py-4 font-semibold">
-                    {typeof p.remainingStock === "number" &&
-                    p.remainingStock <= 15 ? (
-                      <span className="text-rose-600 font-bold">
-                        {p.remainingStock}
-                      </span>
-                    ) : (
-                      <span className="text-gray-800">{p.remainingStock}</span>
-                    )}
-                  </td>
-
-                  {/* Xu hướng */}
-                  <td className="px-5 py-4 text-center">
-                    <TrendBadge trend={p.trend} />
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-gray-500 text-sm">
+                    Đang tải bảng báo cáo chi tiết...
                   </td>
                 </tr>
-              ))}
+              ) : (reportsData?.rewardDetails || []).length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-10 text-gray-500 text-sm">
+                    Chưa có dữ liệu chi tiết phần thưởng
+                  </td>
+                </tr>
+              ) : (
+                reportsData?.rewardDetails.map((p) => (
+                  <tr key={p.itemId} className="hover:bg-gray-50/70 transition-colors">
+                    {/* Phần thưởng */}
+                    <td className="px-5 py-4 font-semibold text-gray-900">
+                      {p.voucherName}
+                    </td>
+
+                    {/* Điểm cần */}
+                    <td className="px-5 py-4 font-bold text-gray-800">
+                      {p.pointsRequired.toLocaleString()}
+                    </td>
+
+                    {/* Lượt đổi kỳ này */}
+                    <td className="px-5 py-4 font-semibold text-gray-800">
+                      {p.redemptionsThisPeriod}
+                    </td>
+
+                    {/* Tổng điểm tiêu */}
+                    <td className="px-5 py-4 font-semibold text-gray-800">
+                      {p.totalPointsSpent.toLocaleString()}
+                    </td>
+
+                    {/* Tồn kho còn */}
+                    <td className="px-5 py-4 font-semibold">
+                      {typeof p.remainingInventory === "number" &&
+                      p.remainingInventory <= 15 ? (
+                        <span className="text-rose-600 font-bold">
+                          {p.remainingInventory}
+                        </span>
+                      ) : (
+                        <span className="text-gray-800">
+                          {p.remainingInventory ?? t.pointRewards.catalog.unlimited}
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Xu hướng */}
+                    <td className="px-5 py-4 text-center">
+                      <TrendBadge trend={mapTrendToBadge(p.trend)} />
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
