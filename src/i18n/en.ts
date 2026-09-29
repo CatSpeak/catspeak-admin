@@ -1503,6 +1503,8 @@ const en = {
       searchPlaceholder: "Search voucher...",
       filterStatus: "Status",
       filterAllStatus: "All Statuses",
+      filterSponsor: "Sponsor Type",
+      filterAllSponsors: "All Sponsor Types",
       statusActive: "Active",
       statusPaused: "Paused",
       statusExpired: "Expired",

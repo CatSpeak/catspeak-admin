@@ -25,6 +25,7 @@ import {
 import type {
   PointRedemptionHistoryDto,
   EligibleVoucherDto,
+  PointRedemptionSponsorType,
 } from "../../types"
 
 interface HistoryTabProps {
@@ -48,6 +49,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   // Filter states
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedVoucherId, setSelectedVoucherId] = useState<number | "">("")
+  const [sponsorFilter, setSponsorFilter] = useState<"All" | PointRedemptionSponsorType>("All")
   const [fromDate, setFromDate] = useState("")
   const [toDate, setToDate] = useState("")
 
@@ -80,6 +82,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
       const res = await getPointRedemptionHistory({
         keyword: searchQuery.trim() || undefined,
         itemId: selectedVoucherId ? Number(selectedVoucherId) : undefined,
+        sponsorType: sponsorFilter === "All" ? undefined : sponsorFilter,
         fromDate: utcFrom,
         toDate: utcTo,
         page: currentPage,
@@ -99,7 +102,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
     } finally {
       setIsLoading(false)
     }
-  }, [searchQuery, selectedVoucherId, fromDate, toDate, currentPage, pageSize, addToast, t])
+  }, [searchQuery, selectedVoucherId, sponsorFilter, fromDate, toDate, currentPage, pageSize, addToast, t])
 
   useEffect(() => {
     fetchHistory()
@@ -116,6 +119,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
       const blob = await exportPointRedemptionHistoryExcel({
         keyword: searchQuery.trim() || undefined,
         itemId: selectedVoucherId ? Number(selectedVoucherId) : undefined,
+        sponsorType: sponsorFilter === "All" ? undefined : sponsorFilter,
         fromDate: utcFrom,
         toDate: utcTo,
       })
@@ -143,7 +147,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
       {/* ── Search, Filter & Export Bar ── */}
       <div className="flex flex-col lg:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
         {/* Search */}
-        <div className="relative w-full lg:w-72">
+        <div className="relative w-full lg:w-64">
           <Search
             size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -169,7 +173,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
               setSelectedVoucherId(e.target.value ? Number(e.target.value) : "")
               setCurrentPage(1)
             }}
-            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors max-w-[200px] truncate"
+            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors max-w-[180px] truncate"
           >
             <option value="">{t.pointRewards.history.filterAllRewards} ▾</option>
             {vouchers.map((v) => (
@@ -177,6 +181,20 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                 {v.name}
               </option>
             ))}
+          </select>
+
+          {/* Sponsor Type Filter ("Loại điểm") */}
+          <select
+            value={sponsorFilter}
+            onChange={(e) => {
+              setSponsorFilter(e.target.value as "All" | PointRedemptionSponsorType)
+              setCurrentPage(1)
+            }}
+            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors"
+          >
+            <option value="All">{t.pointRewards.catalog.filterAllSponsors} ▾</option>
+            <option value="CatSpeak">{t.pointRewards.catalog.sponsorCatSpeak}</option>
+            <option value="Instructor">{t.pointRewards.catalog.sponsorInstructor}</option>
           </select>
 
           {/* Date range filter reused logic from payments (From Date & To Date) */}
@@ -221,6 +239,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
             onClick={() => {
               setSearchQuery("")
               setSelectedVoucherId("")
+              setSponsorFilter("All")
               setFromDate("")
               setToDate("")
               setCurrentPage(1)
@@ -275,6 +294,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
               ) : (
                 transactions.map((tx) => {
                   const isSuccess = tx.status === "Success"
+                  const isInstructor = tx.sponsorType === "Instructor"
                   return (
                     <tr
                       key={tx.id}
@@ -300,9 +320,24 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
                         </div>
                       </td>
 
-                      {/* Phần thưởng */}
-                      <td className="px-5 py-4 font-medium text-gray-800">
-                        {tx.voucherName}
+                      {/* Phần thưởng + Sponsor Type */}
+                      <td className="px-5 py-4">
+                        <div className="flex flex-col gap-1 items-start">
+                          <span className="font-medium text-gray-800">
+                            {tx.voucherName}
+                          </span>
+                          {tx.sponsorType && (
+                            <Badge
+                              type={isInstructor ? "Yellow" : "Blue"}
+                              title={
+                                isInstructor
+                                  ? t.pointRewards.catalog.sponsorInstructor
+                                  : t.pointRewards.catalog.sponsorCatSpeak
+                              }
+                              className="text-[10px] px-2 py-0"
+                            />
+                          )}
+                        </div>
                       </td>
 
                       {/* Điểm đã trừ (không cần đơn vị pts) */}

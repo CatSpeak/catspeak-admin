@@ -92,6 +92,8 @@ export type PointRedemptionItemStatusFilter =
 
 export type PointRedemptionHistoryStatus = "Success" | "Failed"
 
+export type PointRedemptionSponsorType = "CatSpeak" | "Instructor"
+
 export type ReportPeriod = "ThisWeek" | "ThisMonth" | "LastMonth" | "Custom"
 
 // Pagination structure
@@ -135,6 +137,7 @@ export interface EligibleVoucherDto {
 export interface PointRedemptionItemDto {
   id: number
   voucherName: string
+  sponsorType?: PointRedemptionSponsorType | string | null
   courseId?: number | null
   pointsRequired: number
   totalQuantity?: number | null
@@ -168,6 +171,7 @@ export interface UpdatePointRedemptionItemRequest {
 export interface GetPointRedemptionItemsParams {
   keyword?: string
   status?: PointRedemptionItemStatusFilter | string
+  sponsorType?: PointRedemptionSponsorType | string
   page?: number
   pageSize?: number
 }
@@ -182,6 +186,7 @@ export interface PointRedemptionHistoryDto {
   studentEmail: string
   studentAvatar?: string | null
   voucherName: string
+  sponsorType?: PointRedemptionSponsorType | string | null
   pointsDeducted: number
   resultCode: string
   status: PointRedemptionHistoryStatus | string
@@ -197,6 +202,7 @@ export interface PointRedemptionHistoryDetailDto {
   studentEmail: string
   studentAvatar?: string | null
   voucherName: string
+  sponsorType?: PointRedemptionSponsorType | string | null
   pointsLabel: string
   pointsDeducted: number
   resultCode: string
@@ -211,6 +217,7 @@ export interface GetPointRedemptionHistoryParams {
   itemId?: number
   fromDate?: string
   toDate?: string
+  sponsorType?: PointRedemptionSponsorType | string
   page?: number
   pageSize?: number
 }
@@ -263,8 +270,10 @@ export interface ExportPointRedemptionHistoryParams {
   itemId?: number
   fromDate?: string
   toDate?: string
+  sponsorType?: PointRedemptionSponsorType | string
 }
 
 export interface ExportPointRedemptionReportsParams {
   period?: ReportPeriod | string
 }
+

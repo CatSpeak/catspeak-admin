@@ -237,6 +237,7 @@ Content-Type: application/json
   - `itemId` (`int?`): Lọc theo ID mục đổi điểm cụ thể.
   - `fromDate` (`string?` ISO Date): Từ ngày.
   - `toDate` (`string?` ISO Date): Đến ngày.
+  - `sponsorType` (`"CatSpeak" | "Instructor"`): Loại voucher.
   - `page` (`int`): Mặc định `1`.
   - `pageSize` (`int`): Mặc định `10`.
 - **Response `200 OK`**:
@@ -253,6 +254,7 @@ Content-Type: application/json
       "studentEmail": "nguyenvana@gmail.com",
       "studentAvatar": "https://cdn.catspeak.com/avatars/user10.png",
       "voucherName": "Voucher Giảm 20% Khóa Tiếng Anh",
+      "sponsorType": "CatSpeak",
       "pointsDeducted": 500,
       "resultCode": "CAT-ABC12345",
       "status": "Success",

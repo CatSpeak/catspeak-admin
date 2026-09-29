@@ -1480,6 +1480,8 @@ const zh = {
       searchPlaceholder: "搜索优惠券名称...",
       filterStatus: "状态",
       filterAllStatus: "所有状态",
+      filterSponsor: "积分/资助类型",
+      filterAllSponsors: "所有资助类型",
       statusActive: "进行中",
       statusPaused: "已暂停",
       statusExpired: "已过期",

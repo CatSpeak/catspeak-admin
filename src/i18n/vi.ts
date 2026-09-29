@@ -1517,6 +1517,8 @@ const vi = {
       searchPlaceholder: "Tìm kiếm voucher...",
       filterStatus: "Trạng thái",
       filterAllStatus: "Tất cả trạng thái",
+      filterSponsor: "Loại điểm",
+      filterAllSponsors: "Tất cả loại điểm",
       statusActive: "Đang hoạt động",
       statusPaused: "Tạm dừng",
       statusExpired: "Hết hạn",

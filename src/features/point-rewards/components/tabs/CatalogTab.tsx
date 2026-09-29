@@ -29,6 +29,7 @@ import type {
   PointRedemptionItemDto,
   PointRedemptionSummaryDto,
   PointRedemptionItemStatusFilter,
+  PointRedemptionSponsorType,
 } from "../../types"
 
 interface CatalogTabProps {
@@ -57,6 +58,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
   const [isLoadingItems, setIsLoadingItems] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<PointRedemptionItemStatusFilter>("All")
+  const [sponsorFilter, setSponsorFilter] = useState<"All" | PointRedemptionSponsorType>("All")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize] = useState(10)
   const [totalRecords, setTotalRecords] = useState(0)
@@ -83,6 +85,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
       const res = await getPointRedemptionItems({
         keyword: searchQuery.trim() || undefined,
         status: statusFilter === "All" ? undefined : statusFilter,
+        sponsorType: sponsorFilter === "All" ? undefined : sponsorFilter,
         page: currentPage,
         pageSize,
       })
@@ -96,7 +99,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
     } finally {
       setIsLoadingItems(false)
     }
-  }, [searchQuery, statusFilter, currentPage, pageSize, addToast, t])
+  }, [searchQuery, statusFilter, sponsorFilter, currentPage, pageSize, addToast, t])
 
   useEffect(() => {
     fetchSummary()
@@ -232,7 +235,8 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
         </div>
 
         {/* Filters Group */}
-        <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+          {/* Status Filter */}
           <select
             value={statusFilter}
             onChange={(e) => {
@@ -248,12 +252,28 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
             <option value="Exhausted">{t.pointRewards.catalog.statusExhausted}</option>
           </select>
 
+          {/* Sponsor Type Filter ("Loại điểm") */}
+          <select
+            value={sponsorFilter}
+            onChange={(e) => {
+              setSponsorFilter(e.target.value as "All" | PointRedemptionSponsorType)
+              setCurrentPage(1)
+            }}
+            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors"
+          >
+            <option value="All">{t.pointRewards.catalog.filterAllSponsors} ▾</option>
+            <option value="CatSpeak">{t.pointRewards.catalog.sponsorCatSpeak}</option>
+            <option value="Instructor">{t.pointRewards.catalog.sponsorInstructor}</option>
+          </select>
+
+          {/* Reset Filters */}
           <button
             type="button"
             title={t.pointRewards.catalog.resetFilter}
             onClick={() => {
               setSearchQuery("")
               setStatusFilter("All")
+              setSponsorFilter("All")
               setCurrentPage(1)
               addToast("info", t.pointRewards.toasts.filterReset)
             }}
@@ -294,6 +314,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
               ) : (
                 items.map((item) => {
                   const isItemPaused = item.isPaused || item.status === "Paused"
+                  const isInstructor = item.sponsorType === "Instructor"
                   return (
                     <tr
                       key={item.id}
@@ -306,8 +327,12 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
                             {item.voucherName}
                           </span>
                           <Badge
-                            type="Blue"
-                            title={t.pointRewards.catalog.sponsorCatSpeak}
+                            type={isInstructor ? "Yellow" : "Blue"}
+                            title={
+                              isInstructor
+                                ? t.pointRewards.catalog.sponsorInstructor
+                                : t.pointRewards.catalog.sponsorCatSpeak
+                            }
                             className="text-[10px] px-2 py-0"
                           />
                         </div>
