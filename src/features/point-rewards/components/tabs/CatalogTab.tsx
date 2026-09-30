@@ -245,7 +245,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
             }}
             className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors"
           >
-            <option value="All">{t.pointRewards.catalog.filterAllStatus} ▾</option>
+            <option value="All">{t.pointRewards.catalog.filterAllStatus}</option>
             <option value="Active">{t.pointRewards.catalog.statusActive}</option>
             <option value="Paused">{t.pointRewards.catalog.statusPaused}</option>
             <option value="Expired">{t.pointRewards.catalog.statusExpired}</option>
