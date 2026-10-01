@@ -100,7 +100,9 @@ export const CreateExchangeItemModal: React.FC<CreateExchangeItemModalProps> = (
   }, [editingItem, isOpen])
 
   // Currently selected voucher object
-  const selectedVoucher = eligibleVouchers.find((v) => v.id === Number(voucherId))
+  const selectedVoucher = isEditMode
+    ? eligibleVouchers.find((v) => v.name === editingItem?.voucherName)
+    : eligibleVouchers.find((v) => v.id === Number(voucherId))
 
   if (!isOpen) return null
 

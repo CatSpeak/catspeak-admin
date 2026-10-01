@@ -261,7 +261,7 @@ export const CatalogTab: React.FC<CatalogTabProps> = ({
             }}
             className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary cursor-pointer hover:border-gray-300 transition-colors"
           >
-            <option value="All">{t.pointRewards.catalog.filterAllSponsors} ▾</option>
+            <option value="All">{t.pointRewards.catalog.filterAllSponsors}</option>
             <option value="CatSpeak">{t.pointRewards.catalog.sponsorCatSpeak}</option>
             <option value="Instructor">{t.pointRewards.catalog.sponsorInstructor}</option>
           </select>

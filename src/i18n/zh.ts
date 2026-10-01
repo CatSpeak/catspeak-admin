@@ -1510,7 +1510,7 @@ const zh = {
       labelVoucher: "源优惠券",
       placeholderVoucher: "选择 CatSpeak 资助的优惠券...",
       labelCourse: "适用课程",
-      allCourses: "全部适用课程",
+      allCourses: "此优惠券的所有适用课程",
       labelPoints: "所需积分",
       placeholderPoints: "输入所需积分 (如: 500)",
       labelTotalQuantity: "总发行数量",
