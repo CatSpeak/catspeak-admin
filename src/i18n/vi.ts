@@ -1559,7 +1559,7 @@ const vi = {
       labelVoucher: "Voucher gốc",
       placeholderVoucher: "Chọn voucher CatSpeak tài trợ...",
       labelCourse: "Khóa học áp dụng",
-      allCourses: "Tất cả khóa học",
+      allCourses: "Toàn bộ khóa học của voucher này",
       labelPoints: "Số điểm cần đổi",
       placeholderPoints: "Nhập số điểm (VD: 500)",
       labelTotalQuantity: "Tổng số lượng",

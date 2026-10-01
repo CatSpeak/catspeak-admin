@@ -1545,7 +1545,7 @@ const en = {
       labelVoucher: "Base Voucher",
       placeholderVoucher: "Select CatSpeak sponsored voucher...",
       labelCourse: "Applicable Course",
-      allCourses: "All Courses",
+      allCourses: "All courses of this voucher",
       labelPoints: "Points Required",
       placeholderPoints: "Enter points (e.g. 500)",
       labelTotalQuantity: "Total Quantity",
