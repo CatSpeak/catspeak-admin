@@ -19,12 +19,12 @@ import Avatar from "../../../../components/ui/Avatar"
 import Badge from "../../../../components/ui/Badge"
 import {
   getPointRedemptionHistory,
-  getEligibleVouchers,
+  getPointRedemptionItems,
   exportPointRedemptionHistoryExcel,
 } from "../../api"
 import type {
   PointRedemptionHistoryDto,
-  EligibleVoucherDto,
+  PointRedemptionItemDto,
   PointRedemptionSponsorType,
 } from "../../types"
 
@@ -43,8 +43,7 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
-  // Vouchers for dropdown
-  const [vouchers, setVouchers] = useState<EligibleVoucherDto[]>([])
+  const [vouchers, setVouchers] = useState<{ id: number; name: string }[]>([])
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("")
@@ -59,17 +58,21 @@ export const HistoryTab: React.FC<HistoryTabProps> = ({
   const [totalRecords, setTotalRecords] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
 
-  // Load vouchers for filter dropdown
+  // Load items for filter dropdown
   useEffect(() => {
-    const fetchVouchers = async () => {
+    const fetchItems = async () => {
       try {
-        const data = await getEligibleVouchers()
-        setVouchers(data)
+        const res = await getPointRedemptionItems({ pageSize: 100 })
+        const uniqueVouchers = res.data.map(item => ({
+          id: item.id,
+          name: item.voucherName
+        }))
+        setVouchers(uniqueVouchers)
       } catch (err) {
-        console.error("Failed to load vouchers for filter:", err)
+        console.error("Failed to load items for filter:", err)
       }
     }
-    fetchVouchers()
+    fetchItems()
   }, [])
 
   // Fetch history data
