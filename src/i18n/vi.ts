@@ -1527,7 +1527,7 @@ const vi = {
       resetFilter: "Đặt lại bộ lọc",
       colVoucher: "TÊN VOUCHER",
       colPoints: "ĐIỂM CẦN",
-      colInventory: "TỒN KHO",
+      colInventory: "LƯỢT ĐỔI",
       colValidity: "HIỆU LỰC",
       colStatus: "TRẠNG THÁI",
       colActions: "THAO TÁC",
