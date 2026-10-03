@@ -1525,7 +1525,7 @@ const en = {
       resetFilter: "Reset Filters",
       colVoucher: "VOUCHER NAME",
       colPoints: "POINTS REQUIRED",
-      colInventory: "INVENTORY",
+      colInventory: "REDEEMED",
       colValidity: "VALIDITY",
       colStatus: "STATUS",
       colActions: "ACTIONS",

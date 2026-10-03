@@ -1500,7 +1500,7 @@ const zh = {
       resetFilter: "重置筛选",
       colVoucher: "优惠券名称",
       colPoints: "所需积分",
-      colInventory: "库存情况",
+      colInventory: "库存",
       colValidity: "有效期",
       colStatus: "状态",
       colActions: "操作",
