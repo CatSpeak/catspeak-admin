@@ -24,7 +24,6 @@ import {
 } from "../../api"
 import type {
   PointRedemptionHistoryDto,
-  PointRedemptionItemDto,
   PointRedemptionSponsorType,
 } from "../../types"
 
