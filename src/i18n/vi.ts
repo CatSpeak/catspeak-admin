@@ -1612,7 +1612,7 @@ const vi = {
       statsUniqueUsers: "Học viên tham gia",
       statsRemainingInventory: "Phần thưởng còn lại",
       statsAvgPerStudent: "Trung bình {avg} lượt/người",
-      statsLowStockWarning: "{count} mục sắp hết hàng",
+      statsLowStockWarning: "Cảnh báo: {count} loại phần thưởng sắp hết",
       comparedToPrev: "so với kỳ trước",
       chartTimelineTitle: "Lượt đổi theo thời gian",
       chartPopularTitle: "Phần thưởng phổ biến nhất",

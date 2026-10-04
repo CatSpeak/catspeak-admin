@@ -373,7 +373,7 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
           value={
             isLoading
               ? "..."
-              : `${(reportsData?.remainingInventory || 0).toLocaleString()} mục`
+              : `${(reportsData?.remainingInventory || 0).toLocaleString()} ${t.pointRewards.reports.statsRemainingInventoryUnit}`
           }
           subtitle={
             reportsData?.lowStockItemsCount ? (
