@@ -1,5 +1,58 @@
 export type PostStatus = "draft" | "published" | "scheduled" | "archived";
 
+export const LanguageCommunityEnum = {
+  All: 0,
+  Eng: 1,
+  Chinese: 2,
+  Japanese: 3,
+} as const;
+
+export type LanguageCommunityNumber =
+  (typeof LanguageCommunityEnum)[keyof typeof LanguageCommunityEnum];
+
+export type LanguageCommunity = "All" | "English" | "Chinese" | "Japanese";
+
+export interface Topic {
+  topicId: number;
+  title: string;
+  slug: string;
+  languageCommunity: LanguageCommunityNumber | LanguageCommunity | number;
+}
+
+export type Topics = Topic;
+
+export interface PostTopic {
+  topicId: number;
+  postId: number;
+}
+
+export interface GetTopicsParams {
+  languageCommunity?: LanguageCommunityNumber | LanguageCommunity | number;
+  keyword?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface GetTopicsResponse {
+  data: Topic[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface CreateTopicPayload {
+  title: string;
+  languageCommunity: LanguageCommunityNumber | LanguageCommunity | number;
+  slug: string;
+}
+
+export interface UpdateTopicPayload {
+  topicId: number;
+  title: string;
+  languageCommunity: LanguageCommunityNumber | LanguageCommunity | number;
+  slug: string;
+}
+
 export interface ThumbnailImage {
   id: string | number;
   src: string;
@@ -40,6 +93,8 @@ export interface CreatePostPayload {
   Slug?: string;
   LanguageCommunity: "All" | "English" | "Chinese" | "Japanese";
   Files?: File[];
+  TopicIds?: number[];
+  topicIds?: number[];
 }
 
 export interface UpdatePostPayload {
@@ -53,6 +108,8 @@ export interface UpdatePostPayload {
   Files?: File[];
   RemovedMediaIds?: number[];
   DeletedMediaIds?: number[];
+  TopicIds?: number[];
+  topicIds?: number[];
 }
 
 export interface PostMedia {
@@ -81,6 +138,7 @@ export interface Post {
   viewCount: number;
   shareCount: number;
   languageCommunity: string | null;
+  topics?: Topic[];
 }
 
 export interface PostAdditionalData {

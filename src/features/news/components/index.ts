@@ -7,3 +7,5 @@ export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
 export { default as PostFormView } from "./PostFormView";
 export { default as PostTable } from "./PostTable";
 export { default as PostAnalyticsCards } from "./PostAnalyticsCards";
+export { default as TopicAdder } from "./TopicAdder";
+export { default as CreateTopicModal } from "./CreateTopicModal";
