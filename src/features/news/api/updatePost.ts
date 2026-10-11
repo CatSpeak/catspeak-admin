@@ -3,7 +3,6 @@ import type { GetPostResponse, UpdatePostPayload } from "../types";
 
 /**
  * Update an existing news post.
- * Replace the endpoint URL with the actual backend route when available.
  */
 export const updatePost = async (
   payload: UpdatePostPayload,
@@ -21,6 +20,14 @@ export const updatePost = async (
   } 
   if (body.LanguageCommunity) {
     formData.append("LanguageCommunity", body.LanguageCommunity);
+  }
+
+  // Append updated topic IDs
+  const topicIds = body.TopicIds || body.topicIds;
+  if (topicIds && topicIds.length > 0) {
+    topicIds.forEach((topicId) => {
+      formData.append("TopicIds", String(topicId));
+    });
   }
 
   // Append newly added files (NewFiles)
