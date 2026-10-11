@@ -38,6 +38,7 @@ const PlanDetailsPage = lazy(() => import("../features/plans/routes/PlanDetailsP
 const VoucherPage = lazy(() => import("../features/voucher/routes/VoucherPage"));
 const VoucherCreatePage = lazy(() => import("../features/voucher/routes/VoucherCreatePage"));
 const VoucherDetailPage = lazy(() => import("../features/voucher/routes/VoucherDetailPage"));
+const PointRewardsPage = lazy(() => import("../features/point-rewards/routes/PointRewardsPage"));
 const BroadcastMailPage = lazy(() => import("../features/broadcast/routes/BroadcastMailPage"));
 const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugReportDetailPage"));
 const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes/TeacherReportsPage"));
@@ -106,6 +107,7 @@ export const router = createBrowserRouter([
           { path: "voucher/:id/edit", element: guard(VoucherCreatePage, "vouchers") },
           { path: "vouchers/:id", element: guard(VoucherDetailPage, "vouchers") },
           { path: "voucher/:id", element: guard(VoucherDetailPage, "vouchers") },
+          { path: "point-rewards", element: guard(PointRewardsPage, "vouchers") },
           { path: "news/create", element: guard(PostCreatePage, "news") },
           { path: "news/:slug", element: guard(PostDetailPage, "news") },
           { path: "instructor-applications", element: guard(InstructorApplicationsPage, "instructor_applications") },
