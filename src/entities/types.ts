@@ -16,7 +16,9 @@ export interface Account {
   isOnline: boolean;
   lastActiveDate: string | null;
   lastSeen: string | null;
-  level: string | null;
+  preferredLanguage?: string | null;
+  naturalLanguage?: string | null;
+  languageLearning?: string | null;
   responsibleLanguageCommunities: string[];
   roleId: number;
   roleName: string | null;

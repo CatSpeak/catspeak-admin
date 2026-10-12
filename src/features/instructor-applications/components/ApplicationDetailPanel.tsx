@@ -18,6 +18,7 @@ import {
   Clock,
   Calendar,
   Trash2,
+  Landmark,
 } from "lucide-react";
 import RevisionStatusBadge from "./RevisionStatusBadge";
 import ReviewModal, {
@@ -701,6 +702,64 @@ export default function ApplicationDetailPanel({
                 />
               )}
             </div>
+          </SectionCard>
+
+          {/* Bank Accounts */}
+          <SectionCard title="Thông tin thanh toán/Ngân hàng">
+            {!application.bankAccounts || application.bankAccounts.length === 0 ? (
+              <p className="text-sm text-gray-500 py-2">
+                Không có thông tin tài khoản ngân hàng.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {[...application.bankAccounts]
+                  .sort((a, b) => Number(b.isDefault ?? false) - Number(a.isDefault ?? false) || a.id - b.id)
+                  .map((acc) => (
+                    <div
+                      key={acc.id}
+                      className={`p-3 rounded-xl border transition-all ${
+                        acc.isDefault
+                          ? "border-emerald-200 bg-emerald-50/60"
+                          : "border-gray-150 bg-gray-50/30"
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="text-sm font-bold text-gray-900">
+                          {acc.bankShortName || acc.bankFullName || acc.bankBin || `#${acc.id}`}
+                        </span>
+                        {acc.isDefault && (
+                          <span className="inline-flex px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-100 text-emerald-800 border-emerald-200">
+                            Mặc định
+                          </span>
+                        )}
+                        <span
+                          className={`inline-flex px-2 py-0.5 rounded-full border text-[10px] font-bold ${
+                            acc.isVerified
+                              ? "bg-success-50 text-success-700 border-success-100"
+                              : "bg-gray-100 text-gray-500 border-gray-200"
+                          }`}
+                        >
+                          {acc.isVerified ? "Đã xác minh" : "Chưa xác minh"}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5 text-sm">
+                        <InfoRow
+                          icon={<Landmark className="w-4 h-4 text-gray-400" />}
+                          label="Số tài khoản"
+                          value={String(acc.accountNumber ?? "")}
+                        />
+                        {acc.accountHolderName && (
+                          <InfoRow
+                            icon={<User className="w-4 h-4 text-gray-400" />}
+                            label="Chủ tài khoản"
+                            value={acc.accountHolderName}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </SectionCard>
         </div>
       </div>

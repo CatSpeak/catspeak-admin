@@ -15,6 +15,8 @@ export interface GetUsersParams {
   Levels?: string[];
   FromDate?: string;
   ToDate?: string;
+  LastActivityFrom?: string;
+  LastActivityTo?: string;
   AmountSpentMinVnd?: number;
   AmountSpentMaxVnd?: number;
   VisitDurationPeriod?: string;

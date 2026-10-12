@@ -10,7 +10,6 @@ import {
   Calendar,
   Globe,
   BookOpen,
-  Award,
   CreditCard,
   CheckCircle2,
   XCircle,
@@ -630,9 +629,9 @@ export default function UserDetailPage() {
               value={user.languageLearning || t.common.notSpecified}
             />
             <DetailItem
-              icon={<Award className="w-4 h-4" />}
-              label={t.users.level}
-              value={user.proficiency || t.common.notSpecified}
+              icon={<Globe className="w-4 h-4" />}
+              label="Ngôn ngữ ưu tiên"
+              value={user.preferredLanguage || t.common.notSpecified}
             />
             <DetailItem
               icon={<Globe className="w-4 h-4" />}

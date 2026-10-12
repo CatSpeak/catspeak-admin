@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronsLeft, ChevronsRight } from "lucide-react";
 import type { Table as TanstackTable } from "@tanstack/react-table";
 import { useLanguage } from "../../../../stores/languageStore";
 
@@ -75,6 +75,16 @@ export default function TablePagination<T>({
       <div className="flex items-center gap-1.5">
         <button
           type="button"
+          onClick={() => table.setPageIndex(0)}
+          disabled={!table.getCanPreviousPage()}
+          aria-label="Skip to first page"
+          className="p-2 rounded-lg transition-all text-main hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <ChevronsLeft className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
           aria-label={t.pagination.previousPage}
@@ -113,6 +123,16 @@ export default function TablePagination<T>({
           className="p-2 rounded-lg transition-all text-main hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
         >
           <ChevronRight className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => table.setPageIndex(pageCount - 1)}
+          disabled={!table.getCanNextPage()}
+          aria-label="Skip to last page"
+          className="p-2 rounded-lg transition-all text-main hover:bg-gray-50 border border-transparent hover:border-gray-100 disabled:opacity-30 disabled:pointer-events-none"
+        >
+          <ChevronsRight className="w-4 h-4" />
         </button>
       </div>
     </nav>
