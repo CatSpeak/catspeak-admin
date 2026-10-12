@@ -193,6 +193,15 @@ export default function NewsPage() {
             ),
           },
           {
+            name: "Tiêu đề",
+            accessorKey: "title",
+            render: (p) => (
+              <span className="font-semibold text-gray-900 truncate max-w-[200px] block" title={p.title ?? ""}>
+                {p.title || "—"}
+              </span>
+            ),
+          },
+          {
             name: t.news.preview,
             accessorKey: "content",
             render: (p) => {

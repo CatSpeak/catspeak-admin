@@ -84,6 +84,7 @@ export interface InstructorApplicationDetail {
   sourceAccountId?: number | null;
   sourceUsername?: string | null;
   sourceAccountEmail?: string | null;
+  bankAccounts?: import("../../../entities/types").BankAccount[];
 }
 
 /** Detail payload for a staging revision (initial/update). */
@@ -125,6 +126,7 @@ export interface InstructorRevisionDetail {
   sourceAccountId?: number | null;
   sourceUsername?: string | null;
   sourceAccountEmail?: string | null;
+  bankAccounts?: import("../../../entities/types").BankAccount[];
   /** Live Approved profile snapshot — present for Update revisions only. */
   liveSnapshot?: InstructorApplicationDetail | null;
 }
