@@ -57,10 +57,11 @@ export default function UsersPage() {
       params.Countries = Array.isArray(value)
         ? value.map(String)
         : [String(value)]
-    } else if (attribute === "level" && value) {
-      params.Levels = Array.isArray(value)
-        ? value.map(String)
-        : [String(value)]
+    } else if (attribute === "lastSeen" || attribute === "lastActivity") {
+      const from = typeof value === "string" ? value : Array.isArray(value) ? value[0] : undefined;
+      const to = toDate || (Array.isArray(value) ? value[1] : undefined);
+      params.LastActivityFrom = formatDateToUtcStartOfDay(from);
+      params.LastActivityTo = formatDateToUtcEndOfDay(to);
     } else if (
       attribute === "createDate" ||
       attribute === "dateJoined" ||
@@ -145,10 +146,7 @@ export default function UsersPage() {
             name: t.users.country,
             accessorKey: "country",
           },
-          {
-            name: t.users.level,
-            accessorKey: "level",
-          },
+
           {
             name: t.users.role,
             accessorKey: "roleName",
@@ -190,6 +188,8 @@ export default function UsersPage() {
           {
             name: t.users.lastActive,
             accessorKey: "lastSeen",
+            showFilter: true,
+            isDuration: true,
             render: (p) => (
               <span className="text-sm text-gray-600">
                 {formatDateTime(p.lastSeen)}

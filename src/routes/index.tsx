@@ -44,6 +44,7 @@ const BugReportDetailPage = lazy(() => import("../features/reports/routes/BugRep
 const ScriptsPage = lazy(() => import("../features/scripts/routes/ScriptsPage"));
 const ScriptFormPage = lazy(() => import("../features/scripts/routes/ScriptFormPage"));
 const TeacherReportsPage = lazy(() => import("../features/teacher-reports/routes/TeacherReportsPage"));
+const ContentModerationPage = lazy(() => import("../features/content-moderation/routes/ContentModerationPage"));
 
 const wrap = (Component: React.ComponentType) => (
   <Suspense fallback={<PageLoader />}>
@@ -89,6 +90,7 @@ export const router = createBrowserRouter([
           { path: "teacher-reports", element: guard(TeacherReportsPage, "users") },
           { path: "bug-reports", element: guard(BugReportsPage, "bug_reports") },
           { path: "bug-reports/:id", element: guard(BugReportDetailPage, "bug_reports") },
+          { path: "content-moderation", element: guard(ContentModerationPage, "content_moderation") },
           // { path: "payments", element: guard(PaymentReportsPage, "payment_reports") },
           { path: "payments", element: guard(PaymentsPage, "payment_reports") },
           { path: "payment-reports", element: guard(PaymentIssuesPage, "payment_reports") },
