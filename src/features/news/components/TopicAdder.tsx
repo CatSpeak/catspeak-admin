@@ -2,15 +2,21 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronDown, Search, Plus } from "lucide-react";
 import { useLanguage } from "../../../stores/languageStore";
 import { getTopics } from "../api/getTopics";
-import type { Topic } from "../types";
+import type { Topic, LanguageCommunity } from "../types";
+import {
+  COMMUNITY_TO_LANGUAGE_NUMBER,
+  isTopicMatchingCommunity,
+} from "../constants";
 
 interface TopicAdderProps {
+  community: LanguageCommunity;
   selectedTopics: Topic[];
   onSelectTopic: (topic: Topic) => void;
   onOpenCreateModal: () => void;
 }
 
 export default function TopicAdder({
+  community,
   selectedTopics,
   onSelectTopic,
   onOpenCreateModal,
@@ -53,7 +59,7 @@ export default function TopicAdder({
     }
   }, [isOpen]);
 
-  // Fetch 5 nearest topics based on search keyword
+  // Fetch nearest topics based on search keyword and post community
   useEffect(() => {
     if (!isOpen) return;
 
@@ -61,12 +67,17 @@ export default function TopicAdder({
     const fetchTopics = async () => {
       setLoading(true);
       try {
+        const communityNumber = COMMUNITY_TO_LANGUAGE_NUMBER[community];
         const res = await getTopics({
           keyword: searchTerm.trim() || undefined,
-          pageSize: 5,
+          pageSize: 20,
+          languageCommunity: communityNumber,
         });
         if (active && res?.data) {
-          setTopics(res.data);
+          const matchingTopics = res.data.filter((tp) =>
+            isTopicMatchingCommunity(tp.languageCommunity, community),
+          );
+          setTopics(matchingTopics);
         }
       } catch {
         if (active) {
@@ -84,7 +95,7 @@ export default function TopicAdder({
       active = false;
       clearTimeout(timer);
     };
-  }, [isOpen, searchTerm]);
+  }, [isOpen, searchTerm, community]);
 
   const getLanguageLabel = (lang: number | string) => {
     if (lang === 0 || lang === "All" || lang === "all") return t.common.all || "All";
@@ -98,6 +109,9 @@ export default function TopicAdder({
   };
 
   const handleSelect = (topic: Topic) => {
+    if (!isTopicMatchingCommunity(topic.languageCommunity, community)) {
+      return;
+    }
     onSelectTopic(topic);
     setIsOpen(false);
   };

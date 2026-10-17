@@ -19,6 +19,11 @@ export interface AuthUser {
   permissions?: string[];
 }
 
+export interface RefreshTokenModel {
+  token: string;
+  refreshToken: string;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
 }

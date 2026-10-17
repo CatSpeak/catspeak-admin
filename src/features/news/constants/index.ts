@@ -1,4 +1,9 @@
-import type { EditHistoryEntry, TagItem } from "../types";
+import type {
+  EditHistoryEntry,
+  TagItem,
+  LanguageCommunity,
+  LanguageCommunityNumber,
+} from "../types";
 
 export const MOCK_TAGS: TagItem[] = [
   { id: 1, label: "Family" },
@@ -37,3 +42,63 @@ export const MOCK_EDIT_HISTORY: EditHistoryEntry[] = [
 ];
 
 export const COMMUNITIES = ["All", "English", "Chinese", "Japanese"] as const;
+
+export const COMMUNITY_TO_LANGUAGE_NUMBER: Record<
+  LanguageCommunity,
+  LanguageCommunityNumber
+> = {
+  All: 0,
+  English: 1,
+  Chinese: 2,
+  Japanese: 3,
+};
+
+/**
+ * Checks if a topic belongs to the "All" community or matches the post's specific language community.
+ */
+export const isTopicMatchingCommunity = (
+  topicCommunity:
+    | LanguageCommunityNumber
+    | LanguageCommunity
+    | number
+    | string
+    | undefined
+    | null,
+  postCommunity: LanguageCommunity,
+): boolean => {
+  // Topic with community 0, "All", "all", null or undefined matches any post
+  if (
+    topicCommunity === 0 ||
+    topicCommunity === "0" ||
+    topicCommunity === null ||
+    topicCommunity === undefined ||
+    (typeof topicCommunity === "string" && topicCommunity.toLowerCase() === "all")
+  ) {
+    return true;
+  }
+
+  const targetNumber = COMMUNITY_TO_LANGUAGE_NUMBER[postCommunity];
+
+  if (typeof topicCommunity === "number") {
+    return topicCommunity === targetNumber;
+  }
+
+  if (typeof topicCommunity === "string") {
+    const parsed = Number.parseInt(topicCommunity, 10);
+    if (!Number.isNaN(parsed)) {
+      return parsed === targetNumber;
+    }
+    const topicLower = topicCommunity.toLowerCase();
+    const postLower = postCommunity.toLowerCase();
+    if (topicLower === postLower) return true;
+    if (
+      postCommunity === "English" &&
+      (topicLower === "eng" || topicLower === "english")
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+};
+

@@ -5,18 +5,21 @@ import { generateSlug } from "../../../lib/slug";
 import { getTopics } from "../api/getTopics";
 import { createTopic } from "../api/createTopic";
 import { getApiErrorMessage } from "../../../lib/axios";
-import type { Topic, LanguageCommunityNumber } from "../types";
+import type { Topic, LanguageCommunityNumber, LanguageCommunity } from "../types";
+import { COMMUNITY_TO_LANGUAGE_NUMBER } from "../constants";
 
 interface CreateTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreated: (topic: Topic) => void;
+  defaultCommunity?: LanguageCommunity;
 }
 
 export default function CreateTopicModal({
   isOpen,
   onClose,
   onCreated,
+  defaultCommunity,
 }: CreateTopicModalProps) {
   const { t } = useLanguage();
   const [title, setTitle] = useState("");
@@ -31,12 +34,14 @@ export default function CreateTopicModal({
     if (isOpen) {
       setTitle("");
       setSlug("");
-      setLanguageCommunity(0);
+      setLanguageCommunity(
+        defaultCommunity ? (COMMUNITY_TO_LANGUAGE_NUMBER[defaultCommunity] ?? 0) : 0,
+      );
       setIsCheckingSlug(false);
       setIsSubmitting(false);
       setError(null);
     }
-  }, [isOpen]);
+  }, [isOpen, defaultCommunity]);
 
   if (!isOpen) return null;
 

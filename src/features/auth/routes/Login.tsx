@@ -47,7 +47,7 @@ export default function Login() {
         permissions: response.user.permissions || [],
       };
 
-      login(response.token, user);
+      login(response.token, response.refreshToken, user);
       navigate(from, { replace: true });
     } catch (error: unknown) {
       console.error("Login failed", error);

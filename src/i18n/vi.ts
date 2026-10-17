@@ -501,6 +501,8 @@ const vi = {
     newHashtagAddedHint:
       "Hashtag mới sẽ được thêm vào danh sách để chọn cho bài viết.",
     createHashtag: "Tạo hashtag",
+    topicCreatedDifferentCommunity:
+      "Hashtag mới đã được tạo thành công nhưng không thuộc cộng đồng của bài viết, nên không tự động thêm vào bài viết.",
     deleteConfirmMessage:
       "Bạn có chắc chắn muốn xóa bài viết này không? Hành động này không thể hoàn tác.",
     deleting: "Đang xóa...",
