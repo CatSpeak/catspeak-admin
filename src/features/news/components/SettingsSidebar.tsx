@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Globe, Lock, X } from "lucide-react";
-import { COMMUNITIES } from "../constants";
+import { COMMUNITIES, isTopicMatchingCommunity } from "../constants";
 import type { TagItem, Topic } from "../types";
 import { useLanguage } from "../../../stores/languageStore";
+import { useToastStore } from "../../../stores/toastStore";
 import Badge from "../../../components/ui/Badge";
 import TopicAdder from "./TopicAdder";
 import CreateTopicModal from "./CreateTopicModal";
@@ -42,6 +43,7 @@ const SettingsSidebar = ({
   isSubmitting,
 }: SettingsSidebarProps) => {
   const { t } = useLanguage();
+  const addToast = useToastStore((s) => s.addToast);
   const [isCreateTopicModalOpen, setIsCreateTopicModalOpen] = useState(false);
 
   const privacyDetails = {
@@ -54,13 +56,20 @@ const SettingsSidebar = ({
   };
 
   const handleSelectTopic = (topic: Topic) => {
+    if (!isTopicMatchingCommunity(topic.languageCommunity, community)) {
+      return;
+    }
     if (!topics.some((tp) => tp.topicId === topic.topicId)) {
       onAddTopic?.(topic);
     }
   };
 
+  const displayedTopics = topics.filter((tp) =>
+    isTopicMatchingCommunity(tp.languageCommunity, community),
+  );
+
   return (
-    <div className="w-full xl:w-[320px] 2xl:w-90 shrink-0 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
+    <div className="w-full lg:w-[300px] xl:w-[320px] 2xl:w-90 shrink-0 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-6">
       {/* Visibility / Privacy Section */}
       <div className="space-y-3">
         <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block">
@@ -146,9 +155,9 @@ const SettingsSidebar = ({
         </label>
 
         {/* Selected Topics Badges with X button */}
-        {topics.length > 0 && (
+        {displayedTopics.length > 0 && (
           <div className="flex flex-wrap items-center gap-1.5 pb-1">
-            {topics.map((tp) => (
+            {displayedTopics.map((tp) => (
               <Badge
                 key={tp.topicId}
                 type="Red"
@@ -173,6 +182,7 @@ const SettingsSidebar = ({
 
         {/* Topic Adder component */}
         <TopicAdder
+          community={community}
           selectedTopics={topics}
           onSelectTopic={handleSelectTopic}
           onOpenCreateModal={() => setIsCreateTopicModalOpen(true)}
@@ -181,9 +191,21 @@ const SettingsSidebar = ({
         {/* Modal Create Topic */}
         <CreateTopicModal
           isOpen={isCreateTopicModalOpen}
+          defaultCommunity={community}
           onClose={() => setIsCreateTopicModalOpen(false)}
           onCreated={(newTopic) => {
-            handleSelectTopic(newTopic);
+            const matches = isTopicMatchingCommunity(
+              newTopic.languageCommunity,
+              community,
+            );
+            if (matches) {
+              handleSelectTopic(newTopic);
+            } else {
+              const msg =
+                t.news?.topicCreatedDifferentCommunity ||
+                `Hashtag #${newTopic.title} đã được tạo thành công (không tự động thêm do khác cộng đồng với bài viết).`;
+              addToast("info", msg);
+            }
             setIsCreateTopicModalOpen(false);
           }}
         />

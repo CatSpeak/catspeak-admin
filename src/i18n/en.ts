@@ -496,6 +496,8 @@ const en = {
     newHashtagAddedHint:
       "New hashtag will be added to the selection list for the post.",
     createHashtag: "Create hashtag",
+    topicCreatedDifferentCommunity:
+      "New hashtag was created successfully, but it was not auto-added because it belongs to a different community.",
     deleteConfirmMessage:
       "Are you sure you want to delete this post? This action cannot be undone.",
     deleting: "Deleting...",

@@ -14,7 +14,7 @@ import CharCountInput from "./CharCountInput";
 import ThumbnailGrid from "./ThumbnailGrid";
 import PostEditor from "./PostEditor";
 import SettingsSidebar from "./SettingsSidebar";
-import { MOCK_TAGS } from "../constants";
+import { MOCK_TAGS, isTopicMatchingCommunity } from "../constants";
 import { useLanguage } from "../../../stores/languageStore";
 
 type FormMode = "create" | "edit";
@@ -60,14 +60,24 @@ export default function PostFormView({
         );
       }
       if (initialPost.topics) {
-        setSelectedTopics(initialPost.topics);
+        const postCommunity =
+          (initialPost.languageCommunity as "All" | "English" | "Chinese" | "Japanese") || "All";
+        setSelectedTopics(
+          initialPost.topics.filter((tp) =>
+            isTopicMatchingCommunity(tp.languageCommunity, postCommunity),
+          ),
+        );
       }
     }
   }, [mode, initialPost]);
 
-  const [selectedTopics, setSelectedTopics] = useState<Topic[]>(
-    initialPost?.topics || [],
-  );
+  const [selectedTopics, setSelectedTopics] = useState<Topic[]>(() => {
+    const initialCommunity =
+      (initialPost?.languageCommunity as "All" | "English" | "Chinese" | "Japanese") || "All";
+    return (initialPost?.topics || []).filter((tp) =>
+      isTopicMatchingCommunity(tp.languageCommunity, initialCommunity),
+    );
+  });
 
   const [content, setContent] = useState(initialPost?.content || "");
   const [privacy, setPrivacy] = useState<"Public" | "Private">(
@@ -79,6 +89,15 @@ export default function PostFormView({
   const [community, setCommunity] = useState<"All" | "English" | "Chinese" | "Japanese">(
     (initialPost?.languageCommunity as "All" | "English" | "Chinese" | "Japanese") || "All",
   );
+
+  const handleCommunityChange = (
+    newCommunity: "All" | "English" | "Chinese" | "Japanese",
+  ) => {
+    setCommunity(newCommunity);
+    setSelectedTopics((prev) =>
+      prev.filter((tp) => isTopicMatchingCommunity(tp.languageCommunity, newCommunity)),
+    );
+  };
 
   const [tags] = useState<TagItem[]>(MOCK_TAGS);
   const [activeTagId, setActiveTagId] = useState<number | null>(null);
@@ -200,7 +219,10 @@ export default function PostFormView({
         .map((t) => t.file)
         .filter((f): f is File => f !== undefined);
 
-      const topicIds = selectedTopics.map((t) => t.topicId);
+      const validTopics = selectedTopics.filter((t) =>
+        isTopicMatchingCommunity(t.languageCommunity, community),
+      );
+      const topicIds = validTopics.map((t) => t.topicId);
 
       if (mode === "create" && onSubmitCreate) {
         const payload = {
@@ -246,9 +268,9 @@ export default function PostFormView({
   const activeError = submitError || slugError;
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 items-start animate-slideUp">
+    <div className="flex flex-col lg:flex-row gap-6 items-start animate-slideUp">
       {/* Left Column — Editor */}
-      <div className="w-full xl:flex-1 space-y-4 p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
+      <div className="w-full lg:flex-1 min-w-0 space-y-4 p-6 lg:p-8 bg-white rounded-2xl border border-gray-100 shadow-sm">
         {/* Submit / API Error Banner */}
         {activeError && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-sm text-red-700 animate-fadeIn">
@@ -356,7 +378,7 @@ export default function PostFormView({
       </div>
 
       {/* Right Column — Settings */}
-      <div className="flex flex-col gap-4 w-full xl:w-[320px] 2xl:w-[360px] shrink-0">
+      <div className="flex flex-col gap-4 w-full lg:w-[300px] xl:w-[320px] 2xl:w-[360px] shrink-0">
         <SettingsSidebar
           mode={mode}
           privacy={privacy}
@@ -366,10 +388,13 @@ export default function PostFormView({
           onPublishDateChange={setPublishDate}
           onPublishTimeChange={setPublishTime}
           community={community}
-          onCommunityChange={setCommunity}
+          onCommunityChange={handleCommunityChange}
           topics={selectedTopics}
           onAddTopic={(topic) => {
-            if (!selectedTopics.some((t) => t.topicId === topic.topicId)) {
+            if (
+              isTopicMatchingCommunity(topic.languageCommunity, community) &&
+              !selectedTopics.some((t) => t.topicId === topic.topicId)
+            ) {
               setSelectedTopics((prev) => [...prev, topic]);
             }
           }}
