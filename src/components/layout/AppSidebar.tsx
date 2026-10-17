@@ -175,10 +175,10 @@ const AppSidebar: React.FC = () => {
         permission: "letter_reports",
       },
       {
-        name: "Báo cáo Giảng viên",
+        name: t.nav.contentModeration,
         icon: <ShieldAlert size={20} />,
-        path: "/teacher-reports",
-        permission: "users",
+        path: "/content-moderation",
+        permission: "content_moderation",
       },
     ]
 
