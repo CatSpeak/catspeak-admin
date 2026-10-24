@@ -16,6 +16,7 @@ import {
   ShieldAlert,
   Gift,
   Coins,
+  Percent,
 } from "lucide-react"
 import CatSpeakLogo from "../../assets/catspeak_logo.svg"
 import CatSpeakIcon from "../../assets/catspeak_icon.svg"
@@ -145,6 +146,12 @@ const AppSidebar: React.FC = () => {
         name: t.nav.transactionManagement || "Quản lý giao dịch",
         icon: <CreditCard size={20} />,
         path: "/payments",
+        permission: "payment_reports",
+      },
+      {
+        name: "Cấu hình phí & Hoa hồng",
+        icon: <Percent size={20} />,
+        path: "/finance/commission-fees",
         permission: "payment_reports",
       },
       {
