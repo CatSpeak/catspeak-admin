@@ -15,3 +15,14 @@ export interface BatchUpdateCommissionTiersRequest {
     commissionPercent: number;
   }[];
 }
+
+export interface TuitionFeeConfig {
+  baseFee: number;
+  perSessionFee: number;
+  updatedAt?: string | null;
+}
+
+export interface UpdateTuitionFeeConfigRequest {
+  baseFee: number;
+  perSessionFee: number;
+}

@@ -1,5 +1,10 @@
 import { axiosClient, getResponseData } from "../../../lib/axios";
-import type { CommissionTierItem, BatchUpdateCommissionTiersRequest } from "../types";
+import type {
+  CommissionTierItem,
+  BatchUpdateCommissionTiersRequest,
+  TuitionFeeConfig,
+  UpdateTuitionFeeConfigRequest,
+} from "../types";
 
 export const getCommissionTiers = async (): Promise<CommissionTierItem[]> => {
   return getResponseData(
@@ -24,5 +29,19 @@ export const updateCommissionTiers = async (
 
   return getResponseData(
     axiosClient.put<CommissionTierItem[]>("/admin/commission-tiers", payload)
+  );
+};
+
+export const getTuitionFeeConfig = async (): Promise<TuitionFeeConfig> => {
+  return getResponseData(
+    axiosClient.get<TuitionFeeConfig>("/admin/tuition-fee-config")
+  );
+};
+
+export const updateTuitionFeeConfig = async (
+  payload: UpdateTuitionFeeConfigRequest
+): Promise<TuitionFeeConfig> => {
+  return getResponseData(
+    axiosClient.put<TuitionFeeConfig>("/admin/tuition-fee-config", payload)
   );
 };
