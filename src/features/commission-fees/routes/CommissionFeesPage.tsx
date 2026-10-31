@@ -1,10 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Plus, Trash2, Save, AlertCircle, Info, RefreshCw, Coins } from "lucide-react";
+import { Plus, Trash2, Save, AlertCircle, Info, RefreshCw, Coins, Calculator } from "lucide-react";
 import { PageHeader } from "../../../components/ui/PageHeader";
 import Breadcrumb from "../../../components/ui/Breadcrumb";
 import { ConfirmModal } from "../../../components/ui/ConfirmModal";
 import { useToastStore } from "../../../stores/toastStore";
-import { getCommissionTiers, updateCommissionTiers } from "../api/commissionFeesApi";
+import {
+  getCommissionTiers,
+  updateCommissionTiers,
+  getTuitionFeeConfig,
+  updateTuitionFeeConfig,
+} from "../api/commissionFeesApi";
 import type { CommissionTierItem } from "../types";
 
 const CommissionFeesPage: React.FC = () => {
@@ -13,6 +18,46 @@ const CommissionFeesPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+
+  // Minimum tuition fee states
+  const [baseFee, setBaseFee] = useState<number>(100000);
+  const [perSessionFee, setPerSessionFee] = useState<number>(50000);
+  const [tuitionLoading, setTuitionLoading] = useState<boolean>(true);
+  const [tuitionSaving, setTuitionSaving] = useState<boolean>(false);
+
+  const fetchTuitionConfig = async () => {
+    try {
+      setTuitionLoading(true);
+      const data = await getTuitionFeeConfig();
+      if (data) {
+        setBaseFee(data.baseFee);
+        setPerSessionFee(data.perSessionFee);
+      }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Không thể tải cấu hình học phí tối thiểu.";
+      addToast("error", errorMsg);
+    } finally {
+      setTuitionLoading(false);
+    }
+  };
+
+  const handleSaveTuitionConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (baseFee < 0 || perSessionFee < 0) {
+      addToast("error", "Học phí cơ bản và phí mỗi buổi không được âm.");
+      return;
+    }
+    try {
+      setTuitionSaving(true);
+      await updateTuitionFeeConfig({ baseFee: Number(baseFee), perSessionFee: Number(perSessionFee) });
+      addToast("success", "Cập nhật cấu hình học phí tối thiểu thành công.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "Lỗi khi lưu cấu hình học phí tối thiểu.";
+      addToast("error", errorMsg);
+    } finally {
+      setTuitionSaving(false);
+    }
+  };
 
   const fetchTiers = async () => {
     try {
@@ -35,6 +80,7 @@ const CommissionFeesPage: React.FC = () => {
 
   useEffect(() => {
     fetchTiers();
+    fetchTuitionConfig();
   }, []);
 
   // Validation rules for tiers
@@ -196,6 +242,113 @@ const CommissionFeesPage: React.FC = () => {
             <li>Bậc cuối cùng luôn có MaxSlot là <strong>Vô hạn</strong> (áp dụng cho mọi lớp có số slot từ MinSlot trở lên).</li>
             <li>Nếu danh sách trống, hệ thống sẽ mặc định <strong>miễn phí 100%</strong> (0đ phí mở lớp, 0% hoa hồng).</li>
           </ul>
+        </div>
+      </div>
+
+      {/* Minimum Tuition Fee Card */}
+      <div className="bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-wrap gap-4 bg-gray-50/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+              <Calculator size={20} />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">Cấu hình mức học phí tối thiểu (Sàn học phí)</h2>
+              <p className="text-xs text-gray-500">Giới hạn mức học phí tối thiểu giáo viên được phép thiết lập khi tạo hoặc sửa lớp</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={fetchTuitionConfig}
+            disabled={tuitionLoading || tuitionSaving}
+            className="px-3.5 py-2 text-xs font-semibold rounded-xl border border-gray-200 hover:bg-gray-100 text-gray-700 transition flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw size={14} className={tuitionLoading ? "animate-spin" : ""} />
+            <span>Tải lại</span>
+          </button>
+        </div>
+
+        <div className="p-6">
+          {tuitionLoading ? (
+            <div className="py-8 text-center text-sm text-gray-500 flex flex-col items-center justify-center gap-2">
+              <RefreshCw size={20} className="animate-spin text-gray-400" />
+              <span>Đang tải cấu hình học phí...</span>
+            </div>
+          ) : (
+            <form onSubmit={handleSaveTuitionConfig} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                    Học phí cơ bản (Base Fee - VNĐ) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      step={10000}
+                      value={baseFee}
+                      onChange={(e) => setBaseFee(Math.max(0, Number(e.target.value)))}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:bg-white focus:border-[#8B0000] focus:ring-2 focus:ring-red-100 transition outline-none"
+                      required
+                    />
+                    <span className="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">VNĐ</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1.5">Mức phí nền cố định áp dụng cho mọi lớp</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
+                    Phí mỗi buổi học (Per Session Fee - VNĐ) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      step={5000}
+                      value={perSessionFee}
+                      onChange={(e) => setPerSessionFee(Math.max(0, Number(e.target.value)))}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 focus:bg-white focus:border-[#8B0000] focus:ring-2 focus:ring-red-100 transition outline-none"
+                      required
+                    />
+                    <span className="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">VNĐ / buổi</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1.5">Phí nhân theo tổng số buổi học của lớp</p>
+                </div>
+              </div>
+
+              {/* Note / Preview */}
+              <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-2xl flex items-start gap-3 text-xs text-amber-900">
+                <Info size={18} className="shrink-0 text-amber-600 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold">
+                    Công thức: Mức học phí tối thiểu = {baseFee.toLocaleString("vi-VN")} VNĐ + ({perSessionFee.toLocaleString("vi-VN")} VNĐ × Số buổi học)
+                  </p>
+                  <p className="text-amber-800">
+                    Ví dụ minh họa: Lớp học 12 buổi sẽ có mức học phí tối thiểu là{" "}
+                    <span className="font-bold underline">
+                      {(baseFee + perSessionFee * 12).toLocaleString("vi-VN")} VNĐ
+                    </span>
+                    ; lớp 24 buổi là{" "}
+                    <span className="font-bold underline">
+                      {(baseFee + perSessionFee * 24).toLocaleString("vi-VN")} VNĐ
+                    </span>
+                    .
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={tuitionSaving || tuitionLoading}
+                  className="px-5 py-2.5 text-xs font-bold rounded-xl bg-[#8B0000] hover:bg-[#a00000] text-white transition flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  <Save size={15} />
+                  <span>{tuitionSaving ? "Đang lưu..." : "Lưu cấu hình học phí"}</span>
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
 
