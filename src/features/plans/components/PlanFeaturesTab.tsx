@@ -3,6 +3,7 @@ import Card from '../../../components/ui/Card';
 import type { Plan, SubscriptionFeature } from '../../../entities/types';
 import { Search, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../../stores/languageStore';
+import CreateCustomFeatureModal from './CreateCustomFeatureModal';
 
 interface PlanFeaturesTabProps {
   plan: Plan;
@@ -21,6 +22,7 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
 }) => {
   const [search, setSearch] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const { t } = useLanguage();
 
   const safeAvailableFeatures = Array.isArray(availableFeatures) ? availableFeatures : [];
@@ -79,9 +81,20 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
       {/* Left Column: Available Features List */}
       <div className="lg:col-span-1">
         <Card>
-          <div className="mb-4">
-            <h2 className="text-lg font-bold text-gray-900">{t.plans.featuresList}</h2>
-            <p className="text-sm text-gray-500">{t.plans.selectFeaturesSub}</p>
+          <div className="flex items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">{t.plans.featuresList}</h2>
+              <p className="text-sm text-gray-500">{t.plans.selectFeaturesSub}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsCustomModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-all cursor-pointer shrink-0"
+              title="Thêm quyền lợi tùy chỉnh mới"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tùy chỉnh</span>
+            </button>
           </div>
           
           <div className="relative mb-4">
@@ -168,16 +181,23 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
                             />
                           </button>
                         ) : (
-                          <input 
-                            type="text" 
-                            defaultValue={feature.limitValue}
-                            onBlur={(e) => {
-                              if (e.target.value !== feature.limitValue) {
-                                handleLimitChange(feature, e.target.value);
-                              }
-                            }}
-                            className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                          />
+                          <div>
+                            <input 
+                              type="text" 
+                              defaultValue={feature.limitValue}
+                              onBlur={(e) => {
+                                if (e.target.value !== feature.limitValue) {
+                                  handleLimitChange(feature, e.target.value);
+                                }
+                              }}
+                              className="w-full px-2 py-1 text-sm border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                            {(feature.limitValue === "999" || feature.limitValue === "-1") && (
+                              <span className="text-[10px] text-emerald-600 font-semibold block mt-0.5">
+                                Không giới hạn
+                              </span>
+                            )}
+                          </div>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
@@ -205,6 +225,15 @@ const PlanFeaturesTab: React.FC<PlanFeaturesTabProps> = ({
           </div>
         </Card>
       </div>
+
+      {/* Modal: Create Custom Feature */}
+      <CreateCustomFeatureModal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        onAdd={onAddFeature}
+        existingCodes={(plan.subscriptionFeatures || []).map((f) => f.featureCode)}
+        existingCount={(plan.subscriptionFeatures || []).length}
+      />
 
     </div>
   );
